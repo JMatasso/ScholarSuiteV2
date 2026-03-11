@@ -27,9 +27,11 @@ import {
   PanelLeft,
   Bell,
   Search,
+  LogOut,
   type LucideIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { signOut } from "next-auth/react"
 
 interface NavItem {
   label: string
@@ -200,6 +202,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <p className="text-[11px] text-muted-foreground">Consultant</p>
               </div>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              title="Sign out"
+            >
+              <LogOut className="size-4" />
+            </Button>
           </div>
         </header>
 
