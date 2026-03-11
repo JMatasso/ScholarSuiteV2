@@ -10,7 +10,19 @@ export async function GET() {
     }
 
     const role = (session.user as { role: string }).role;
-    const where = role === "ADMIN" ? {} : { userId: session.user.id };
+
+    let where: object = { userId: session.user.id };
+    if (role === "ADMIN") {
+      where = {};
+    } else if (role === "PARENT") {
+      // Fetch linked student IDs for this parent
+      const links = await db.parentStudent.findMany({
+        where: { parentId: session.user.id },
+        select: { studentId: true },
+      });
+      const studentIds = links.map((l) => l.studentId);
+      where = { userId: { in: studentIds } };
+    }
 
     const tasks = await db.task.findMany({
       where,

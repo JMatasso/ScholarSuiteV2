@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -9,56 +9,100 @@ import {
   Globe,
   Target,
   TrendingUp,
-  BookOpen,
-  MapPin,
   Mail,
   Phone,
-  Calendar,
+  MapPin,
 } from "lucide-react";
 
-// Mock profile data
-const studentProfile = {
-  personal: {
-    firstName: "Alex",
-    lastName: "Johnson",
-    email: "alex.johnson@email.com",
-    phone: "(555) 234-5678",
-    dateOfBirth: "August 15, 2009",
-    address: "1234 Oak Street, Springfield, IL 62701",
-    gender: "Male",
-    ethnicity: "African American",
-  },
-  academic: {
-    school: "Lincoln High School",
-    grade: "11th Grade",
-    gpa: 3.7,
-    classRank: "42 / 320",
-    satScore: "1280 (Target: 1350)",
-    actScore: "Not yet taken",
-    apCourses: ["AP English Language", "AP US History", "AP Biology"],
-    honors: ["National Honor Society", "Principal's Honor Roll"],
-  },
-  background: {
-    firstGeneration: true,
-    householdIncome: "Under $60,000",
-    familySize: 4,
-    citizenship: "US Citizen",
-    languages: ["English", "Spanish"],
-  },
-  goals: {
-    careerInterests: ["Computer Science", "Engineering"],
-    collegeType: "4-Year University",
-    preferredRegion: "Midwest",
-    targetSchools: [
-      "University of Illinois",
-      "Purdue University",
-      "Northwestern University",
-    ],
-    financialAidNeeded: true,
-  },
-  journeyStage: "Active Prep",
-  profileCompletion: 78,
-};
+interface StudentProfile {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  dateOfBirth?: string;
+  gpa?: number;
+  gradeLevel?: number;
+  highSchool?: string;
+  graduationYear?: number;
+  satScore?: number;
+  actScore?: number;
+  intendedMajor?: string;
+  ethnicity?: string;
+  citizenship?: string;
+  isFirstGen?: boolean;
+  isPellEligible?: boolean;
+  hasFinancialNeed?: boolean;
+  journeyStage?: string;
+  postSecondaryPath?: string;
+  personalComplete?: boolean;
+  academicComplete?: boolean;
+  backgroundComplete?: boolean;
+  financialComplete?: boolean;
+  activitiesComplete?: boolean;
+  goalsComplete?: boolean;
+}
+
+interface Student {
+  id: string;
+  name?: string;
+  email: string;
+  studentProfile?: StudentProfile;
+  school?: { name: string };
+}
+
+function getInitials(name?: string) {
+  if (!name) return "??";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function getJourneyStageIndex(stage?: string) {
+  const stages = [
+    "EARLY_EXPLORATION",
+    "ACTIVE_PREP",
+    "APPLICATION_PHASE",
+    "POST_ACCEPTANCE",
+  ];
+  return stages.indexOf(stage ?? "") ?? 0;
+}
+
+function getJourneyStageName(stage?: string) {
+  const map: Record<string, string> = {
+    EARLY_EXPLORATION: "Early Exploration",
+    ACTIVE_PREP: "Active Prep",
+    APPLICATION_PHASE: "Application Phase",
+    POST_ACCEPTANCE: "Post Acceptance",
+  };
+  return stage ? (map[stage] ?? stage) : "Unknown";
+}
+
+function getGradeLabel(level?: number) {
+  if (!level) return "Unknown Grade";
+  const suffix = ["th", "st", "nd", "rd"];
+  const v = level % 100;
+  return `${level}${suffix[(v - 20) % 10] ?? suffix[v] ?? suffix[0]} Grade`;
+}
+
+function computeProfileCompletion(profile?: StudentProfile): number {
+  if (!profile) return 0;
+  const flags = [
+    profile.personalComplete,
+    profile.academicComplete,
+    profile.backgroundComplete,
+    profile.financialComplete,
+    profile.activitiesComplete,
+    profile.goalsComplete,
+  ];
+  const done = flags.filter(Boolean).length;
+  return Math.round((done / flags.length) * 100);
+}
 
 function ProfileSection({
   title,
@@ -82,19 +126,86 @@ function ProfileSection({
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string | React.ReactNode }) {
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-0.5 py-2">
-      <span className="text-xs text-gray-400 uppercase tracking-wider">{label}</span>
-      <span className="text-sm text-gray-700">{typeof value === "string" ? value : value}</span>
+      <span className="text-xs text-gray-400 uppercase tracking-wider">
+        {label}
+      </span>
+      <span className="text-sm text-gray-700">
+        {typeof value === "string" ? value : value}
+      </span>
     </div>
   );
 }
 
 export default function StudentProfilePage() {
-  const { profileCompletion } = studentProfile;
+  const [student, setStudent] = useState<Student | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/students")
+      .then((r) => r.json())
+      .then((d: Student[]) => {
+        const list = Array.isArray(d) ? d : [];
+        setStudent(list[0] ?? null);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-gray-400">Loading profile…</p>
+      </div>
+    );
+  }
+
+  if (!student) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-gray-400">No linked student found.</p>
+      </div>
+    );
+  }
+
+  const profile = student.studentProfile;
+  const profileCompletion = computeProfileCompletion(profile);
   const circumference = 2 * Math.PI * 40;
   const offset = circumference - (profileCompletion / 100) * circumference;
+
+  const fullName =
+    profile?.firstName && profile?.lastName
+      ? `${profile.firstName} ${profile.lastName}`
+      : student.name ?? student.email;
+
+  const schoolName =
+    student.school?.name ?? profile?.highSchool ?? "Unknown School";
+  const gradeLabel = getGradeLabel(profile?.gradeLevel);
+  const stage = getJourneyStageName(profile?.journeyStage);
+  const stageIndex = getJourneyStageIndex(profile?.journeyStage);
+  const stageLabels = [
+    "Early Exploration",
+    "Active Prep",
+    "Application Phase",
+    "Post Acceptance",
+  ];
+
+  const addressParts = [
+    profile?.address,
+    profile?.city,
+    profile?.state,
+    profile?.zipCode,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className="space-y-6">
@@ -115,20 +226,15 @@ export default function StudentProfilePage() {
           <div className="flex items-center gap-4">
             <Avatar className="size-16">
               <AvatarFallback className="bg-[#1E3A5F] text-white text-xl font-semibold">
-                AJ
+                {getInitials(student.name)}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                {studentProfile.personal.firstName}{" "}
-                {studentProfile.personal.lastName}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {studentProfile.academic.school}
-              </p>
+              <h2 className="text-lg font-semibold text-gray-900">{fullName}</h2>
+              <p className="text-sm text-gray-500">{schoolName}</p>
               <p className="text-sm text-gray-400">
-                {studentProfile.academic.grade} &middot; GPA{" "}
-                {studentProfile.academic.gpa}
+                {gradeLabel}
+                {profile?.gpa ? ` · GPA ${profile.gpa}` : ""}
               </p>
             </div>
           </div>
@@ -142,27 +248,23 @@ export default function StudentProfilePage() {
             </div>
             <div>
               <p className="text-xs text-gray-400">Journey Stage</p>
-              <p className="text-lg font-semibold text-[#1E3A5F]">
-                {studentProfile.journeyStage}
-              </p>
+              <p className="text-lg font-semibold text-[#1E3A5F]">{stage}</p>
             </div>
           </div>
           <div className="mt-3 flex gap-1">
-            {["Onboarding", "Active Prep", "Application", "Decision"].map(
-              (stage, i) => (
-                <div
-                  key={stage}
-                  className={cn(
-                    "h-1.5 flex-1 rounded-full",
-                    i <= 1 ? "bg-[#2563EB]" : "bg-gray-200"
-                  )}
-                />
-              )
-            )}
+            {stageLabels.map((s, i) => (
+              <div
+                key={s}
+                className={cn(
+                  "h-1.5 flex-1 rounded-full",
+                  i <= stageIndex ? "bg-[#2563EB]" : "bg-gray-200"
+                )}
+              />
+            ))}
           </div>
           <div className="mt-1.5 flex justify-between text-[10px] text-gray-400">
-            <span>Onboarding</span>
-            <span>Decision</span>
+            <span>Early Exploration</span>
+            <span>Post Acceptance</span>
           </div>
         </div>
 
@@ -205,63 +307,90 @@ export default function StudentProfilePage() {
         {/* Personal Info */}
         <ProfileSection title="Personal Information" icon={User}>
           <div className="grid grid-cols-2 gap-x-6">
-            <InfoRow label="Full Name" value={`${studentProfile.personal.firstName} ${studentProfile.personal.lastName}`} />
-            <InfoRow label="Date of Birth" value={studentProfile.personal.dateOfBirth} />
+            <InfoRow label="Full Name" value={fullName} />
+            <InfoRow
+              label="Date of Birth"
+              value={
+                profile?.dateOfBirth
+                  ? new Date(profile.dateOfBirth).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "—"
+              }
+            />
             <InfoRow
               label="Email"
               value={
                 <span className="flex items-center gap-1.5">
                   <Mail className="size-3 text-gray-400" />
-                  {studentProfile.personal.email}
+                  {student.email}
                 </span>
               }
             />
             <InfoRow
               label="Phone"
               value={
-                <span className="flex items-center gap-1.5">
-                  <Phone className="size-3 text-gray-400" />
-                  {studentProfile.personal.phone}
-                </span>
+                profile?.phone ? (
+                  <span className="flex items-center gap-1.5">
+                    <Phone className="size-3 text-gray-400" />
+                    {profile.phone}
+                  </span>
+                ) : (
+                  "—"
+                )
               }
             />
-            <InfoRow label="Gender" value={studentProfile.personal.gender} />
-            <InfoRow label="Ethnicity" value={studentProfile.personal.ethnicity} />
             <div className="col-span-2">
               <InfoRow
                 label="Address"
                 value={
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="size-3 text-gray-400" />
-                    {studentProfile.personal.address}
-                  </span>
+                  addressParts ? (
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="size-3 text-gray-400" />
+                      {addressParts}
+                    </span>
+                  ) : (
+                    "—"
+                  )
                 }
               />
             </div>
+            {profile?.ethnicity && (
+              <InfoRow label="Ethnicity" value={profile.ethnicity} />
+            )}
           </div>
         </ProfileSection>
 
         {/* Academic Info */}
         <ProfileSection title="Academic Information" icon={GraduationCap}>
           <div className="grid grid-cols-2 gap-x-6">
-            <InfoRow label="School" value={studentProfile.academic.school} />
-            <InfoRow label="Grade" value={studentProfile.academic.grade} />
-            <InfoRow label="GPA" value={String(studentProfile.academic.gpa)} />
-            <InfoRow label="Class Rank" value={studentProfile.academic.classRank} />
-            <InfoRow label="SAT Score" value={studentProfile.academic.satScore} />
-            <InfoRow label="ACT Score" value={studentProfile.academic.actScore} />
-            <div className="col-span-2">
-              <InfoRow
-                label="AP Courses"
-                value={studentProfile.academic.apCourses.join(", ")}
-              />
-            </div>
-            <div className="col-span-2">
-              <InfoRow
-                label="Honors & Awards"
-                value={studentProfile.academic.honors.join(", ")}
-              />
-            </div>
+            <InfoRow label="School" value={schoolName} />
+            <InfoRow label="Grade" value={gradeLabel} />
+            <InfoRow
+              label="GPA"
+              value={profile?.gpa ? String(profile.gpa) : "—"}
+            />
+            <InfoRow
+              label="Graduation Year"
+              value={
+                profile?.graduationYear ? String(profile.graduationYear) : "—"
+              }
+            />
+            <InfoRow
+              label="SAT Score"
+              value={profile?.satScore ? String(profile.satScore) : "Not taken"}
+            />
+            <InfoRow
+              label="ACT Score"
+              value={profile?.actScore ? String(profile.actScore) : "Not taken"}
+            />
+            {profile?.intendedMajor && (
+              <div className="col-span-2">
+                <InfoRow label="Intended Major" value={profile.intendedMajor} />
+              </div>
+            )}
           </div>
         </ProfileSection>
 
@@ -270,59 +399,34 @@ export default function StudentProfilePage() {
           <div className="grid grid-cols-2 gap-x-6">
             <InfoRow
               label="First Generation"
-              value={studentProfile.background.firstGeneration ? "Yes" : "No"}
-            />
-            <InfoRow label="Citizenship" value={studentProfile.background.citizenship} />
-            <InfoRow
-              label="Household Income"
-              value={studentProfile.background.householdIncome}
+              value={profile?.isFirstGen ? "Yes" : "No"}
             />
             <InfoRow
-              label="Family Size"
-              value={String(studentProfile.background.familySize)}
+              label="Citizenship"
+              value={profile?.citizenship ?? "—"}
             />
-            <div className="col-span-2">
-              <InfoRow
-                label="Languages"
-                value={studentProfile.background.languages.join(", ")}
-              />
-            </div>
+            <InfoRow
+              label="Financial Need"
+              value={profile?.hasFinancialNeed ? "Yes" : "No"}
+            />
+            <InfoRow
+              label="Pell Eligible"
+              value={profile?.isPellEligible ? "Yes" : "No"}
+            />
           </div>
         </ProfileSection>
 
         {/* Goals */}
-        <ProfileSection title="Goals & Preferences" icon={Target}>
+        <ProfileSection title="Goals &amp; Preferences" icon={Target}>
           <div className="grid grid-cols-2 gap-x-6">
             <InfoRow
-              label="Career Interests"
-              value={studentProfile.goals.careerInterests.join(", ")}
-            />
-            <InfoRow label="College Type" value={studentProfile.goals.collegeType} />
-            <InfoRow
-              label="Preferred Region"
-              value={studentProfile.goals.preferredRegion}
+              label="Path"
+              value={profile?.postSecondaryPath ?? "—"}
             />
             <InfoRow
-              label="Financial Aid Needed"
-              value={studentProfile.goals.financialAidNeeded ? "Yes" : "No"}
+              label="Intended Major"
+              value={profile?.intendedMajor ?? "—"}
             />
-            <div className="col-span-2">
-              <InfoRow
-                label="Target Schools"
-                value={
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {studentProfile.goals.targetSchools.map((school) => (
-                      <span
-                        key={school}
-                        className="inline-flex items-center rounded-md bg-[#1E3A5F]/5 px-2 py-0.5 text-xs font-medium text-[#1E3A5F] ring-1 ring-inset ring-[#1E3A5F]/10"
-                      >
-                        {school}
-                      </span>
-                    ))}
-                  </div>
-                }
-              />
-            </div>
           </div>
         </ProfileSection>
       </div>

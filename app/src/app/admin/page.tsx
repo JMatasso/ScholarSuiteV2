@@ -1,7 +1,9 @@
 "use client"
 
+import * as React from "react"
 import { StatCard } from "@/components/ui/stat-card"
 import { Users, FileText, Award, AlertTriangle, Clock } from "lucide-react"
+import { toast } from "sonner"
 import {
   LineChart,
   Line,
@@ -13,6 +15,23 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
+
+interface Student {
+  id: string
+  name?: string | null
+  email: string
+  studentProfile?: { status?: string | null } | null
+  tasks?: Array<{ status: string; dueDate?: string | null }>
+}
+
+interface AuditLog {
+  id: string
+  action: string
+  resource: string
+  details?: string | null
+  createdAt: string
+  user?: { name?: string | null; email: string } | null
+}
 
 const engagementData = [
   { month: "Sep", logins: 120, tasks: 85, essays: 30 },
@@ -32,22 +51,27 @@ const pipelineData = [
   { stage: "Awarded", count: 14 },
 ]
 
-const recentActivity = [
-  { id: 1, user: "Maya Chen", action: "submitted application for Gates Scholarship", time: "5 min ago" },
-  { id: 2, user: "Jordan Williams", action: "completed SAT prep module", time: "12 min ago" },
-  { id: 3, user: "Aisha Patel", action: "uploaded financial documents", time: "25 min ago" },
-  { id: 4, user: "Carlos Rivera", action: "scheduled consultation meeting", time: "1 hr ago" },
-  { id: 5, user: "Priya Sharma", action: "submitted essay draft for review", time: "2 hrs ago" },
-  { id: 6, user: "Ethan Kim", action: "updated profile information", time: "3 hrs ago" },
-]
-
-const atRiskStudents = [
-  { id: 1, name: "Derek Thompson", reason: "No login in 14 days", deadlines: 3 },
-  { id: 2, name: "Lisa Park", reason: "2 overdue tasks", deadlines: 2 },
-  { id: 3, name: "Marcus Johnson", reason: "Essay deadline missed", deadlines: 1 },
-]
-
 export default function AdminDashboardPage() {
+  const [students, setStudents] = React.useState<Student[]>([])
+  const [auditLogs, setAuditLogs] = React.useState<AuditLog[]>([])
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    Promise.all([
+      fetch("/api/students").then(r => r.json()),
+      fetch("/api/audit?limit=10").then(r => r.json()),
+    ])
+      .then(([studentsData, auditData]) => {
+        setStudents(Array.isArray(studentsData) ? studentsData : [])
+        setAuditLogs(Array.isArray(auditData.logs) ? auditData.logs : [])
+        setLoading(false)
+      })
+      .catch(() => { toast.error("Failed to load dashboard data"); setLoading(false) })
+  }, [])
+
+  const totalStudents = students.length
+  const atRiskStudents = students.filter(s => s.studentProfile?.status === "AT_RISK")
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -59,7 +83,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Students"
-          value={127}
+          value={loading ? "—" : totalStudents}
           icon={Users}
           trend={{ value: 8, label: "vs last month" }}
         />
@@ -76,8 +100,8 @@ export default function AdminDashboardPage() {
           trend={{ value: 23, label: "this cycle" }}
         />
         <StatCard
-          title="Tasks Overdue"
-          value={18}
+          title="At Risk Students"
+          value={loading ? "—" : atRiskStudents.length}
           icon={AlertTriangle}
           trend={{ value: -5, label: "vs last week" }}
         />
@@ -151,17 +175,21 @@ export default function AdminDashboardPage() {
         <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
           <h3 className="mb-4 text-sm font-medium text-foreground">Recent Activity</h3>
           <div className="flex flex-col gap-3">
-            {recentActivity.map((item) => (
-              <div key={item.id} className="flex items-start gap-3">
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : auditLogs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No recent activity.</p>
+            ) : auditLogs.map((log) => (
+              <div key={log.id} className="flex items-start gap-3">
                 <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1E3A5F]/10">
                   <Clock className="size-3.5 text-[#1E3A5F]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-foreground">
-                    <span className="font-medium">{item.user}</span>{" "}
-                    <span className="text-muted-foreground">{item.action}</span>
+                    <span className="font-medium">{log.user?.name || log.user?.email || "System"}</span>{" "}
+                    <span className="text-muted-foreground">{log.action.toLowerCase()} {log.resource.toLowerCase()}</span>
                   </p>
-                  <p className="text-xs text-muted-foreground">{item.time}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(log.createdAt).toLocaleString()}</p>
                 </div>
               </div>
             ))}
@@ -175,17 +203,21 @@ export default function AdminDashboardPage() {
             <h3 className="text-sm font-medium text-foreground">At-Risk Students</h3>
           </div>
           <div className="flex flex-col gap-3">
-            {atRiskStudents.map((student) => (
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : atRiskStudents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No at-risk students.</p>
+            ) : atRiskStudents.slice(0, 5).map((student) => (
               <div
                 key={student.id}
                 className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50/50 p-3"
               >
                 <div>
-                  <p className="text-sm font-medium text-foreground">{student.name}</p>
-                  <p className="text-xs text-muted-foreground">{student.reason}</p>
+                  <p className="text-sm font-medium text-foreground">{student.name || student.email}</p>
+                  <p className="text-xs text-muted-foreground">Status: At Risk</p>
                 </div>
                 <span className="inline-flex h-5 items-center rounded-full bg-amber-100 px-2 text-xs font-medium text-amber-700">
-                  {student.deadlines} deadline{student.deadlines !== 1 ? "s" : ""}
+                  At Risk
                 </span>
               </div>
             ))}

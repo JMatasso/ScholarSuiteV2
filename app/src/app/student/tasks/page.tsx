@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,165 +11,47 @@ import {
   Filter,
   ListTodo,
 } from "lucide-react"
+import { toast } from "sonner"
 
 interface Task {
-  id: number
+  id: string
   title: string
-  dueDate: string
-  dueStatus: "overdue" | "due_soon" | "upcoming" | "no_date"
-  priority: "high" | "medium" | "low"
-  track: "scholarship" | "college_prep"
-  phase: "introduction" | "phase_1" | "phase_2" | "ongoing" | "final"
-  completed: boolean
+  dueDate: string | null
+  priority: "HIGH" | "MEDIUM" | "LOW"
+  track: "SCHOLARSHIP" | "COLLEGE_PREP"
+  phase: "INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL"
+  status: "NOT_STARTED" | "IN_PROGRESS" | "DONE"
 }
-
-const tasks: Task[] = [
-  {
-    id: 1,
-    title: "Complete FAFSA application",
-    dueDate: "Mar 8, 2026",
-    dueStatus: "overdue",
-    priority: "high",
-    track: "college_prep",
-    phase: "introduction",
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "Request recommendation letter from Ms. Chen",
-    dueDate: "Mar 15, 2026",
-    dueStatus: "due_soon",
-    priority: "high",
-    track: "scholarship",
-    phase: "introduction",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Upload unofficial transcript to ScholarSuite",
-    dueDate: "Mar 12, 2026",
-    dueStatus: "due_soon",
-    priority: "medium",
-    track: "college_prep",
-    phase: "introduction",
-    completed: true,
-  },
-  {
-    id: 4,
-    title: "Finalize personal statement - Draft 4",
-    dueDate: "Mar 20, 2026",
-    dueStatus: "upcoming",
-    priority: "high",
-    track: "scholarship",
-    phase: "phase_1",
-    completed: false,
-  },
-  {
-    id: 5,
-    title: "Document 20 community service hours",
-    dueDate: "Mar 25, 2026",
-    dueStatus: "upcoming",
-    priority: "medium",
-    track: "scholarship",
-    phase: "phase_1",
-    completed: false,
-  },
-  {
-    id: 6,
-    title: "Research 5 target universities and compare financial aid",
-    dueDate: "Mar 30, 2026",
-    dueStatus: "upcoming",
-    priority: "medium",
-    track: "college_prep",
-    phase: "phase_1",
-    completed: false,
-  },
-  {
-    id: 7,
-    title: "Complete Gates Millennium application",
-    dueDate: "Apr 10, 2026",
-    dueStatus: "upcoming",
-    priority: "high",
-    track: "scholarship",
-    phase: "phase_2",
-    completed: false,
-  },
-  {
-    id: 8,
-    title: "Submit Ron Brown Scholar essay",
-    dueDate: "Mar 28, 2026",
-    dueStatus: "upcoming",
-    priority: "high",
-    track: "scholarship",
-    phase: "phase_2",
-    completed: false,
-  },
-  {
-    id: 9,
-    title: "Schedule meeting with college counselor",
-    dueDate: "Apr 5, 2026",
-    dueStatus: "upcoming",
-    priority: "low",
-    track: "college_prep",
-    phase: "phase_2",
-    completed: false,
-  },
-  {
-    id: 10,
-    title: "Update activities resume monthly",
-    dueDate: "Monthly",
-    dueStatus: "no_date",
-    priority: "low",
-    track: "college_prep",
-    phase: "ongoing",
-    completed: false,
-  },
-  {
-    id: 11,
-    title: "Check for new scholarship matches weekly",
-    dueDate: "Weekly",
-    dueStatus: "no_date",
-    priority: "medium",
-    track: "scholarship",
-    phase: "ongoing",
-    completed: false,
-  },
-  {
-    id: 12,
-    title: "Review and send all thank-you letters",
-    dueDate: "May 15, 2026",
-    dueStatus: "upcoming",
-    priority: "medium",
-    track: "scholarship",
-    phase: "final",
-    completed: false,
-  },
-  {
-    id: 13,
-    title: "Confirm enrollment deposit and financial aid package",
-    dueDate: "May 1, 2026",
-    dueStatus: "upcoming",
-    priority: "high",
-    track: "college_prep",
-    phase: "final",
-    completed: false,
-  },
-]
 
 const phaseLabels: Record<string, string> = {
-  introduction: "Introduction",
-  phase_1: "Phase 1 - Research & Preparation",
-  phase_2: "Phase 2 - Applications",
-  ongoing: "Ongoing Tasks",
-  final: "Final Steps",
+  INTRODUCTION: "Introduction",
+  PHASE_1: "Phase 1 - Research & Preparation",
+  PHASE_2: "Phase 2 - Applications",
+  ONGOING: "Ongoing Tasks",
+  FINAL: "Final Steps",
 }
 
-const phaseOrder = ["introduction", "phase_1", "phase_2", "ongoing", "final"]
+const phaseOrder = ["INTRODUCTION", "PHASE_1", "PHASE_2", "ONGOING", "FINAL"]
 
 const priorityColors: Record<string, string> = {
-  high: "bg-rose-100 text-rose-700 border-rose-200",
-  medium: "bg-amber-100 text-amber-700 border-amber-200",
-  low: "bg-gray-100 text-gray-600 border-gray-200",
+  HIGH: "bg-rose-100 text-rose-700 border-rose-200",
+  MEDIUM: "bg-amber-100 text-amber-700 border-amber-200",
+  LOW: "bg-gray-100 text-gray-600 border-gray-200",
+}
+
+const trackColors: Record<string, string> = {
+  SCHOLARSHIP: "bg-blue-50 text-blue-700 border-blue-200",
+  COLLEGE_PREP: "bg-purple-50 text-purple-700 border-purple-200",
+}
+
+function getDueDateStatus(dueDate: string | null): string {
+  if (!dueDate) return "no_date"
+  const due = new Date(dueDate)
+  const now = new Date()
+  const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays < 0) return "overdue"
+  if (diffDays <= 7) return "due_soon"
+  return "upcoming"
 }
 
 const dueDateColor: Record<string, string> = {
@@ -179,33 +61,62 @@ const dueDateColor: Record<string, string> = {
   no_date: "text-muted-foreground",
 }
 
-const trackColors: Record<string, string> = {
-  scholarship: "bg-blue-50 text-blue-700 border-blue-200",
-  college_prep: "bg-purple-50 text-purple-700 border-purple-200",
+function formatDueDate(dueDate: string | null): string {
+  if (!dueDate) return "No due date"
+  return new Date(dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 export default function TasksPage() {
-  const [taskState, setTaskState] = useState(tasks)
+  const [taskState, setTaskState] = useState<Task[]>([])
+  const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "completed">("all")
-  const [filterPriority, setFilterPriority] = useState<"all" | "high" | "medium" | "low">("all")
-  const [filterTrack, setFilterTrack] = useState<"all" | "scholarship" | "college_prep">("all")
+  const [filterPriority, setFilterPriority] = useState<"all" | "HIGH" | "MEDIUM" | "LOW">("all")
+  const [filterTrack, setFilterTrack] = useState<"all" | "SCHOLARSHIP" | "COLLEGE_PREP">("all")
 
-  const toggleTask = (id: number) => {
-    setTaskState((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    )
+  useEffect(() => {
+    fetch("/api/tasks")
+      .then((res) => res.json())
+      .then((data) => {
+        setTaskState(Array.isArray(data) ? data : [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const toggleTask = async (task: Task) => {
+    const newStatus = task.status === "DONE" ? "IN_PROGRESS" : "DONE"
+    const optimistic = taskState.map((t) => t.id === task.id ? { ...t, status: newStatus as Task["status"] } : t)
+    setTaskState(optimistic)
+
+    const res = await fetch(`/api/tasks/${task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    })
+    if (!res.ok) {
+      setTaskState(taskState)
+      toast.error("Failed to update task")
+    }
   }
 
   const filteredTasks = taskState.filter((t) => {
-    if (filterStatus === "pending" && t.completed) return false
-    if (filterStatus === "completed" && !t.completed) return false
+    if (filterStatus === "pending" && t.status === "DONE") return false
+    if (filterStatus === "completed" && t.status !== "DONE") return false
     if (filterPriority !== "all" && t.priority !== filterPriority) return false
     if (filterTrack !== "all" && t.track !== filterTrack) return false
     return true
   })
 
   const totalTasks = taskState.length
-  const completedCount = taskState.filter((t) => t.completed).length
+  const completedCount = taskState.filter((t) => t.status === "DONE").length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground">
+        <p className="text-sm">Loading tasks...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -244,27 +155,27 @@ export default function TasksPage() {
             </div>
             <div className="h-4 w-px bg-border" />
             <div className="flex gap-1.5">
-              {(["all", "high", "medium", "low"] as const).map((p) => (
+              {(["all", "HIGH", "MEDIUM", "LOW"] as const).map((p) => (
                 <Button
                   key={p}
                   variant={filterPriority === p ? "default" : "outline"}
                   size="xs"
                   onClick={() => setFilterPriority(p)}
                 >
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                  {p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()}
                 </Button>
               ))}
             </div>
             <div className="h-4 w-px bg-border" />
             <div className="flex gap-1.5">
-              {(["all", "scholarship", "college_prep"] as const).map((tr) => (
+              {(["all", "SCHOLARSHIP", "COLLEGE_PREP"] as const).map((tr) => (
                 <Button
                   key={tr}
                   variant={filterTrack === tr ? "default" : "outline"}
                   size="xs"
                   onClick={() => setFilterTrack(tr)}
                 >
-                  {tr === "college_prep" ? "College Prep" : tr.charAt(0).toUpperCase() + tr.slice(1)}
+                  {tr === "COLLEGE_PREP" ? "College Prep" : tr === "all" ? "All" : "Scholarship"}
                 </Button>
               ))}
             </div>
@@ -277,6 +188,7 @@ export default function TasksPage() {
         {phaseOrder.map((phase) => {
           const phaseTasks = filteredTasks.filter((t) => t.phase === phase)
           if (phaseTasks.length === 0) return null
+          const dueStatus = (t: Task) => getDueDateStatus(t.dueDate)
           return (
             <div key={phase}>
               <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
@@ -290,13 +202,13 @@ export default function TasksPage() {
                       className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
                     >
                       <Checkbox
-                        checked={task.completed}
-                        onCheckedChange={() => toggleTask(task.id)}
+                        checked={task.status === "DONE"}
+                        onCheckedChange={() => toggleTask(task)}
                       />
                       <div className="flex-1 min-w-0">
                         <p
                           className={`text-sm font-medium ${
-                            task.completed ? "line-through text-muted-foreground" : ""
+                            task.status === "DONE" ? "line-through text-muted-foreground" : ""
                           }`}
                         >
                           {task.title}
@@ -304,20 +216,20 @@ export default function TasksPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span
-                          className={`inline-flex items-center gap-1 text-xs ${dueDateColor[task.dueStatus]}`}
+                          className={`inline-flex items-center gap-1 text-xs ${dueDateColor[dueStatus(task)]}`}
                         >
                           <Calendar className="h-3 w-3" />
-                          {task.dueDate}
+                          {formatDueDate(task.dueDate)}
                         </span>
                         <span
                           className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${priorityColors[task.priority]}`}
                         >
-                          {task.priority}
+                          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1).toLowerCase()}
                         </span>
                         <span
                           className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${trackColors[task.track]}`}
                         >
-                          {task.track === "college_prep" ? "College Prep" : "Scholarship"}
+                          {task.track === "COLLEGE_PREP" ? "College Prep" : "Scholarship"}
                         </span>
                       </div>
                     </div>
@@ -327,6 +239,11 @@ export default function TasksPage() {
             </div>
           )
         })}
+        {filteredTasks.length === 0 && (
+          <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <p className="text-sm">No tasks match your filters.</p>
+          </div>
+        )}
       </div>
     </div>
   )

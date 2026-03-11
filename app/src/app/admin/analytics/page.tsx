@@ -4,6 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Users, Award, TrendingUp, BookOpen } from "lucide-react"
+import { toast } from "sonner"
 import {
   LineChart,
   Line,
@@ -17,9 +18,24 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts"
 
+interface Student {
+  id: string
+  role: string
+  studentProfile?: { status?: string | null } | null
+  createdAt: string
+}
+
+interface Scholarship {
+  id: string
+  amount?: number | null
+  tags?: Array<{ name: string }>
+}
+
+const PIE_COLORS = ["#1E3A5F", "#2563EB", "#7c3aed", "#059669", "#d97706"]
+
+// Static engagement data (not available from current APIs)
 const engagementData = [
   { week: "W1", active: 95, engaged: 72, dormant: 15 },
   { week: "W2", active: 102, engaged: 78, dormant: 12 },
@@ -31,34 +47,56 @@ const engagementData = [
   { week: "W8", active: 125, engaged: 100, dormant: 7 },
 ]
 
-const awardsByCategory = [
-  { category: "Merit", amount: 450000 },
-  { category: "Need-Based", amount: 380000 },
-  { category: "STEM", amount: 220000 },
-  { category: "Community", amount: 150000 },
-  { category: "Leadership", amount: 120000 },
-  { category: "Athletic", amount: 80000 },
-]
-
-const funnelData = [
-  { stage: "Identified", count: 280 },
-  { stage: "Matched", count: 195 },
-  { stage: "Drafting", count: 140 },
-  { stage: "Submitted", count: 95 },
-  { stage: "Finalist", count: 42 },
-  { stage: "Awarded", count: 28 },
-]
-
-const moduleData = [
-  { name: "SAT Prep", value: 85 },
-  { name: "Essay Writing", value: 72 },
-  { name: "Financial Literacy", value: 58 },
-  { name: "College Research", value: 90 },
-  { name: "Interview Prep", value: 45 },
-]
-const PIE_COLORS = ["#1E3A5F", "#2563EB", "#7c3aed", "#059669", "#d97706"]
-
 export default function AnalyticsPage() {
+  const [students, setStudents] = React.useState<Student[]>([])
+  const [scholarships, setScholarships] = React.useState<Scholarship[]>([])
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    Promise.all([
+      fetch("/api/students").then(r => r.json()),
+      fetch("/api/scholarships").then(r => r.json()),
+    ])
+      .then(([studentsData, scholarshipsData]) => {
+        setStudents(Array.isArray(studentsData) ? studentsData : [])
+        setScholarships(Array.isArray(scholarshipsData) ? scholarshipsData : [])
+        setLoading(false)
+      })
+      .catch(() => { toast.error("Failed to load analytics data"); setLoading(false) })
+  }, [])
+
+  const activeStudents = students.filter(s => s.studentProfile?.status === "ACTIVE").length
+  const totalScholarshipValue = scholarships.reduce((sum, s) => sum + (s.amount || 0), 0)
+
+  // Awards by category from scholarship tags
+  const tagCounts: Record<string, number> = {}
+  scholarships.forEach(s => {
+    s.tags?.forEach(tag => {
+      tagCounts[tag.name] = (tagCounts[tag.name] || 0) + (s.amount || 0)
+    })
+  })
+  const awardsByCategory = Object.entries(tagCounts)
+    .map(([category, amount]) => ({ category, amount }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 6)
+
+  // Module completion data (static - would need LearningProgress aggregation)
+  const moduleData = [
+    { name: "SAT Prep", value: 85 },
+    { name: "Essay Writing", value: 72 },
+    { name: "Financial Literacy", value: 58 },
+    { name: "College Research", value: 90 },
+    { name: "Interview Prep", value: 45 },
+  ]
+
+  // Student enrollment by month
+  const monthCounts: Record<string, number> = {}
+  students.forEach(s => {
+    const month = new Date(s.createdAt).toLocaleDateString([], { month: "short" })
+    monthCounts[month] = (monthCounts[month] || 0) + 1
+  })
+  const enrollmentData = Object.entries(monthCounts).map(([month, count]) => ({ month, count }))
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -76,10 +114,10 @@ export default function AnalyticsPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Active Students" value={127} icon={Users} trend={{ value: 8, label: "vs last month" }} />
-        <StatCard title="Awards Secured" value="$1.4M" icon={Award} trend={{ value: 23, label: "this cycle" }} />
-        <StatCard title="Avg. Engagement" value="78%" icon={TrendingUp} trend={{ value: 5, label: "vs last month" }} />
-        <StatCard title="Modules Completed" value={342} icon={BookOpen} trend={{ value: 12, label: "this month" }} />
+        <StatCard title="Total Students" value={loading ? "—" : students.length} icon={Users} trend={{ value: 8, label: "vs last month" }} />
+        <StatCard title="Active Students" value={loading ? "—" : activeStudents} icon={Award} trend={{ value: 23, label: "this cycle" }} />
+        <StatCard title="Scholarships Available" value={loading ? "—" : scholarships.length} icon={TrendingUp} trend={{ value: 5, label: "vs last month" }} />
+        <StatCard title="Total Scholarship Value" value={loading ? "—" : `$${(totalScholarshipValue / 1000).toFixed(0)}k`} icon={BookOpen} trend={{ value: 12, label: "this month" }} />
       </div>
 
       {/* Charts Grid */}
@@ -109,10 +147,10 @@ export default function AnalyticsPage() {
 
         {/* Awards by Category */}
         <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
-          <h3 className="mb-4 text-sm font-medium text-foreground">Awards by Category</h3>
+          <h3 className="mb-4 text-sm font-medium text-foreground">Scholarships by Tag Value</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={awardsByCategory}>
+              <BarChart data={awardsByCategory.length > 0 ? awardsByCategory : [{ category: "No data", amount: 0 }]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="category" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                 <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" tickFormatter={(v) => `$${v / 1000}k`} />
@@ -123,15 +161,15 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Application Funnel */}
+        {/* Student Enrollment */}
         <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
-          <h3 className="mb-4 text-sm font-medium text-foreground">Application Funnel</h3>
+          <h3 className="mb-4 text-sm font-medium text-foreground">Student Enrollment by Month</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={funnelData} layout="vertical">
+              <BarChart data={enrollmentData.length > 0 ? enrollmentData : [{ month: "No data", count: 0 }]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis type="number" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                <YAxis type="category" dataKey="stage" tick={{ fontSize: 11 }} stroke="#94a3b8" width={80} />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                 <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "12px" }} />
                 <Bar dataKey="count" fill="#1E3A5F" radius={[0, 4, 4, 0]} />
               </BarChart>

@@ -1,16 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import { Send, Paperclip, Bell, Check, CheckCheck } from "lucide-react";
 
-interface Message {
+interface ApiMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
+  sender: { id: string; name?: string; image?: string };
+  receiver: { id: string; name?: string; image?: string };
+}
+
+interface UIMessage {
   id: string;
   sender: "parent" | "consultant";
   senderName: string;
+  senderInitials: string;
   text: string;
   timestamp: string;
   read: boolean;
@@ -19,135 +32,159 @@ interface Message {
 interface Notification {
   id: string;
   title: string;
-  description: string;
-  time: string;
-  read: boolean;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
-const mockMessages: Message[] = [
-  {
-    id: "1",
-    sender: "consultant",
-    senderName: "Sarah Williams",
-    text: "Hi Maria! I wanted to update you on Alex's progress. He's been doing great with the scholarship applications this month.",
-    timestamp: "Mar 8, 10:30 AM",
-    read: true,
-  },
-  {
-    id: "2",
-    sender: "parent",
-    senderName: "Maria Johnson",
-    text: "That's wonderful to hear! We've been working on the essays together at home. Is there anything specific we should focus on next?",
-    timestamp: "Mar 8, 11:15 AM",
-    read: true,
-  },
-  {
-    id: "3",
-    sender: "consultant",
-    senderName: "Sarah Williams",
-    text: "The FAFSA deadline passed on March 1st and I noticed it hasn't been submitted yet. This is really important for financial aid eligibility. Can you help ensure Alex completes this ASAP?",
-    timestamp: "Mar 9, 9:00 AM",
-    read: true,
-  },
-  {
-    id: "4",
-    sender: "parent",
-    senderName: "Maria Johnson",
-    text: "Oh no, I didn't realize that deadline had passed. We'll get on it right away. Do you know if late submissions are still accepted?",
-    timestamp: "Mar 9, 12:30 PM",
-    read: true,
-  },
-  {
-    id: "5",
-    sender: "consultant",
-    senderName: "Sarah Williams",
-    text: "Yes, FAFSA accepts submissions year-round, but earlier is better for state and institutional aid. I'd recommend completing it this week. I can walk Alex through it during our next session if needed.",
-    timestamp: "Mar 9, 1:45 PM",
-    read: true,
-  },
-  {
-    id: "6",
-    sender: "consultant",
-    senderName: "Sarah Williams",
-    text: "Also, I wanted to let you know that Alex's Gates Scholarship essay is due March 15th. He has a solid draft but it needs some revision. Could you encourage him to work on it this weekend?",
-    timestamp: "Mar 10, 3:00 PM",
-    read: true,
-  },
-  {
-    id: "7",
-    sender: "parent",
-    senderName: "Maria Johnson",
-    text: "Absolutely, I'll make sure he sets aside time this weekend. Thank you for staying on top of everything, Sarah!",
-    timestamp: "Mar 10, 5:20 PM",
-    read: true,
-  },
-  {
-    id: "8",
-    sender: "consultant",
-    senderName: "Sarah Williams",
-    text: "Of course! One more thing - I'd like to schedule a meeting with you and Alex to discuss the college application timeline. Would next Tuesday at 4 PM work for you?",
-    timestamp: "Mar 11, 9:15 AM",
-    read: false,
-  },
-];
-
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    title: "New message from Sarah Williams",
-    description: "Would next Tuesday at 4 PM work for you?",
-    time: "9:15 AM",
-    read: false,
-  },
-  {
-    id: "2",
-    title: "Task overdue: FAFSA Application",
-    description: "Alex's FAFSA application is 10 days overdue",
-    time: "Yesterday",
-    read: false,
-  },
-  {
-    id: "3",
-    title: "Deadline reminder: Gates Scholarship Essay",
-    description: "Due in 4 days (March 15, 2026)",
-    time: "Yesterday",
-    read: true,
-  },
-  {
-    id: "4",
-    title: "Application awarded",
-    description: "First Generation College Fund - $1,000 awarded!",
-    time: "Mar 1",
-    read: true,
-  },
-  {
-    id: "5",
-    title: "Task completed by Alex",
-    description: "STEM Leaders Scholarship has been submitted",
-    time: "Mar 1",
-    read: true,
-  },
-];
+function getInitials(name?: string) {
+  if (!name) return "??";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 export default function MessagesPage() {
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [messages, setMessages] = useState<UIMessage[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [activeView, setActiveView] = useState<"chat" | "notifications">(
-    "chat"
-  );
+  const [activeView, setActiveView] = useState<"chat" | "notifications">("chat");
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [consultantInfo, setConsultantInfo] = useState<{
+    name: string;
+    initials: string;
+    id: string;
+  } | null>(null);
 
-  const handleSend = () => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/messages").then((r) => r.json()),
+      fetch("/api/notifications").then((r) => r.json()).catch(() => []),
+    ]).then(([msgs, notifs]: [ApiMessage[], Notification[]]) => {
+      const msgList = Array.isArray(msgs) ? msgs : [];
+      const notifList = Array.isArray(notifs) ? notifs : [];
+
+      // Determine current user from the messages (parent is the sender or receiver)
+      // The first message gives us context about who we are
+      let myId: string | null = null;
+      let consultant: { name: string; initials: string; id: string } | null = null;
+
+      if (msgList.length > 0) {
+        // Find which participant is ADMIN/consultant — we assume the non-parent is the consultant
+        // We identify ourselves by checking who sent and received
+        const firstMsg = msgList[0];
+        // We'll use session to determine who we are, but since we can't call auth() client-side,
+        // we infer from message patterns: the parent is the one who can be sender or receiver
+        // We fetch /api/auth/session to get our id
+        fetch("/api/auth/session")
+          .then((r) => r.json())
+          .then((session: { user?: { id: string; name?: string } }) => {
+            const uid = session?.user?.id ?? null;
+            setCurrentUserId(uid);
+
+            // Find consultant: someone in the messages who is not us
+            const otherIds = new Set<string>();
+            for (const m of msgList) {
+              if (m.senderId !== uid) otherIds.add(m.senderId);
+              if (m.receiverId !== uid) otherIds.add(m.receiverId);
+            }
+            const consultantId = otherIds.size > 0 ? [...otherIds][0] : null;
+
+            let consultantName = "Consultant";
+            if (consultantId) {
+              const ref = msgList.find(
+                (m) => m.sender.id === consultantId || m.receiver.id === consultantId
+              );
+              const person =
+                ref?.sender.id === consultantId ? ref.sender : ref?.receiver;
+              consultantName = person?.name ?? "Consultant";
+            }
+
+            if (consultantId) {
+              setConsultantInfo({
+                id: consultantId,
+                name: consultantName,
+                initials: getInitials(consultantName),
+              });
+            }
+
+            const uiMsgs: UIMessage[] = msgList.map((m) => ({
+              id: m.id,
+              sender: m.senderId === uid ? "parent" : "consultant",
+              senderName: m.sender.name ?? "Unknown",
+              senderInitials: getInitials(m.sender.name),
+              text: m.content,
+              timestamp: new Date(m.createdAt).toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+              read: m.isRead,
+            }));
+            setMessages(uiMsgs);
+            setNotifications(notifList);
+            setLoading(false);
+          })
+          .catch(() => {
+            setMessages([]);
+            setLoading(false);
+          });
+      } else {
+        // No messages yet — still try to get session
+        fetch("/api/auth/session")
+          .then((r) => r.json())
+          .then((session: { user?: { id: string } }) => {
+            setCurrentUserId(session?.user?.id ?? null);
+            setLoading(false);
+          })
+          .catch(() => setLoading(false));
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = async () => {
     if (!newMessage.trim()) return;
-    const msg: Message = {
-      id: String(Date.now()),
-      sender: "parent",
-      senderName: "Maria Johnson",
-      text: newMessage.trim(),
-      timestamp: "Just now",
-      read: true,
-    };
-    setMessages((prev) => [...prev, msg]);
-    setNewMessage("");
+    if (!consultantInfo?.id) {
+      toast.error("No consultant to send to");
+      return;
+    }
+
+    const res = await fetch("/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        receiverId: consultantInfo.id,
+        content: newMessage.trim(),
+      }),
+    });
+
+    if (res.ok) {
+      const created: ApiMessage = await res.json();
+      const newMsg: UIMessage = {
+        id: created.id,
+        sender: "parent",
+        senderName: created.sender.name ?? "You",
+        senderInitials: getInitials(created.sender.name),
+        text: created.content,
+        timestamp: "Just now",
+        read: false,
+      };
+      setMessages((prev) => [...prev, newMsg]);
+      setNewMessage("");
+    } else {
+      toast.error("Failed to send message");
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -157,7 +194,17 @@ export default function MessagesPage() {
     }
   };
 
-  const unreadNotifications = mockNotifications.filter((n) => !n.read).length;
+  const unreadNotifications = notifications.filter((n) => !n.isRead).length;
+  const consultantDisplayName = consultantInfo?.name ?? "Consultant";
+  const consultantInitials = consultantInfo?.initials ?? "??";
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-gray-400">Loading messages…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -167,7 +214,7 @@ export default function MessagesPage() {
           Messages
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Communicate with Alex&apos;s college consultant
+          Communicate with your child&apos;s college consultant
         </p>
       </div>
 
@@ -204,27 +251,33 @@ export default function MessagesPage() {
       </div>
 
       {activeView === "chat" ? (
-        <div className="flex flex-col rounded-xl bg-white ring-1 ring-gray-200/60 shadow-sm" style={{ height: "calc(100vh - 320px)", minHeight: 400 }}>
+        <div
+          className="flex flex-col rounded-xl bg-white ring-1 ring-gray-200/60 shadow-sm"
+          style={{ height: "calc(100vh - 320px)", minHeight: 400 }}
+        >
           {/* Chat header */}
           <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-3">
             <Avatar size="sm">
               <AvatarFallback className="bg-purple-100 text-purple-700 text-xs font-semibold">
-                SW
+                {consultantInitials}
               </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-medium text-gray-900">
-                Sarah Williams
+                {consultantDisplayName}
               </p>
-              <p className="text-[11px] text-gray-400">
-                College Consultant &middot; Online
-              </p>
+              <p className="text-[11px] text-gray-400">College Consultant</p>
             </div>
             <span className="ml-auto size-2 rounded-full bg-green-500" />
           </div>
 
           {/* Messages area */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            {messages.length === 0 && (
+              <p className="text-center text-sm text-gray-400 py-8">
+                No messages yet. Send a message to start the conversation.
+              </p>
+            )}
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -242,7 +295,9 @@ export default function MessagesPage() {
                         : "bg-purple-100 text-purple-700"
                     )}
                   >
-                    {msg.sender === "parent" ? "MJ" : "SW"}
+                    {msg.sender === "parent"
+                      ? getInitials(msg.senderName)
+                      : consultantInitials}
                   </AvatarFallback>
                 </Avatar>
                 <div
@@ -278,6 +333,7 @@ export default function MessagesPage() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Message input */}
@@ -306,30 +362,36 @@ export default function MessagesPage() {
       ) : (
         /* Notifications view */
         <div className="space-y-2">
-          {mockNotifications.map((notif) => (
+          {notifications.length === 0 && (
+            <div className="rounded-xl bg-white px-5 py-8 text-center ring-1 ring-gray-200/60">
+              <p className="text-sm text-gray-400">No notifications yet.</p>
+            </div>
+          )}
+          {notifications.map((notif) => (
             <div
               key={notif.id}
               className={cn(
                 "flex items-start gap-3 rounded-xl bg-white px-5 py-4 ring-1 ring-gray-200/60 shadow-sm",
-                !notif.read && "bg-blue-50/50 ring-blue-200/60"
+                !notif.isRead && "bg-blue-50/50 ring-blue-200/60"
               )}
             >
               <div
                 className={cn(
                   "mt-0.5 size-2 shrink-0 rounded-full",
-                  notif.read ? "bg-transparent" : "bg-blue-500"
+                  notif.isRead ? "bg-transparent" : "bg-blue-500"
                 )}
               />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900">
                   {notif.title}
                 </p>
-                <p className="mt-0.5 text-xs text-gray-500">
-                  {notif.description}
-                </p>
+                <p className="mt-0.5 text-xs text-gray-500">{notif.message}</p>
               </div>
               <span className="shrink-0 text-[11px] text-gray-400">
-                {notif.time}
+                {new Date(notif.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}
               </span>
             </div>
           ))}

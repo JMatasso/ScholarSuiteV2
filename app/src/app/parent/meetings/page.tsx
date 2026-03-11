@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Video,
   Calendar,
@@ -18,7 +19,26 @@ import {
 
 type MeetingStatus = "pending" | "accepted" | "declined" | "completed";
 
+interface MeetingParticipant {
+  id: string;
+  userId: string;
+  isHost: boolean;
+  hasAccepted: boolean;
+  user: { id: string; name?: string; image?: string };
+}
+
 interface Meeting {
+  id: string;
+  title: string;
+  description?: string;
+  startTime: string;
+  endTime: string;
+  meetingUrl?: string;
+  status: string;
+  participants: MeetingParticipant[];
+}
+
+interface UIMeeting {
   id: string;
   title: string;
   description: string;
@@ -31,93 +51,6 @@ interface Meeting {
   status: MeetingStatus;
   type: "video" | "in-person";
 }
-
-const initialMeetings: Meeting[] = [
-  {
-    id: "1",
-    title: "College Application Timeline Review",
-    description:
-      "Discuss the college application timeline and next steps for Alex. We'll review target schools and plan essay writing schedule.",
-    date: "Mar 17, 2026",
-    time: "4:00 PM",
-    duration: "45 min",
-    location: "Google Meet",
-    host: "Sarah Williams",
-    hostInitials: "SW",
-    status: "pending",
-    type: "video",
-  },
-  {
-    id: "2",
-    title: "Financial Aid Strategy Session",
-    description:
-      "Review FAFSA completion, discuss scholarship opportunities, and plan financial aid applications.",
-    date: "Mar 24, 2026",
-    time: "3:30 PM",
-    duration: "30 min",
-    location: "Google Meet",
-    host: "Sarah Williams",
-    hostInitials: "SW",
-    status: "pending",
-    type: "video",
-  },
-  {
-    id: "3",
-    title: "SAT Prep Progress Check",
-    description:
-      "Review Alex's SAT prep progress and discuss strategies for improvement.",
-    date: "Apr 2, 2026",
-    time: "4:00 PM",
-    duration: "30 min",
-    location: "Zoom",
-    host: "Sarah Williams",
-    hostInitials: "SW",
-    status: "pending",
-    type: "video",
-  },
-  {
-    id: "4",
-    title: "Initial Consultation",
-    description:
-      "First meeting to discuss Alex's college goals, academic background, and create an action plan.",
-    date: "Jan 15, 2026",
-    time: "3:00 PM",
-    duration: "60 min",
-    location: "Office - Suite 204",
-    host: "Sarah Williams",
-    hostInitials: "SW",
-    status: "completed",
-    type: "in-person",
-  },
-  {
-    id: "5",
-    title: "Scholarship Application Workshop",
-    description:
-      "Guided workshop on completing scholarship applications and writing effective essays.",
-    date: "Feb 10, 2026",
-    time: "4:00 PM",
-    duration: "45 min",
-    location: "Google Meet",
-    host: "Sarah Williams",
-    hostInitials: "SW",
-    status: "completed",
-    type: "video",
-  },
-  {
-    id: "6",
-    title: "Mid-Semester Progress Review",
-    description:
-      "Review Alex's progress so far, check on application statuses, and adjust plan as needed.",
-    date: "Feb 25, 2026",
-    time: "3:30 PM",
-    duration: "30 min",
-    location: "Google Meet",
-    host: "Sarah Williams",
-    hostInitials: "SW",
-    status: "completed",
-    type: "video",
-  },
-];
 
 const statusConfig: Record<
   MeetingStatus,
@@ -145,24 +78,128 @@ const statusConfig: Record<
   },
 };
 
-export default function MeetingsPage() {
-  const [meetings, setMeetings] = useState<Meeting[]>(initialMeetings);
+function getInitials(name?: string) {
+  if (!name) return "??";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
-  const handleAccept = (id: string) => {
-    setMeetings((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: "accepted" as const } : m))
-    );
-  };
+function formatDuration(start: string, end: string) {
+  const diff = (new Date(end).getTime() - new Date(start).getTime()) / 60000;
+  if (diff < 60) return `${diff} min`;
+  const h = Math.floor(diff / 60);
+  const m = diff % 60;
+  return m > 0 ? `${h}h ${m}min` : `${h}h`;
+}
 
-  const handleDecline = (id: string) => {
-    setMeetings((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: "declined" as const } : m))
-    );
-  };
-
-  const upcomingMeetings = meetings.filter(
-    (m) => m.status !== "completed"
+function toUIMeeting(m: Meeting, currentUserId?: string): UIMeeting {
+  const host = m.participants.find((p) => p.isHost);
+  const myParticipation = m.participants.find(
+    (p) => p.userId === currentUserId
   );
+
+  const isCompleted = m.status === "COMPLETED";
+  let uiStatus: MeetingStatus = "pending";
+  if (isCompleted) {
+    uiStatus = "completed";
+  } else if (myParticipation) {
+    if (myParticipation.hasAccepted) {
+      uiStatus = "accepted";
+    } else {
+      uiStatus = "pending";
+    }
+  }
+
+  const start = new Date(m.startTime);
+
+  return {
+    id: m.id,
+    title: m.title,
+    description: m.description ?? "",
+    date: start.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }),
+    time: start.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+    duration: formatDuration(m.startTime, m.endTime),
+    location: m.meetingUrl ?? "TBD",
+    host: host?.user.name ?? "Consultant",
+    hostInitials: getInitials(host?.user.name),
+    status: uiStatus,
+    type: m.meetingUrl ? "video" : "in-person",
+  };
+}
+
+export default function MeetingsPage() {
+  const [rawMeetings, setRawMeetings] = useState<Meeting[]>([]);
+  const [meetings, setMeetings] = useState<UIMeeting[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/meetings")
+      .then((r) => r.json())
+      .then((d: Meeting[]) => {
+        const list = Array.isArray(d) ? d : [];
+        setRawMeetings(list);
+        setMeetings(list.map((m) => toUIMeeting(m)));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleAccept = async (id: string) => {
+    const res = await fetch(`/api/meetings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hasAccepted: true }),
+    });
+    if (res.ok) {
+      setMeetings((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, status: "accepted" as const } : m
+        )
+      );
+      toast.success("Meeting accepted!");
+    } else {
+      toast.error("Failed to accept meeting");
+    }
+  };
+
+  const handleDecline = async (id: string) => {
+    const res = await fetch(`/api/meetings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hasAccepted: false }),
+    });
+    if (res.ok) {
+      setMeetings((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, status: "declined" as const } : m
+        )
+      );
+      toast.success("Meeting declined.");
+    } else {
+      toast.error("Failed to decline meeting");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-gray-400">Loading meetings…</p>
+      </div>
+    );
+  }
+
+  const upcomingMeetings = meetings.filter((m) => m.status !== "completed");
   const pastMeetings = meetings.filter((m) => m.status === "completed");
   const pendingCount = meetings.filter((m) => m.status === "pending").length;
 
@@ -332,40 +369,42 @@ export default function MeetingsPage() {
       </div>
 
       {/* Past meetings */}
-      <div>
-        <h2 className="text-base font-semibold text-gray-800 mb-3">
-          Past Meetings
-        </h2>
-        <div className="space-y-2">
-          {pastMeetings.map((meeting) => (
-            <div
-              key={meeting.id}
-              className="rounded-xl bg-white px-5 py-3.5 ring-1 ring-gray-200/60 shadow-sm"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Avatar size="sm">
-                    <AvatarFallback className="bg-purple-100 text-purple-700 text-xs font-semibold">
-                      {meeting.hostInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-700 truncate">
-                      {meeting.title}
-                    </p>
-                    <p className="text-[11px] text-gray-400">
-                      {meeting.date} at {meeting.time}
-                    </p>
+      {pastMeetings.length > 0 && (
+        <div>
+          <h2 className="text-base font-semibold text-gray-800 mb-3">
+            Past Meetings
+          </h2>
+          <div className="space-y-2">
+            {pastMeetings.map((meeting) => (
+              <div
+                key={meeting.id}
+                className="rounded-xl bg-white px-5 py-3.5 ring-1 ring-gray-200/60 shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar size="sm">
+                      <AvatarFallback className="bg-purple-100 text-purple-700 text-xs font-semibold">
+                        {meeting.hostInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-700 truncate">
+                        {meeting.title}
+                      </p>
+                      <p className="text-[11px] text-gray-400">
+                        {meeting.date} at {meeting.time}
+                      </p>
+                    </div>
                   </div>
+                  <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-500 ring-1 ring-inset ring-gray-200 shrink-0">
+                    Completed
+                  </span>
                 </div>
-                <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-500 ring-1 ring-inset ring-gray-200 shrink-0">
-                  Completed
-                </span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

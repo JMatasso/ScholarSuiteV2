@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -25,163 +25,47 @@ import {
   Award,
   CircleDot,
 } from "lucide-react"
+import { toast } from "sonner"
 
-interface Application {
-  id: number
-  name: string
-  provider: string
-  amount: string
-  deadline: string
-  status: "not_started" | "in_progress" | "submitted" | "awarded" | "denied"
-  progress: number
-  essay: string | null
-  notes: string
-  checklist: { label: string; done: boolean }[]
+interface ChecklistItem {
+  id: string
+  label: string
+  completed: boolean
 }
 
-const applications: Application[] = [
-  {
-    id: 1,
-    name: "Gates Millennium Scholars Program",
-    provider: "Bill & Melinda Gates Foundation",
-    amount: "$72,000",
-    deadline: "Apr 15, 2026",
-    status: "in_progress",
-    progress: 65,
-    essay: "Personal Statement - Draft 3",
-    notes: "Need to finalize community service hours documentation. Recommendation letter requested from Ms. Chen.",
-    checklist: [
-      { label: "Complete personal information", done: true },
-      { label: "Upload transcript", done: true },
-      { label: "Write personal statement", done: true },
-      { label: "Get recommendation letter", done: false },
-      { label: "Document community service", done: false },
-      { label: "Final review and submit", done: false },
-    ],
-  },
-  {
-    id: 2,
-    name: "Ron Brown Scholar Program",
-    provider: "CAP Charitable Foundation",
-    amount: "$40,000",
-    deadline: "Apr 1, 2026",
-    status: "in_progress",
-    progress: 40,
-    essay: "Leadership Essay",
-    notes: "Focus on debate team leadership and tutoring program.",
-    checklist: [
-      { label: "Personal information", done: true },
-      { label: "Academic records", done: true },
-      { label: "Leadership essay", done: false },
-      { label: "Community involvement", done: false },
-      { label: "Submit application", done: false },
-    ],
-  },
-  {
-    id: 3,
-    name: "QuestBridge National College Match",
-    provider: "QuestBridge",
-    amount: "Full Tuition",
-    deadline: "Mar 27, 2026",
-    status: "not_started",
-    progress: 0,
-    essay: null,
-    notes: "Need to start application. Check income eligibility first.",
-    checklist: [
-      { label: "Verify income eligibility", done: false },
-      { label: "Complete biographical section", done: false },
-      { label: "Write essays (2 required)", done: false },
-      { label: "Upload tax documents", done: false },
-      { label: "School report", done: false },
-    ],
-  },
-  {
-    id: 4,
-    name: "Elks National Foundation",
-    provider: "Elks National Foundation",
-    amount: "$50,000",
-    deadline: "Apr 10, 2026",
-    status: "not_started",
-    progress: 0,
-    essay: null,
-    notes: "Check state residency requirement with local lodge.",
-    checklist: [
-      { label: "Contact local Elks lodge", done: false },
-      { label: "Gather financial documents", done: false },
-      { label: "Write personal essay", done: false },
-      { label: "Get endorsement", done: false },
-    ],
-  },
-  {
-    id: 5,
-    name: "Coca-Cola Scholars Foundation",
-    provider: "Coca-Cola Company",
-    amount: "$20,000",
-    deadline: "Oct 31, 2026",
-    status: "submitted",
-    progress: 100,
-    essay: "Community Impact Essay",
-    notes: "Submitted on Feb 28. Semi-finalist notifications expected in April.",
-    checklist: [
-      { label: "Online application", done: true },
-      { label: "Community impact essay", done: true },
-      { label: "Activities list", done: true },
-      { label: "School verification", done: true },
-    ],
-  },
-  {
-    id: 6,
-    name: "Jack Kent Cooke Foundation",
-    provider: "Jack Kent Cooke Foundation",
-    amount: "$55,000",
-    deadline: "Mar 22, 2026",
-    status: "submitted",
-    progress: 100,
-    essay: "Overcoming Adversity Essay",
-    notes: "Submitted on Mar 5. Interview may be required.",
-    checklist: [
-      { label: "Application form", done: true },
-      { label: "Financial documents", done: true },
-      { label: "Essays (3)", done: true },
-      { label: "Recommendations (2)", done: true },
-    ],
-  },
-  {
-    id: 7,
-    name: "National Merit Scholarship",
-    provider: "NMSC",
-    amount: "$2,500",
-    deadline: "Feb 1, 2026",
-    status: "awarded",
-    progress: 100,
-    essay: null,
-    notes: "Awarded! $2,500 one-time scholarship. Ceremony on May 12.",
-    checklist: [
-      { label: "PSAT qualification", done: true },
-      { label: "SAT confirmation", done: true },
-      { label: "School endorsement", done: true },
-    ],
-  },
-  {
-    id: 8,
-    name: "Horatio Alger Scholarship",
-    provider: "Horatio Alger Association",
-    amount: "$25,000",
-    deadline: "Jan 15, 2026",
-    status: "denied",
-    progress: 100,
-    essay: "Resilience Essay",
-    notes: "Denied. Consider reapplying next cycle or appealing.",
-    checklist: [
-      { label: "Application", done: true },
-      { label: "Financial verification", done: true },
-      { label: "Essay", done: true },
-      { label: "Interview", done: true },
-    ],
-  },
-]
+interface Essay {
+  id: string
+  title: string
+}
 
-const columns: { key: Application["status"]; label: string; color: string; icon: React.ReactNode }[] = [
+interface Scholarship {
+  id: string
+  name: string
+  provider: string
+  amount: number | null
+  amountMax: number | null
+  deadline: string | null
+}
+
+interface Application {
+  id: string
+  scholarshipId: string
+  status: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "AWARDED" | "DENIED"
+  notes: string | null
+  scholarship: Scholarship
+  checklists: ChecklistItem[]
+  essays: Essay[]
+}
+
+const STATUS_MAP: Record<Application["status"], string> = {
+  NOT_STARTED: "not_started",
+  IN_PROGRESS: "in_progress",
+  SUBMITTED: "submitted",
+  AWARDED: "awarded",
+  DENIED: "denied",
+}
+
+const columns: { key: string; label: string; color: string; icon: React.ReactNode }[] = [
   { key: "not_started", label: "Not Started", color: "bg-gray-400", icon: <CircleDot className="h-3.5 w-3.5 text-gray-400" /> },
   { key: "in_progress", label: "In Progress", color: "bg-blue-500", icon: <Clock className="h-3.5 w-3.5 text-blue-500" /> },
   { key: "submitted", label: "Submitted", color: "bg-amber-500", icon: <FileText className="h-3.5 w-3.5 text-amber-500" /> },
@@ -189,87 +73,115 @@ const columns: { key: Application["status"]; label: string; color: string; icon:
   { key: "denied", label: "Denied", color: "bg-rose-500", icon: <XCircle className="h-3.5 w-3.5 text-rose-500" /> },
 ]
 
+function formatAmount(app: Application): string {
+  const s = app.scholarship
+  if (!s.amount) return "Varies"
+  if (s.amountMax && s.amountMax !== s.amount) {
+    return `$${s.amount.toLocaleString()} - $${s.amountMax.toLocaleString()}`
+  }
+  return `$${s.amount.toLocaleString()}`
+}
+
+function formatDeadline(deadline: string | null): string {
+  if (!deadline) return "No deadline"
+  return new Date(deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
+
+function getProgress(app: Application): number {
+  if (app.status === "NOT_STARTED") return 0
+  if (app.status === "SUBMITTED" || app.status === "AWARDED" || app.status === "DENIED") return 100
+  if (app.checklists.length === 0) return 0
+  const done = app.checklists.filter((c) => c.completed).length
+  return Math.round((done / app.checklists.length) * 100)
+}
+
 function ApplicationCard({ app }: { app: Application }) {
+  const progress = getProgress(app)
+
   return (
     <Sheet>
-      <SheetTrigger
-        className="w-full text-left"
-      >
+      <SheetTrigger className="w-full text-left">
         <div className="rounded-lg border bg-white p-3 space-y-2.5 hover:shadow-sm transition-shadow cursor-pointer">
           <div className="flex items-start gap-2">
             <GripVertical className="h-4 w-4 mt-0.5 text-muted-foreground/40 shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium leading-tight truncate">{app.name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{app.provider}</p>
+              <p className="text-sm font-medium leading-tight truncate">{app.scholarship.name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{app.scholarship.provider}</p>
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-[#1E3A5F]">{app.amount}</span>
+            <span className="font-semibold text-[#1E3A5F]">{formatAmount(app)}</span>
             <span className="text-muted-foreground flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              {app.deadline}
+              {formatDeadline(app.scholarship.deadline)}
             </span>
           </div>
-          {app.progress < 100 && app.status !== "not_started" && (
-            <Progress value={app.progress} />
+          {progress > 0 && progress < 100 && (
+            <Progress value={progress} />
           )}
         </div>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{app.name}</SheetTitle>
-          <SheetDescription>{app.provider}</SheetDescription>
+          <SheetTitle>{app.scholarship.name}</SheetTitle>
+          <SheetDescription>{app.scholarship.provider}</SheetDescription>
         </SheetHeader>
         <div className="space-y-6 px-4 pb-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-lg bg-muted/50 p-3">
               <p className="text-xs text-muted-foreground">Amount</p>
-              <p className="text-sm font-semibold text-[#1E3A5F]">{app.amount}</p>
+              <p className="text-sm font-semibold text-[#1E3A5F]">{formatAmount(app)}</p>
             </div>
             <div className="rounded-lg bg-muted/50 p-3">
               <p className="text-xs text-muted-foreground">Deadline</p>
-              <p className="text-sm font-semibold">{app.deadline}</p>
+              <p className="text-sm font-semibold">{formatDeadline(app.scholarship.deadline)}</p>
             </div>
           </div>
 
-          {app.progress > 0 && (
+          {progress > 0 && (
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-muted-foreground">Progress</p>
-                <span className="text-xs font-semibold">{app.progress}%</span>
+                <span className="text-xs font-semibold">{progress}%</span>
               </div>
-              <Progress value={app.progress} />
+              <Progress value={progress} />
             </div>
           )}
 
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-3">Checklist</p>
-            <div className="space-y-2.5">
-              {app.checklist.map((item, i) => (
-                <div key={i} className="flex items-center gap-2.5">
-                  <Checkbox checked={item.done} disabled />
-                  <span className={`text-sm ${item.done ? "line-through text-muted-foreground" : ""}`}>
-                    {item.label}
-                  </span>
+          {app.checklists.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-3">Checklist</p>
+              <div className="space-y-2.5">
+                {app.checklists.map((item) => (
+                  <div key={item.id} className="flex items-center gap-2.5">
+                    <Checkbox checked={item.completed} disabled />
+                    <span className={`text-sm ${item.completed ? "line-through text-muted-foreground" : ""}`}>
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {app.essays.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1.5">Linked Essays</p>
+              {app.essays.map((essay) => (
+                <div key={essay.id} className="flex items-center gap-2 rounded-lg border p-2.5">
+                  <FileText className="h-4 w-4 text-[#2563EB]" />
+                  <span className="text-sm">{essay.title}</span>
                 </div>
               ))}
             </div>
-          </div>
-
-          {app.essay && (
-            <div>
-              <p className="text-xs font-medium text-muted-foreground mb-1.5">Linked Essay</p>
-              <div className="flex items-center gap-2 rounded-lg border p-2.5">
-                <FileText className="h-4 w-4 text-[#2563EB]" />
-                <span className="text-sm">{app.essay}</span>
-              </div>
-            </div>
           )}
 
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1.5">Notes</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">{app.notes}</p>
-          </div>
+          {app.notes && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1.5">Notes</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{app.notes}</p>
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>
@@ -277,6 +189,27 @@ function ApplicationCard({ app }: { app: Application }) {
 }
 
 export default function ApplicationTracking() {
+  const [applications, setApplications] = useState<Application[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/applications")
+      .then((res) => res.json())
+      .then((data) => {
+        setApplications(Array.isArray(data) ? data : [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground">
+        <p className="text-sm">Loading applications...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -295,7 +228,7 @@ export default function ApplicationTracking() {
       {/* Kanban Board */}
       <div className="flex gap-4 overflow-x-auto pb-4">
         {columns.map((col) => {
-          const colApps = applications.filter((a) => a.status === col.key)
+          const colApps = applications.filter((a) => STATUS_MAP[a.status] === col.key)
           return (
             <div key={col.key} className="flex w-64 shrink-0 flex-col">
               {/* Column Header */}

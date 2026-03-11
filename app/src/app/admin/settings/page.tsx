@@ -3,12 +3,58 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 const tabs = ["General", "Email", "Security", "API"] as const
 type Tab = typeof tabs[number]
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = React.useState<Tab>("General")
+  const [settings, setSettings] = React.useState<Record<string, string>>({})
+  const [loading, setLoading] = React.useState(true)
+  const [saving, setSaving] = React.useState(false)
+
+  React.useEffect(() => {
+    fetch("/api/settings")
+      .then(res => res.json())
+      .then(d => {
+        if (d && typeof d === "object" && !d.error) {
+          setSettings(d)
+        }
+        setLoading(false)
+      })
+      .catch(() => { setLoading(false) })
+  }, [])
+
+  const get = (key: string, fallback: string = "") => settings[key] ?? fallback
+
+  const set = (key: string, value: string) => setSettings(prev => ({ ...prev, [key]: value }))
+
+  const handleSave = async (tabSettings: Record<string, string>) => {
+    setSaving(true)
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tabSettings),
+      })
+      if (!res.ok) throw new Error()
+      setSettings(prev => ({ ...prev, ...tabSettings }))
+      toast.success("Settings saved")
+    } catch {
+      toast.error("Failed to save settings")
+    }
+    setSaving(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader title="Settings" description="Configure your ScholarSuite workspace." />
+        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading settings...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,7 +87,8 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Organization Name</label>
               <input
                 type="text"
-                defaultValue="ScholarSuite Consulting"
+                value={get("orgName", "ScholarSuite Consulting")}
+                onChange={e => set("orgName", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
@@ -49,27 +96,42 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Admin Email</label>
               <input
                 type="email"
-                defaultValue="admin@scholarsuite.com"
+                value={get("adminEmail", "admin@scholarsuite.com")}
+                onChange={e => set("adminEmail", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Time Zone</label>
-              <select className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
-                <option>America/New_York (EST)</option>
-                <option>America/Chicago (CST)</option>
-                <option>America/Denver (MST)</option>
-                <option>America/Los_Angeles (PST)</option>
+              <select
+                value={get("timezone", "America/New_York")}
+                onChange={e => set("timezone", e.target.value)}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <option value="America/New_York">America/New_York (EST)</option>
+                <option value="America/Chicago">America/Chicago (CST)</option>
+                <option value="America/Denver">America/Denver (MST)</option>
+                <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Default Language</label>
-              <select className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
-                <option>English</option>
-                <option>Spanish</option>
+              <select
+                value={get("language", "English")}
+                onChange={e => set("language", e.target.value)}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <option value="English">English</option>
+                <option value="Spanish">Spanish</option>
               </select>
             </div>
-            <Button className="w-fit">Save Changes</Button>
+            <Button
+              className="w-fit"
+              disabled={saving}
+              onClick={() => handleSave({ orgName: get("orgName", "ScholarSuite Consulting"), adminEmail: get("adminEmail", "admin@scholarsuite.com"), timezone: get("timezone", "America/New_York"), language: get("language", "English") })}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
         )}
 
@@ -79,7 +141,8 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">SMTP Host</label>
               <input
                 type="text"
-                defaultValue="smtp.scholarsuite.com"
+                value={get("smtpHost", "smtp.scholarsuite.com")}
+                onChange={e => set("smtpHost", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
@@ -87,7 +150,8 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">SMTP Port</label>
               <input
                 type="text"
-                defaultValue="587"
+                value={get("smtpPort", "587")}
+                onChange={e => set("smtpPort", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
@@ -95,19 +159,38 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">From Address</label>
               <input
                 type="email"
-                defaultValue="noreply@scholarsuite.com"
+                value={get("emailFrom", "noreply@scholarsuite.com")}
+                onChange={e => set("emailFrom", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
             <div className="flex items-center gap-3">
-              <input type="checkbox" defaultChecked className="size-4 rounded border-input" id="email-notif" />
+              <input
+                type="checkbox"
+                checked={get("emailNotifications", "true") === "true"}
+                onChange={e => set("emailNotifications", String(e.target.checked))}
+                className="size-4 rounded border-input"
+                id="email-notif"
+              />
               <label htmlFor="email-notif" className="text-sm text-foreground">Send email notifications for new messages</label>
             </div>
             <div className="flex items-center gap-3">
-              <input type="checkbox" defaultChecked className="size-4 rounded border-input" id="email-digest" />
+              <input
+                type="checkbox"
+                checked={get("weeklyDigest", "true") === "true"}
+                onChange={e => set("weeklyDigest", String(e.target.checked))}
+                className="size-4 rounded border-input"
+                id="email-digest"
+              />
               <label htmlFor="email-digest" className="text-sm text-foreground">Send weekly digest to students</label>
             </div>
-            <Button className="w-fit">Save Changes</Button>
+            <Button
+              className="w-fit"
+              disabled={saving}
+              onClick={() => handleSave({ smtpHost: get("smtpHost"), smtpPort: get("smtpPort"), emailFrom: get("emailFrom"), emailNotifications: get("emailNotifications"), weeklyDigest: get("weeklyDigest") })}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
         )}
 
@@ -117,23 +200,37 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Password Minimum Length</label>
               <input
                 type="number"
-                defaultValue={8}
+                value={get("minPasswordLength", "8")}
+                onChange={e => set("minPasswordLength", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
             <div className="flex items-center gap-3">
-              <input type="checkbox" defaultChecked className="size-4 rounded border-input" id="2fa" />
+              <input
+                type="checkbox"
+                checked={get("require2faAdmins", "true") === "true"}
+                onChange={e => set("require2faAdmins", String(e.target.checked))}
+                className="size-4 rounded border-input"
+                id="2fa"
+              />
               <label htmlFor="2fa" className="text-sm text-foreground">Require two-factor authentication for admins</label>
             </div>
             <div className="flex items-center gap-3">
-              <input type="checkbox" className="size-4 rounded border-input" id="2fa-students" />
+              <input
+                type="checkbox"
+                checked={get("require2faStudents", "false") === "true"}
+                onChange={e => set("require2faStudents", String(e.target.checked))}
+                className="size-4 rounded border-input"
+                id="2fa-students"
+              />
               <label htmlFor="2fa-students" className="text-sm text-foreground">Require two-factor authentication for students</label>
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Session Timeout (minutes)</label>
               <input
                 type="number"
-                defaultValue={60}
+                value={get("sessionTimeout", "60")}
+                onChange={e => set("sessionTimeout", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
@@ -141,11 +238,19 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Allowed IP Ranges (optional)</label>
               <input
                 type="text"
+                value={get("allowedIpRanges", "")}
+                onChange={e => set("allowedIpRanges", e.target.value)}
                 placeholder="e.g., 192.168.1.0/24"
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
-            <Button className="w-fit">Save Changes</Button>
+            <Button
+              className="w-fit"
+              disabled={saving}
+              onClick={() => handleSave({ minPasswordLength: get("minPasswordLength"), require2faAdmins: get("require2faAdmins"), require2faStudents: get("require2faStudents"), sessionTimeout: get("sessionTimeout"), allowedIpRanges: get("allowedIpRanges") })}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
         )}
 
@@ -157,7 +262,7 @@ export default function SettingsPage() {
                 <input
                   type="text"
                   readOnly
-                  defaultValue="sk_live_••••••••••••••••••••••••"
+                  value={get("apiKey", "sk_live_••••••••••••••••••••••••")}
                   className="h-9 flex-1 rounded-lg border border-input bg-muted/50 px-3 text-sm font-mono outline-none"
                 />
                 <Button variant="outline" size="sm">Reveal</Button>
@@ -169,6 +274,8 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Webhook URL</label>
               <input
                 type="url"
+                value={get("webhookUrl", "")}
+                onChange={e => set("webhookUrl", e.target.value)}
                 placeholder="https://your-server.com/webhooks/scholarsuite"
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
@@ -177,11 +284,18 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Rate Limit (requests per minute)</label>
               <input
                 type="number"
-                defaultValue={100}
+                value={get("rateLimit", "100")}
+                onChange={e => set("rateLimit", e.target.value)}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
-            <Button className="w-fit">Save Changes</Button>
+            <Button
+              className="w-fit"
+              disabled={saving}
+              onClick={() => handleSave({ webhookUrl: get("webhookUrl"), rateLimit: get("rateLimit") })}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
         )}
       </div>

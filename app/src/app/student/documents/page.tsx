@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,105 +16,87 @@ import {
   AlertTriangle,
   Download,
   Trash2,
-  MoreVertical,
 } from "lucide-react"
-
-interface Document {
-  id: number
-  name: string
-  type: "pdf" | "image" | "doc" | "spreadsheet"
-  size: string
-  uploadDate: string
-  category: string
-}
+import { toast } from "sonner"
 
 interface DocumentRequest {
-  id: number
+  id: string
   title: string
-  requestedBy: string
-  dueDate: string
-  daysLeft: number
-  description: string
+  description: string | null
+  dueDate: string | null
+  status: "PENDING" | "SUBMITTED" | "REVIEWED"
 }
 
-const documents: Document[] = [
-  {
-    id: 1,
-    name: "Unofficial_Transcript_2025-2026.pdf",
-    type: "pdf",
-    size: "245 KB",
-    uploadDate: "Mar 5, 2026",
-    category: "Academic",
-  },
-  {
-    id: 2,
-    name: "FAFSA_Confirmation_2026.pdf",
-    type: "pdf",
-    size: "128 KB",
-    uploadDate: "Feb 28, 2026",
-    category: "Financial",
-  },
-  {
-    id: 3,
-    name: "Recommendation_Letter_Chen.pdf",
-    type: "pdf",
-    size: "89 KB",
-    uploadDate: "Feb 20, 2026",
-    category: "Recommendations",
-  },
-  {
-    id: 4,
-    name: "SAT_Score_Report.pdf",
-    type: "pdf",
-    size: "312 KB",
-    uploadDate: "Jan 15, 2026",
-    category: "Test Scores",
-  },
-  {
-    id: 5,
-    name: "Community_Service_Hours_Log.xlsx",
-    type: "spreadsheet",
-    size: "56 KB",
-    uploadDate: "Mar 1, 2026",
-    category: "Activities",
-  },
-]
-
-const pendingRequests: DocumentRequest[] = [
-  {
-    id: 1,
-    title: "Official High School Transcript",
-    requestedBy: "Ms. Rivera (Counselor)",
-    dueDate: "Mar 20, 2026",
-    daysLeft: 9,
-    description: "Required for Gates Millennium and Jack Kent Cooke applications.",
-  },
-  {
-    id: 2,
-    title: "2025 Tax Return (Parent/Guardian)",
-    requestedBy: "ScholarSuite System",
-    dueDate: "Mar 30, 2026",
-    daysLeft: 19,
-    description: "Needed to verify financial need for need-based scholarships.",
-  },
-]
+interface Document {
+  id: string
+  name: string
+  type: "TRANSCRIPT" | "LETTER" | "FINANCIAL" | "IDENTIFICATION" | "OTHER"
+  folder: string | null
+  fileUrl: string
+  fileSize: number | null
+  mimeType: string | null
+  createdAt: string
+  request: DocumentRequest | null
+}
 
 const typeIcons: Record<string, typeof FileText> = {
-  pdf: FileText,
-  image: Image,
-  doc: File,
-  spreadsheet: Grid3X3,
+  TRANSCRIPT: FileText,
+  LETTER: File,
+  FINANCIAL: FileText,
+  IDENTIFICATION: Image,
+  OTHER: File,
 }
 
 const typeColors: Record<string, string> = {
-  pdf: "bg-rose-50 text-rose-600 border-rose-200",
-  image: "bg-purple-50 text-purple-600 border-purple-200",
-  doc: "bg-blue-50 text-blue-600 border-blue-200",
-  spreadsheet: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  TRANSCRIPT: "bg-rose-50 text-rose-600 border-rose-200",
+  LETTER: "bg-blue-50 text-blue-600 border-blue-200",
+  FINANCIAL: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  IDENTIFICATION: "bg-purple-50 text-purple-600 border-purple-200",
+  OTHER: "bg-gray-50 text-gray-600 border-gray-200",
+}
+
+function formatFileSize(bytes: number | null): string {
+  if (!bytes) return "Unknown size"
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
+
+function getDaysLeft(dueDate: string | null): number | null {
+  if (!dueDate) return null
+  const diff = new Date(dueDate).getTime() - new Date().getTime()
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 
 export default function DocumentsPage() {
+  const [documents, setDocuments] = useState<Document[]>([])
+  const [pendingRequests, setPendingRequests] = useState<DocumentRequest[]>([])
+  const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/documents").then((r) => r.json()).catch(() => []),
+      fetch("/api/documents?type=requests").then((r) => r.json()).catch(() => []),
+    ]).then(([docsData, reqsData]) => {
+      setDocuments(Array.isArray(docsData) ? docsData : [])
+      const allReqs = Array.isArray(reqsData) ? reqsData : []
+      setPendingRequests(allReqs.filter((r: DocumentRequest) => r.status === "PENDING"))
+      setLoading(false)
+    })
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground">
+        <p className="text-sm">Loading documents...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -151,28 +133,32 @@ export default function DocumentsPage() {
             Pending Requests ({pendingRequests.length})
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {pendingRequests.map((req) => (
-              <Card key={req.id} className="border-amber-200 bg-amber-50/30">
-                <CardContent className="pt-0 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <p className="text-sm font-medium">{req.title}</p>
-                    <span className={`text-xs font-medium ${req.daysLeft <= 10 ? "text-rose-600" : "text-amber-600"}`}>
-                      {req.daysLeft} days left
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{req.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      Requested by {req.requestedBy}
-                    </span>
-                    <Button size="xs" className="gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
-                      <Upload className="h-3 w-3" />
-                      Upload
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {pendingRequests.map((req) => {
+              const daysLeft = getDaysLeft(req.dueDate)
+              return (
+                <Card key={req.id} className="border-amber-200 bg-amber-50/30">
+                  <CardContent className="pt-0 space-y-2">
+                    <div className="flex items-start justify-between">
+                      <p className="text-sm font-medium">{req.title}</p>
+                      {daysLeft !== null && (
+                        <span className={`text-xs font-medium ${daysLeft <= 10 ? "text-rose-600" : "text-amber-600"}`}>
+                          {daysLeft} days left
+                        </span>
+                      )}
+                    </div>
+                    {req.description && (
+                      <p className="text-xs text-muted-foreground">{req.description}</p>
+                    )}
+                    <div className="flex items-center justify-end">
+                      <Button size="xs" className="gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
+                        <Upload className="h-3 w-3" />
+                        Upload
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
       )}
@@ -202,10 +188,14 @@ export default function DocumentsPage() {
           Uploaded Documents ({documents.length})
         </h2>
 
-        {viewMode === "grid" ? (
+        {documents.length === 0 ? (
+          <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <p className="text-sm">No documents uploaded yet.</p>
+          </div>
+        ) : viewMode === "grid" ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {documents.map((doc) => {
-              const Icon = typeIcons[doc.type]
+              const Icon = typeIcons[doc.type] ?? File
               return (
                 <Card key={doc.id} className="hover:shadow-sm transition-shadow">
                   <CardContent className="pt-0 space-y-3">
@@ -215,18 +205,23 @@ export default function DocumentsPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{doc.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{doc.category}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{doc.folder || doc.type}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{doc.size}</span>
+                      <span>{formatFileSize(doc.fileSize)}</span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {doc.uploadDate}
+                        {formatDate(doc.createdAt)}
                       </span>
                     </div>
                     <div className="flex gap-1.5">
-                      <Button variant="outline" size="xs" className="flex-1 gap-1">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="flex-1 gap-1"
+                        onClick={() => window.open(doc.fileUrl, "_blank")}
+                      >
                         <Download className="h-3 w-3" />
                         Download
                       </Button>
@@ -243,7 +238,7 @@ export default function DocumentsPage() {
           <Card>
             <CardContent className="pt-0 divide-y">
               {documents.map((doc) => {
-                const Icon = typeIcons[doc.type]
+                const Icon = typeIcons[doc.type] ?? File
                 return (
                   <div key={doc.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${typeColors[doc.type]}`}>
@@ -253,12 +248,16 @@ export default function DocumentsPage() {
                       <p className="text-sm font-medium truncate">{doc.name}</p>
                     </div>
                     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${typeColors[doc.type]}`}>
-                      {doc.type.toUpperCase()}
+                      {doc.type}
                     </span>
-                    <span className="text-xs text-muted-foreground w-16 text-right">{doc.size}</span>
-                    <span className="text-xs text-muted-foreground w-28 text-right">{doc.uploadDate}</span>
+                    <span className="text-xs text-muted-foreground w-16 text-right">{formatFileSize(doc.fileSize)}</span>
+                    <span className="text-xs text-muted-foreground w-28 text-right">{formatDate(doc.createdAt)}</span>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon-xs">
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => window.open(doc.fileUrl, "_blank")}
+                      >
                         <Download className="h-3.5 w-3.5" />
                       </Button>
                       <Button variant="ghost" size="icon-xs" className="hover:text-rose-600">

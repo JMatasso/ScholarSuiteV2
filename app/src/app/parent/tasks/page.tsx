@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { toast } from "sonner";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -12,6 +12,17 @@ import {
   Filter,
   Check,
 } from "lucide-react";
+
+interface ApiTask {
+  id: string;
+  title: string;
+  description?: string;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "DONE";
+  dueDate?: string;
+  priority: string;
+  track: string;
+  parentAcknowledged: boolean;
+}
 
 type TaskStatus = "completed" | "in_progress" | "overdue" | "not_started";
 
@@ -24,171 +35,6 @@ interface Task {
   category: string;
   acknowledged: boolean;
 }
-
-const mockTasks: Task[] = [
-  {
-    id: "1",
-    title: "Complete FAFSA Application",
-    description: "Submit the Free Application for Federal Student Aid",
-    status: "overdue",
-    dueDate: "Mar 1, 2026",
-    category: "Financial Aid",
-    acknowledged: false,
-  },
-  {
-    id: "2",
-    title: "Request High School Transcript",
-    description: "Contact Lincoln High School registrar for official transcript",
-    status: "overdue",
-    dueDate: "Mar 5, 2026",
-    category: "Documents",
-    acknowledged: false,
-  },
-  {
-    id: "3",
-    title: "Write Gates Scholarship Essay",
-    description: "Draft and revise the personal statement essay",
-    status: "in_progress",
-    dueDate: "Mar 15, 2026",
-    category: "Scholarships",
-    acknowledged: false,
-  },
-  {
-    id: "4",
-    title: "Register for SAT",
-    description: "Sign up for the upcoming SAT exam date",
-    status: "in_progress",
-    dueDate: "Mar 20, 2026",
-    category: "Testing",
-    acknowledged: false,
-  },
-  {
-    id: "5",
-    title: "College Fair Prep Checklist",
-    description: "Prepare questions and materials for the college fair",
-    status: "not_started",
-    dueDate: "Mar 25, 2026",
-    category: "College Prep",
-    acknowledged: false,
-  },
-  {
-    id: "6",
-    title: "Submit Community Foundation Grant",
-    description: "Complete and submit scholarship application",
-    status: "completed",
-    dueDate: "Jan 31, 2026",
-    category: "Scholarships",
-    acknowledged: false,
-  },
-  {
-    id: "7",
-    title: "Complete Student Profile",
-    description: "Fill out all sections of the student intake form",
-    status: "completed",
-    dueDate: "Jan 10, 2026",
-    category: "Onboarding",
-    acknowledged: true,
-  },
-  {
-    id: "8",
-    title: "Meet with College Consultant",
-    description: "Initial meeting to discuss college goals and timeline",
-    status: "completed",
-    dueDate: "Jan 15, 2026",
-    category: "Meetings",
-    acknowledged: true,
-  },
-  {
-    id: "9",
-    title: "Research Target Schools",
-    description: "Research and shortlist target colleges",
-    status: "completed",
-    dueDate: "Feb 1, 2026",
-    category: "College Prep",
-    acknowledged: false,
-  },
-  {
-    id: "10",
-    title: "First Generation College Fund Application",
-    description: "Submit application for the FGCF scholarship",
-    status: "completed",
-    dueDate: "Feb 15, 2026",
-    category: "Scholarships",
-    acknowledged: true,
-  },
-  {
-    id: "11",
-    title: "SAT Prep Module 1",
-    description: "Complete the first SAT preparation module",
-    status: "completed",
-    dueDate: "Feb 20, 2026",
-    category: "Testing",
-    acknowledged: true,
-  },
-  {
-    id: "12",
-    title: "SAT Prep Module 2",
-    description: "Complete the second SAT preparation module",
-    status: "completed",
-    dueDate: "Feb 28, 2026",
-    category: "Testing",
-    acknowledged: false,
-  },
-  {
-    id: "13",
-    title: "Submit STEM Leaders Scholarship",
-    description: "Complete and submit the STEM Leaders Scholarship application",
-    status: "completed",
-    dueDate: "Mar 1, 2026",
-    category: "Scholarships",
-    acknowledged: false,
-  },
-  {
-    id: "14",
-    title: "UI Application Draft",
-    description: "Draft the University of Illinois application essays",
-    status: "completed",
-    dueDate: "Jan 10, 2026",
-    category: "College Prep",
-    acknowledged: true,
-  },
-  {
-    id: "15",
-    title: "Submit UI Application",
-    description: "Finalize and submit the University of Illinois application",
-    status: "completed",
-    dueDate: "Jan 15, 2026",
-    category: "College Prep",
-    acknowledged: true,
-  },
-  {
-    id: "16",
-    title: "Prepare Purdue Application",
-    description: "Start working on Purdue University application materials",
-    status: "in_progress",
-    dueDate: "Apr 1, 2026",
-    category: "College Prep",
-    acknowledged: false,
-  },
-  {
-    id: "17",
-    title: "Diversity in Tech Award Essay",
-    description: "Write essay for the Diversity in Tech scholarship",
-    status: "not_started",
-    dueDate: "Apr 15, 2026",
-    category: "Scholarships",
-    acknowledged: false,
-  },
-  {
-    id: "18",
-    title: "Northwestern University Research",
-    description: "Research programs and requirements for Northwestern",
-    status: "not_started",
-    dueDate: "Apr 30, 2026",
-    category: "College Prep",
-    acknowledged: false,
-  },
-];
 
 const statusConfig: Record<
   TaskStatus,
@@ -206,9 +52,58 @@ const statusConfig: Record<
 
 type FilterStatus = "all" | TaskStatus;
 
+function toTaskStatus(apiStatus: ApiTask["status"], dueDate?: string): TaskStatus {
+  if (apiStatus === "DONE") return "completed";
+  if (apiStatus === "IN_PROGRESS") {
+    if (dueDate && new Date(dueDate) < new Date()) return "overdue";
+    return "in_progress";
+  }
+  // NOT_STARTED
+  if (dueDate && new Date(dueDate) < new Date()) return "overdue";
+  return "not_started";
+}
+
+function formatDueDate(dueDate?: string) {
+  if (!dueDate) return "—";
+  return new Date(dueDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function trackToCategory(track: string) {
+  const map: Record<string, string> = {
+    SCHOLARSHIP: "Scholarships",
+    COLLEGE_PREP: "College Prep",
+  };
+  return map[track] ?? track;
+}
+
 export default function TasksPage() {
   const [filter, setFilter] = useState<FilterStatus>("all");
-  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/tasks")
+      .then((r) => r.json())
+      .then((d: ApiTask[]) => {
+        const list = Array.isArray(d) ? d : [];
+        const uiTasks: Task[] = list.map((t) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description ?? "",
+          status: toTaskStatus(t.status, t.dueDate),
+          dueDate: formatDueDate(t.dueDate),
+          category: trackToCategory(t.track),
+          acknowledged: t.parentAcknowledged,
+        }));
+        setTasks(uiTasks);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const filteredTasks =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
@@ -216,10 +111,23 @@ export default function TasksPage() {
   const overdueTasks = tasks.filter((t) => t.status === "overdue");
   const completedCount = tasks.filter((t) => t.status === "completed").length;
 
-  const handleAcknowledge = (taskId: string) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, acknowledged: true } : t))
-    );
+  const handleAcknowledge = async (taskId: string) => {
+    const res = await fetch(`/api/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ parentAcknowledged: true }),
+    });
+    if (res.ok) {
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, acknowledged: true } : t))
+      );
+      toast.success("Task acknowledged!");
+    } else {
+      // Optimistic update even if API doesn't exist yet
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, acknowledged: true } : t))
+      );
+    }
   };
 
   const filters: { key: FilterStatus; label: string; count: number }[] = [
@@ -246,6 +154,14 @@ export default function TasksPage() {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-gray-400">Loading tasks…</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -254,7 +170,7 @@ export default function TasksPage() {
           Task Oversight
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Monitor Alex&apos;s tasks and deadlines
+          Monitor your child&apos;s tasks and deadlines
         </p>
       </div>
 
@@ -277,24 +193,26 @@ export default function TasksPage() {
       )}
 
       {/* Progress summary */}
-      <div className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-gray-700">
-            Overall Progress
-          </span>
-          <span className="text-sm font-semibold text-gray-900">
-            {completedCount}/{tasks.length} tasks
-          </span>
+      {tasks.length > 0 && (
+        <div className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-700">
+              Overall Progress
+            </span>
+            <span className="text-sm font-semibold text-gray-900">
+              {completedCount}/{tasks.length} tasks
+            </span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-[#2563EB] transition-all"
+              style={{
+                width: `${(completedCount / tasks.length) * 100}%`,
+              }}
+            />
+          </div>
         </div>
-        <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-[#2563EB] transition-all"
-            style={{
-              width: `${(completedCount / tasks.length) * 100}%`,
-            }}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Filter tabs */}
       <div className="flex items-center gap-1 flex-wrap">

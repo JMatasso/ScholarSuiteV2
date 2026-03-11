@@ -7,9 +7,20 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Plus, Megaphone, Send, Paperclip } from "lucide-react"
+import { toast } from "sonner"
+
+interface Message {
+  id: string
+  content: string
+  createdAt: string
+  senderId: string
+  receiverId: string
+  sender: { id: string; name?: string | null; image?: string | null }
+  receiver: { id: string; name?: string | null; image?: string | null }
+}
 
 interface Conversation {
-  id: string
+  userId: string
   name: string
   initials: string
   lastMessage: string
@@ -18,30 +29,86 @@ interface Conversation {
   role: string
 }
 
-const conversations: Conversation[] = [
-  { id: "1", name: "Maya Chen", initials: "MC", lastMessage: "Thank you for the essay feedback!", time: "2 min ago", unread: true, role: "Student" },
-  { id: "2", name: "Wei Chen", initials: "WC", lastMessage: "When is the next parent meeting?", time: "15 min ago", unread: true, role: "Parent" },
-  { id: "3", name: "Jordan Williams", initials: "JW", lastMessage: "I completed the SAT prep module", time: "1 hr ago", unread: false, role: "Student" },
-  { id: "4", name: "Aisha Patel", initials: "AP", lastMessage: "Can we reschedule our call?", time: "2 hrs ago", unread: false, role: "Student" },
-  { id: "5", name: "Carlos Rivera", initials: "CR", lastMessage: "I need help with my FAFSA form", time: "3 hrs ago", unread: false, role: "Student" },
-  { id: "6", name: "Priya Sharma", initials: "PS", lastMessage: "Here is my updated resume", time: "5 hrs ago", unread: false, role: "Student" },
-  { id: "7", name: "Raj Sharma", initials: "RS", lastMessage: "Thanks for the progress update", time: "1 day ago", unread: false, role: "Parent" },
-  { id: "8", name: "Lisa Park", initials: "LP", lastMessage: "Do I qualify for the Dell scholarship?", time: "1 day ago", unread: false, role: "Student" },
-]
-
-const chatMessages = [
-  { id: 1, sender: "Maya Chen", content: "Hi! I just finished my first draft of the Gates essay. Could you take a look when you get a chance?", time: "10:30 AM", isOwn: false },
-  { id: 2, sender: "You", content: "Great work, Maya! I'll review it this afternoon and leave comments. In the meantime, double-check your word count - the limit is 500 words.", time: "10:45 AM", isOwn: true },
-  { id: 3, sender: "Maya Chen", content: "Will do! I think I'm at around 520 right now, so I'll trim it down.", time: "10:48 AM", isOwn: false },
-  { id: 4, sender: "You", content: "Perfect. Also, make sure to tie your community service experience to the scholarship's mission. That's a strong connection in your story.", time: "11:02 AM", isOwn: true },
-  { id: 5, sender: "Maya Chen", content: "Thank you for the essay feedback!", time: "11:15 AM", isOwn: false },
-]
-
 export default function MessagesPage() {
+  const [messages, setMessages] = React.useState<Message[]>([])
   const [search, setSearch] = React.useState("")
-  const [selectedId, setSelectedId] = React.useState("1")
+  const [selectedUserId, setSelectedUserId] = React.useState<string | null>(null)
+  const [newMessage, setNewMessage] = React.useState("")
+  const [loading, setLoading] = React.useState(true)
+  const [currentUserId, setCurrentUserId] = React.useState<string>("")
 
-  const selected = conversations.find((c) => c.id === selectedId)
+  const loadMessages = React.useCallback(() => {
+    fetch("/api/messages")
+      .then(res => res.json())
+      .then(d => {
+        const msgs = Array.isArray(d) ? d : []
+        setMessages(msgs)
+        if (msgs.length > 0 && !currentUserId) {
+          const myId = msgs[0].senderId
+          setCurrentUserId(myId)
+        }
+        setLoading(false)
+      })
+      .catch(() => { toast.error("Failed to load messages"); setLoading(false) })
+  }, [currentUserId])
+
+  React.useEffect(() => { loadMessages() }, [loadMessages])
+
+  // Build conversation list from messages
+  const conversations: Conversation[] = React.useMemo(() => {
+    const map = new Map<string, Conversation>()
+    messages.forEach(msg => {
+      const otherId = msg.senderId === currentUserId ? msg.receiverId : msg.senderId
+      const other = msg.senderId === currentUserId ? msg.receiver : msg.sender
+      const name = other.name || other.id
+      const initials = name.substring(0, 2).toUpperCase()
+      const existing = map.get(otherId)
+      if (!existing || new Date(msg.createdAt) > new Date(existing.time)) {
+        map.set(otherId, {
+          userId: otherId,
+          name,
+          initials,
+          lastMessage: msg.content,
+          time: new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          unread: !msg.senderId !== !currentUserId,
+          role: "User",
+        })
+      }
+    })
+    return Array.from(map.values())
+  }, [messages, currentUserId])
+
+  const chatMessages = React.useMemo(() => {
+    if (!selectedUserId) return []
+    return messages.filter(
+      msg =>
+        (msg.senderId === currentUserId && msg.receiverId === selectedUserId) ||
+        (msg.senderId === selectedUserId && msg.receiverId === currentUserId)
+    ).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+  }, [messages, selectedUserId, currentUserId])
+
+  const selected = conversations.find(c => c.userId === selectedUserId) || (conversations.length > 0 ? conversations[0] : null)
+  const activeUserId = selectedUserId || (conversations[0]?.userId ?? null)
+
+  const handleSend = async () => {
+    if (!newMessage.trim() || !activeUserId) return
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receiverId: activeUserId, content: newMessage }),
+      })
+      if (!res.ok) throw new Error()
+      setNewMessage("")
+      loadMessages()
+    } catch {
+      toast.error("Failed to send message")
+    }
+  }
+
+  const filteredConversations = conversations.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -72,13 +139,17 @@ export default function MessagesPage() {
             />
           </div>
           <div className="flex-1 overflow-y-auto">
-            {conversations.map((convo) => (
+            {loading ? (
+              <p className="p-4 text-sm text-muted-foreground">Loading...</p>
+            ) : filteredConversations.length === 0 ? (
+              <p className="p-4 text-sm text-muted-foreground">No conversations yet.</p>
+            ) : filteredConversations.map((convo) => (
               <button
-                key={convo.id}
-                onClick={() => setSelectedId(convo.id)}
+                key={convo.userId}
+                onClick={() => setSelectedUserId(convo.userId)}
                 className={cn(
                   "flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-muted/50",
-                  selectedId === convo.id && "bg-[#1E3A5F]/5"
+                  activeUserId === convo.userId && "bg-[#1E3A5F]/5"
                 )}
               >
                 <Avatar size="sm">
@@ -109,30 +180,33 @@ export default function MessagesPage() {
           {/* Chat Header */}
           <div className="flex items-center gap-3 border-b border-border p-4">
             <Avatar size="sm">
-              <AvatarFallback>{selected?.initials}</AvatarFallback>
+              <AvatarFallback>{selected?.initials ?? "?"}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium text-foreground">{selected?.name}</p>
-              <p className="text-xs text-muted-foreground">{selected?.role}</p>
+              <p className="text-sm font-medium text-foreground">{selected?.name ?? "Select a conversation"}</p>
+              <p className="text-xs text-muted-foreground">{selected?.role ?? ""}</p>
             </div>
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4">
             <div className="flex flex-col gap-4">
-              {chatMessages.map((msg) => (
-                <div key={msg.id} className={cn("flex flex-col max-w-[70%]", msg.isOwn ? "self-end items-end" : "self-start items-start")}>
-                  <div className={cn(
-                    "rounded-xl px-4 py-2.5 text-sm",
-                    msg.isOwn
-                      ? "bg-[#1E3A5F] text-white"
-                      : "bg-muted text-foreground"
-                  )}>
-                    {msg.content}
+              {chatMessages.map((msg) => {
+                const isOwn = msg.senderId === currentUserId
+                return (
+                  <div key={msg.id} className={cn("flex flex-col max-w-[70%]", isOwn ? "self-end items-end" : "self-start items-start")}>
+                    <div className={cn(
+                      "rounded-xl px-4 py-2.5 text-sm",
+                      isOwn ? "bg-[#1E3A5F] text-white" : "bg-muted text-foreground"
+                    )}>
+                      {msg.content}
+                    </div>
+                    <span className="mt-1 text-[11px] text-muted-foreground">
+                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
                   </div>
-                  <span className="mt-1 text-[11px] text-muted-foreground">{msg.time}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 
@@ -142,10 +216,13 @@ export default function MessagesPage() {
               <Button variant="ghost" size="icon"><Paperclip className="size-4" /></Button>
               <input
                 type="text"
+                value={newMessage}
+                onChange={e => setNewMessage(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                 placeholder="Type a message..."
                 className="flex-1 h-9 rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
-              <Button size="icon"><Send className="size-4" /></Button>
+              <Button size="icon" onClick={handleSend}><Send className="size-4" /></Button>
             </div>
           </div>
         </div>

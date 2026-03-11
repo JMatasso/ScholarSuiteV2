@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -13,115 +13,58 @@ import {
 } from "@/components/ui/table";
 import { DollarSign, FileText, GraduationCap, Trophy } from "lucide-react";
 
-// Mock data
-const scholarshipApplications = [
-  {
-    id: "1",
-    name: "Gates Millennium Scholarship",
-    status: "SUBMITTED" as const,
-    amount: "$10,000",
-    deadline: "Mar 15, 2026",
-    submittedDate: "Feb 28, 2026",
-  },
-  {
-    id: "2",
-    name: "National Merit Scholarship",
-    status: "IN_PROGRESS" as const,
-    amount: "$2,500",
-    deadline: "Apr 1, 2026",
-    submittedDate: null,
-  },
-  {
-    id: "3",
-    name: "Local Community Foundation Grant",
-    status: "AWARDED" as const,
-    amount: "$1,500",
-    deadline: "Jan 31, 2026",
-    submittedDate: "Jan 15, 2026",
-  },
-  {
-    id: "4",
-    name: "STEM Leaders Scholarship",
-    status: "SUBMITTED" as const,
-    amount: "$5,000",
-    deadline: "Mar 30, 2026",
-    submittedDate: "Mar 1, 2026",
-  },
-  {
-    id: "5",
-    name: "First Generation College Fund",
-    status: "AWARDED" as const,
-    amount: "$1,000",
-    deadline: "Feb 15, 2026",
-    submittedDate: "Jan 20, 2026",
-  },
-  {
-    id: "6",
-    name: "Springfield Excellence Award",
-    status: "DENIED" as const,
-    amount: "$3,000",
-    deadline: "Feb 1, 2026",
-    submittedDate: "Jan 10, 2026",
-  },
-  {
-    id: "7",
-    name: "Future Engineers Scholarship",
-    status: "NOT_STARTED" as const,
-    amount: "$2,000",
-    deadline: "May 1, 2026",
-    submittedDate: null,
-  },
-  {
-    id: "8",
-    name: "Diversity in Tech Award",
-    status: "IN_PROGRESS" as const,
-    amount: "$4,000",
-    deadline: "Apr 15, 2026",
-    submittedDate: null,
-  },
-];
+interface Scholarship {
+  name: string;
+  amount?: number;
+  deadline?: string;
+}
 
-const collegeApplications = [
-  {
-    id: "1",
-    school: "University of Illinois",
-    type: "Public",
-    status: "SUBMITTED" as const,
-    deadline: "Jan 15, 2026",
-  },
-  {
-    id: "2",
-    school: "Purdue University",
-    type: "Public",
-    status: "IN_PROGRESS" as const,
-    deadline: "Feb 1, 2026",
-  },
-  {
-    id: "3",
-    school: "Northwestern University",
-    type: "Private",
-    status: "NOT_STARTED" as const,
-    deadline: "Jan 1, 2026",
-  },
-];
-
-const awards = [
-  { name: "Local Community Foundation Grant", amount: 1500, date: "Feb 10, 2026" },
-  { name: "First Generation College Fund", amount: 1000, date: "Mar 1, 2026" },
-];
-
-const totalAwarded = awards.reduce((sum, a) => sum + a.amount, 0);
+interface ScholarshipApplication {
+  id: string;
+  status: string;
+  scholarship?: Scholarship;
+  amountAwarded?: number;
+  updatedAt?: string;
+  createdAt?: string;
+}
 
 type Tab = "scholarships" | "colleges" | "awards";
 
 export default function ApplicationsPage() {
+  const [applications, setApplications] = useState<ScholarshipApplication[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("scholarships");
+
+  useEffect(() => {
+    fetch("/api/applications")
+      .then((r) => r.json())
+      .then((d) => {
+        setApplications(Array.isArray(d) ? d : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const scholarshipApplications = applications;
+  const awards = applications.filter((a) => a.status === "AWARDED");
+  const totalAwarded = awards.reduce(
+    (sum, a) => sum + (a.amountAwarded ?? a.scholarship?.amount ?? 0),
+    0
+  );
 
   const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
     { key: "scholarships", label: "Scholarships", icon: FileText },
     { key: "colleges", label: "Colleges", icon: GraduationCap },
     { key: "awards", label: "Awards", icon: Trophy },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-gray-400">Loading applications…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -131,7 +74,7 @@ export default function ApplicationsPage() {
           Application Tracking
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          View Alex&apos;s scholarship and college application status
+          View your child&apos;s scholarship and college application status
         </p>
       </div>
 
@@ -144,7 +87,7 @@ export default function ApplicationsPage() {
           <div>
             <p className="text-xs text-gray-400">Total Applications</p>
             <p className="text-xl font-bold text-gray-900">
-              {scholarshipApplications.length + collegeApplications.length}
+              {scholarshipApplications.length}
             </p>
           </div>
         </div>
@@ -200,59 +143,50 @@ export default function ApplicationsPage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Deadline</TableHead>
-                  <TableHead>Submitted</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {scholarshipApplications.map((app) => (
-                  <TableRow key={app.id}>
-                    <TableCell className="font-medium text-gray-900">
-                      {app.name}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={app.status} />
-                    </TableCell>
-                    <TableCell className="text-gray-700">{app.amount}</TableCell>
-                    <TableCell className="text-gray-500">{app.deadline}</TableCell>
-                    <TableCell className="text-gray-500">
-                      {app.submittedDate || "--"}
+                {scholarshipApplications.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-gray-400 py-8">
+                      No applications found.
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  scholarshipApplications.map((app) => (
+                    <TableRow key={app.id}>
+                      <TableCell className="font-medium text-gray-900">
+                        {app.scholarship?.name ?? "—"}
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={app.status as "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "AWARDED" | "DENIED"} />
+                      </TableCell>
+                      <TableCell className="text-gray-700">
+                        {app.scholarship?.amount
+                          ? `$${app.scholarship.amount.toLocaleString()}`
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-gray-500">
+                        {app.scholarship?.deadline
+                          ? new Date(app.scholarship.deadline).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           )}
 
           {/* Colleges tab */}
           {activeTab === "colleges" && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>School Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Deadline</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {collegeApplications.map((app) => (
-                  <TableRow key={app.id}>
-                    <TableCell className="font-medium text-gray-900">
-                      {app.school}
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200">
-                        {app.type}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={app.status} />
-                    </TableCell>
-                    <TableCell className="text-gray-500">{app.deadline}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="py-8 text-center text-sm text-gray-400">
+              College application tracking coming soon.
+            </div>
           )}
 
           {/* Awards tab */}
@@ -269,23 +203,37 @@ export default function ApplicationsPage() {
                   <TableRow>
                     <TableHead>Award Name</TableHead>
                     <TableHead>Amount</TableHead>
-                    <TableHead>Date Awarded</TableHead>
+                    <TableHead>Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {awards.map((award, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium text-gray-900">
-                        {award.name}
-                      </TableCell>
-                      <TableCell className="font-semibold text-green-600">
-                        ${award.amount.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-gray-500">
-                        {award.date}
+                  {awards.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center text-gray-400 py-8">
+                        No awards yet.
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    awards.map((award) => (
+                      <TableRow key={award.id}>
+                        <TableCell className="font-medium text-gray-900">
+                          {award.scholarship?.name ?? "—"}
+                        </TableCell>
+                        <TableCell className="font-semibold text-green-600">
+                          ${(award.amountAwarded ?? award.scholarship?.amount ?? 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-gray-500">
+                          {award.updatedAt
+                            ? new Date(award.updatedAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>

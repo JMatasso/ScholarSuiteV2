@@ -90,11 +90,20 @@ export default function OnboardingPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-      toast.success("Profile completed! Welcome to ScholarSuite.");
-      window.location.href = "/student";
+      const res = await fetch("/api/students/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        toast.success("Profile completed! Welcome to ScholarSuite.");
+        window.location.href = "/student";
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || "Something went wrong. Please try again.");
+      }
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

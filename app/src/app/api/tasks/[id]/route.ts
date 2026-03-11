@@ -1,0 +1,85 @@
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const data = await req.json();
+    const role = (session.user as { role: string }).role;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateData: Record<string, any> = {};
+
+    // Parents can only set parentAcknowledged
+    if (role === "PARENT" && typeof data.parentAcknowledged === "boolean") {
+      updateData.parentAcknowledged = data.parentAcknowledged;
+    }
+
+    // Students and admins can update more fields
+    if (role === "ADMIN" || role === "STUDENT") {
+      if (data.status) updateData.status = data.status;
+      if (data.priority) updateData.priority = data.priority;
+      if (data.dueDate !== undefined)
+        updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
+      if (typeof data.notifyParent === "boolean")
+        updateData.notifyParent = data.notifyParent;
+      if (typeof data.parentAcknowledged === "boolean")
+        updateData.parentAcknowledged = data.parentAcknowledged;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: "No valid fields to update" },
+        { status: 400 }
+      );
+    }
+
+    const task = await db.task.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return NextResponse.json(task);
+  } catch (error) {
+    console.error("Error updating task:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    if (
+      !session?.user ||
+      (session.user as { role: string }).role !== "ADMIN"
+    ) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    await db.task.delete({ where: { id } });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

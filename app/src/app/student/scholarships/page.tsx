@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,161 +16,26 @@ import {
   ChevronUp,
   CheckCircle,
 } from "lucide-react"
+import { toast } from "sonner"
 
-interface Scholarship {
-  id: number
+interface ScholarshipTag {
+  id: string
   name: string
-  provider: string
-  amount: string
-  deadline: string
-  matchScore: number
-  field: string
-  state: string
-  eligibility: { label: string; met: boolean }[]
-  description: string
-  tab: "matched" | "all" | "saved" | "dismissed"
 }
 
-const scholarships: Scholarship[] = [
-  {
-    id: 1,
-    name: "Gates Millennium Scholars Program",
-    provider: "Bill & Melinda Gates Foundation",
-    amount: "$72,000",
-    deadline: "Apr 15, 2026",
-    matchScore: 94,
-    field: "Any",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "Financial Need", met: true },
-      { label: "Leadership", met: true },
-      { label: "Minority", met: true },
-    ],
-    description: "Full cost of attendance scholarship for outstanding minority students with significant financial need.",
-    tab: "matched",
-  },
-  {
-    id: 2,
-    name: "Jack Kent Cooke Foundation",
-    provider: "Jack Kent Cooke Foundation",
-    amount: "$55,000",
-    deadline: "Mar 22, 2026",
-    matchScore: 88,
-    field: "Any",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "Financial Need", met: true },
-      { label: "SAT/ACT", met: true },
-    ],
-    description: "Supports high-achieving students with financial need from eighth grade through college.",
-    tab: "matched",
-  },
-  {
-    id: 3,
-    name: "Coca-Cola Scholars Foundation",
-    provider: "Coca-Cola Company",
-    amount: "$20,000",
-    deadline: "Oct 31, 2026",
-    matchScore: 82,
-    field: "Any",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "Leadership", met: true },
-      { label: "Community Service", met: true },
-    ],
-    description: "Achievement-based scholarship for well-rounded, community-oriented high school seniors.",
-    tab: "matched",
-  },
-  {
-    id: 4,
-    name: "Ron Brown Scholar Program",
-    provider: "CAP Charitable Foundation",
-    amount: "$40,000",
-    deadline: "Apr 1, 2026",
-    matchScore: 76,
-    field: "Any",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "Leadership", met: true },
-      { label: "African American", met: true },
-      { label: "Financial Need", met: false },
-    ],
-    description: "Identifies and supports community-minded African Americans excelling in academics.",
-    tab: "matched",
-  },
-  {
-    id: 5,
-    name: "Dell Scholars Program",
-    provider: "Michael & Susan Dell Foundation",
-    amount: "$20,000",
-    deadline: "Dec 1, 2026",
-    matchScore: 71,
-    field: "Any",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "Pell Eligible", met: true },
-      { label: "College Ready", met: false },
-    ],
-    description: "Assists underprivileged students who demonstrate the drive to succeed and obtain a college degree.",
-    tab: "all",
-  },
-  {
-    id: 6,
-    name: "QuestBridge National College Match",
-    provider: "QuestBridge",
-    amount: "Full Tuition",
-    deadline: "Mar 27, 2026",
-    matchScore: 65,
-    field: "Any",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "Income Threshold", met: true },
-      { label: "First Gen", met: false },
-    ],
-    description: "Connects high-achieving, low-income students with full four-year scholarships at top colleges.",
-    tab: "all",
-  },
-  {
-    id: 7,
-    name: "Elks National Foundation",
-    provider: "Elks National Foundation",
-    amount: "$50,000",
-    deadline: "Apr 10, 2026",
-    matchScore: 58,
-    field: "Any",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "US Citizen", met: true },
-      { label: "State Residency", met: false },
-    ],
-    description: "Most valuable scholarships based on scholarship, leadership, and financial need.",
-    tab: "all",
-  },
-  {
-    id: 8,
-    name: "Cameron Impact Scholarship",
-    provider: "Bryan Cameron Education Foundation",
-    amount: "$80,000",
-    deadline: "Sep 14, 2026",
-    matchScore: 45,
-    field: "STEM",
-    state: "National",
-    eligibility: [
-      { label: "GPA", met: true },
-      { label: "STEM Focus", met: false },
-      { label: "US Citizen", met: true },
-    ],
-    description: "Full-ride scholarship covering tuition, room, board, and books for four years.",
-    tab: "all",
-  },
-]
+interface Scholarship {
+  id: string
+  name: string
+  provider: string
+  amount: number | null
+  amountMax: number | null
+  deadline: string | null
+  description: string | null
+  url: string | null
+  minGpa: number | null
+  states: string[]
+  tags: ScholarshipTag[]
+}
 
 function MatchScoreBadge({ score }: { score: number }) {
   const color =
@@ -184,6 +49,19 @@ function MatchScoreBadge({ score }: { score: number }) {
       {score}% match
     </span>
   )
+}
+
+function formatAmount(scholarship: Scholarship): string {
+  if (!scholarship.amount) return "Varies"
+  if (scholarship.amountMax && scholarship.amountMax !== scholarship.amount) {
+    return `$${scholarship.amount.toLocaleString()} - $${scholarship.amountMax.toLocaleString()}`
+  }
+  return `$${scholarship.amount.toLocaleString()}`
+}
+
+function formatDeadline(deadline: string | null): string {
+  if (!deadline) return "No deadline"
+  return new Date(deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 function ScholarshipCard({
@@ -203,42 +81,49 @@ function ScholarshipCard({
             <CardTitle className="text-sm leading-tight">{scholarship.name}</CardTitle>
             <p className="text-xs text-muted-foreground">{scholarship.provider}</p>
           </div>
-          <MatchScoreBadge score={scholarship.matchScore} />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-xs text-muted-foreground line-clamp-2">{scholarship.description}</p>
+        <p className="text-xs text-muted-foreground line-clamp-2">{scholarship.description || "No description available."}</p>
 
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-[#1E3A5F]">{scholarship.amount}</span>
-          <span className="text-xs text-muted-foreground">Due {scholarship.deadline}</span>
+          <span className="text-lg font-bold text-[#1E3A5F]">{formatAmount(scholarship)}</span>
+          <span className="text-xs text-muted-foreground">Due {formatDeadline(scholarship.deadline)}</span>
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
-          {scholarship.eligibility.map((elig) => (
-            <span
-              key={elig.label}
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium ${
-                elig.met
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-gray-100 text-gray-500"
-              }`}
-            >
-              {elig.met ? <CheckCircle className="h-3 w-3" /> : null}
-              {elig.label} {elig.met ? "\u2713" : ""}
-            </span>
-          ))}
-        </div>
+        {scholarship.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {scholarship.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700"
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="flex items-center gap-2 pt-1">
           <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={onSave}>
             <Bookmark className="h-3.5 w-3.5" />
             Save
           </Button>
-          <Button size="sm" className="flex-1 gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
-            <ExternalLink className="h-3.5 w-3.5" />
-            Apply
-          </Button>
+          {scholarship.url ? (
+            <Button
+              size="sm"
+              className="flex-1 gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90"
+              onClick={() => window.open(scholarship.url!, "_blank")}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Apply
+            </Button>
+          ) : (
+            <Button size="sm" className="flex-1 gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
+              <ExternalLink className="h-3.5 w-3.5" />
+              Apply
+            </Button>
+          )}
           <Button variant="ghost" size="icon-sm" onClick={onDismiss}>
             <X className="h-3.5 w-3.5" />
           </Button>
@@ -249,26 +134,69 @@ function ScholarshipCard({
 }
 
 export default function ScholarshipDiscovery() {
+  const [scholarships, setScholarships] = useState<Scholarship[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [savedIds, setSavedIds] = useState<number[]>([])
-  const [dismissedIds, setDismissedIds] = useState<number[]>([])
+  const [savedIds, setSavedIds] = useState<string[]>([])
+  const [dismissedIds, setDismissedIds] = useState<string[]>([])
+  const [minAmount, setMinAmount] = useState("")
+  const [maxAmount, setMaxAmount] = useState("")
+  const [stateFilter, setStateFilter] = useState("")
 
-  const handleSave = (id: number) => {
-    setSavedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  const fetchScholarships = () => {
+    const params = new URLSearchParams()
+    if (searchQuery) params.set("search", searchQuery)
+    if (stateFilter) params.set("state", stateFilter)
+    if (minAmount) params.set("minAmount", minAmount)
+    if (maxAmount) params.set("maxAmount", maxAmount)
+
+    setLoading(true)
+    fetch(`/api/scholarships?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setScholarships(Array.isArray(data) ? data : [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }
 
-  const handleDismiss = (id: number) => {
+  useEffect(() => {
+    fetchScholarships()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleSave = async (scholarship: Scholarship) => {
+    if (savedIds.includes(scholarship.id)) {
+      setSavedIds((prev) => prev.filter((x) => x !== scholarship.id))
+      return
+    }
+    const res = await fetch("/api/applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scholarshipId: scholarship.id }),
+    })
+    if (res.ok) {
+      setSavedIds((prev) => [...prev, scholarship.id])
+      toast.success(`"${scholarship.name}" added to applications`)
+    } else {
+      toast.error("Failed to save scholarship")
+    }
+  }
+
+  const handleDismiss = (id: string) => {
     setDismissedIds((prev) => [...prev, id])
   }
 
   const filterByTab = (tab: string) => {
-    let filtered = scholarships.filter(
-      (s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.provider.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = scholarships.filter(
+      (s) =>
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.provider.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    if (tab === "matched") return filtered.filter((s) => s.matchScore >= 70 && !dismissedIds.includes(s.id))
     if (tab === "saved") return filtered.filter((s) => savedIds.includes(s.id))
     if (tab === "dismissed") return filtered.filter((s) => dismissedIds.includes(s.id))
+    if (tab === "matched") return filtered.filter((s) => !dismissedIds.includes(s.id)).slice(0, 10)
     return filtered.filter((s) => !dismissedIds.includes(s.id))
   }
 
@@ -288,6 +216,7 @@ export default function ScholarshipDiscovery() {
             className="pl-9"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && fetchScholarships()}
           />
         </div>
         <Button
@@ -299,6 +228,9 @@ export default function ScholarshipDiscovery() {
           Filters
           {filtersOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </Button>
+        <Button onClick={fetchScholarships} className="bg-[#2563EB] hover:bg-[#2563EB]/90">
+          Search
+        </Button>
       </div>
 
       {/* Filters (collapsible) */}
@@ -309,22 +241,28 @@ export default function ScholarshipDiscovery() {
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Amount Range</label>
                 <div className="flex items-center gap-2">
-                  <Input placeholder="Min" type="number" />
+                  <Input
+                    placeholder="Min"
+                    type="number"
+                    value={minAmount}
+                    onChange={(e) => setMinAmount(e.target.value)}
+                  />
                   <span className="text-muted-foreground">-</span>
-                  <Input placeholder="Max" type="number" />
+                  <Input
+                    placeholder="Max"
+                    type="number"
+                    value={maxAmount}
+                    onChange={(e) => setMaxAmount(e.target.value)}
+                  />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Deadline</label>
-                <Input type="date" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Field of Study</label>
-                <Input placeholder="e.g. STEM, Arts, Any" />
-              </div>
-              <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">State</label>
-                <Input placeholder="e.g. National, California" />
+                <Input
+                  placeholder="e.g. National, California"
+                  value={stateFilter}
+                  onChange={(e) => setStateFilter(e.target.value)}
+                />
               </div>
             </div>
           </CardContent>
@@ -332,35 +270,41 @@ export default function ScholarshipDiscovery() {
       )}
 
       {/* Tabs & Grid */}
-      <Tabs defaultValue="matched">
-        <TabsList>
-          <TabsTrigger value="matched">Matched for You</TabsTrigger>
-          <TabsTrigger value="all">All Scholarships</TabsTrigger>
-          <TabsTrigger value="saved">Saved</TabsTrigger>
-          <TabsTrigger value="dismissed">Dismissed</TabsTrigger>
-        </TabsList>
+      {loading ? (
+        <div className="flex items-center justify-center py-16 text-muted-foreground">
+          <p className="text-sm">Loading scholarships...</p>
+        </div>
+      ) : (
+        <Tabs defaultValue="matched">
+          <TabsList>
+            <TabsTrigger value="matched">Matched for You</TabsTrigger>
+            <TabsTrigger value="all">All Scholarships</TabsTrigger>
+            <TabsTrigger value="saved">Saved ({savedIds.length})</TabsTrigger>
+            <TabsTrigger value="dismissed">Dismissed</TabsTrigger>
+          </TabsList>
 
-        {["matched", "all", "saved", "dismissed"].map((tab) => (
-          <TabsContent key={tab} value={tab}>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-4">
-              {filterByTab(tab).map((s) => (
-                <ScholarshipCard
-                  key={s.id}
-                  scholarship={s}
-                  onSave={() => handleSave(s.id)}
-                  onDismiss={() => handleDismiss(s.id)}
-                />
-              ))}
-              {filterByTab(tab).length === 0 && (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <Search className="h-10 w-10 mb-3 opacity-40" />
-                  <p className="text-sm">No scholarships found in this category.</p>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+          {["matched", "all", "saved", "dismissed"].map((tab) => (
+            <TabsContent key={tab} value={tab}>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-4">
+                {filterByTab(tab).map((s) => (
+                  <ScholarshipCard
+                    key={s.id}
+                    scholarship={s}
+                    onSave={() => handleSave(s)}
+                    onDismiss={() => handleDismiss(s.id)}
+                  />
+                ))}
+                {filterByTab(tab).length === 0 && (
+                  <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <Search className="h-10 w-10 mb-3 opacity-40" />
+                    <p className="text-sm">No scholarships found in this category.</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
     </div>
   )
 }
