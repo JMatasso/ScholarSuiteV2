@@ -18,6 +18,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
+import { UploadDropzone } from "@/lib/uploadthing"
 
 interface DocumentRequest {
   id: string
@@ -89,6 +90,14 @@ export default function DocumentsPage() {
       setLoading(false)
     })
   }, [])
+
+  const handleDelete = async (docId: string) => {
+    const res = await fetch(`/api/documents/${docId}`, { method: "DELETE" })
+    if (res.ok) {
+      setDocuments(prev => prev.filter(d => d.id !== docId))
+      toast.success("Document deleted")
+    }
+  }
 
   if (loading) {
     return (
@@ -164,23 +173,19 @@ export default function DocumentsPage() {
       )}
 
       {/* Upload Zone */}
-      <div className="rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/20 p-8 text-center hover:border-[#2563EB]/40 hover:bg-blue-50/20 transition-colors cursor-pointer">
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
-            <Upload className="h-6 w-6 text-[#2563EB]" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">Drop files here or click to upload</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              PDF, DOC, DOCX, XLS, XLSX, JPG, PNG up to 10MB
-            </p>
-          </div>
-          <Button variant="outline" size="sm" className="mt-2 gap-1">
-            <Upload className="h-3.5 w-3.5" />
-            Browse Files
-          </Button>
-        </div>
-      </div>
+      <UploadDropzone
+        endpoint="documentUploader"
+        onClientUploadComplete={() => {
+          toast.success("File uploaded successfully!")
+          // Re-fetch documents
+          fetch("/api/documents")
+            .then(r => r.json())
+            .then(d => setDocuments(Array.isArray(d) ? d : []))
+        }}
+        onUploadError={(error) => {
+          toast.error(`Upload failed: ${error.message}`)
+        }}
+      />
 
       {/* Documents */}
       <div>
@@ -225,7 +230,7 @@ export default function DocumentsPage() {
                         <Download className="h-3 w-3" />
                         Download
                       </Button>
-                      <Button variant="ghost" size="icon-xs" className="text-muted-foreground hover:text-rose-600">
+                      <Button variant="ghost" size="icon-xs" className="text-muted-foreground hover:text-rose-600" onClick={() => handleDelete(doc.id)}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
@@ -260,7 +265,7 @@ export default function DocumentsPage() {
                       >
                         <Download className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon-xs" className="hover:text-rose-600">
+                      <Button variant="ghost" size="icon-xs" className="hover:text-rose-600" onClick={() => handleDelete(doc.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>

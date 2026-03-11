@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -72,8 +72,20 @@ export default function ParentLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userName = session?.user?.name || "User";
+  const userEmail = session?.user?.email || "";
+  const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
   const [collapsed, setCollapsed] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [notifCount, setNotifCount] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/notifications?unread=true")
+      .then(r => r.json())
+      .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => {});
+  }, []);
 
   const currentPage = breadcrumbMap[pathname] || "Dashboard";
 
@@ -174,7 +186,9 @@ export default function ParentLayout({
             {/* Notifications */}
             <button className="relative flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
               <Bell className="size-[18px]" />
-              <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-red-500" />
+              {notifCount > 0 && (
+                <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-red-500" />
+              )}
             </button>
 
             <Separator orientation="vertical" className="h-6" />
@@ -187,13 +201,13 @@ export default function ParentLayout({
               >
                 <Avatar size="sm">
                   <AvatarFallback className="bg-[#1E3A5F] text-white text-xs font-medium">
-                    MJ
+                    {userInitials}
                   </AvatarFallback>
                 </Avatar>
                 {!collapsed && (
                   <>
                     <div className="text-left">
-                      <p className="text-sm font-medium text-gray-700">Maria Johnson</p>
+                      <p className="text-sm font-medium text-gray-700">{userName}</p>
                       <p className="text-[11px] text-gray-400">Parent</p>
                     </div>
                     <ChevronDown className="size-3.5 text-gray-400" />

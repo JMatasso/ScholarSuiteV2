@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -95,9 +95,21 @@ export default function StudentLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const userName = session?.user?.name || "User"
+  const userEmail = session?.user?.email || ""
+  const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [notifCount, setNotifCount] = useState(0)
   const breadcrumbs = getBreadcrumbs(pathname)
+
+  useEffect(() => {
+    fetch("/api/notifications?unread=true")
+      .then(r => r.json())
+      .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => {})
+  }, [])
 
   const isActive = (href: string) => {
     if (href === "/student") return pathname === "/student"
@@ -235,18 +247,20 @@ export default function StudentLayout({
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon-sm" className="relative">
               <Bell className="h-4 w-4" />
-              <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2563EB] text-[9px] font-bold text-white">
-                3
-              </span>
+              {notifCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2563EB] text-[9px] font-bold text-white">
+                  {notifCount}
+                </span>
+              )}
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors outline-none">
                 <Avatar size="sm">
-                  <AvatarFallback>MJ</AvatarFallback>
+                  <AvatarFallback>{userInitials}</AvatarFallback>
                 </Avatar>
                 {!collapsed && (
-                  <span className="hidden text-sm font-medium md:block">Maya Johnson</span>
+                  <span className="hidden text-sm font-medium md:block">{userName}</span>
                 )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={8}>

@@ -31,7 +31,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 interface NavItem {
   label: string
@@ -96,6 +96,10 @@ const navGroups: NavGroup[] = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const userName = session?.user?.name || "User"
+  const userEmail = session?.user?.email || ""
+  const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
   const [collapsed, setCollapsed] = React.useState(false)
 
   const isActive = (href: string) => {
@@ -195,11 +199,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Button>
             <div className="flex items-center gap-2">
               <Avatar size="sm">
-                <AvatarFallback>AC</AvatarFallback>
+                <AvatarFallback>{userInitials}</AvatarFallback>
               </Avatar>
               <div className="hidden text-left sm:block">
-                <p className="text-xs font-medium text-foreground">Admin Console</p>
-                <p className="text-[11px] text-muted-foreground">Consultant</p>
+                <p className="text-xs font-medium text-foreground">{userName}</p>
+                <p className="text-[11px] text-muted-foreground">{userEmail}</p>
               </div>
             </div>
             <Button

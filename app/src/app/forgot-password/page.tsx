@@ -15,8 +15,12 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      // In production, this would call an API endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("Failed to send reset email");
       setIsSent(true);
       toast.success("Reset link sent to your email");
     } catch {
