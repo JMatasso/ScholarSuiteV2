@@ -23,6 +23,7 @@ ENV AUTH_SECRET=$AUTH_SECRET
 ENV AUTH_URL=$AUTH_URL
 ENV NEXTAUTH_URL=$NEXTAUTH_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV AUTH_TRUST_HOST=true
 
 RUN npx prisma generate
 RUN npm run build
@@ -32,6 +33,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV AUTH_TRUST_HOST=true
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
