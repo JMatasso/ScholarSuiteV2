@@ -1,0 +1,453 @@
+import Link from "next/link";
+import {
+  GraduationCap,
+  Search,
+  BarChart3,
+  Users,
+  ArrowRight,
+  CheckCircle2,
+  Sparkles,
+  BookOpen,
+  DollarSign,
+  Star,
+} from "lucide-react";
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-[#FAFAF8]">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-semibold text-[#1A1A1A]">
+              ScholarSuite
+            </span>
+          </Link>
+
+          <div className="hidden md:flex items-center gap-8">
+            <Link
+              href="#features"
+              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+            >
+              Features
+            </Link>
+            <Link
+              href="#how-it-works"
+              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+            >
+              How It Works
+            </Link>
+            <Link
+              href="#pricing"
+              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+            >
+              Pricing
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="text-sm font-medium text-gray-600 hover:text-[#1A1A1A] transition-colors px-4 py-2"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/register"
+              className="text-sm font-medium bg-[#1E3A5F] text-white px-5 py-2.5 rounded-lg hover:bg-[#162d4a] transition-colors"
+            >
+              Get Started Free
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-24 pb-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+            <Sparkles className="w-4 h-4" />
+            AI-Powered Scholarship Matching
+          </div>
+
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#1A1A1A] tracking-tight leading-[1.1] mb-6">
+            Your scholarship journey,{" "}
+            <span className="text-[#2563EB]">organized.</span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+            ScholarSuite helps students discover scholarships, track
+            applications, and plan their financial future — with expert guidance
+            every step of the way.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/register"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-lg text-base font-medium hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Get Started Free
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="#demo"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white hover:border-gray-300 transition-all"
+            >
+              Request a Demo
+            </Link>
+          </div>
+        </div>
+
+        {/* Product Screenshot */}
+        <div className="max-w-6xl mx-auto mt-16">
+          <div className="relative rounded-xl border border-gray-200 bg-white shadow-2xl shadow-gray-200/50 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-400" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                <div className="w-3 h-3 rounded-full bg-green-400" />
+              </div>
+              <div className="flex-1 flex justify-center">
+                <div className="bg-gray-100 rounded-md px-4 py-1 text-xs text-gray-400">
+                  app.scholarsuite.com
+                </div>
+              </div>
+            </div>
+            <div className="p-8 bg-gradient-to-br from-[#FAFAF8] to-blue-50/30">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <DashboardMockCard
+                  title="Scholarships Matched"
+                  value="47"
+                  subtitle="12 new this week"
+                  icon={<Search className="w-5 h-5 text-[#2563EB]" />}
+                />
+                <DashboardMockCard
+                  title="Applications Active"
+                  value="8"
+                  subtitle="3 due this month"
+                  icon={<BookOpen className="w-5 h-5 text-purple-600" />}
+                />
+                <DashboardMockCard
+                  title="Awards Won"
+                  value="$12,500"
+                  subtitle="From 4 scholarships"
+                  icon={<DollarSign className="w-5 h-5 text-emerald-600" />}
+                />
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                {[
+                  { title: "Not Started", count: 3, color: "bg-gray-100", dotColor: "bg-gray-400" },
+                  { title: "In Progress", count: 5, color: "bg-blue-50", dotColor: "bg-blue-400" },
+                  { title: "Submitted", count: 2, color: "bg-purple-50", dotColor: "bg-purple-400" },
+                  { title: "Awarded", count: 4, color: "bg-emerald-50", dotColor: "bg-emerald-400" },
+                ].map((col) => (
+                  <div key={col.title} className={`${col.color} rounded-lg p-4`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`w-2 h-2 rounded-full ${col.dotColor}`} />
+                      <span className="text-sm font-medium text-gray-700">{col.title}</span>
+                      <span className="text-xs text-gray-400 ml-auto">{col.count}</span>
+                    </div>
+                    {Array.from({ length: Math.min(col.count, 2) }).map((_, i) => (
+                      <div key={i} className="bg-white rounded-md p-3 mb-2 border border-gray-100 shadow-sm">
+                        <div className="h-2.5 bg-gray-200 rounded w-3/4 mb-2" />
+                        <div className="h-2 bg-gray-100 rounded w-1/2" />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section className="py-16 px-6 border-t border-gray-100">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-8">
+            Trusted by schools and consultants nationwide
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-40">
+            {["Lincoln High School", "Edison Academy", "Westfield Prep", "Heritage College Prep", "Summit Educational Services", "Pathways Consulting"].map((name) => (
+              <div key={name} className="text-lg font-semibold text-gray-600">{name}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
+              Everything you need to win scholarships
+            </h2>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+              From discovery to award — ScholarSuite streamlines the entire scholarship journey for students, consultants, and families.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            <FeatureBlock
+              icon={<Search className="w-6 h-6" />}
+              title="Smart Scholarship Matching"
+              description="AI-powered matching finds scholarships you actually qualify for. Hard filters on GPA, state, and eligibility — plus soft scoring on fit, deadline proximity, and award amount."
+              features={["Personalized match scores with explanations", "Filter by amount, deadline, field of study", "Save, dismiss, or apply with one click"]}
+            />
+            <FeatureBlock
+              icon={<BarChart3 className="w-6 h-6" />}
+              title="Application Tracking"
+              description="Kanban-style boards keep every scholarship and college application on track. Never miss a deadline again."
+              features={["Visual pipeline: Not Started → Awarded", "Per-application checklists and documents", "College app tracking with dream/safety flags"]}
+            />
+            <FeatureBlock
+              icon={<DollarSign className="w-6 h-6" />}
+              title="Financial Planning"
+              description="See your full college cost picture, semester by semester. Map scholarships, grants, and loans to visualize your funding gap."
+              features={["Semester-by-semester cost breakdown", "Income source mapping", "Gap analysis with visual charts"]}
+            />
+            <FeatureBlock
+              icon={<Users className="w-6 h-6" />}
+              title="Built for Teams"
+              description="Consultants, students, and parents — all on the same page. Manage cohorts, assign tasks, and track progress at scale."
+              features={["Multi-role dashboards (Student, Admin, Parent)", "In-app messaging and announcements", "CRM pipeline for prospect management"]}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* AI Section */}
+      <section className="py-24 px-6 bg-[#1E3A5F]">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-white/10 text-blue-200 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+                <Sparkles className="w-4 h-4" />
+                AI-Powered
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                Meet your AI scholarship advisor
+              </h2>
+              <p className="text-lg text-blue-100/80 mb-8 leading-relaxed">
+                Get instant answers about scholarships, receive AI-generated essay feedback, and let our matching engine work around the clock to find opportunities you qualify for.
+              </p>
+              <div className="space-y-4">
+                {["AI-driven intake summaries from student profiles", "First-pass essay review before consultant feedback", "Intelligent scholarship recommendations", "Natural language Q&A about the application process"].map((item) => (
+                  <div key={item} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
+                    <span className="text-blue-100">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
+              <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center gap-2">
+                <div className="w-8 h-8 bg-[#2563EB] rounded-full flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">ScholarSuite AI</p>
+                  <p className="text-xs text-gray-400">Always available</p>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <ChatBubble isUser message="What scholarships am I eligible for with a 3.7 GPA in California?" />
+                <ChatBubble message="Based on your profile, I found 23 scholarships matching your criteria. Here are the top 3 by match score:" />
+                <div className="space-y-2 ml-2">
+                  {[
+                    { name: "California Dream Scholarship", amount: "$5,000", match: "95%" },
+                    { name: "STEM Leaders Fund", amount: "$3,000", match: "91%" },
+                    { name: "Community Impact Award", amount: "$2,500", match: "88%" },
+                  ].map((s) => (
+                    <div key={s.name} className="bg-blue-50 rounded-lg p-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{s.name}</p>
+                        <p className="text-xs text-gray-500">{s.amount}</p>
+                      </div>
+                      <span className="text-xs font-semibold text-[#2563EB] bg-blue-100 px-2 py-1 rounded-full">
+                        {s.match} match
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <ChatBubble isUser message="Can you help me start the essay for the California Dream Scholarship?" />
+                <div className="flex gap-2 ml-2">
+                  <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">Get started in minutes</h2>
+            <p className="text-lg text-gray-500">Three simple steps to transform your scholarship search</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { step: "01", title: "Complete Your Profile", description: "Fill out our guided intake form with your academic, financial, and personal details. Takes about 10 minutes." },
+              { step: "02", title: "Discover Matches", description: "Our matching engine instantly finds scholarships you qualify for, ranked by fit and deadline urgency." },
+              { step: "03", title: "Track & Apply", description: "Manage your applications with Kanban boards, checklists, and essay tools. Your consultant guides you every step." },
+            ].map((item) => (
+              <div key={item.step} className="relative">
+                <div className="text-5xl font-bold text-gray-100 mb-4">{item.step}</div>
+                <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">{item.title}</h3>
+                <p className="text-gray-500 leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex justify-center gap-1 mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+            ))}
+          </div>
+          <blockquote className="text-2xl md:text-3xl font-medium text-[#1A1A1A] leading-relaxed mb-8">
+            &ldquo;ScholarSuite completely transformed how I manage my scholarship consulting practice. My students have collectively won over $2M in scholarships since we started using it.&rdquo;
+          </blockquote>
+          <div>
+            <p className="font-semibold text-[#1A1A1A]">Dr. Maria Santos</p>
+            <p className="text-gray-500">College Prep Consultant, Pathways Educational Services</p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-6 bg-[#1E3A5F]">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Ready to transform your scholarship practice?
+          </h2>
+          <p className="text-lg text-blue-100/80 mb-10">
+            Join hundreds of consultants and thousands of students already using ScholarSuite to discover, apply, and win scholarships.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/register"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-[#1E3A5F] px-8 py-3.5 rounded-lg text-base font-semibold hover:bg-gray-50 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Get Started Free
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="#demo"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/30 text-white px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white/10 transition-all"
+            >
+              Request a Demo
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-[#0F172A] text-gray-400 py-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <h4 className="text-white font-semibold mb-4">Product</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="#" className="hover:text-white transition-colors">Features</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Integrations</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Changelog</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Resources</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Webinars</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="#" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Partners</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Legal</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">FERPA Compliance</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Data Security</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
+                <GraduationCap className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-sm text-gray-500">ScholarSuite &copy; 2026. All rights reserved.</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function DashboardMockCard({ title, value, subtitle, icon }: { title: string; value: string; subtitle: string; icon: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-lg border border-gray-100 p-5 shadow-sm">
+      <div className="flex items-start justify-between mb-3">
+        <p className="text-sm text-gray-500">{title}</p>
+        <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center">{icon}</div>
+      </div>
+      <p className="text-2xl font-bold text-[#1A1A1A] mb-1">{value}</p>
+      <p className="text-xs text-gray-400">{subtitle}</p>
+    </div>
+  );
+}
+
+function FeatureBlock({ icon, title, description, features }: { icon: React.ReactNode; title: string; description: string; features: string[] }) {
+  return (
+    <div>
+      <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#2563EB] mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold text-[#1A1A1A] mb-3">{title}</h3>
+      <p className="text-gray-500 leading-relaxed mb-4">{description}</p>
+      <ul className="space-y-2">
+        {features.map((f) => (
+          <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+            {f}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ChatBubble({ message, isUser }: { message: string; isUser?: boolean }) {
+  return (
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+      <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${isUser ? "bg-[#1E3A5F] text-white rounded-br-md" : "bg-gray-100 text-gray-800 rounded-bl-md"}`}>
+        {message}
+      </div>
+    </div>
+  );
+}

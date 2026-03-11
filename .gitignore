@@ -1,0 +1,26 @@
+# dependencies
+app/node_modules/
+
+# next.js
+app/.next/
+
+# generated prisma client
+app/src/generated/
+
+# env files
+app/.env
+app/.env.local
+app/.env.production
+
+# debug
+npm-debug.log*
+
+# claude settings
+.claude/
+
+# misc
+.DS_Store
+*.tsbuildinfo
+
+# pdf (large file)
+document_pdf.pdf
