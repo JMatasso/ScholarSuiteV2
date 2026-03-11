@@ -2,4 +2,4 @@
 cmds = ["npx prisma generate", "npm run build"]
 
 [start]
-cmd = "node .next/standalone/server.js"
+cmd = "npx next start"
