@@ -105,6 +105,32 @@ export async function POST(req: Request) {
       });
     }
 
+    // Auto-assign tasks from the default template
+    try {
+      const template = await db.taskTemplate.findFirst({
+        where: { isDefault: true },
+        include: { items: { orderBy: { order: "asc" } } },
+      });
+      if (template && template.items.length > 0) {
+        await db.task.createMany({
+          data: template.items.map((item) => ({
+            userId: user.id,
+            title: item.title,
+            description: item.description,
+            phase: item.phase,
+            track: item.track,
+            priority: item.priority,
+            documentFolder: item.documentFolder,
+            templateId: template.id,
+            templateItemId: item.id,
+          })),
+        });
+      }
+    } catch (templateErr) {
+      console.error("Failed to auto-assign tasks:", templateErr);
+      // Don't fail student creation if template assignment fails
+    }
+
     return NextResponse.json(user, { status: 201 });
   } catch (error) {
     console.error("Error creating student:", error);

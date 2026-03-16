@@ -372,9 +372,11 @@ model Task {
   status             TaskStatus   @default(NOT_STARTED)
   priority           TaskPriority @default(MEDIUM)
   dueDate            DateTime?
+  documentFolder     String?
   notifyParent       Boolean      @default(false)
   parentAcknowledged Boolean      @default(false)
   templateId         String?
+  templateItemId     String?
   user               User         @relation(fields: [userId], references: [id])
   template           TaskTemplate? @relation(fields: [templateId], references: [id])
   createdAt          DateTime     @default(now())
@@ -393,15 +395,16 @@ model TaskTemplate {
 }
 
 model TaskTemplateItem {
-  id          String       @id @default(cuid())
-  templateId  String
-  title       String
-  description String?
-  phase       TaskPhase    @default(INTRODUCTION)
-  track       TaskTrack    @default(SCHOLARSHIP)
-  priority    TaskPriority @default(MEDIUM)
-  order       Int          @default(0)
-  template    TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  id              String       @id @default(cuid())
+  templateId      String
+  title           String
+  description     String?
+  phase           TaskPhase    @default(INTRODUCTION)
+  track           TaskTrack    @default(SCHOLARSHIP)
+  priority        TaskPriority @default(MEDIUM)
+  order           Int          @default(0)
+  documentFolder  String?
+  template        TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
 }
 
 // ─── ESSAYS ──────────────────────────────────────────────────

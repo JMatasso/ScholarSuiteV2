@@ -57,6 +57,7 @@ const navGroups = [
     items: [
       { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Essays", href: "/student/essays", icon: PenTool },
+      { name: "Resume", href: "/student/resume", icon: FileText },
       { name: "Documents", href: "/student/documents", icon: FolderOpen },
       { name: "Learning", href: "/student/learning", icon: BookOpen },
     ],

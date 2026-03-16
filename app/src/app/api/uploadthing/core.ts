@@ -1,4 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next"
+import { z } from "zod"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 
@@ -27,10 +28,11 @@ export const ourFileRouter = {
     "application/msword": { maxFileSize: "16MB" },
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "16MB" },
   })
-    .middleware(async () => {
+    .input(z.object({ folder: z.string().optional() }).optional())
+    .middleware(async ({ input }) => {
       const session = await auth()
       if (!session?.user) throw new Error("Unauthorized")
-      return { userId: session.user.id }
+      return { userId: session.user.id, folder: input?.folder || null }
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // Determine document type from filename
@@ -46,6 +48,7 @@ export const ourFileRouter = {
           userId: metadata.userId,
           name: file.name,
           type,
+          folder: metadata.folder,
           fileUrl: file.ufsUrl,
           fileSize: file.size,
           mimeType: file.type,

@@ -1,27 +1,45 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "motion/react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion, AnimatePresence } from "motion/react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils"
 import {
   CheckSquare,
   Calendar,
   Filter,
   ListTodo,
+  FolderOpen,
+  Upload,
+  X,
+  FileText,
+  Download,
+  Trash2,
+  ChevronRight,
 } from "lucide-react"
 import { toast } from "sonner"
+import { UploadButton } from "@/lib/uploadthing"
 
 interface Task {
   id: string
   title: string
+  description: string | null
   dueDate: string | null
   priority: "HIGH" | "MEDIUM" | "LOW"
   track: "SCHOLARSHIP" | "COLLEGE_PREP"
   phase: "INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL"
   status: "NOT_STARTED" | "IN_PROGRESS" | "DONE"
+  documentFolder: string | null
+}
+
+interface Document {
+  id: string
+  name: string
+  fileUrl: string
+  fileSize: number | null
+  createdAt: string
 }
 
 const phaseLabels: Record<string, string> = {
@@ -40,16 +58,9 @@ const priorityColors: Record<string, string> = {
   LOW: "bg-gray-100 text-gray-600 border-gray-200",
 }
 
-const trackColors: Record<string, string> = {
-  SCHOLARSHIP: "bg-blue-50 text-blue-700 border-blue-200",
-  COLLEGE_PREP: "bg-purple-50 text-purple-700 border-purple-200",
-}
-
 function getDueDateStatus(dueDate: string | null): string {
   if (!dueDate) return "no_date"
-  const due = new Date(dueDate)
-  const now = new Date()
-  const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  const diffDays = Math.ceil((new Date(dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   if (diffDays < 0) return "overdue"
   if (diffDays <= 7) return "due_soon"
   return "upcoming"
@@ -67,27 +78,47 @@ function formatDueDate(dueDate: string | null): string {
   return new Date(dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
+function formatFileSize(bytes: number | null): string {
+  if (!bytes) return ""
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 export default function TasksPage() {
-  const [taskState, setTaskState] = useState<Task[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "completed">("all")
   const [filterPriority, setFilterPriority] = useState<"all" | "HIGH" | "MEDIUM" | "LOW">("all")
-  const [filterTrack, setFilterTrack] = useState<"all" | "SCHOLARSHIP" | "COLLEGE_PREP">("all")
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [folderDocs, setFolderDocs] = useState<Document[]>([])
+  const [docsLoading, setDocsLoading] = useState(false)
 
   useEffect(() => {
     fetch("/api/tasks")
       .then((res) => res.json())
-      .then((data) => {
-        setTaskState(Array.isArray(data) ? data : [])
-        setLoading(false)
-      })
+      .then((data) => { setTasks(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
+  // Fetch documents for selected task's folder
+  useEffect(() => {
+    if (!selectedTask?.documentFolder) { setFolderDocs([]); return }
+    setDocsLoading(true)
+    fetch("/api/documents")
+      .then((res) => res.json())
+      .then((data) => {
+        const docs = Array.isArray(data) ? data : []
+        setFolderDocs(docs.filter((d: Document & { folder?: string }) => d.folder === selectedTask.documentFolder))
+        setDocsLoading(false)
+      })
+      .catch(() => setDocsLoading(false))
+  }, [selectedTask])
+
   const toggleTask = async (task: Task) => {
     const newStatus = task.status === "DONE" ? "IN_PROGRESS" : "DONE"
-    const optimistic = taskState.map((t) => t.id === task.id ? { ...t, status: newStatus as Task["status"] } : t)
-    setTaskState(optimistic)
+    setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: newStatus as Task["status"] } : t))
+    if (selectedTask?.id === task.id) setSelectedTask({ ...task, status: newStatus as Task["status"] })
 
     const res = await fetch(`/api/tasks/${task.id}`, {
       method: "PATCH",
@@ -95,28 +126,24 @@ export default function TasksPage() {
       body: JSON.stringify({ status: newStatus }),
     })
     if (!res.ok) {
-      setTaskState(taskState)
+      setTasks((prev) => prev.map((t) => t.id === task.id ? task : t))
       toast.error("Failed to update task")
     }
   }
 
-  const filteredTasks = taskState.filter((t) => {
+  const filteredTasks = tasks.filter((t) => {
     if (filterStatus === "pending" && t.status === "DONE") return false
     if (filterStatus === "completed" && t.status !== "DONE") return false
     if (filterPriority !== "all" && t.priority !== filterPriority) return false
-    if (filterTrack !== "all" && t.track !== filterTrack) return false
     return true
   })
 
-  const totalTasks = taskState.length
-  const completedCount = taskState.filter((t) => t.status === "DONE").length
+  const totalTasks = tasks.length
+  const completedCount = tasks.filter((t) => t.status === "DONE").length
+  const progressPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground">
-        <p className="text-sm">Loading tasks...</p>
-      </div>
-    )
+    return <div className="flex items-center justify-center py-16 text-muted-foreground"><p className="text-sm">Loading tasks...</p></div>
   }
 
   return (
@@ -124,13 +151,15 @@ export default function TasksPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-[#1E3A5F]">Tasks</h1>
-          <p className="mt-1 text-muted-foreground">
-            {completedCount} of {totalTasks} tasks completed
-          </p>
+          <p className="mt-1 text-muted-foreground">{completedCount} of {totalTasks} tasks completed</p>
         </div>
-        <div className="flex items-center gap-2">
-          <ListTodo className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">{totalTasks} Total Tasks</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-24 rounded-full bg-muted overflow-hidden">
+              <div className="h-full rounded-full bg-[#2563EB] transition-all duration-500" style={{ width: `${progressPct}%` }} />
+            </div>
+            <span className="text-sm font-semibold text-[#1E3A5F]">{progressPct}%</span>
+          </div>
         </div>
       </div>
 
@@ -144,12 +173,7 @@ export default function TasksPage() {
             </div>
             <div className="flex gap-1.5">
               {(["all", "pending", "completed"] as const).map((s) => (
-                <Button
-                  key={s}
-                  variant={filterStatus === s ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => setFilterStatus(s)}
-                >
+                <Button key={s} variant={filterStatus === s ? "default" : "outline"} size="xs" onClick={() => setFilterStatus(s)}>
                   {s.charAt(0).toUpperCase() + s.slice(1)}
                 </Button>
               ))}
@@ -157,26 +181,8 @@ export default function TasksPage() {
             <div className="h-4 w-px bg-border" />
             <div className="flex gap-1.5">
               {(["all", "HIGH", "MEDIUM", "LOW"] as const).map((p) => (
-                <Button
-                  key={p}
-                  variant={filterPriority === p ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => setFilterPriority(p)}
-                >
-                  {p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()}
-                </Button>
-              ))}
-            </div>
-            <div className="h-4 w-px bg-border" />
-            <div className="flex gap-1.5">
-              {(["all", "SCHOLARSHIP", "COLLEGE_PREP"] as const).map((tr) => (
-                <Button
-                  key={tr}
-                  variant={filterTrack === tr ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => setFilterTrack(tr)}
-                >
-                  {tr === "COLLEGE_PREP" ? "College Prep" : tr === "all" ? "All" : "Scholarship"}
+                <Button key={p} variant={filterPriority === p ? "default" : "outline"} size="xs" onClick={() => setFilterPriority(p)}>
+                  {p === "all" ? "All" : p.charAt(0) + p.slice(1).toLowerCase()}
                 </Button>
               ))}
             </div>
@@ -184,72 +190,204 @@ export default function TasksPage() {
         </CardContent>
       </Card>
 
-      {/* Task list grouped by phase */}
-      <div className="space-y-6">
-        {phaseOrder.map((phase) => {
-          const phaseTasks = filteredTasks.filter((t) => t.phase === phase)
-          if (phaseTasks.length === 0) return null
-          const dueStatus = (t: Task) => getDueDateStatus(t.dueDate)
-          return (
+      <div className="flex gap-6">
+        {/* Task list */}
+        <div className={cn("space-y-6 transition-all", selectedTask ? "flex-1 min-w-0" : "w-full")}>
+          {phaseOrder.map((phase) => {
+            const phaseTasks = filteredTasks.filter((t) => t.phase === phase)
+            if (phaseTasks.length === 0) return null
+            const phaseCompleted = phaseTasks.filter((t) => t.status === "DONE").length
+            return (
+              <motion.div
+                key={phase}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: phaseOrder.indexOf(phase) * 0.05 }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">{phaseLabels[phase]}</h2>
+                  <span className="text-xs text-muted-foreground">{phaseCompleted}/{phaseTasks.length}</span>
+                </div>
+                <Card>
+                  <CardContent className="pt-0 divide-y">
+                    {phaseTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        onClick={() => setSelectedTask(task)}
+                        className={cn(
+                          "flex items-center gap-3 py-3 first:pt-0 last:pb-0 cursor-pointer transition-colors hover:bg-muted/30 -mx-6 px-6",
+                          selectedTask?.id === task.id && "bg-[#2563EB]/5"
+                        )}
+                      >
+                        <Checkbox
+                          checked={task.status === "DONE"}
+                          onCheckedChange={(e) => { e.valueOf(); toggleTask(task) }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className={cn("text-sm font-medium", task.status === "DONE" && "line-through text-muted-foreground")}>
+                              {task.title}
+                            </p>
+                            {task.documentFolder && (
+                              <FolderOpen className="h-3 w-3 text-blue-500 shrink-0" />
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={cn("text-xs flex items-center gap-1", dueDateColor[getDueDateStatus(task.dueDate)])}>
+                            <Calendar className="h-3 w-3" />
+                            {formatDueDate(task.dueDate)}
+                          </span>
+                          <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium", priorityColors[task.priority])}>
+                            {task.priority}
+                          </span>
+                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
+          {filteredTasks.length === 0 && (
+            <div className="flex items-center justify-center py-12 text-muted-foreground">
+              <p className="text-sm">No tasks match your filters.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Task Detail Panel */}
+        <AnimatePresence>
+          {selectedTask && (
             <motion.div
-              key={phase}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: phaseOrder.indexOf(phase) * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, x: 20, width: 0 }}
+              animate={{ opacity: 1, x: 0, width: 380 }}
+              exit={{ opacity: 0, x: 20, width: 0 }}
+              transition={{ duration: 0.2 }}
+              className="shrink-0"
             >
-              <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
-                {phaseLabels[phase]}
-              </h2>
-              <Card>
-                <CardContent className="pt-0 divide-y">
-                  {phaseTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-                    >
-                      <Checkbox
-                        checked={task.status === "DONE"}
-                        onCheckedChange={() => toggleTask(task)}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className={`text-sm font-medium ${
-                            task.status === "DONE" ? "line-through text-muted-foreground" : ""
-                          }`}
-                        >
-                          {task.title}
+              <div className="sticky top-6 rounded-xl bg-white ring-1 ring-foreground/10 overflow-hidden">
+                {/* Header */}
+                <div className="flex items-start justify-between p-5 border-b border-border/50">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-semibold text-[#1E3A5F] pr-2">{selectedTask.title}</h3>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium", priorityColors[selectedTask.priority])}>
+                        {selectedTask.priority}
+                      </span>
+                      <span className={cn(
+                        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+                        selectedTask.status === "DONE" ? "bg-emerald-100 text-emerald-700" :
+                        selectedTask.status === "IN_PROGRESS" ? "bg-blue-100 text-blue-700" :
+                        "bg-gray-100 text-gray-600"
+                      )}>
+                        {selectedTask.status === "DONE" ? "Completed" : selectedTask.status === "IN_PROGRESS" ? "In Progress" : "Not Started"}
+                      </span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon-xs" onClick={() => setSelectedTask(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Body */}
+                <div className="p-5 space-y-5">
+                  {/* Description */}
+                  {selectedTask.description && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Description</p>
+                      <p className="text-sm text-foreground leading-relaxed">{selectedTask.description}</p>
+                    </div>
+                  )}
+
+                  {/* Due date */}
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className={cn("text-sm", dueDateColor[getDueDateStatus(selectedTask.dueDate)])}>
+                      {formatDueDate(selectedTask.dueDate)}
+                    </span>
+                  </div>
+
+                  {/* Status toggle */}
+                  <Button
+                    size="sm"
+                    variant={selectedTask.status === "DONE" ? "outline" : "default"}
+                    className={selectedTask.status !== "DONE" ? "bg-[#2563EB] hover:bg-[#2563EB]/90 w-full" : "w-full"}
+                    onClick={() => toggleTask(selectedTask)}
+                  >
+                    <CheckSquare className="h-4 w-4" />
+                    {selectedTask.status === "DONE" ? "Mark as In Progress" : "Mark as Complete"}
+                  </Button>
+
+                  {/* Document upload section (if task has a linked folder) */}
+                  {selectedTask.documentFolder && (
+                    <div className="space-y-3 pt-2 border-t border-border/50">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className="h-4 w-4 text-blue-500" />
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Upload to: {selectedTask.documentFolder}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span
-                          className={`inline-flex items-center gap-1 text-xs ${dueDateColor[dueStatus(task)]}`}
-                        >
-                          <Calendar className="h-3 w-3" />
-                          {formatDueDate(task.dueDate)}
-                        </span>
-                        <span
-                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${priorityColors[task.priority]}`}
-                        >
-                          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1).toLowerCase()}
-                        </span>
-                        <span
-                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${trackColors[task.track]}`}
-                        >
-                          {task.track === "COLLEGE_PREP" ? "College Prep" : "Scholarship"}
-                        </span>
-                      </div>
+
+                      <UploadButton
+                        endpoint="documentUploader"
+                        input={{ folder: selectedTask.documentFolder }}
+                        onClientUploadComplete={() => {
+                          toast.success("Document uploaded!")
+                          // Refresh folder docs
+                          fetch("/api/documents")
+                            .then((r) => r.json())
+                            .then((data) => {
+                              const docs = Array.isArray(data) ? data : []
+                              setFolderDocs(docs.filter((d: Document & { folder?: string }) => d.folder === selectedTask.documentFolder))
+                            })
+                        }}
+                        onUploadError={(error) => toast.error(`Upload failed: ${error.message}`)}
+                        appearance={{
+                          button: "bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-xs px-3 py-1.5 rounded-lg w-full",
+                          allowedContent: "text-[10px] text-muted-foreground mt-1",
+                        }}
+                      />
+
+                      {/* Files in this folder */}
+                      {docsLoading ? (
+                        <p className="text-xs text-muted-foreground">Loading...</p>
+                      ) : folderDocs.length > 0 ? (
+                        <div className="space-y-1.5">
+                          {folderDocs.map((doc) => (
+                            <div key={doc.id} className="flex items-center gap-2 rounded-lg bg-muted/30 px-3 py-2">
+                              <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="text-xs font-medium truncate flex-1">{doc.name}</span>
+                              <span className="text-[10px] text-muted-foreground">{formatFileSize(doc.fileSize)}</span>
+                              <Button variant="ghost" size="icon-xs" onClick={() => window.open(doc.fileUrl, "_blank")}>
+                                <Download className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">No documents uploaded yet for this folder.</p>
+                      )}
+
+                      {/* Link to documents page */}
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="w-full gap-1 text-[#2563EB]"
+                        onClick={() => window.location.href = "/student/documents"}
+                      >
+                        <FolderOpen className="h-3 w-3" />
+                        View all in Documents
+                      </Button>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
+                  )}
+                </div>
+              </div>
             </motion.div>
-          )
-        })}
-        {filteredTasks.length === 0 && (
-          <div className="flex items-center justify-center py-12 text-muted-foreground">
-            <p className="text-sm">No tasks match your filters.</p>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )
