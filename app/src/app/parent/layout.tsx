@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { motion, AnimatePresence, useMotionValue } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -25,6 +26,8 @@ import {
   LogOut,
   Settings,
   Bell,
+  CalendarDays,
+  Menu,
 } from "lucide-react";
 
 const sidebarGroups = [
@@ -32,6 +35,7 @@ const sidebarGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/parent", icon: LayoutDashboard },
+      { name: "Calendar", href: "/parent/calendar", icon: CalendarDays },
     ],
   },
   {
@@ -80,8 +84,15 @@ export default function ParentLayout({
   const userEmail = session?.user?.email || "";
   const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
+  const dragX = useMotionValue(0);
+
+  const handleDragEnd = (_event: unknown, info: { offset: { x: number } }) => {
+    if (info.offset.x < -100) setMobileOpen(false);
+    dragX.set(0);
+  };
 
   // Force password change redirect
   useEffect(() => {

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
+import { motion, AnimatePresence, useMotionValue } from "motion/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -39,6 +40,7 @@ import {
   LogOut,
   User,
   Menu,
+  CalendarDays,
 } from "lucide-react"
 
 const navGroups = [
@@ -46,6 +48,7 @@ const navGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/student", icon: LayoutDashboard },
+      { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
     ],
   },
   {
@@ -146,11 +149,21 @@ export default function StudentLayout({
     return pathname.startsWith(href)
   }
 
-  const sidebarContent = (
+  const dragX = useMotionValue(0)
+
+  const handleDragEnd = (_event: unknown, info: { offset: { x: number } }) => {
+    if (info.offset.x < -100) setMobileOpen(false)
+    dragX.set(0)
+  }
+
+  // Flatten nav items for stagger index
+  let globalIndex = 0
+
+  const sidebarContent = (isMobile = false) => (
     <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className={cn("flex h-16 items-center border-b px-4", collapsed && "justify-center px-2")}>
-        {!collapsed ? (
+      <div className={cn("flex h-16 items-center border-b px-4", collapsed && !isMobile && "justify-center px-2")}>
+        {(!collapsed || isMobile) ? (
           <Link href="/student" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1E3A5F] text-white text-sm font-bold">
               S
@@ -166,9 +179,10 @@ export default function StudentLayout({
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
+        {(() => { globalIndex = 0; return null })()}
         {navGroups.map((group) => (
           <div key={group.label} className="mb-6">
-            {!collapsed && (
+            {(!collapsed || isMobile) && (
               <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                 {group.label}
               </p>
@@ -177,22 +191,31 @@ export default function StudentLayout({
               {group.items.map((item) => {
                 const Icon = item.icon
                 const active = isActive(item.href)
+                const idx = globalIndex++
                 return (
-                  <Link
+                  <motion.div
                     key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
-                      active
-                        ? "bg-[#1E3A5F]/10 text-[#1E3A5F]"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                      collapsed && "justify-center px-2"
-                    )}
+                    initial={isMobile ? { x: -40, opacity: 0 } : { opacity: 0, y: 8 }}
+                    animate={isMobile
+                      ? (mobileOpen ? { x: 0, opacity: 1, transition: { delay: 0.05 + idx * 0.04, type: "spring", stiffness: 260, damping: 24 } } : { x: -40, opacity: 0 })
+                      : { opacity: 1, y: 0, transition: { delay: idx * 0.03 } }
+                    }
                   >
-                    <Icon className={cn("h-4 w-4 shrink-0", active && "text-[#2563EB]")} />
-                    {!collapsed && <span>{item.name}</span>}
-                  </Link>
+                    <Link
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                        active
+                          ? "bg-[#1E3A5F]/10 text-[#1E3A5F]"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                        collapsed && !isMobile && "justify-center px-2"
+                      )}
+                    >
+                      <Icon className={cn("h-4 w-4 shrink-0", active && "text-[#2563EB]")} />
+                      {(!collapsed || isMobile) && <span>{item.name}</span>}
+                    </Link>
+                  </motion.div>
                 )
               })}
             </div>
@@ -201,7 +224,7 @@ export default function StudentLayout({
       </nav>
 
       {/* Profile completion indicator */}
-      {!collapsed && profileCompletion < 100 && (
+      {(!collapsed || isMobile) && profileCompletion < 100 && (
         <div className="border-t px-3 py-3">
           <Link href="/student/profile" className="block">
             <div className="flex items-center justify-between mb-1.5">
@@ -236,22 +259,33 @@ export default function StudentLayout({
   return (
     <div className="flex h-screen bg-background">
       {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px] lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Mobile sidebar */}
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transform bg-card shadow-lg transition-transform lg:hidden",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        )}
+      <motion.aside
+        initial={{ x: "-100%" }}
+        animate={{ x: mobileOpen ? 0 : "-100%" }}
+        transition={{ type: "spring", stiffness: 200, damping: 30, mass: 0.8 }}
+        drag="x"
+        dragConstraints={{ left: -280, right: 0 }}
+        dragElastic={0.15}
+        onDragEnd={handleDragEnd}
+        style={{ x: mobileOpen ? dragX : "-100%" }}
+        className="fixed inset-y-0 left-0 z-50 w-64 bg-card shadow-2xl lg:hidden"
       >
-        {sidebarContent}
-      </aside>
+        {sidebarContent(true)}
+      </motion.aside>
 
       {/* Desktop sidebar */}
       <aside
@@ -260,8 +294,7 @@ export default function StudentLayout({
           collapsed ? "w-16" : "w-64"
         )}
       >
-        {sidebarContent}
-      </aside>
+        {sidebarContent()}</aside>
 
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">

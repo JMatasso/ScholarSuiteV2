@@ -30,6 +30,7 @@ import {
   Bell,
   Search,
   LogOut,
+  CalendarDays,
   type LucideIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -52,6 +53,7 @@ const navGroups: NavGroup[] = [
     title: "Overview",
     items: [
       { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+      { label: "Calendar", href: "/admin/calendar", icon: CalendarDays },
     ],
   },
   {
