@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { resend } from "@/lib/resend"
+import { getResend } from "@/lib/resend"
 import crypto from "crypto"
 
 export async function POST(req: NextRequest) {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
       const resetUrl = `${process.env.NEXTAUTH_URL || process.env.AUTH_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`
 
-      await resend.emails.send({
+      await getResend().emails.send({
         from: "ScholarSuite <noreply@scholarsuite.app>",
         to: email,
         subject: "Reset your ScholarSuite password",
