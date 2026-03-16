@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import Link from "next/link"
 import { Plus, Video, Clock, Calendar, MapPin } from "lucide-react"
 import { toast } from "sonner"
 
@@ -22,6 +24,7 @@ interface Meeting {
   startTime: string
   endTime: string
   meetingUrl?: string | null
+  isVideoCall: boolean
   status: string
   participants: MeetingParticipant[]
 }
@@ -50,6 +53,7 @@ export default function MeetingsPage() {
     startTime: "",
     endTime: "",
     meetingUrl: "",
+    isVideoCall: false,
   })
   const [rescheduleId, setRescheduleId] = React.useState<string | null>(null)
   const [rescheduleForm, setRescheduleForm] = React.useState({ startTime: "", endTime: "" })
@@ -74,7 +78,7 @@ export default function MeetingsPage() {
       if (!res.ok) throw new Error()
       toast.success("Meeting scheduled")
       setShowForm(false)
-      setForm({ title: "", description: "", startTime: "", endTime: "", meetingUrl: "" })
+      setForm({ title: "", description: "", startTime: "", endTime: "", meetingUrl: "", isVideoCall: false })
       loadMeetings()
     } catch {
       toast.error("Failed to schedule meeting")
@@ -106,7 +110,8 @@ export default function MeetingsPage() {
   const past = meetings.filter(m => m.status === "COMPLETED" || m.status === "CANCELLED")
 
   const getMeetingType = (meeting: Meeting) => {
-    if (meeting.meetingUrl) return "Video"
+    if (meeting.isVideoCall) return "Video Call"
+    if (meeting.meetingUrl) return "External Link"
     return "In-Person"
   }
 
@@ -142,16 +147,28 @@ export default function MeetingsPage() {
                 className="h-9" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-foreground mb-1">Meeting URL</label>
-              <Input type="url" value={form.meetingUrl} onChange={e => setForm(p => ({ ...p, meetingUrl: e.target.value }))}
-                placeholder="https://meet.google.com/..."
-                className="h-9" />
-            </div>
-            <div>
               <label className="block text-xs font-medium text-foreground mb-1">Description</label>
               <Input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
                 className="h-9" />
             </div>
+            <div className="col-span-2 flex items-center justify-between rounded-lg border border-border px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-foreground">Video Call</p>
+                <p className="text-xs text-muted-foreground">Enable in-app video calling for this meeting</p>
+              </div>
+              <Switch
+                checked={form.isVideoCall}
+                onCheckedChange={(checked) => setForm(p => ({ ...p, isVideoCall: checked, meetingUrl: checked ? "" : p.meetingUrl }))}
+              />
+            </div>
+            {!form.isVideoCall && (
+              <div className="col-span-2">
+                <label className="block text-xs font-medium text-foreground mb-1">External Meeting URL <span className="text-muted-foreground font-normal">(optional — for Zoom, Google Meet, etc.)</span></label>
+                <Input type="url" value={form.meetingUrl} onChange={e => setForm(p => ({ ...p, meetingUrl: e.target.value }))}
+                  placeholder="https://meet.google.com/..."
+                  className="h-9" />
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <Button type="submit" size="sm">Schedule Meeting</Button>
@@ -201,7 +218,7 @@ export default function MeetingsPage() {
                   const durationMs = end.getTime() - start.getTime()
                   const durationMin = Math.round(durationMs / 60000)
                   const durationLabel = durationMin >= 60 ? `${Math.floor(durationMin / 60)} hr` : `${durationMin} min`
-                  const TypeIcon = meeting.meetingUrl ? Video : MapPin
+                  const TypeIcon = meeting.isVideoCall || meeting.meetingUrl ? Video : MapPin
                   const otherParticipants = meeting.participants.filter(p => !p.isHost)
                   const firstOther = otherParticipants[0]
                   return (
@@ -243,11 +260,15 @@ export default function MeetingsPage() {
                             endTime: meeting.endTime.substring(0, 16),
                           })
                         }}>Reschedule</Button>
-                        {meeting.meetingUrl && (
+                        {meeting.isVideoCall ? (
+                          <Link href={`/call/${meeting.id}`}>
+                            <Button size="xs"><Video className="size-3" /> Join Call</Button>
+                          </Link>
+                        ) : meeting.meetingUrl ? (
                           <a href={meeting.meetingUrl} target="_blank" rel="noopener noreferrer">
                             <Button size="xs"><Video className="size-3" /> Join</Button>
                           </a>
-                        )}
+                        ) : null}
                       </div>
                     </motion.div>
                   )
@@ -267,7 +288,7 @@ export default function MeetingsPage() {
                   const durationMs = end.getTime() - start.getTime()
                   const durationMin = Math.round(durationMs / 60000)
                   const durationLabel = durationMin >= 60 ? `${Math.floor(durationMin / 60)} hr` : `${durationMin} min`
-                  const TypeIcon = meeting.meetingUrl ? Video : MapPin
+                  const TypeIcon = meeting.isVideoCall || meeting.meetingUrl ? Video : MapPin
                   const otherParticipants = meeting.participants.filter(p => !p.isHost)
                   const firstOther = otherParticipants[0]
                   return (

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -47,6 +48,7 @@ interface Meeting {
   startTime: string
   endTime: string
   meetingUrl: string | null
+  isVideoCall: boolean
   status: "SCHEDULED" | "PENDING_APPROVAL" | "CANCELLED" | "COMPLETED"
   participants: MeetingParticipant[]
 }
@@ -155,17 +157,25 @@ export default function MeetingsPage() {
                     <p className="text-xs font-medium">{hostName}</p>
                   </div>
                 </div>
-                {isUpcomingMeeting && meeting.meetingUrl && (
+                {isUpcomingMeeting && meeting.isVideoCall && (
+                  <Link href={`/call/${meeting.id}`}>
+                    <Button size="sm" className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0">
+                      <Video className="h-3.5 w-3.5" />
+                      Join Call
+                    </Button>
+                  </Link>
+                )}
+                {isUpcomingMeeting && !meeting.isVideoCall && meeting.meetingUrl && (
                   <Button
                     size="sm"
                     className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0"
                     onClick={() => window.open(meeting.meetingUrl!, "_blank")}
                   >
-                    <Video className="h-3.5 w-3.5" />
+                    <ExternalLink className="h-3.5 w-3.5" />
                     Join
                   </Button>
                 )}
-                {isUpcomingMeeting && !meeting.meetingUrl && (
+                {isUpcomingMeeting && !meeting.isVideoCall && !meeting.meetingUrl && (
                   <Button size="sm" className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0" onClick={() => setViewMeeting(meeting)}>
                     <MapPin className="h-3.5 w-3.5" />
                     View
@@ -181,10 +191,10 @@ export default function MeetingsPage() {
                   <Clock className="h-3 w-3" />
                   {formatTimeOnly(meeting.startTime)} ({getDuration(meeting.startTime, meeting.endTime)})
                 </span>
-                {meeting.meetingUrl ? (
+                {meeting.isVideoCall || meeting.meetingUrl ? (
                   <span className="flex items-center gap-1">
                     <Video className="h-3 w-3" />
-                    Video Call
+                    {meeting.isVideoCall ? "Video Call" : "External Link"}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1">

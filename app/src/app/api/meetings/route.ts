@@ -49,6 +49,7 @@ export async function POST(req: Request) {
         startTime: new Date(data.startTime),
         endTime: new Date(data.endTime),
         meetingUrl: data.meetingUrl,
+        isVideoCall: Boolean(data.isVideoCall),
         participants: {
           create: [
             { userId: session.user.id, isHost: true, hasAccepted: true },

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -36,6 +37,7 @@ interface Meeting {
   startTime: string;
   endTime: string;
   meetingUrl?: string;
+  isVideoCall?: boolean;
   status: string;
   participants: MeetingParticipant[];
 }
@@ -52,6 +54,7 @@ interface UIMeeting {
   hostInitials: string;
   status: MeetingStatus;
   type: "video" | "in-person";
+  isVideoCall: boolean;
 }
 
 const statusConfig: Record<
@@ -126,7 +129,8 @@ function toUIMeeting(m: Meeting, currentUserId?: string): UIMeeting {
     host: host?.user.name ?? "Consultant",
     hostInitials: getInitials(host?.user.name),
     status: uiStatus,
-    type: m.meetingUrl ? "video" : "in-person",
+    type: m.isVideoCall || m.meetingUrl ? "video" : "in-person",
+    isVideoCall: Boolean(m.isVideoCall),
   };
 }
 
@@ -331,10 +335,20 @@ export default function MeetingsPage() {
                   )}
 
                   {meeting.status === "accepted" && (
-                    <span className="flex items-center gap-1 text-xs font-medium text-green-600 shrink-0">
-                      <CheckCircle2 className="size-4" />
-                      Confirmed
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="flex items-center gap-1 text-xs font-medium text-green-600">
+                        <CheckCircle2 className="size-4" />
+                        Confirmed
+                      </span>
+                      {meeting.isVideoCall && (
+                        <Link href={`/call/${meeting.id}`}>
+                          <Button size="xs" className="gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
+                            <Video className="size-3" />
+                            Join Call
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   )}
 
                   {meeting.status === "declined" && (

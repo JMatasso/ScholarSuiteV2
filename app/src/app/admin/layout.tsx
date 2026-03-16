@@ -11,6 +11,7 @@ import {
   UserPlus,
   UserCheck,
   Layers,
+  School,
   Award,
   ListTodo,
   BookOpen,
@@ -60,6 +61,7 @@ const navGroups: NavGroup[] = [
       { label: "Parents", href: "/admin/parents", icon: UserPlus },
       { label: "Access Requests", href: "/admin/access-requests", icon: UserCheck },
       { label: "Cohorts", href: "/admin/cohorts", icon: Layers },
+      { label: "Schools", href: "/admin/schools", icon: School },
     ],
   },
   {
