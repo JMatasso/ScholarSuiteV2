@@ -638,27 +638,38 @@ enum ActivityCategory {
   VOLUNTEER
   WORK
   LEADERSHIP
+  ENTREPRENEURSHIP
+  RESEARCH
+  STUDY_ABROAD
+  CERTIFICATION
+  MENTORING
+  AWARD
+  PROJECT
+  PROFESSIONAL_DEV
   OTHER
 }
 
 model Activity {
-  id           String           @id @default(cuid())
-  userId       String
-  category     ActivityCategory @default(OTHER)
-  title        String
-  organization String?
-  role         String?
-  description  String?
-  startDate    DateTime?
-  endDate      DateTime?
-  hoursPerWeek Float?
-  totalHours   Float?
-  isVerified   Boolean          @default(false)
-  isLeadership Boolean          @default(false)
-  isAward      Boolean          @default(false)
-  user         User             @relation(fields: [userId], references: [id])
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id               String           @id @default(cuid())
+  userId           String
+  category         ActivityCategory @default(OTHER)
+  title            String
+  organization     String?
+  role             String?
+  description      String?
+  impactStatement  String?
+  skillsGained     String[]
+  startDate        DateTime?
+  endDate          DateTime?
+  isOngoing        Boolean          @default(false)
+  hoursPerWeek     Float?
+  totalHours       Float?
+  isVerified       Boolean          @default(false)
+  isLeadership     Boolean          @default(false)
+  isAward          Boolean          @default(false)
+  user             User             @relation(fields: [userId], references: [id])
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 // ─── COMMUNICATION ───────────────────────────────────────────

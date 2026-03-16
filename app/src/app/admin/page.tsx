@@ -3,7 +3,7 @@
 import * as React from "react"
 import { motion } from "motion/react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Users, FileText, Award, AlertTriangle, Clock, TrendingUp, TrendingDown, ArrowRight } from "lucide-react"
+import { Users, FileText, Award, AlertTriangle, Clock, TrendingUp, TrendingDown, ArrowRight, GraduationCap } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -61,6 +61,7 @@ const sparkStudents = [{ v: 20 }, { v: 25 }, { v: 22 }, { v: 30 }, { v: 28 }, { 
 const sparkApps = [{ v: 50 }, { v: 55 }, { v: 60 }, { v: 58 }, { v: 70 }, { v: 75 }, { v: 84 }]
 const sparkAwards = [{ v: 200 }, { v: 400 }, { v: 600 }, { v: 750 }, { v: 900 }, { v: 1000 }, { v: 1200 }]
 const sparkRisk = [{ v: 5 }, { v: 4 }, { v: 3 }, { v: 4 }, { v: 2 }, { v: 1 }, { v: 0 }]
+const sparkCollege = [{ v: 5 }, { v: 10 }, { v: 18 }, { v: 25 }, { v: 32 }, { v: 40 }, { v: 48 }]
 
 type KpiTone = "blue" | "indigo" | "emerald" | "amber"
 
@@ -245,7 +246,7 @@ export default function AdminDashboardPage() {
       </motion.div>
 
       {/* KPI Cards with colored tones + sparklines */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <KpiCard
           title="Total Students"
           value={totalStudents}
@@ -274,13 +275,22 @@ export default function AdminDashboardPage() {
           index={2}
         />
         <KpiCard
+          title="College Acceptances"
+          value={48}
+          icon={GraduationCap}
+          trend={{ value: 15, label: "this cycle" }}
+          tone="indigo"
+          sparkData={sparkCollege}
+          index={3}
+        />
+        <KpiCard
           title="At Risk Students"
           value={atRiskStudents.length}
           icon={AlertTriangle}
           trend={{ value: -5, label: "vs last week" }}
           tone="amber"
           sparkData={sparkRisk}
-          index={3}
+          index={4}
         />
       </div>
 

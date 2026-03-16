@@ -14,6 +14,9 @@ import {
   DollarSign,
   Menu,
   X,
+  Building2,
+  FileText,
+  Activity,
 } from "lucide-react";
 import { motion, useInView, useScroll } from "motion/react";
 import { toast } from "sonner";
@@ -43,10 +46,10 @@ const testimonials = [
     role: "College Prep Consultant",
   },
   {
-    text: "I can finally see exactly where my daughter stands with all her applications. The parent dashboard gives me peace of mind without being overbearing.",
+    text: "ScholarSuite helped me stay on top of 11 college applications and 15 scholarship apps simultaneously. I got into my dream school and won $18K in scholarships.",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    name: "Patricia Chen",
-    role: "Parent",
+    name: "Aisha Williams",
+    role: "College Freshman, Georgia Tech",
   },
   {
     text: "The essay tools alone are worth it. Having AI feedback before my consultant review saved so much back-and-forth. My essays were polished and ready.",
@@ -67,7 +70,7 @@ const testimonials = [
     role: "Pre-Med Student, UCLA",
   },
   {
-    text: "My students love the Kanban boards. They went from scattered spreadsheets to organized pipelines practically overnight. It just clicks.",
+    text: "The college application tracker and brag sheet are game changers. My students went from scattered spreadsheets to organized pipelines. It just clicks.",
     image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
     name: "Keisha Washington",
     role: "High School Counselor",
@@ -264,7 +267,7 @@ export default function LandingPage() {
           >
             <Sparkles className="w-4 h-4 text-[#2563EB]" />
             <span className="text-sm text-[#2563EB] font-medium tracking-wide">
-              AI-Powered Scholarship Matching
+              AI-Powered Scholarship &amp; College Prep
             </span>
           </motion.div>
 
@@ -275,7 +278,7 @@ export default function LandingPage() {
             animate="visible"
             className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-[#1A1A1A]"
           >
-            Your scholarship journey,{" "}
+            Your scholarship &amp; college journey,{" "}
             <span className="text-[#2563EB]">organized.</span>
           </motion.h1>
 
@@ -286,9 +289,9 @@ export default function LandingPage() {
             animate="visible"
             className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            ScholarSuite helps students discover scholarships, track
-            applications, and plan their financial future — with expert guidance
-            every step of the way.
+            ScholarSuite helps students discover scholarships, track college
+            applications, and plan their path to higher education — with expert
+            guidance every step of the way.
           </motion.p>
 
           <motion.div
@@ -346,10 +349,10 @@ export default function LandingPage() {
                   icon={<Search className="w-5 h-5 text-[#2563EB]" />}
                 />
                 <DashboardMockCard
-                  title="Applications Active"
-                  value="8"
-                  subtitle="3 due this month"
-                  icon={<BookOpen className="w-5 h-5 text-purple-600" />}
+                  title="College Apps"
+                  value="9"
+                  subtitle="3 accepted, 2 waitlisted"
+                  icon={<GraduationCap className="w-5 h-5 text-purple-600" />}
                 />
                 <DashboardMockCard
                   title="Awards Won"
@@ -403,11 +406,11 @@ export default function LandingPage() {
               Features
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
-              Everything you need to win scholarships
+              Everything you need for scholarships &amp; college
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              From discovery to award — ScholarSuite streamlines the entire
-              scholarship journey for students, consultants, and families.
+              From scholarship discovery to college acceptance — ScholarSuite
+              streamlines the entire journey for students, consultants, and families.
             </p>
           </motion.div>
 
@@ -425,25 +428,34 @@ export default function LandingPage() {
                 href="#features"
                 cta="Learn more"
                 background={<FeatureCardBg color="blue" />}
-                className="lg:row-start-1 lg:row-end-4 lg:col-start-1 lg:col-end-2"
+                className="lg:row-start-1 lg:row-end-3 lg:col-start-1 lg:col-end-2"
               />
               <BentoCard
-                Icon={BarChart3}
-                name="Application Tracking"
-                description="Kanban-style boards keep every scholarship and college application on track. Never miss a deadline again."
+                Icon={Building2}
+                name="College Application Tracker"
+                description="Track every college application from research to acceptance. Kanban boards, deadline alerts, dream school flags, and side-by-side decision comparison."
                 href="#features"
                 cta="Learn more"
                 background={<FeatureCardBg color="purple" />}
-                className="lg:col-start-2 lg:col-end-3 lg:row-start-1 lg:row-end-3"
+                className="lg:col-start-2 lg:col-end-3 lg:row-start-1 lg:row-end-2"
               />
               <BentoCard
-                Icon={DollarSign}
-                name="Financial Planning"
-                description="See your full college cost picture, semester by semester. Map scholarships, grants, and loans to visualize your funding gap."
+                Icon={BarChart3}
+                name="Scholarship Application Tracking"
+                description="Kanban-style boards keep every scholarship application on track. Checklists, essay linking, and deadline alerts — never miss an opportunity."
                 href="#features"
                 cta="Learn more"
                 background={<FeatureCardBg color="emerald" />}
-                className="lg:col-start-2 lg:col-end-3 lg:row-start-3 lg:row-end-4"
+                className="lg:col-start-2 lg:col-end-3 lg:row-start-2 lg:row-end-3"
+              />
+              <BentoCard
+                Icon={Activity}
+                name="Brag Sheet & Activity Tracker"
+                description="Comprehensive record of every job, activity, award, volunteer hour, and achievement. Export-ready for any college or scholarship application."
+                href="#features"
+                cta="Learn more"
+                background={<FeatureCardBg color="amber" />}
+                className="lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4"
               />
               <BentoCard
                 Icon={Users}
@@ -452,16 +464,25 @@ export default function LandingPage() {
                 href="#features"
                 cta="Learn more"
                 background={<FeatureCardBg color="sky" />}
-                className="lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2"
+                className="lg:col-start-2 lg:col-end-3 lg:row-start-3 lg:row-end-4"
               />
               <BentoCard
                 Icon={BookOpen}
                 name="Essay Tools & AI Review"
-                description="Craft winning scholarship essays with version tracking, AI-powered feedback, and consultant review workflows."
+                description="Craft winning scholarship and college essays with version tracking, AI-powered feedback, and consultant review workflows."
                 href="#features"
                 cta="Learn more"
                 background={<FeatureCardBg color="amber" />}
-                className="lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4"
+                className="lg:col-start-3 lg:col-end-4 lg:row-start-1 lg:row-end-3"
+              />
+              <BentoCard
+                Icon={DollarSign}
+                name="Financial Planning"
+                description="See your full college cost picture, semester by semester. Map scholarships, grants, and loans to visualize your funding gap."
+                href="#features"
+                cta="Learn more"
+                background={<FeatureCardBg color="emerald" />}
+                className="lg:col-start-3 lg:col-end-4 lg:row-start-3 lg:row-end-4"
               />
             </BentoGrid>
           </motion.div>
@@ -590,7 +611,7 @@ export default function LandingPage() {
               Get started in minutes
             </h2>
             <p className="text-lg text-gray-500">
-              Three simple steps to transform your scholarship search
+              Three simple steps to transform your scholarship &amp; college journey
             </p>
           </motion.div>
 
@@ -604,15 +625,15 @@ export default function LandingPage() {
               },
               {
                 step: "02",
-                title: "Discover Matches",
+                title: "Discover & Match",
                 description:
-                  "Our matching engine instantly finds scholarships you qualify for, ranked by fit and deadline urgency.",
+                  "Our matching engine finds scholarships you qualify for. Search colleges by major, cost, and fit. Build your application lists.",
               },
               {
                 step: "03",
                 title: "Track & Apply",
                 description:
-                  "Manage your applications with Kanban boards, checklists, and essay tools. Your consultant guides you every step.",
+                  "Manage scholarship and college applications with Kanban boards, checklists, and essay tools. Your consultant guides you every step.",
               },
             ].map((item, i) => (
               <motion.div
@@ -660,7 +681,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-center mt-4 text-gray-500">
               See how ScholarSuite is helping students, parents, and consultants
-              win more scholarships.
+              navigate scholarships and college admissions.
             </p>
           </motion.div>
 
@@ -703,11 +724,11 @@ export default function LandingPage() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-6">
-              Ready to transform your scholarship practice?
+              Ready to transform your scholarship &amp; college practice?
             </h2>
             <p className="text-lg text-gray-500 mb-10">
               Join hundreds of consultants and thousands of students already
-              using ScholarSuite to discover, apply, and win scholarships.
+              using ScholarSuite to win scholarships and get into their dream schools.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
@@ -794,7 +815,7 @@ function StatsSection() {
   const stats = [
     { value: 2500, label: "Students Served", suffix: "+" },
     { value: 8, label: "In Scholarship Awards", prefix: "$", suffix: "M+" },
-    { value: 150, label: "Partner Schools", suffix: "+" },
+    { value: 340, label: "College Acceptances", suffix: "+" },
     { value: 95, label: "Student Satisfaction", suffix: "%" },
   ];
 
