@@ -206,14 +206,21 @@ export default function StudentLayout({
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                        "group flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-all",
                         active
-                          ? "bg-[#1E3A5F]/10 text-[#1E3A5F]"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                          ? "bg-[#1E3A5F]/5 text-[#1E3A5F]"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                         collapsed && !isMobile && "justify-center px-2"
                       )}
                     >
-                      <Icon className={cn("h-4 w-4 shrink-0", active && "text-[#2563EB]")} />
+                      <div className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200",
+                        active
+                          ? "bg-[#2563EB] text-white shadow-sm"
+                          : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm"
+                      )}>
+                        <Icon className="h-4 w-4" />
+                      </div>
                       {(!collapsed || isMobile) && <span>{item.name}</span>}
                     </Link>
                   </motion.div>

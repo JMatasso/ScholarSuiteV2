@@ -165,9 +165,10 @@ export default function ParentLayout({
                     const idx = i++;
                     return (
                       <motion.div key={item.href} initial={{ x: -40, opacity: 0 }} animate={mobileOpen ? { x: 0, opacity: 1, transition: { delay: 0.05 + idx * 0.04, type: "spring", stiffness: 260, damping: 24 } } : { x: -40, opacity: 0 }}>
-                        <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors", isActive ? "bg-[#1E3A5F]/5 text-[#1E3A5F]" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                          {isActive && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#1E3A5F]" />}
-                          <item.icon className={cn("size-[18px] shrink-0", isActive ? "text-[#1E3A5F]" : "text-muted-foreground group-hover:text-foreground")} />
+                        <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", isActive ? "bg-[#1E3A5F]/5 text-[#1E3A5F]" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
+                          <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200", isActive ? "bg-[#2563EB] text-white shadow-sm" : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm")}>
+                            <item.icon className="size-[16px]" />
+                          </div>
                           <span>{item.name}</span>
                         </Link>
                       </motion.div>
@@ -201,9 +202,10 @@ export default function ParentLayout({
                   const idx = i++;
                   return (
                     <motion.div key={item.href} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.03 } }}>
-                      <Link href={item.href} className={cn("group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors", isActive ? "bg-[#1E3A5F]/5 text-[#1E3A5F]" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                        {isActive && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#1E3A5F]" />}
-                        <item.icon className={cn("size-[18px] shrink-0", isActive ? "text-[#1E3A5F]" : "text-muted-foreground group-hover:text-foreground")} />
+                      <Link href={item.href} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", isActive ? "bg-[#1E3A5F]/5 text-[#1E3A5F]" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
+                        <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200", isActive ? "bg-[#2563EB] text-white shadow-sm" : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm")}>
+                          <item.icon className="size-[16px]" />
+                        </div>
                         {!collapsed && <span>{item.name}</span>}
                       </Link>
                     </motion.div>
