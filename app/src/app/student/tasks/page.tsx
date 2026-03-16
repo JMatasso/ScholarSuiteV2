@@ -332,8 +332,8 @@ export default function TasksPage() {
                       </div>
 
                       <UploadButton
-                        endpoint="documentUploader"
-                        input={{ folder: selectedTask.documentFolder }}
+                        endpoint="folderUploader"
+                        input={{ folder: selectedTask.documentFolder! }}
                         onClientUploadComplete={() => {
                           toast.success("Document uploaded!")
                           // Refresh folder docs
@@ -344,7 +344,7 @@ export default function TasksPage() {
                               setFolderDocs(docs.filter((d: Document & { folder?: string }) => d.folder === selectedTask.documentFolder))
                             })
                         }}
-                        onUploadError={(error) => toast.error(`Upload failed: ${error.message}`)}
+                        onUploadError={(error: Error) => { toast.error(`Upload failed: ${error.message}`) }}
                         appearance={{
                           button: "bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-xs px-3 py-1.5 rounded-lg w-full",
                           allowedContent: "text-[10px] text-muted-foreground mt-1",
