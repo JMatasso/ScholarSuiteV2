@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { formatCurrency } from "@/lib/format"
 import {
   DollarSign,
   TrendingDown,
@@ -40,10 +41,6 @@ interface FinancialPlan {
   id: string
   userId: string
   semesters: Semester[]
-}
-
-function formatCurrency(val: number) {
-  return "$" + val.toLocaleString()
 }
 
 function getSemesterTotal(sem: Semester): number {

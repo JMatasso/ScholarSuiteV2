@@ -23,6 +23,7 @@ import {
   Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
+import { formatDate } from "@/lib/format"
 
 interface EssayVersion {
   id: string
@@ -70,10 +71,6 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 
 function countWords(text: string): number {
   return text.trim() ? text.trim().split(/\s+/).length : 0
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 export default function EssaysPage() {

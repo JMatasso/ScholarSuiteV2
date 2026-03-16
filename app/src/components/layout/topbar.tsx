@@ -12,6 +12,7 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getInitials } from "@/lib/format";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,16 +47,6 @@ function buildBreadcrumbs(pathname: string) {
   }
 
   return crumbs;
-}
-
-function getInitials(name?: string) {
-  if (!name) return "U";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 export function Topbar({

@@ -4,6 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
 import { Plus, Video, Clock, Calendar, MapPin } from "lucide-react"
 import { toast } from "sonner"
 
@@ -126,29 +127,29 @@ export default function MeetingsPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="col-span-2">
               <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
-              <input required type="text" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="text" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Start Time *</label>
-              <input required type="datetime-local" value={form.startTime} onChange={e => setForm(p => ({ ...p, startTime: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="datetime-local" value={form.startTime} onChange={e => setForm(p => ({ ...p, startTime: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">End Time *</label>
-              <input required type="datetime-local" value={form.endTime} onChange={e => setForm(p => ({ ...p, endTime: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="datetime-local" value={form.endTime} onChange={e => setForm(p => ({ ...p, endTime: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Meeting URL</label>
-              <input type="url" value={form.meetingUrl} onChange={e => setForm(p => ({ ...p, meetingUrl: e.target.value }))}
+              <Input type="url" value={form.meetingUrl} onChange={e => setForm(p => ({ ...p, meetingUrl: e.target.value }))}
                 placeholder="https://meet.google.com/..."
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Description</label>
-              <input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                className="h-9" />
             </div>
           </div>
           <div className="flex gap-2">
@@ -164,15 +165,15 @@ export default function MeetingsPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">New Start Time *</label>
-              <input required type="datetime-local" value={rescheduleForm.startTime}
+              <Input required type="datetime-local" value={rescheduleForm.startTime}
                 onChange={e => setRescheduleForm(p => ({ ...p, startTime: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">New End Time *</label>
-              <input required type="datetime-local" value={rescheduleForm.endTime}
+              <Input required type="datetime-local" value={rescheduleForm.endTime}
                 onChange={e => setRescheduleForm(p => ({ ...p, endTime: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                className="h-9" />
             </div>
           </div>
           <div className="flex gap-2">

@@ -3,6 +3,8 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Plus, Pin, Clock, Users, UserPlus, Shield } from "lucide-react"
 import { toast } from "sonner"
 
@@ -141,22 +143,21 @@ export default function AnnouncementsPage() {
           <div className="flex flex-col gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
-              <input
+              <Input
                 required
                 type="text"
                 value={form.title}
                 onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Content *</label>
-              <textarea
+              <Textarea
                 required
                 value={form.content}
                 onChange={e => setForm(p => ({ ...p, content: e.target.value }))}
                 rows={3}
-                className="w-full rounded-lg border border-input bg-transparent p-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -174,11 +175,11 @@ export default function AnnouncementsPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">Expires At</label>
-                <input
+                <Input
                   type="date"
                   value={form.expiresAt}
                   onChange={e => setForm(p => ({ ...p, expiresAt: e.target.value }))}
-                  className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  className="h-9"
                 />
               </div>
             </div>
@@ -238,13 +239,12 @@ export default function AnnouncementsPage() {
                   <div className="flex flex-col gap-3 mb-3">
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
-                      <input required type="text" value={editForm.title} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))}
-                        className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                      <Input required type="text" value={editForm.title} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))}
+                        className="h-9" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1">Content *</label>
-                      <textarea required value={editForm.content} onChange={e => setEditForm(p => ({ ...p, content: e.target.value }))} rows={2}
-                        className="w-full rounded-lg border border-input bg-transparent p-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none" />
+                      <Textarea required value={editForm.content} onChange={e => setEditForm(p => ({ ...p, content: e.target.value }))} rows={2} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -258,8 +258,8 @@ export default function AnnouncementsPage() {
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-foreground mb-1">Expires At</label>
-                        <input type="date" value={editForm.expiresAt} onChange={e => setEditForm(p => ({ ...p, expiresAt: e.target.value }))}
-                          className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                        <Input type="date" value={editForm.expiresAt} onChange={e => setEditForm(p => ({ ...p, expiresAt: e.target.value }))}
+                          className="h-9" />
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

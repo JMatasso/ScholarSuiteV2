@@ -4,6 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
 import { Plus, Users, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -95,13 +96,13 @@ export default function CohortsPage() {
           <div className="flex flex-col gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Name *</label>
-              <input required type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Description</label>
-              <input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Color</label>

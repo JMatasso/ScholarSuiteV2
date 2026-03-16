@@ -39,7 +39,10 @@ export function ProfileSettings() {
   const handleSaveProfile = async () => {
     setSavingProfile(true)
     try {
-      const body: Record<string, string> = { name }
+      const body: Record<string, string | null> = { name }
+      if (image !== session?.user?.image) {
+        body.image = image
+      }
       if (email !== session?.user?.email) {
         if (!currentPassword) {
           toast.error("Current password required to change email")
@@ -62,7 +65,7 @@ export function ProfileSettings() {
       }
 
       toast.success("Profile updated")
-      updateSession()
+      await updateSession({ name, email, image })
       setCurrentPassword("")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update profile")
@@ -133,11 +136,22 @@ export function ProfileSettings() {
           <div>
             <UploadButton
               endpoint="profileImage"
-              onClientUploadComplete={(res) => {
+              onClientUploadComplete={async (res) => {
                 if (res?.[0]) {
-                  setImage(res[0].ufsUrl)
-                  toast.success("Photo uploaded")
-                  updateSession()
+                  const imageUrl = res[0].ufsUrl
+                  setImage(imageUrl)
+                  // Save image URL to database
+                  const saveRes = await fetch("/api/auth/account", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: imageUrl }),
+                  })
+                  if (saveRes.ok) {
+                    toast.success("Photo uploaded")
+                    await updateSession({ image: imageUrl })
+                  } else {
+                    toast.error("Photo uploaded but failed to save")
+                  }
                 }
               }}
               onUploadError={(error) => {

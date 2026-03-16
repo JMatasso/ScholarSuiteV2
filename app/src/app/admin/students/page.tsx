@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
+import { Input } from "@/components/ui/input"
 import { Plus, Upload, MoreHorizontal, Mail, Eye, Trash2, Pencil } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -29,14 +30,7 @@ interface Student {
   } | null
 }
 
-const parseCSV = (text: string) => {
-  const lines = text.trim().split('\n')
-  const headers = lines[0].split(',').map(h => h.trim())
-  return lines.slice(1).map(line => {
-    const values = line.split(',').map(v => v.trim())
-    return headers.reduce((obj, header, i) => ({ ...obj, [header]: values[i] }), {} as Record<string, string>)
-  })
-}
+import { parseCSV } from "@/lib/csv-parser"
 
 export default function StudentsPage() {
   const [students, setStudents] = React.useState<Student[]>([])
@@ -196,7 +190,16 @@ export default function StudentsPage() {
                   <Pencil className="size-3.5" /> View / Edit
                 </button>
                 <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                  onClick={() => { toast.info("Remove student from student detail page"); setOpenMenuId(null) }}>
+                  onClick={async () => {
+                    if (!confirm(`Remove ${row.original.name}? This cannot be undone.`)) { setOpenMenuId(null); return }
+                    try {
+                      const res = await fetch(`/api/students/${row.original.id}`, { method: "DELETE" })
+                      if (!res.ok) throw new Error()
+                      toast.success("Student removed")
+                      loadStudents()
+                    } catch { toast.error("Failed to remove student") }
+                    setOpenMenuId(null)
+                  }}>
                   <Trash2 className="size-3.5" /> Remove
                 </button>
               </div>
@@ -237,40 +240,40 @@ export default function StudentsPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Name</label>
-              <input
+              <Input
                 required
                 type="text"
                 value={newStudent.name}
                 onChange={e => setNewStudent(p => ({ ...p, name: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Email</label>
-              <input
+              <Input
                 required
                 type="email"
                 value={newStudent.email}
                 onChange={e => setNewStudent(p => ({ ...p, email: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">School</label>
-              <input
+              <Input
                 type="text"
                 value={newStudent.school}
                 onChange={e => setNewStudent(p => ({ ...p, school: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Phone</label>
-              <input
+              <Input
                 type="text"
                 value={newStudent.phone}
                 onChange={e => setNewStudent(p => ({ ...p, phone: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
           </div>
@@ -331,8 +334,19 @@ export default function StudentsPage() {
             URL.revokeObjectURL(url)
             toast.success("Students exported")
           }}>Export</Button>
-          <Button variant="destructive" size="xs" onClick={() => {
-            toast.info(`Remove ${selectedCount} student(s) - confirm action in student detail page`)
+          <Button variant="destructive" size="xs" onClick={async () => {
+            if (!confirm(`Remove ${selectedCount} student(s)? This cannot be undone.`)) return
+            let removed = 0
+            for (const id of selectedIds) {
+              try {
+                const res = await fetch(`/api/students/${id}`, { method: "DELETE" })
+                if (res.ok) removed++
+              } catch { /* skip */ }
+            }
+            toast.success(`Removed ${removed} student(s)`)
+            setSelectedIds(new Set())
+            setSelectedCount(0)
+            loadStudents()
           }}><Trash2 className="size-3" /> Remove</Button>
         </div>
       )}

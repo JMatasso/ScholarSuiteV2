@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/format";
 import {
   User,
   GraduationCap,
@@ -51,16 +52,6 @@ interface Student {
   email: string;
   studentProfile?: StudentProfile;
   school?: { name: string };
-}
-
-function getInitials(name?: string) {
-  if (!name) return "??";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 function getJourneyStageIndex(stage?: string) {

@@ -3,10 +3,13 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select"
+import { EditLinksDialog } from "@/components/ui/edit-links-dialog"
 import {
   Plus,
   MoreHorizontal,
@@ -14,24 +17,13 @@ import {
   Pencil,
   Trash2,
   Link2,
-  X,
-  Check,
-  ChevronDown,
-  Search,
 } from "lucide-react"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
-
-interface StudentOption {
-  id: string
-  name: string
-  email: string
-}
 
 interface ParentUser {
   id: string
@@ -56,213 +48,6 @@ interface ParentRow {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Multi-select student dropdown                                      */
-/* ------------------------------------------------------------------ */
-
-function StudentMultiSelect({
-  students,
-  selectedIds,
-  onChange,
-}: {
-  students: StudentOption[]
-  selectedIds: string[]
-  onChange: (ids: string[]) => void
-}) {
-  const [open, setOpen] = React.useState(false)
-  const [query, setQuery] = React.useState("")
-  const ref = React.useRef<HTMLDivElement>(null)
-
-  React.useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
-  }, [])
-
-  const filtered = students.filter(
-    (s) =>
-      s.name.toLowerCase().includes(query.toLowerCase()) ||
-      s.email.toLowerCase().includes(query.toLowerCase())
-  )
-
-  const toggle = (id: string) => {
-    onChange(
-      selectedIds.includes(id)
-        ? selectedIds.filter((x) => x !== id)
-        : [...selectedIds, id]
-    )
-  }
-
-  const selectedStudents = students.filter((s) => selectedIds.includes(s.id))
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex h-9 w-full items-center justify-between rounded-lg border border-input bg-transparent px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-        )}
-      >
-        <span className="truncate text-muted-foreground">
-          {selectedIds.length === 0
-            ? "Select students..."
-            : `${selectedIds.length} student${selectedIds.length > 1 ? "s" : ""} selected`}
-        </span>
-        <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
-      </button>
-
-      {open && (
-        <div className="absolute left-0 top-full z-20 mt-1 w-full rounded-lg border border-border bg-card shadow-lg">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-            <Search className="size-3.5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="h-6 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-              autoFocus
-            />
-          </div>
-          <div className="max-h-48 overflow-y-auto py-1">
-            {filtered.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-muted-foreground">
-                No students found.
-              </p>
-            ) : (
-              filtered.map((s) => {
-                const checked = selectedIds.includes(s.id)
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => toggle(s.id)}
-                    className="flex w-full items-center gap-2.5 px-3 py-1.5 text-left hover:bg-muted"
-                  >
-                    <span
-                      className={cn(
-                        "flex size-4 shrink-0 items-center justify-center rounded border",
-                        checked
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input bg-transparent"
-                      )}
-                    >
-                      {checked && <Check className="size-3" />}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-foreground">
-                        {s.name}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {s.email}
-                      </p>
-                    </div>
-                  </button>
-                )
-              })
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Selected chips */}
-      {selectedStudents.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {selectedStudents.map((s) => (
-            <span
-              key={s.id}
-              className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
-            >
-              {s.name}
-              <button
-                type="button"
-                onClick={() => toggle(s.id)}
-                className="rounded-full p-0.5 hover:bg-foreground/10"
-              >
-                <X className="size-3" />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  Edit Links mini-form                                               */
-/* ------------------------------------------------------------------ */
-
-function EditLinksDialog({
-  parent,
-  students,
-  onClose,
-  onSaved,
-}: {
-  parent: ParentRow
-  students: StudentOption[]
-  onClose: () => void
-  onSaved: () => void
-}) {
-  const [selectedIds, setSelectedIds] = React.useState<string[]>(
-    parent.linkedStudents.map((s) => s.id)
-  )
-  const [saving, setSaving] = React.useState(false)
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      const res = await fetch(`/api/parents/${parent.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentIds: selectedIds }),
-      })
-      if (!res.ok) throw new Error()
-      toast.success("Student links updated")
-      onSaved()
-      onClose()
-    } catch {
-      toast.error("Failed to update student links")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">
-            Edit Student Links for {parent.name}
-          </h3>
-          <button
-            onClick={onClose}
-            className="rounded-md p-1 hover:bg-muted"
-          >
-            <X className="size-4 text-muted-foreground" />
-          </button>
-        </div>
-        <StudentMultiSelect
-          students={students}
-          selectedIds={selectedIds}
-          onChange={setSelectedIds}
-        />
-        <div className="mt-4 flex gap-2">
-          <Button size="sm" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save"}
-          </Button>
-          <Button size="sm" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -275,7 +60,7 @@ export default function ParentsPage() {
   const [editLinksParent, setEditLinksParent] = React.useState<ParentRow | null>(null)
 
   // All students for linking
-  const [allStudents, setAllStudents] = React.useState<StudentOption[]>([])
+  const [allStudents, setAllStudents] = React.useState<MultiSelectOption[]>([])
 
   // Add-parent form state
   const [newParent, setNewParent] = React.useState({
@@ -327,19 +112,15 @@ export default function ParentsPage() {
       .then(
         (
           data:
-            | Array<{
-                id: string
-                name?: string | null
-                email: string
-              }>
+            | Array<{ id: string; name?: string | null; email: string }>
             | { error: string }
         ) => {
           if (Array.isArray(data)) {
             setAllStudents(
               data.map((s) => ({
                 id: s.id,
-                name: s.name || s.email,
-                email: s.email,
+                label: s.name || s.email,
+                sublabel: s.email,
               }))
             )
           }
@@ -490,16 +271,22 @@ export default function ParentsPage() {
                 <button
                   className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
                   onClick={() => {
-                    toast.info("Edit parent coming soon")
+                    setEditLinksParent(row.original)
                     setOpenMenuId(null)
                   }}
                 >
-                  <Pencil className="size-3.5" /> Edit
+                  <Pencil className="size-3.5" /> Edit Links
                 </button>
                 <button
                   className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                  onClick={() => {
-                    toast.info("Remove parent coming soon")
+                  onClick={async () => {
+                    if (!confirm(`Remove ${row.original.name}? This cannot be undone.`)) { setOpenMenuId(null); return }
+                    try {
+                      const res = await fetch(`/api/parents/${row.original.id}`, { method: "DELETE" })
+                      if (!res.ok) throw new Error()
+                      toast.success("Parent removed")
+                      fetchParents()
+                    } catch { toast.error("Failed to remove parent") }
                     setOpenMenuId(null)
                   }}
                 >
@@ -537,51 +324,44 @@ export default function ParentsPage() {
             Add Parent
           </h3>
           <div className="mb-4 grid grid-cols-2 gap-4">
-            {/* Name */}
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">
                 Name *
               </label>
-              <input
+              <Input
                 required
                 type="text"
                 value={newParent.name}
                 onChange={(e) =>
                   setNewParent((p) => ({ ...p, name: e.target.value }))
                 }
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
-            {/* Email */}
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">
                 Email *
               </label>
-              <input
+              <Input
                 required
                 type="email"
                 value={newParent.email}
                 onChange={(e) =>
                   setNewParent((p) => ({ ...p, email: e.target.value }))
                 }
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
-            {/* Phone */}
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">
                 Phone
               </label>
-              <input
+              <Input
                 type="text"
                 value={newParent.phone}
                 onChange={(e) =>
                   setNewParent((p) => ({ ...p, phone: e.target.value }))
                 }
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </div>
-            {/* Relationship */}
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">
                 Relationship
@@ -591,7 +371,7 @@ export default function ParentsPage() {
                 onChange={(e) =>
                   setNewParent((p) => ({ ...p, relationship: e.target.value }))
                 }
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <option value="">Select...</option>
                 <option value="Mother">Mother</option>
@@ -600,17 +380,19 @@ export default function ParentsPage() {
                 <option value="Other">Other</option>
               </select>
             </div>
-            {/* Student Linking */}
             <div className="col-span-2">
               <label className="mb-1 block text-xs font-medium text-foreground">
                 Link Students
               </label>
-              <StudentMultiSelect
-                students={allStudents}
+              <MultiSelect
+                options={allStudents}
                 selectedIds={newParent.studentIds}
                 onChange={(ids) =>
                   setNewParent((p) => ({ ...p, studentIds: ids }))
                 }
+                placeholder="Select students..."
+                searchPlaceholder="Search students..."
+                emptyMessage="No students found."
               />
             </div>
           </div>

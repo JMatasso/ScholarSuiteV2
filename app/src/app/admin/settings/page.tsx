@@ -3,6 +3,7 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { ProfileSettings } from "@/components/ui/profile-settings"
@@ -88,20 +89,20 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-6 max-w-lg">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Organization Name</label>
-              <input
+              <Input
                 type="text"
                 value={get("orgName", "ScholarSuite Consulting")}
                 onChange={e => set("orgName", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Admin Email</label>
-              <input
+              <Input
                 type="email"
                 value={get("adminEmail", "admin@scholarsuite.com")}
                 onChange={e => set("adminEmail", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
@@ -142,29 +143,29 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-6 max-w-lg">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">SMTP Host</label>
-              <input
+              <Input
                 type="text"
                 value={get("smtpHost", "smtp.scholarsuite.com")}
                 onChange={e => set("smtpHost", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">SMTP Port</label>
-              <input
+              <Input
                 type="text"
                 value={get("smtpPort", "587")}
                 onChange={e => set("smtpPort", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">From Address</label>
-              <input
+              <Input
                 type="email"
                 value={get("emailFrom", "noreply@scholarsuite.com")}
                 onChange={e => set("emailFrom", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div className="flex items-center gap-3">
@@ -201,11 +202,11 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-6 max-w-lg">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Password Minimum Length</label>
-              <input
+              <Input
                 type="number"
                 value={get("minPasswordLength", "8")}
                 onChange={e => set("minPasswordLength", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div className="flex items-center gap-3">
@@ -230,21 +231,21 @@ export default function SettingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Session Timeout (minutes)</label>
-              <input
+              <Input
                 type="number"
                 value={get("sessionTimeout", "60")}
                 onChange={e => set("sessionTimeout", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Allowed IP Ranges (optional)</label>
-              <input
+              <Input
                 type="text"
                 value={get("allowedIpRanges", "")}
                 onChange={e => set("allowedIpRanges", e.target.value)}
                 placeholder="e.g., 192.168.1.0/24"
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <Button
@@ -262,11 +263,11 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">API Key</label>
               <div className="flex gap-2">
-                <input
+                <Input
                   type={apiKeyRevealed ? "text" : "password"}
                   readOnly
                   value={get("apiKey", "sk_live_••••••••••••••••••••••••")}
-                  className="h-9 flex-1 rounded-lg border border-input bg-muted/50 px-3 text-sm font-mono outline-none"
+                  className="h-9 flex-1 bg-muted/50 font-mono"
                 />
                 <Button variant="outline" size="sm" onClick={() => setApiKeyRevealed(!apiKeyRevealed)}>
                   {apiKeyRevealed ? "Hide" : "Reveal"}
@@ -287,21 +288,21 @@ export default function SettingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Webhook URL</label>
-              <input
+              <Input
                 type="url"
                 value={get("webhookUrl", "")}
                 onChange={e => set("webhookUrl", e.target.value)}
                 placeholder="https://your-server.com/webhooks/scholarsuite"
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Rate Limit (requests per minute)</label>
-              <input
+              <Input
                 type="number"
                 value={get("rateLimit", "100")}
                 onChange={e => set("rateLimit", e.target.value)}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <Button

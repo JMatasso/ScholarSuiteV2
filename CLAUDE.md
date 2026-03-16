@@ -166,6 +166,76 @@ export default function Page() {
 - `SupportTicket` / `TicketComment` — helpdesk
 - `AuditLog` — action tracking
 
+## Code Standards
+
+### Component Rules
+- **Never define reusable UI inline in a page file.** If a component takes props and could be used elsewhere (dropdowns, dialogs, multi-selects, pickers, form sections), extract it to `components/`.
+- **Page files must stay under ~300 lines.** If a page exceeds that, split it into composable components imported from `components/`.
+- **Always use existing shadcn primitives** — `<Input>`, `<Textarea>`, `<Select>`, `<Badge>`, `<Dialog>`, `<Card>`, `<Button>`, `<Switch>`, `<Checkbox>`, etc. Never write raw `<input>`, `<select>`, or `<textarea>` with hand-rolled classNames.
+- **Check the shared component registry below before building anything new.** If a component already exists, use it.
+
+### Shared Logic Rules
+- **If the same logic appears in 2+ files, extract it** to `lib/` (pure utilities) or `hooks/` (stateful/React logic).
+- Formatting helpers (dates, times, initials, currency) → `lib/format.ts`
+- CSV/file parsing → `lib/csv-parser.ts`
+- Shared fetching or domain logic → `hooks/use<Feature>.ts`
+
+### API Route Rules
+- Use the `withAuth()` wrapper from `lib/api-middleware.ts` instead of copy-pasting session checks and try/catch in every route.
+- Role-specific checks should use `withRole()` variant.
+
+### Before Writing Any New Page
+1. Check `components/ui/` and `components/` for existing components
+2. Check `hooks/` for existing logic you can reuse
+3. Check `lib/` for existing utilities
+4. If you need a new reusable component, create it in `components/` FIRST, then import it
+5. If the page will exceed 300 lines, plan the component breakdown before writing
+
+## Shared Component Registry
+
+### UI Primitives (`components/ui/`)
+| Component | File | Use For |
+|-----------|------|---------|
+| Input | `input.tsx` | All text inputs — never use raw `<input>` |
+| Textarea | `textarea.tsx` | Multi-line text — never use raw `<textarea>` |
+| Select | `select.tsx` | Single-value dropdowns — never use raw `<select>` |
+| MultiSelect | `multi-select.tsx` | Searchable multi-pick with checkboxes |
+| Button | `button.tsx` | All buttons |
+| Badge | `badge.tsx` | Status labels, role tags |
+| StatusBadge | `status-badge.tsx` | Colored status indicators |
+| Card | `card.tsx` | Content containers |
+| Dialog | `dialog.tsx` | Modal overlays |
+| Switch | `switch.tsx` | Boolean toggles |
+| Checkbox | `checkbox.tsx` | Checkboxes |
+| Tabs | `tabs.tsx` | Tab navigation |
+| Table | `table.tsx` | Data tables |
+| DataTable | `data-table.tsx` | Sortable/filterable tables |
+| Avatar | `avatar.tsx` | User avatars |
+| SearchInput | `search-input.tsx` | Search fields |
+| PageHeader | `page-header.tsx` | Page title + description + actions |
+| StatCard | `stat-card.tsx` | Dashboard metric cards |
+| EmptyState | `empty-state.tsx` | No-data placeholders |
+| Skeleton | `skeleton.tsx` | Loading placeholders |
+| ProfileSettings | `profile-settings.tsx` | Account editing (name, email, password, photo) |
+| ThemeToggle | `theme-toggle.tsx` | Light/dark/system switcher |
+| SignIn | `sign-in.tsx` | Login page layout |
+
+### Shared Hooks (`hooks/`)
+| Hook | File | Use For |
+|------|------|---------|
+| useMessaging | `use-messaging.ts` | Conversation list, send/receive, filtering (used by all 3 message pages) |
+
+### Shared Utilities (`lib/`)
+| Utility | File | Use For |
+|---------|------|---------|
+| format | `format.ts` | `formatDate()`, `formatTime()`, `getInitials()`, `formatCurrency()` |
+| csv-parser | `csv-parser.ts` | `parseCSV()` for CSV import |
+| api-middleware | `api-middleware.ts` | `withAuth()`, `withRole()` wrappers for API routes |
+| db | `db.ts` | Prisma client singleton |
+| auth | `auth.ts` | NextAuth config |
+| store | `store.ts` | Zustand stores (sidebar, notifications) |
+| utils | `utils.ts` | `cn()` class merge utility |
+
 ## Important Notes
 - Node >= 22.12.0 required
 - `"use client"` directive required on all interactive pages

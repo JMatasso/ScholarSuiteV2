@@ -4,6 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
 import { Plus, Mail, Phone, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -120,23 +121,23 @@ export default function CRMPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">First Name *</label>
-              <input required type="text" value={form.firstName} onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="text" value={form.firstName} onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Last Name *</label>
-              <input required type="text" value={form.lastName} onChange={e => setForm(p => ({ ...p, lastName: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="text" value={form.lastName} onChange={e => setForm(p => ({ ...p, lastName: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Email</label>
-              <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Phone</label>
-              <input type="text" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input type="text" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Source</label>

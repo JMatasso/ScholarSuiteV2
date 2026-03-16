@@ -18,6 +18,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
+import { formatDate } from "@/lib/format"
 import { UploadDropzone } from "@/lib/uploadthing"
 
 interface DocumentRequest {
@@ -61,10 +62,6 @@ function formatFileSize(bytes: number | null): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 function getDaysLeft(dueDate: string | null): number | null {

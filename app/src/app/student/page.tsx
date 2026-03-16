@@ -19,6 +19,7 @@ import {
   Star,
 } from "lucide-react"
 import Link from "next/link"
+import { formatDate } from "@/lib/format"
 
 interface Task {
   id: string
@@ -60,11 +61,6 @@ function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null
   const diff = new Date(dateStr).getTime() - new Date().getTime()
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "No deadline"
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 export default function StudentDashboard() {
@@ -283,7 +279,7 @@ export default function StudentDashboard() {
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {formatDate(app.scholarship.deadline)}
+                          {formatDate(app.scholarship.deadline, "No deadline")}
                         </span>
                         {app.scholarship.amount && (
                           <span className="font-medium text-[#1E3A5F]">

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Plus, Shield, Eye, EyeOff } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -149,26 +150,26 @@ export default function TeamManagementPage() {
               <label className="block text-xs font-medium text-foreground mb-1">
                 Name *
               </label>
-              <input
+              <Input
                 required
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 placeholder="Full name"
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">
                 Email *
               </label>
-              <input
+              <Input
                 required
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                 placeholder="admin@example.com"
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
@@ -176,14 +177,14 @@ export default function TeamManagementPage() {
                 Password *
               </label>
               <div className="relative">
-                <input
+                <Input
                   required
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
                   placeholder="Minimum 8 characters"
                   minLength={8}
-                  className="h-9 w-full rounded-lg border border-input bg-transparent px-3 pr-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  className="h-9 pr-9"
                 />
                 <button
                   type="button"

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/format";
 import {
   CheckSquare,
   FileText,
@@ -43,16 +44,6 @@ interface Task {
   status: string;
   dueDate?: string;
   title: string;
-}
-
-function getInitials(name?: string) {
-  if (!name) return "??";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 function getJourneyStageName(stage?: string) {

@@ -40,15 +40,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           image: user.image,
           role: user.role,
+          isMasterAdmin: user.isMasterAdmin,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: updateData }) {
       if (user) {
         token.role = (user as { role: string }).role;
         token.id = user.id;
+        token.isMasterAdmin = (user as { isMasterAdmin?: boolean }).isMasterAdmin;
+      }
+      // Allow client-side session updates to refresh token data
+      if (trigger === "update" && updateData) {
+        if (updateData.name !== undefined) token.name = updateData.name;
+        if (updateData.email !== undefined) token.email = updateData.email;
+        if (updateData.image !== undefined) token.picture = updateData.image;
       }
       return token;
     },
@@ -56,6 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         (session.user as { role: string }).role = token.role as string;
+        (session.user as { isMasterAdmin?: boolean }).isMasterAdmin = Boolean(token.isMasterAdmin);
       }
       return session;
     },

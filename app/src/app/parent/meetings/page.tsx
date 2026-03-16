@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { getInitials } from "@/lib/format";
 import {
   Video,
   Calendar,
@@ -77,16 +78,6 @@ const statusConfig: Record<
     bgColor: "bg-gray-50 ring-gray-200",
   },
 };
-
-function getInitials(name?: string) {
-  if (!name) return "??";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 function formatDuration(start: string, end: string) {
   const diff = (new Date(end).getTime() - new Date(start).getTime()) / 60000;

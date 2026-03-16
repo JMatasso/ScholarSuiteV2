@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
+import { Input } from "@/components/ui/input"
 import { Plus, Upload, MoreHorizontal, ExternalLink, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -25,14 +26,7 @@ interface Scholarship {
   tags: ScholarshipTag[]
 }
 
-const parseCSV = (text: string) => {
-  const lines = text.trim().split('\n')
-  const headers = lines[0].split(',').map(h => h.trim())
-  return lines.slice(1).map(line => {
-    const values = line.split(',').map(v => v.trim())
-    return headers.reduce((obj, header, i) => ({ ...obj, [header]: values[i] }), {} as Record<string, string>)
-  })
-}
+import { parseCSV } from "@/lib/csv-parser"
 
 export default function ScholarshipsPage() {
   const [scholarships, setScholarships] = React.useState<Scholarship[]>([])
@@ -241,57 +235,57 @@ export default function ScholarshipsPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Name *</label>
-              <input
+              <Input
                 required
                 type="text"
                 value={newScholarship.name}
                 onChange={e => setNewScholarship(p => ({ ...p, name: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Provider</label>
-              <input
+              <Input
                 type="text"
                 value={newScholarship.provider}
                 onChange={e => setNewScholarship(p => ({ ...p, provider: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Amount ($)</label>
-              <input
+              <Input
                 type="number"
                 value={newScholarship.amount}
                 onChange={e => setNewScholarship(p => ({ ...p, amount: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Deadline</label>
-              <input
+              <Input
                 type="date"
                 value={newScholarship.deadline}
                 onChange={e => setNewScholarship(p => ({ ...p, deadline: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">URL</label>
-              <input
+              <Input
                 type="url"
                 value={newScholarship.url}
                 onChange={e => setNewScholarship(p => ({ ...p, url: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Description</label>
-              <input
+              <Input
                 type="text"
                 value={newScholarship.description}
                 onChange={e => setNewScholarship(p => ({ ...p, description: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
             </div>
           </div>

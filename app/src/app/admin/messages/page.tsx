@@ -4,31 +4,14 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { SearchInput } from "@/components/ui/search-input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Megaphone, Send, Paperclip } from "lucide-react"
 import { toast } from "sonner"
-
-interface Message {
-  id: string
-  content: string
-  createdAt: string
-  senderId: string
-  receiverId: string
-  sender: { id: string; name?: string | null; image?: string | null; role?: string }
-  receiver: { id: string; name?: string | null; image?: string | null; role?: string }
-}
-
-interface Conversation {
-  userId: string
-  name: string
-  initials: string
-  lastMessage: string
-  time: string
-  unread: boolean
-  role: string
-}
+import { useMessaging } from "@/hooks/use-messaging"
 
 interface UserOption {
   id: string
@@ -44,12 +27,27 @@ interface CohortOption {
 }
 
 export default function MessagesPage() {
-  const [messages, setMessages] = React.useState<Message[]>([])
+  // Shared messaging hook
+  const {
+    loading,
+    currentUserId,
+    messageInput,
+    sending,
+    messagesEndRef,
+    conversations,
+    chatMessages,
+    activePartnerId,
+    activeConversation,
+    setSelectedPartnerId,
+    setMessageInput,
+    sendMessage,
+    handleKeyDown,
+    fetchMessages,
+    formatTime,
+  } = useMessaging()
+
+  // Admin-only local state
   const [search, setSearch] = React.useState("")
-  const [selectedUserId, setSelectedUserId] = React.useState<string | null>(null)
-  const [newMessage, setNewMessage] = React.useState("")
-  const [loading, setLoading] = React.useState(true)
-  const [currentUserId, setCurrentUserId] = React.useState<string>("")
   const [showBroadcast, setShowBroadcast] = React.useState(false)
   const [broadcastContent, setBroadcastContent] = React.useState("")
   const [broadcastTarget, setBroadcastTarget] = React.useState("")
@@ -99,84 +97,6 @@ export default function MessagesPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const loadMessages = React.useCallback(() => {
-    fetch("/api/messages")
-      .then(res => res.json())
-      .then(d => {
-        const msgs = Array.isArray(d) ? d : []
-        setMessages(msgs)
-        if (msgs.length > 0 && !currentUserId) {
-          const myId = msgs[0].senderId
-          setCurrentUserId(myId)
-        }
-        setLoading(false)
-      })
-      .catch(() => { toast.error("Failed to load messages"); setLoading(false) })
-  }, [currentUserId])
-
-  React.useEffect(() => { loadMessages() }, [loadMessages])
-
-  // Build a lookup of user roles from allUsers
-  const userRoleMap = React.useMemo(() => {
-    const map = new Map<string, string>()
-    allUsers.forEach(u => map.set(u.id, u.role))
-    return map
-  }, [allUsers])
-
-  // Build conversation list from messages
-  const conversations: Conversation[] = React.useMemo(() => {
-    const map = new Map<string, Conversation>()
-    messages.forEach(msg => {
-      const otherId = msg.senderId === currentUserId ? msg.receiverId : msg.senderId
-      const other = msg.senderId === currentUserId ? msg.receiver : msg.sender
-      const name = other.name || other.id
-      const initials = name.substring(0, 2).toUpperCase()
-      const existing = map.get(otherId)
-      // Determine role from message data or user lookup
-      const role = other.role || userRoleMap.get(otherId) || "User"
-      if (!existing || new Date(msg.createdAt) > new Date(existing.time)) {
-        map.set(otherId, {
-          userId: otherId,
-          name,
-          initials,
-          lastMessage: msg.content,
-          time: new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          unread: msg.senderId !== currentUserId && !!(msg as Message & { read?: boolean }).read === false,
-          role,
-        })
-      }
-    })
-    return Array.from(map.values())
-  }, [messages, currentUserId, userRoleMap])
-
-  const chatMessages = React.useMemo(() => {
-    if (!selectedUserId) return []
-    return messages.filter(
-      msg =>
-        (msg.senderId === currentUserId && msg.receiverId === selectedUserId) ||
-        (msg.senderId === selectedUserId && msg.receiverId === currentUserId)
-    ).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-  }, [messages, selectedUserId, currentUserId])
-
-  const selected = conversations.find(c => c.userId === selectedUserId) || (conversations.length > 0 ? conversations[0] : null)
-  const activeUserId = selectedUserId || (conversations[0]?.userId ?? null)
-
-  const handleSend = async () => {
-    if (!newMessage.trim() || !activeUserId) return
-    try {
-      const res = await fetch("/api/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiverId: activeUserId, content: newMessage }),
-      })
-      if (!res.ok) throw new Error()
-      setNewMessage("")
-      loadMessages()
-    } catch {
-      toast.error("Failed to send message")
-    }
-  }
-
   const handleBroadcast = async () => {
     if (!broadcastContent.trim()) return
     try {
@@ -199,7 +119,7 @@ export default function MessagesPage() {
       setBroadcastTarget("")
       setBroadcastCohortId("")
       setShowBroadcast(false)
-      loadMessages()
+      fetchMessages()
     } catch {
       toast.error("Failed to send broadcast")
     }
@@ -207,23 +127,15 @@ export default function MessagesPage() {
 
   const handleNewMessage = async () => {
     if (!newMsgContent.trim() || !newMsgReceiverId.trim()) return
-    try {
-      const res = await fetch("/api/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiverId: newMsgReceiverId, content: newMsgContent }),
-      })
-      if (!res.ok) throw new Error()
+    const ok = await sendMessage(newMsgReceiverId, newMsgContent)
+    if (ok) {
       toast.success("Message sent")
       setNewMsgContent("")
       setNewMsgReceiverId("")
       setRecipientSearch("")
       setSelectedRecipientName("")
       setShowNewMessage(false)
-      setSelectedUserId(newMsgReceiverId)
-      loadMessages()
-    } catch {
-      toast.error("Failed to send message")
+      setSelectedPartnerId(newMsgReceiverId)
     }
   }
 
@@ -238,14 +150,11 @@ export default function MessagesPage() {
     ).slice(0, 20)
   }, [allUsers, recipientSearch])
 
-  // Apply filters to conversations
+  // Apply filters to conversations from the hook
   const filteredConversations = React.useMemo(() => {
     return conversations.filter(c => {
-      // Text search
-      if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false
-      // Role filter
-      if (roleFilter !== "ALL" && c.role.toUpperCase() !== roleFilter) return false
-      // Read/unread filter
+      if (search && !c.partnerName.toLowerCase().includes(search.toLowerCase())) return false
+      if (roleFilter !== "ALL" && c.partnerRole.toUpperCase() !== roleFilter) return false
       if (readFilter === "UNREAD" && !c.unread) return false
       if (readFilter === "READ" && c.unread) return false
       return true
@@ -307,8 +216,8 @@ export default function MessagesPage() {
             )}
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Message *</label>
-              <textarea value={broadcastContent} onChange={e => setBroadcastContent(e.target.value)} rows={3}
-                className="w-full rounded-lg border border-input bg-transparent p-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none" />
+              <Textarea value={broadcastContent} onChange={e => setBroadcastContent(e.target.value)} rows={3}
+                className="resize-none" />
             </div>
           </div>
           <div className="flex gap-2">
@@ -324,7 +233,7 @@ export default function MessagesPage() {
           <div className="flex flex-col gap-3 mb-4">
             <div ref={recipientRef} className="relative">
               <label className="block text-xs font-medium text-foreground mb-1">Recipient *</label>
-              <input
+              <Input
                 type="text"
                 value={selectedRecipientName || recipientSearch}
                 onChange={e => {
@@ -335,7 +244,7 @@ export default function MessagesPage() {
                 }}
                 onFocus={() => setRecipientDropdownOpen(true)}
                 placeholder="Search by name or email..."
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-9"
               />
               {recipientDropdownOpen && !selectedRecipientName && (
                 <div className="absolute z-50 mt-1 w-full max-h-56 overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
@@ -372,8 +281,8 @@ export default function MessagesPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Message *</label>
-              <textarea value={newMsgContent} onChange={e => setNewMsgContent(e.target.value)} rows={3}
-                className="w-full rounded-lg border border-input bg-transparent p-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none" />
+              <Textarea value={newMsgContent} onChange={e => setNewMsgContent(e.target.value)} rows={3}
+                className="resize-none" />
             </div>
           </div>
           <div className="flex gap-2">
@@ -440,26 +349,26 @@ export default function MessagesPage() {
               <p className="p-4 text-sm text-muted-foreground">No conversations yet.</p>
             ) : filteredConversations.map((convo) => (
               <button
-                key={convo.userId}
-                onClick={() => setSelectedUserId(convo.userId)}
+                key={convo.partnerId}
+                onClick={() => setSelectedPartnerId(convo.partnerId)}
                 className={cn(
                   "flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-muted/50",
-                  activeUserId === convo.userId && "bg-[#1E3A5F]/5"
+                  activePartnerId === convo.partnerId && "bg-[#1E3A5F]/5"
                 )}
               >
                 <Avatar size="sm">
-                  <AvatarFallback>{convo.initials}</AvatarFallback>
+                  <AvatarFallback>{convo.partnerInitials}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <span className={cn("text-sm", convo.unread ? "font-semibold text-foreground" : "font-medium text-foreground")}>
-                      {convo.name}
+                      {convo.partnerName}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">{convo.time}</span>
+                    <span className="text-[11px] text-muted-foreground">{formatTime(convo.lastTime)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Badge variant={roleBadgeVariant(convo.role)} className="text-[10px] h-4 px-1.5">
-                      {convo.role}
+                    <Badge variant={roleBadgeVariant(convo.partnerRole)} className="text-[10px] h-4 px-1.5">
+                      {convo.partnerRole}
                     </Badge>
                     <p className={cn("text-xs truncate", convo.unread ? "text-foreground font-medium" : "text-muted-foreground")}>
                       {convo.lastMessage}
@@ -477,13 +386,13 @@ export default function MessagesPage() {
           {/* Chat Header */}
           <div className="flex items-center gap-3 border-b border-border p-4">
             <Avatar size="sm">
-              <AvatarFallback>{selected?.initials ?? "?"}</AvatarFallback>
+              <AvatarFallback>{activeConversation?.partnerInitials ?? "?"}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium text-foreground">{selected?.name ?? "Select a conversation"}</p>
-              {selected?.role && (
-                <Badge variant={roleBadgeVariant(selected.role)} className="text-[10px] mt-0.5">
-                  {selected.role}
+              <p className="text-sm font-medium text-foreground">{activeConversation?.partnerName ?? "Select a conversation"}</p>
+              {activeConversation?.partnerRole && (
+                <Badge variant={roleBadgeVariant(activeConversation.partnerRole)} className="text-[10px] mt-0.5">
+                  {activeConversation.partnerRole}
                 </Badge>
               )}
             </div>
@@ -503,11 +412,12 @@ export default function MessagesPage() {
                       {msg.content}
                     </div>
                     <span className="mt-1 text-[11px] text-muted-foreground">
-                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {formatTime(msg.createdAt)}
                     </span>
                   </div>
                 )
               })}
+              <div ref={messagesEndRef} />
             </div>
           </div>
 
@@ -515,15 +425,16 @@ export default function MessagesPage() {
           <div className="border-t border-border p-4">
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={() => toast.info("File attachments coming soon")}><Paperclip className="size-4" /></Button>
-              <input
+              <Input
                 type="text"
-                value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                value={messageInput}
+                onChange={e => setMessageInput(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Type a message..."
-                className="flex-1 h-9 rounded-lg border border-input bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                disabled={sending}
+                className="flex-1 h-9"
               />
-              <Button size="icon" onClick={handleSend}><Send className="size-4" /></Button>
+              <Button size="icon" onClick={() => sendMessage()} disabled={sending}><Send className="size-4" /></Button>
             </div>
           </div>
         </div>

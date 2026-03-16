@@ -3,6 +3,7 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Plus, GripVertical, MoreHorizontal, BookOpen, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -102,13 +103,13 @@ export default function LearningPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="col-span-2">
               <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
-              <input required type="text" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="text" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+                className="h-9" />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-foreground mb-1">Description</label>
-              <input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Category</label>
@@ -125,8 +126,8 @@ export default function LearningPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Order</label>
-              <input type="number" value={form.order} onChange={e => setForm(p => ({ ...p, order: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input type="number" value={form.order} onChange={e => setForm(p => ({ ...p, order: e.target.value }))}
+                className="h-9" />
             </div>
             <div className="flex items-center gap-2">
               <input type="checkbox" id="isPublished" checked={form.isPublished} onChange={e => setForm(p => ({ ...p, isPublished: e.target.checked }))}

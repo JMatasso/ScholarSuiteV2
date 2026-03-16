@@ -23,6 +23,7 @@ import {
   Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
+import { getInitials, formatDate, formatTimeOnly } from "@/lib/format"
 
 interface MeetingParticipantUser {
   id: string
@@ -49,23 +50,6 @@ interface Meeting {
   participants: MeetingParticipant[]
 }
 
-function getInitials(name: string | null): string {
-  if (!name) return "?"
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-}
-
-function formatTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-}
 
 function getDuration(start: string, end: string): string {
   const diffMs = new Date(end).getTime() - new Date(start).getTime()
@@ -194,7 +178,7 @@ export default function MeetingsPage() {
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {formatTime(meeting.startTime)} ({getDuration(meeting.startTime, meeting.endTime)})
+                  {formatTimeOnly(meeting.startTime)} ({getDuration(meeting.startTime, meeting.endTime)})
                 </span>
                 {meeting.meetingUrl ? (
                   <span className="flex items-center gap-1">
@@ -281,7 +265,7 @@ export default function MeetingsPage() {
               <div className="space-y-3 py-2">
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div><p className="text-muted-foreground text-xs">Date</p><p className="font-medium">{formatDate(viewMeeting.startTime)}</p></div>
-                  <div><p className="text-muted-foreground text-xs">Time</p><p className="font-medium">{formatTime(viewMeeting.startTime)} - {formatTime(viewMeeting.endTime)}</p></div>
+                  <div><p className="text-muted-foreground text-xs">Time</p><p className="font-medium">{formatTimeOnly(viewMeeting.startTime)} - {formatTimeOnly(viewMeeting.endTime)}</p></div>
                 </div>
                 {viewMeeting.description && <div><p className="text-muted-foreground text-xs">Description</p><p className="text-sm">{viewMeeting.description}</p></div>}
                 <div><p className="text-muted-foreground text-xs">Type</p><p className="text-sm flex items-center gap-1"><MapPin className="h-3 w-3" /> In Person</p></div>

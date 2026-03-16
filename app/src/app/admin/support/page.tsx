@@ -7,6 +7,8 @@ import { SearchInput } from "@/components/ui/search-input"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Plus, MoreHorizontal, Pencil, Trash2, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -179,19 +181,18 @@ export default function SupportPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="col-span-2">
               <label className="block text-xs font-medium text-foreground mb-1">Subject *</label>
-              <input required type="text" value={form.subject} onChange={e => setForm(p => ({ ...p, subject: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input required type="text" value={form.subject} onChange={e => setForm(p => ({ ...p, subject: e.target.value }))}
+                className="h-9" />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-foreground mb-1">Description *</label>
-              <textarea required value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                rows={3}
-                className="w-full rounded-lg border border-input bg-transparent p-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none" />
+              <Textarea required value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                rows={3} />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Category</label>
-              <input type="text" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+              <Input type="text" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
+                className="h-9" />
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
