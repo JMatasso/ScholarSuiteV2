@@ -24,3 +24,4 @@ npm-debug.log*
 
 # pdf (large file)
 document_pdf.pdf
+node_modules
