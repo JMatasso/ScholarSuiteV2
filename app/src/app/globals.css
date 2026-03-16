@@ -43,6 +43,9 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-destructive-foreground: var(--destructive-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -75,6 +78,9 @@
   --warning-foreground: #FFFFFF;
   --success: #10B981;
   --success-foreground: #FFFFFF;
+  --info: #2563EB;
+  --info-foreground: #FFFFFF;
+  --destructive-foreground: #FFFFFF;
   --chart-1: #2563EB;
   --chart-2: #7C3AED;
   --chart-3: #10B981;
@@ -114,6 +120,9 @@
   --warning-foreground: #FFFFFF;
   --success: #10B981;
   --success-foreground: #FFFFFF;
+  --info: #3B82F6;
+  --info-foreground: #FFFFFF;
+  --destructive-foreground: #FFFFFF;
   --chart-1: #3B82F6;
   --chart-2: #8B5CF6;
   --chart-3: #10B981;

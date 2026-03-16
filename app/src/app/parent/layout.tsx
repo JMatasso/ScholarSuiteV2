@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { ChatWidget } from "@/components/chat/chat-widget"
 import {
   LayoutDashboard,
@@ -235,15 +236,7 @@ export default function ParentLayout({
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {/* Notifications */}
-            <button
-              onClick={() => router.push("/parent/messages")}
-              className="relative flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted transition-colors"
-            >
-              <Bell className="size-[18px]" />
-              {notifCount > 0 && (
-                <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-red-500" />
-              )}
-            </button>
+            <NotificationDropdown />
 
             <Separator orientation="vertical" className="h-6" />
 

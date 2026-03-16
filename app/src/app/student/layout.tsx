@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -328,16 +329,7 @@ export default function StudentLayout({
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/student/messages">
-              <Button variant="ghost" size="icon-sm" className="relative">
-                <Bell className="h-4 w-4" />
-                {notifCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2563EB] text-[9px] font-bold text-white">
-                    {notifCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <NotificationDropdown />
 
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors outline-none">

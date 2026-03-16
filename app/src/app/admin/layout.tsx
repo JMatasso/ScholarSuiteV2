@@ -37,6 +37,7 @@ import {
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { signOut, useSession } from "next-auth/react"
 
 interface NavItem {
@@ -258,9 +259,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" onClick={() => router.push("/admin/messages")}>
-              <Bell className="size-4" />
-            </Button>
+            <NotificationDropdown />
             <div className="flex items-center gap-2">
               <Avatar size="sm">
                 <AvatarFallback>{userInitials}</AvatarFallback>
