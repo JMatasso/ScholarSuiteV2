@@ -298,10 +298,10 @@ export default function MessagesPage() {
         </div>
       )}
 
-      <div className="flex h-[calc(100vh-14rem)] rounded-xl bg-card ring-1 ring-foreground/10 overflow-hidden">
+      <div className="flex h-[calc(100vh-14rem)] rounded-2xl bg-white ring-1 ring-gray-200/60 overflow-hidden shadow-sm">
         {/* Conversation List */}
-        <div className="w-80 border-r border-border flex flex-col">
-          <div className="p-3 border-b border-border">
+        <div className="w-80 border-r border-gray-100 flex flex-col bg-gray-50/30">
+          <div className="p-4 border-b border-gray-100">
             <SearchInput
               value={search}
               onValueChange={setSearch}
@@ -311,7 +311,7 @@ export default function MessagesPage() {
           </div>
 
           {/* Filters */}
-          <div className="px-3 py-2 border-b border-border flex flex-col gap-2">
+          <div className="px-4 py-3 border-b border-gray-100 flex flex-col gap-2">
             {/* Role filter */}
             <div className="flex items-center gap-1 flex-wrap">
               {(["ALL", "STUDENT", "PARENT", "ADMIN"] as const).map(role => (
@@ -319,10 +319,10 @@ export default function MessagesPage() {
                   key={role}
                   onClick={() => setRoleFilter(role)}
                   className={cn(
-                    "px-2 py-0.5 text-[11px] font-medium rounded-md transition-colors",
+                    "px-2.5 py-1 text-[11px] font-medium rounded-full transition-all duration-200",
                     roleFilter === role
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-[#1E3A5F] text-white shadow-sm"
+                      : "bg-white text-muted-foreground hover:bg-gray-100 ring-1 ring-gray-200/60"
                   )}
                 >
                   {role === "ALL" ? "All" : role === "STUDENT" ? "Students" : role === "PARENT" ? "Parents" : "Admins"}
@@ -336,10 +336,10 @@ export default function MessagesPage() {
                   key={filter}
                   onClick={() => setReadFilter(filter)}
                   className={cn(
-                    "px-2 py-0.5 text-[11px] font-medium rounded-md transition-colors",
+                    "px-2.5 py-1 text-[11px] font-medium rounded-full transition-all duration-200",
                     readFilter === filter
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-[#2563EB] text-white shadow-sm"
+                      : "bg-white text-muted-foreground hover:bg-gray-100 ring-1 ring-gray-200/60"
                   )}
                 >
                   {filter === "ALL" ? "All" : filter === "UNREAD" ? "Unread" : "Read"}
@@ -350,79 +350,126 @@ export default function MessagesPage() {
 
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <p className="p-4 text-sm text-muted-foreground">Loading...</p>
+              <div className="p-4 space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-2 animate-pulse">
+                    <div className="size-9 rounded-full bg-gray-200" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-24 bg-gray-200 rounded" />
+                      <div className="h-2 w-32 bg-gray-100 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : filteredConversations.length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">No conversations yet.</p>
+              <div className="flex flex-col items-center py-12 px-4 text-center">
+                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                  <Send className="size-4 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium text-foreground">No conversations</p>
+                <p className="text-xs text-muted-foreground mt-1">Start a new message to begin chatting.</p>
+              </div>
             ) : filteredConversations.map((convo) => (
               <button
                 key={convo.partnerId}
                 onClick={() => setSelectedPartnerId(convo.partnerId)}
                 className={cn(
-                  "flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-muted/50",
-                  activePartnerId === convo.partnerId && "bg-[#1E3A5F]/5"
+                  "flex w-full items-start gap-3 px-4 py-3 text-left transition-all duration-150 border-b border-gray-100/50",
+                  activePartnerId === convo.partnerId
+                    ? "bg-white shadow-sm border-l-2 border-l-[#2563EB]"
+                    : "hover:bg-white/80"
                 )}
               >
-                <Avatar size="sm">
-                  <AvatarFallback>{convo.partnerInitials}</AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar size="sm">
+                    <AvatarFallback className={cn(
+                      convo.partnerRole === "STUDENT" ? "bg-blue-100 text-blue-700" :
+                      convo.partnerRole === "PARENT" ? "bg-purple-100 text-purple-700" :
+                      "bg-gray-100 text-gray-700"
+                    )}>{convo.partnerInitials}</AvatarFallback>
+                  </Avatar>
+                  {convo.unread && (
+                    <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-[#2563EB] ring-2 ring-white" />
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-0.5">
                     <span className={cn("text-sm", convo.unread ? "font-semibold text-foreground" : "font-medium text-foreground")}>
                       {convo.partnerName}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">{formatTime(convo.lastTime)}</span>
+                    <span className="text-[10px] text-muted-foreground">{formatTime(convo.lastTime)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Badge variant={roleBadgeVariant(convo.partnerRole)} className="text-[10px] h-4 px-1.5">
+                    <span className={cn(
+                      "inline-flex h-4 items-center rounded-full px-1.5 text-[9px] font-semibold uppercase tracking-wide",
+                      convo.partnerRole === "STUDENT" ? "bg-blue-100 text-blue-700" :
+                      convo.partnerRole === "PARENT" ? "bg-purple-100 text-purple-700" :
+                      "bg-gray-100 text-gray-600"
+                    )}>
                       {convo.partnerRole}
-                    </Badge>
-                    <p className={cn("text-xs truncate", convo.unread ? "text-foreground font-medium" : "text-muted-foreground")}>
+                    </span>
+                    <p className={cn("text-xs truncate", convo.unread ? "text-foreground" : "text-muted-foreground")}>
                       {convo.lastMessage}
                     </p>
                   </div>
                 </div>
-                {convo.unread && <span className="mt-1 size-2 shrink-0 rounded-full bg-[#2563EB]" />}
               </button>
             ))}
           </div>
         </div>
 
         {/* Chat Area */}
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col bg-white">
           {/* Chat Header */}
-          <div className="flex items-center gap-3 border-b border-border p-4">
+          <div className="flex items-center gap-3 border-b border-gray-100 px-6 py-4">
             <Avatar size="sm">
-              <AvatarFallback>{activeConversation?.partnerInitials ?? "?"}</AvatarFallback>
+              <AvatarFallback className="bg-[#1E3A5F]/10 text-[#1E3A5F]">{activeConversation?.partnerInitials ?? "?"}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium text-foreground">{activeConversation?.partnerName ?? "Select a conversation"}</p>
+              <p className="text-sm font-semibold text-foreground">{activeConversation?.partnerName ?? "Select a conversation"}</p>
               {activeConversation?.partnerRole && (
-                <Badge variant={roleBadgeVariant(activeConversation.partnerRole)} className="text-[10px] mt-0.5">
+                <span className={cn(
+                  "inline-flex h-4 items-center rounded-full px-1.5 text-[9px] font-semibold uppercase tracking-wide mt-0.5",
+                  activeConversation.partnerRole === "STUDENT" ? "bg-blue-100 text-blue-700" :
+                  activeConversation.partnerRole === "PARENT" ? "bg-purple-100 text-purple-700" :
+                  "bg-gray-100 text-gray-600"
+                )}>
                   {activeConversation.partnerRole}
-                </Badge>
+                </span>
               )}
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="flex flex-col gap-4">
+          <div className="flex-1 overflow-y-auto px-6 py-6 bg-[#FAFAF8]">
+            <div className="flex flex-col gap-5">
               {chatMessages.map((msg) => {
                 const isOwn = msg.senderId === currentUserId
                 return (
-                  <div key={msg.id} className={cn("flex flex-col max-w-[70%]", isOwn ? "self-end items-end" : "self-start items-start")}>
-                    <div className={cn(
-                      "rounded-xl px-4 py-2.5 text-sm",
-                      isOwn ? "bg-[#1E3A5F] text-white" : "bg-muted text-foreground"
-                    )}>
-                      {msg.content}
-                      {msg.imageUrl && (
-                        <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isOwn} />
-                      )}
+                  <div key={msg.id} className={cn("flex gap-2.5 max-w-[70%]", isOwn ? "ml-auto flex-row-reverse" : "")}>
+                    {!isOwn && (
+                      <Avatar size="sm" className="shrink-0 mt-0.5">
+                        <AvatarFallback className="bg-gray-200 text-gray-600 text-xs">
+                          {activeConversation?.partnerInitials ?? "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div className={cn("flex flex-col", isOwn ? "items-end" : "items-start")}>
+                      <div className={cn(
+                        "px-4 py-2.5 text-sm leading-relaxed shadow-sm",
+                        isOwn
+                          ? "bg-[#1E3A5F] text-white rounded-2xl rounded-br-md"
+                          : "bg-white text-foreground rounded-2xl rounded-bl-md ring-1 ring-gray-200/60"
+                      )}>
+                        {msg.content}
+                        {msg.imageUrl && (
+                          <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isOwn} />
+                        )}
+                      </div>
+                      <span className="mt-1.5 text-[10px] text-muted-foreground px-1">
+                        {formatTime(msg.createdAt)}
+                      </span>
                     </div>
-                    <span className="mt-1 text-[11px] text-muted-foreground">
-                      {formatTime(msg.createdAt)}
-                    </span>
                   </div>
                 )
               })}
@@ -431,12 +478,12 @@ export default function MessagesPage() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-border p-4 space-y-2">
+          <div className="border-t border-gray-100 px-6 py-4 space-y-2 bg-white">
             {uploading && <UploadingIndicator />}
             {pendingAttachment && !uploading && (
               <AttachmentPreview attachment={pendingAttachment} onRemove={clearAttachment} />
             )}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -444,17 +491,19 @@ export default function MessagesPage() {
                 accept="image/*,.pdf,.doc,.docx"
                 onChange={(e) => handleFileSelect(e.target.files)}
               />
-              <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={uploading}><Paperclip className="size-4" /></Button>
-              <Input
-                type="text"
-                value={messageInput}
-                onChange={e => setMessageInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type a message..."
-                disabled={sending}
-                className="flex-1 h-9"
-              />
-              <Button size="icon" onClick={() => sendMessage()} disabled={(!messageInput.trim() && !pendingAttachment) || sending}><Send className="size-4" /></Button>
+              <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-foreground" onClick={() => fileInputRef.current?.click()} disabled={uploading}><Paperclip className="size-4" /></Button>
+              <div className="flex-1 relative">
+                <Input
+                  type="text"
+                  value={messageInput}
+                  onChange={e => setMessageInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type a message..."
+                  disabled={sending}
+                  className="h-10 rounded-xl bg-gray-50 border-gray-200 pr-12 focus:bg-white"
+                />
+              </div>
+              <Button size="icon" className="shrink-0 rounded-xl bg-[#2563EB] hover:bg-[#2563EB]/90 h-10 w-10" onClick={() => sendMessage()} disabled={(!messageInput.trim() && !pendingAttachment) || sending}><Send className="size-4" /></Button>
             </div>
           </div>
         </div>
