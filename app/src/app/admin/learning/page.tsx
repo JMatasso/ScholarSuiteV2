@@ -32,6 +32,8 @@ export default function LearningPage() {
   const [modules, setModules] = React.useState<LearningModule[]>([])
   const [loading, setLoading] = React.useState(true)
   const [showForm, setShowForm] = React.useState(false)
+  const [editingId, setEditingId] = React.useState<string | null>(null)
+  const [editForm, setEditForm] = React.useState({ title: "", description: "", category: "", isPublished: false })
   const [form, setForm] = React.useState({
     title: "",
     description: "",
@@ -180,13 +182,36 @@ export default function LearningPage() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground truncate">{mod.description}</p>
+                {editingId === mod.id && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <Input value={editForm.title} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))} className="h-7 text-xs w-40" placeholder="Title" />
+                    <Input value={editForm.description} onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))} className="h-7 text-xs w-48" placeholder="Description" />
+                    <Button size="xs" onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/learning/${mod.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(editForm),
+                        })
+                        if (!res.ok) throw new Error()
+                        toast.success("Module updated")
+                        setEditingId(null)
+                        loadModules()
+                      } catch { toast.error("Failed to update") }
+                    }}>Save</Button>
+                    <Button size="xs" variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <BookOpen className="size-3" /> {mod.lessons?.length || 0} lessons
                 </span>
                 <ActionMenu items={[
-                  { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit module coming soon") },
+                  { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => {
+                    setEditingId(mod.id)
+                    setEditForm({ title: mod.title, description: mod.description || "", category: mod.category || "", isPublished: mod.isPublished })
+                  }},
                   { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => handleDeleteModule(mod.id) },
                 ]} />
               </div>

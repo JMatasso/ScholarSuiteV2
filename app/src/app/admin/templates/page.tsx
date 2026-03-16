@@ -169,8 +169,14 @@ export default function TemplatesPage() {
                     toast.success("Task names copied to clipboard")
                   }}><Copy className="size-3.5" /></Button>
                   <ActionMenu items={[
-                    { label: "Edit Phase", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit phase coming soon") },
-                    { label: "Delete Phase", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => toast.info("Delete phase coming soon") },
+                    { label: "Delete All in Phase", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: async () => {
+                      if (!confirm(`Delete all ${phaseTasks.length} tasks in ${phaseLabels[phase] || phase}?`)) return
+                      try {
+                        await Promise.all(phaseTasks.map(t => fetch(`/api/tasks/${t.id}`, { method: "DELETE" })))
+                        toast.success("Tasks deleted")
+                        loadTasks()
+                      } catch { toast.error("Failed to delete tasks") }
+                    }},
                   ]} />
                 </div>
               </div>

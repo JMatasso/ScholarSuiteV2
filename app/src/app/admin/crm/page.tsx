@@ -215,7 +215,22 @@ export default function CRMPage() {
                             </div>
                           </div>
                           <ActionMenu items={[
-                            { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit prospect coming soon") },
+                            ...stages.filter(s => s !== stage).map(s => ({
+                              label: `Move to ${stageLabels[s]}`,
+                              icon: <Pencil className="size-3.5" />,
+                              onClick: async () => {
+                                try {
+                                  const res = await fetch(`/api/crm/${prospect.id}`, {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ stage: s }),
+                                  })
+                                  if (!res.ok) throw new Error()
+                                  toast.success(`Moved to ${stageLabels[s]}`)
+                                  loadProspects()
+                                } catch { toast.error("Failed to update") }
+                              },
+                            })),
                             { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => handleDeleteProspect(prospect.id) },
                           ]} />
                         </div>

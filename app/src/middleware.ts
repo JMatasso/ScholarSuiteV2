@@ -9,8 +9,14 @@ export function middleware(req: NextRequest) {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/forgot-password" ||
+    pathname === "/request-access" ||
+    pathname === "/change-password" ||
+    pathname === "/reset-password" ||
+    pathname === "/setup-account" ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/");
+    pathname.startsWith("/api/access-requests") ||
+    pathname.startsWith("/api/schools/search") ||
+    pathname.startsWith("/api/uploadthing");
 
   if (isPublicPage) return NextResponse.next();
 

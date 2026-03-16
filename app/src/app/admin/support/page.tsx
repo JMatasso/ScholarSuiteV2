@@ -138,9 +138,24 @@ export default function SupportPage() {
       id: "actions",
       cell: ({ row }) => (
         <ActionMenu items={[
-          { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit ticket coming soon") },
+          { label: "Mark In Progress", icon: <Pencil className="size-3.5" />, onClick: async () => {
+            try {
+              const res = await fetch(`/api/support/${row.original.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "IN_PROGRESS" }) })
+              if (!res.ok) throw new Error()
+              toast.success("Marked in progress")
+              loadTickets()
+            } catch { toast.error("Failed to update") }
+          }},
           { label: "Mark Resolved", icon: <CheckCircle2 className="size-3.5" />, onClick: () => handleResolve(row.original.id) },
-          { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => toast.info("Delete ticket coming soon") },
+          { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: async () => {
+            if (!confirm("Delete this ticket?")) return
+            try {
+              const res = await fetch(`/api/support/${row.original.id}`, { method: "DELETE" })
+              if (!res.ok) throw new Error()
+              toast.success("Ticket deleted")
+              loadTickets()
+            } catch { toast.error("Failed to delete ticket") }
+          }},
         ]} />
       ),
     },

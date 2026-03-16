@@ -57,6 +57,27 @@ export default function AdminEssaysPage() {
   const [loading, setLoading] = React.useState(true)
   const [search, setSearch] = React.useState("")
   const [activeTab, setActiveTab] = React.useState<StatusTab>("All")
+  const [selectedEssay, setSelectedEssay] = React.useState<Essay | null>(null)
+  const [updating, setUpdating] = React.useState(false)
+
+  const handleStatusChange = async (essayId: string, newStatus: string) => {
+    setUpdating(true)
+    try {
+      const res = await fetch(`/api/essays/${essayId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Status updated")
+      setEssays((prev) => prev.map((e) => (e.id === essayId ? { ...e, status: newStatus } : e)))
+      if (selectedEssay?.id === essayId) setSelectedEssay((prev) => prev ? { ...prev, status: newStatus } : null)
+    } catch {
+      toast.error("Failed to update status")
+    } finally {
+      setUpdating(false)
+    }
+  }
 
   React.useEffect(() => {
     fetch("/api/essays")
@@ -166,8 +187,11 @@ export default function AdminEssaysPage() {
                 return (
                   <tr
                     key={essay.id}
-                    onClick={() => toast.info("Essay detail view coming soon")}
-                    className="border-b border-border/30 last:border-0 cursor-pointer transition-colors hover:bg-muted/50"
+                    onClick={() => setSelectedEssay(essay)}
+                    className={cn(
+                      "border-b border-border/30 last:border-0 cursor-pointer transition-colors hover:bg-muted/50",
+                      selectedEssay?.id === essay.id && "bg-[#2563EB]/5"
+                    )}
                   >
                     <td className="px-5 py-3 font-medium text-foreground">
                       {essay.student?.name || essay.student?.email || "Unknown"}
@@ -196,6 +220,50 @@ export default function AdminEssaysPage() {
           </table>
         )}
       </motion.div>
+
+      {/* Essay Detail Panel */}
+      {selectedEssay && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-xl bg-card ring-1 ring-foreground/10 p-6"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-[#1E3A5F]">{selectedEssay.title}</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                By {selectedEssay.student?.name || selectedEssay.student?.email || "Unknown"} &middot; {getWordCount(selectedEssay).toLocaleString()} words
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedEssay.status}
+                onChange={(e) => handleStatusChange(selectedEssay.id, e.target.value)}
+                disabled={updating}
+                className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <option value="DRAFT">Draft</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="UNDER_REVIEW">Under Review</option>
+                <option value="APPROVED">Approved</option>
+              </select>
+              <Button variant="outline" size="sm" onClick={() => setSelectedEssay(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-4 max-h-96 overflow-y-auto">
+            {selectedEssay.content ? (
+              <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
+                {selectedEssay.content}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No content yet.</p>
+            )}
+          </div>
+        </motion.div>
+      )}
     </div>
   )
 }

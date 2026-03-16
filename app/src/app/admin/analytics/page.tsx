@@ -36,17 +36,21 @@ interface Scholarship {
 
 const PIE_COLORS = ["#1E3A5F", "#2563EB", "#7c3aed", "#059669", "#d97706"]
 
-// Static engagement data (not available from current APIs)
-const engagementData = [
-  { week: "W1", active: 95, engaged: 72, dormant: 15 },
-  { week: "W2", active: 102, engaged: 78, dormant: 12 },
-  { week: "W3", active: 98, engaged: 82, dormant: 14 },
-  { week: "W4", active: 110, engaged: 90, dormant: 10 },
-  { week: "W5", active: 115, engaged: 88, dormant: 11 },
-  { week: "W6", active: 120, engaged: 95, dormant: 9 },
-  { week: "W7", active: 118, engaged: 92, dormant: 8 },
-  { week: "W8", active: 125, engaged: 100, dormant: 7 },
-]
+// Compute engagement data from student statuses
+function computeEngagement(students: Student[]) {
+  const total = students.length || 1
+  const active = students.filter(s => s.studentProfile?.status === "ACTIVE").length
+  const atRisk = students.filter(s => s.studentProfile?.status === "AT_RISK").length
+  const inactive = students.filter(s => s.studentProfile?.status === "INACTIVE").length
+  const newStudents = students.filter(s => s.studentProfile?.status === "NEW").length
+  // Build a simple 4-period summary
+  return [
+    { period: "Active", count: active, pct: Math.round((active / total) * 100) },
+    { period: "New", count: newStudents, pct: Math.round((newStudents / total) * 100) },
+    { period: "At Risk", count: atRisk, pct: Math.round((atRisk / total) * 100) },
+    { period: "Inactive", count: inactive, pct: Math.round((inactive / total) * 100) },
+  ]
+}
 
 export default function AnalyticsPage() {
   const [students, setStudents] = React.useState<Student[]>([])
@@ -148,24 +152,17 @@ export default function AnalyticsPage() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           viewport={{ once: true }}
         >
-          <h3 className="mb-4 text-sm font-medium text-foreground">Engagement Over Time</h3>
+          <h3 className="mb-4 text-sm font-medium text-foreground">Student Engagement Status</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={engagementData}>
+              <BarChart data={computeEngagement(filteredStudents)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="week" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                <XAxis dataKey="period" tick={{ fontSize: 12 }} stroke="#94a3b8" />
                 <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                 <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "12px" }} />
-                <Line type="monotone" dataKey="active" stroke="#1E3A5F" strokeWidth={2} dot={false} name="Active" />
-                <Line type="monotone" dataKey="engaged" stroke="#2563EB" strokeWidth={2} dot={false} name="Engaged" />
-                <Line type="monotone" dataKey="dormant" stroke="#94a3b8" strokeWidth={2} dot={false} name="Dormant" />
-              </LineChart>
+                <Bar dataKey="count" fill="#2563EB" radius={[6, 6, 0, 0]} name="Students" />
+              </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div className="mt-3 flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="size-2 rounded-full bg-[#1E3A5F]" /> Active</span>
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="size-2 rounded-full bg-[#2563EB]" /> Engaged</span>
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="size-2 rounded-full bg-[#94a3b8]" /> Dormant</span>
           </div>
         </motion.div>
 
