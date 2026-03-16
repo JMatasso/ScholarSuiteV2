@@ -11,12 +11,45 @@ function generateJoinCode(): string {
   return code
 }
 
-export const GET = withRole("ADMIN", async () => {
+export const GET = withRole("ADMIN", async (_session, request: NextRequest) => {
+  const { searchParams } = new URL(request.url)
+  const search = searchParams.get("search")?.trim()
+  const all = searchParams.get("all") === "true"
+
+  // If searching, search the full DB (limited to 50 results)
+  if (search) {
+    const schools = await db.school.findMany({
+      where: {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { city: { contains: search, mode: "insensitive" } },
+          { state: { contains: search, mode: "insensitive" } },
+        ],
+      },
+      orderBy: { name: "asc" },
+      take: 50,
+      include: { _count: { select: { students: true } } },
+    })
+    return NextResponse.json(schools)
+  }
+
+  // If ?all=true, return everything (paginated) — not recommended for large datasets
+  if (all) {
+    const schools = await db.school.findMany({
+      orderBy: { name: "asc" },
+      take: 200,
+      include: { _count: { select: { students: true } } },
+    })
+    return NextResponse.json(schools)
+  }
+
+  // Default: only schools that have at least one student enrolled
   const schools = await db.school.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      _count: { select: { students: true } },
+    where: {
+      students: { some: {} },
     },
+    orderBy: { name: "asc" },
+    include: { _count: { select: { students: true } } },
   })
 
   return NextResponse.json(schools)

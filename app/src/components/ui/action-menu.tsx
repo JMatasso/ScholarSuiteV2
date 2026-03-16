@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,22 +24,43 @@ interface ActionMenuProps {
 
 function ActionMenu({ items, trigger, align = "right", className }: ActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setCoords({
+      top: rect.bottom + 4,
+      left: align === "right" ? rect.right : rect.left,
+    });
+  }, [align]);
 
   useEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+
     function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+      if (
+        triggerRef.current?.contains(event.target as Node) ||
+        menuRef.current?.contains(event.target as Node)
+      ) return;
+      setIsOpen(false);
     }
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen]);
+
+    function handleScroll() { setIsOpen(false); }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [isOpen, updatePosition]);
 
   return (
-    <div className={cn("relative", className)} ref={ref}>
+    <div className={cn("relative", className)} ref={triggerRef}>
       {trigger ? (
         <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
           {trigger}
@@ -53,44 +75,50 @@ function ActionMenu({ items, trigger, align = "right", className }: ActionMenuPr
         </Button>
       )}
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -4 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className={cn(
-              "absolute top-full z-50 mt-1 w-40 overflow-hidden rounded-lg border border-border bg-white py-1 shadow-lg",
-              align === "right" ? "right-0" : "left-0"
-            )}
-          >
-            {items.map((item, index) => (
-              <motion.button
-                key={item.label}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.15, delay: index * 0.03 }}
-                disabled={item.disabled}
-                className={cn(
-                  "flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors",
-                  item.destructive
-                    ? "text-red-600 hover:bg-red-50"
-                    : "text-foreground hover:bg-muted",
-                  item.disabled && "pointer-events-none opacity-50"
-                )}
-                onClick={() => {
-                  item.onClick();
-                  setIsOpen(false);
-                }}
-              >
-                {item.icon}
-                {item.label}
-              </motion.button>
-            ))}
-          </motion.div>
+      {isOpen &&
+        createPortal(
+          <AnimatePresence>
+            <motion.div
+              ref={menuRef}
+              initial={{ opacity: 0, scale: 0.95, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -4 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="fixed z-[999] w-44 overflow-hidden rounded-lg border border-border bg-white py-1 shadow-lg"
+              style={{
+                top: coords.top,
+                ...(align === "right"
+                  ? { right: window.innerWidth - coords.left }
+                  : { left: coords.left }),
+              }}
+            >
+              {items.map((item, index) => (
+                <motion.button
+                  key={item.label}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.15, delay: index * 0.03 }}
+                  disabled={item.disabled}
+                  className={cn(
+                    "flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors",
+                    item.destructive
+                      ? "text-red-600 hover:bg-red-50"
+                      : "text-foreground hover:bg-muted",
+                    item.disabled && "pointer-events-none opacity-50"
+                  )}
+                  onClick={() => {
+                    item.onClick();
+                    setIsOpen(false);
+                  }}
+                >
+                  {item.icon}
+                  {item.label}
+                </motion.button>
+              ))}
+            </motion.div>
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </div>
   );
 }

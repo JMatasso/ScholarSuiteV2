@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import { toast } from "sonner"
-import { School, Plus, Search, MapPin, Users, Download, Trash2, ExternalLink, GraduationCap, Pencil, Globe, Loader2, Check } from "lucide-react"
+import { School, Plus, Search, MapPin, Users, Download, Trash2, GraduationCap, Pencil, Loader2, Check } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { ActionMenu } from "@/components/ui/action-menu"
@@ -33,10 +33,11 @@ interface NcesResult {
 
 export default function AdminSchoolsPage() {
   const router = useRouter()
-  const [schools, setSchools] = useState<SchoolRecord[]>([])
+  const [mySchools, setMySchools] = useState<SchoolRecord[]>([])
+  const [searchResults, setSearchResults] = useState<SchoolRecord[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [stateFilter, setStateFilter] = useState("all")
+  const [searching, setSearching] = useState(false)
 
   // Add School dialog
   const [addOpen, setAddOpen] = useState(false)
@@ -53,27 +54,40 @@ export default function AdminSchoolsPage() {
   const [ncesImporting, setNcesImporting] = useState(false)
   const [ncesSearched, setNcesSearched] = useState(false)
 
-  const fetchSchools = () => {
+  // Load schools with students (default view)
+  const fetchMySchools = useCallback(() => {
     fetch("/api/schools").then(r => r.json()).then(data => {
-      setSchools(Array.isArray(data) ? data : [])
+      setMySchools(Array.isArray(data) ? data : [])
       setLoading(false)
     }).catch(() => { setLoading(false) })
-  }
+  }, [])
 
-  useEffect(() => { fetchSchools() }, [])
+  useEffect(() => { fetchMySchools() }, [fetchMySchools])
 
-  const filtered = useMemo(() => {
-    return schools.filter(s => {
-      const matchesSearch = !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.city?.toLowerCase().includes(search.toLowerCase())
-      const matchesState = stateFilter === "all" || s.state === stateFilter
-      return matchesSearch && matchesState
-    })
-  }, [schools, search, stateFilter])
+  // Debounced search across all schools in the database
+  useEffect(() => {
+    if (!search.trim()) {
+      setSearchResults(null)
+      return
+    }
+    const timeout = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const res = await fetch(`/api/schools?search=${encodeURIComponent(search.trim())}`)
+        const data = await res.json()
+        setSearchResults(Array.isArray(data) ? data : [])
+      } catch {
+        setSearchResults([])
+      }
+      setSearching(false)
+    }, 400)
+    return () => clearTimeout(timeout)
+  }, [search])
 
-  const totalStudents = useMemo(() => schools.reduce((sum, s) => sum + (s._count?.students ?? 0), 0), [schools])
-  const uniqueStates = useMemo(() => new Set(schools.map(s => s.state).filter(Boolean)).size, [schools])
+  const displayedSchools = searchResults !== null ? searchResults : mySchools
+  const totalStudents = useMemo(() => mySchools.reduce((sum, s) => sum + (s._count?.students ?? 0), 0), [mySchools])
+  const uniqueStates = useMemo(() => new Set(mySchools.map(s => s.state).filter(Boolean)).size, [mySchools])
 
-  // --- Handlers ---
   const handleAddSchool = async () => {
     if (!addForm.name.trim()) { toast.error("School name is required"); return }
     setAddLoading(true)
@@ -83,7 +97,7 @@ export default function AdminSchoolsPage() {
       toast.success("School created")
       setAddOpen(false)
       setAddForm({ name: "", address: "", city: "", state: "", zipCode: "", phone: "", email: "", website: "" })
-      fetchSchools()
+      fetchMySchools()
     } catch { toast.error("Failed to create school") }
     setAddLoading(false)
   }
@@ -94,7 +108,7 @@ export default function AdminSchoolsPage() {
       const res = await fetch(`/api/schools/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
       toast.success("School deleted")
-      fetchSchools()
+      fetchMySchools()
     } catch { toast.error("Failed to delete school") }
   }
 
@@ -132,7 +146,7 @@ export default function AdminSchoolsPage() {
       setNcesResults([])
       setNcesSelected(new Set())
       setNcesSearched(false)
-      fetchSchools()
+      fetchMySchools()
     } catch { toast.error("Import failed") }
     setNcesImporting(false)
   }
@@ -153,7 +167,7 @@ export default function AdminSchoolsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard title="Total Schools" value={schools.length} icon={School} index={0} />
+        <StatCard title="My Schools" value={mySchools.length} icon={School} index={0} />
         <StatCard title="Total Students" value={totalStudents} icon={Users} index={1} />
         <StatCard title="States Represented" value={uniqueStates} icon={MapPin} index={2} />
       </div>
@@ -162,15 +176,14 @@ export default function AdminSchoolsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search schools..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+          <Input
+            placeholder="Search all schools in database..."
+            className="pl-9"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {searching && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />}
         </div>
-        <Select value={stateFilter} onValueChange={(v) => setStateFilter(v || "all")}>
-          <SelectTrigger className="w-[140px]"><SelectValue placeholder="All States" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All States</SelectItem>
-            {US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-          </SelectContent>
-        </Select>
         <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={() => setAddOpen(true)}>
           <Plus className="h-4 w-4" /> Add School
         </Button>
@@ -179,16 +192,32 @@ export default function AdminSchoolsPage() {
         </Button>
       </div>
 
+      {/* Context label */}
+      {searchResults !== null ? (
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            Showing {searchResults.length} result{searchResults.length !== 1 ? "s" : ""} for &quot;{search}&quot;
+          </p>
+          <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setSearch(""); setSearchResults(null) }}>
+            Clear search
+          </Button>
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Showing schools with enrolled students. Use the search bar to find any school in the database.
+        </p>
+      )}
+
       {/* School Cards */}
-      {filtered.length === 0 ? (
+      {displayedSchools.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
           <School className="h-10 w-10 mb-3 opacity-40" />
-          <p className="text-sm">No schools yet</p>
+          <p className="text-sm">{searchResults !== null ? "No schools found" : "No schools with students yet"}</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((school, index) => (
-            <motion.div key={school.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.08 }}>
+          {displayedSchools.map((school, index) => (
+            <motion.div key={school.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }}>
               <Card
                 className="cursor-pointer ring-1 ring-foreground/10 rounded-xl hover:shadow-md transition-shadow"
                 onClick={() => router.push(`/admin/schools/${school.id}`)}
@@ -291,7 +320,6 @@ export default function AdminSchoolsPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader><DialogTitle>Import from NCES Database</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            {/* Step 1: Search */}
             <div className="flex gap-2">
               <Select value={ncesState} onValueChange={(v) => setNcesState(v || "")}>
                 <SelectTrigger className="w-[100px]"><SelectValue placeholder="State" /></SelectTrigger>
@@ -302,8 +330,6 @@ export default function AdminSchoolsPage() {
                 {ncesLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Search className="h-4 w-4 mr-1" /> Search</>}
               </Button>
             </div>
-
-            {/* Step 2: Results */}
             {ncesLoading && <p className="text-sm text-muted-foreground text-center py-4">Searching NCES database...</p>}
             {!ncesLoading && ncesSearched && ncesResults.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">No results found. Try a different search.</p>
