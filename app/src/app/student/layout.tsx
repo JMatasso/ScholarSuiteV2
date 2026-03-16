@@ -213,14 +213,18 @@ export default function StudentLayout({
                         collapsed && !isMobile && "justify-center px-2"
                       )}
                     >
-                      <div className={cn(
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200",
-                        active
-                          ? "bg-[#2563EB] text-white shadow-sm"
-                          : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm"
-                      )}>
+                      <motion.div
+                        whileHover={{ scale: 1.12, rotate: 6 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200",
+                          active
+                            ? "bg-[#2563EB] text-white shadow-sm"
+                            : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm"
+                        )}
+                      >
                         <Icon className="h-4 w-4" />
-                      </div>
+                      </motion.div>
                       {(!collapsed || isMobile) && <span>{item.name}</span>}
                     </Link>
                   </motion.div>
