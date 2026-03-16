@@ -184,7 +184,7 @@ export default function DocumentsPage() {
                   toast.success("File uploaded!")
                   loadDocuments()
                 }}
-                onUploadError={(error) => toast.error(`Upload failed: ${error.message}`)}
+                onUploadError={(error) => { toast.error(`Upload failed: ${error.message}`) }}
                 appearance={{
                   button: "bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-sm px-4 py-2 rounded-lg",
                   allowedContent: "text-xs text-muted-foreground mt-1",
