@@ -38,10 +38,17 @@ The user will provide criteria like state, amount range, category, major, target
 
 7. Deduplicate URLs (same scholarship appearing on multiple aggregators = keep only one entry)
 
-8. Save results to a CSV file at `app/data/harvested-urls-{YYYY-MM-DD}.csv` with columns:
-   url, name_hint, source_site, category, date_found
+8. **Append mode** — before writing, check if `app/data/harvested-urls.csv` already exists:
+   - If it exists, read all existing URLs from it first. Skip any scholarship whose URL is already in the file (cross-session dedup). Append only new entries — do NOT overwrite or remove existing rows.
+   - If it does not exist, create it with the header row.
+   - Also save a session-specific copy to `app/data/harvested-urls-{YYYY-MM-DD}.csv` containing only the new URLs found in this session (for easy review of what was just added).
+   - CSV columns: `url,name_hint,source_site,category,date_found`
 
-9. Report summary: total URLs found, by source site, by category
+9. Report summary:
+   - New URLs added this session
+   - Duplicates skipped (already in master file)
+   - Total URLs now in master file
+   - Breakdown by source site and category
 
 ## User Criteria
 $ARGUMENTS
