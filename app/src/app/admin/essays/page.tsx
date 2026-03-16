@@ -1,0 +1,195 @@
+"use client"
+
+import * as React from "react"
+import { PageHeader } from "@/components/ui/page-header"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { SearchInput } from "@/components/ui/search-input"
+import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { FileText } from "lucide-react"
+
+interface Essay {
+  id: string
+  title: string
+  status: string
+  content?: string | null
+  wordCount?: number | null
+  updatedAt: string
+  student?: {
+    name?: string | null
+    email: string
+  } | null
+}
+
+const STATUS_TABS = ["All", "Draft", "In Progress", "Review", "Final"] as const
+type StatusTab = (typeof STATUS_TABS)[number]
+
+const statusMap: Record<string, StatusTab> = {
+  DRAFT: "Draft",
+  IN_PROGRESS: "In Progress",
+  REVIEW: "Review",
+  UNDER_REVIEW: "Review",
+  FINAL: "Final",
+  APPROVED: "Final",
+}
+
+const statusStyles: Record<string, string> = {
+  Draft: "bg-gray-100 text-gray-700 ring-gray-300",
+  "In Progress": "bg-blue-50 text-blue-700 ring-blue-300",
+  Review: "bg-amber-50 text-amber-700 ring-amber-300",
+  Final: "bg-green-50 text-green-700 ring-green-300",
+}
+
+function getWordCount(essay: Essay): number {
+  if (essay.wordCount != null) return essay.wordCount
+  if (essay.content) return essay.content.trim().split(/\s+/).filter(Boolean).length
+  return 0
+}
+
+function getStatusLabel(status: string): StatusTab {
+  return statusMap[status] || "Draft"
+}
+
+export default function AdminEssaysPage() {
+  const [essays, setEssays] = React.useState<Essay[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [search, setSearch] = React.useState("")
+  const [activeTab, setActiveTab] = React.useState<StatusTab>("All")
+
+  React.useEffect(() => {
+    fetch("/api/essays")
+      .then((res) => res.json())
+      .then((data) => {
+        setEssays(Array.isArray(data) ? data : [])
+        setLoading(false)
+      })
+      .catch(() => {
+        toast.error("Failed to load essays")
+        setLoading(false)
+      })
+  }, [])
+
+  const filtered = React.useMemo(() => {
+    let result = essays
+
+    if (activeTab !== "All") {
+      result = result.filter((e) => getStatusLabel(e.status) === activeTab)
+    }
+
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (e) =>
+          e.title.toLowerCase().includes(q) ||
+          (e.student?.name || e.student?.email || "").toLowerCase().includes(q)
+      )
+    }
+
+    return result
+  }, [essays, activeTab, search])
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Essays"
+        description="Review and manage student essays."
+      />
+
+      {/* Filters */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                activeTab === tab
+                  ? "bg-white text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        <SearchInput
+          value={search}
+          onValueChange={setSearch}
+          placeholder="Search by student or title..."
+          className="w-full sm:w-64"
+        />
+      </div>
+
+      {/* Table */}
+      <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+        {loading ? (
+          <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
+            Loading essays...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-48 gap-2">
+            <FileText className="size-8 text-muted-foreground/40" />
+            <p className="text-sm text-muted-foreground">No essays found</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Student Name
+                </th>
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Essay Title
+                </th>
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Status
+                </th>
+                <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Word Count
+                </th>
+                <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Last Updated
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((essay) => {
+                const label = getStatusLabel(essay.status)
+                return (
+                  <tr
+                    key={essay.id}
+                    onClick={() => toast.info("Essay detail view coming soon")}
+                    className="border-b border-border/30 last:border-0 cursor-pointer transition-colors hover:bg-muted/50"
+                  >
+                    <td className="px-5 py-3 font-medium text-foreground">
+                      {essay.student?.name || essay.student?.email || "Unknown"}
+                    </td>
+                    <td className="px-5 py-3 text-foreground">{essay.title}</td>
+                    <td className="px-5 py-3">
+                      <span
+                        className={cn(
+                          "inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset",
+                          statusStyles[label] || statusStyles["Draft"]
+                        )}
+                      >
+                        {label}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 text-right text-muted-foreground tabular-nums">
+                      {getWordCount(essay).toLocaleString()}
+                    </td>
+                    <td className="px-5 py-3 text-right text-muted-foreground">
+                      {new Date(essay.updatedAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -31,6 +31,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { signOut, useSession } from "next-auth/react"
 
 interface NavItem {
@@ -87,6 +88,7 @@ const navGroups: NavGroup[] = [
   {
     title: "System",
     items: [
+      { label: "Team", href: "/admin/team", icon: Users },
       { label: "Support", href: "/admin/support", icon: LifeBuoy },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       { label: "Audit Log", href: "/admin/audit", icon: Shield },
@@ -110,11 +112,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-screen bg-[#FAFAF8]">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <aside
         className={cn(
-          "flex h-full flex-col border-r border-border bg-white transition-all duration-200",
+          "flex h-full flex-col border-r border-border bg-card transition-all duration-200",
           collapsed ? "w-16" : "w-64"
         )}
       >
@@ -184,7 +186,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="flex h-14 items-center justify-between border-b border-border bg-white px-6">
+        <header className="flex h-14 items-center justify-between border-b border-border bg-card px-6">
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -203,6 +205,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => router.push("/admin/messages")}>
               <Bell className="size-4" />
             </Button>

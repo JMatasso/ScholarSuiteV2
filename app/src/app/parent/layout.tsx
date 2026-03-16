@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   LayoutDashboard,
   User,
@@ -81,6 +82,17 @@ export default function ParentLayout({
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
 
+  // First-login detection: redirect to onboarding if profile incomplete
+  useEffect(() => {
+    if (pathname === "/parent/onboarding" || pathname === "/parent/settings") return;
+    fetch("/api/auth/onboarding-status")
+      .then(r => r.json())
+      .then(data => {
+        if (data.needsOnboarding) router.push("/parent/onboarding");
+      })
+      .catch(() => {});
+  }, [pathname, router]);
+
   useEffect(() => {
     fetch("/api/notifications?unread=true")
       .then(r => r.json())
@@ -91,16 +103,16 @@ export default function ParentLayout({
   const currentPage = breadcrumbMap[pathname] || "Dashboard";
 
   return (
-    <div className="flex h-screen bg-[#FAFAF8]">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <aside
         className={cn(
-          "flex flex-col border-r border-gray-200 bg-white transition-all duration-300",
+          "flex flex-col border-r border-border bg-card transition-all duration-300",
           collapsed ? "w-[68px]" : "w-64"
         )}
       >
         {/* Logo area */}
-        <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-4">
+        <div className="flex h-16 items-center gap-2 border-b border-border px-4">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-bold text-sm">
             S
           </div>
@@ -116,7 +128,7 @@ export default function ParentLayout({
           {sidebarGroups.map((group, gi) => (
             <div key={group.label} className={cn(gi > 0 && "mt-6")}>
               {!collapsed && (
-                <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {group.label}
                 </p>
               )}
@@ -134,7 +146,7 @@ export default function ParentLayout({
                         "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                         isActive
                           ? "bg-[#1E3A5F]/5 text-[#1E3A5F]"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
                       {isActive && (
@@ -143,7 +155,7 @@ export default function ParentLayout({
                       <item.icon
                         className={cn(
                           "size-[18px] shrink-0",
-                          isActive ? "text-[#1E3A5F]" : "text-gray-400 group-hover:text-gray-600"
+                          isActive ? "text-[#1E3A5F]" : "text-muted-foreground group-hover:text-foreground"
                         )}
                       />
                       {!collapsed && <span>{item.name}</span>}
@@ -156,10 +168,10 @@ export default function ParentLayout({
         </nav>
 
         {/* Collapse button */}
-        <div className="border-t border-gray-200 p-3">
+        <div className="border-t border-border p-3">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             {collapsed ? (
               <ChevronRight className="size-4" />
@@ -176,18 +188,19 @@ export default function ParentLayout({
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-gray-400">Parent Portal</span>
-            <span className="text-gray-300">/</span>
-            <span className="font-medium text-gray-700">{currentPage}</span>
+            <span className="text-muted-foreground">Parent Portal</span>
+            <span className="text-muted-foreground/40">/</span>
+            <span className="font-medium text-foreground">{currentPage}</span>
           </div>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             {/* Notifications */}
             <button
               onClick={() => router.push("/parent/messages")}
-              className="relative flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+              className="relative flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted transition-colors"
             >
               <Bell className="size-[18px]" />
               {notifCount > 0 && (
@@ -201,7 +214,7 @@ export default function ParentLayout({
             <div className="relative">
               <button
                 onClick={() => setAvatarOpen(!avatarOpen)}
-                className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
               >
                 <Avatar size="sm">
                   <AvatarFallback className="bg-[#1E3A5F] text-white text-xs font-medium">
@@ -211,23 +224,23 @@ export default function ParentLayout({
                 {!collapsed && (
                   <>
                     <div className="text-left">
-                      <p className="text-sm font-medium text-gray-700">{userName}</p>
-                      <p className="text-[11px] text-gray-400">Parent</p>
+                      <p className="text-sm font-medium text-foreground">{userName}</p>
+                      <p className="text-[11px] text-muted-foreground">Parent</p>
                     </div>
-                    <ChevronDown className="size-3.5 text-gray-400" />
+                    <ChevronDown className="size-3.5 text-muted-foreground" />
                   </>
                 )}
               </button>
               {avatarOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg z-50">
+                <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-border bg-card py-1 shadow-lg z-50">
                   <button
-                    onClick={() => { setAvatarOpen(false); router.push("/parent/profile"); }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => { setAvatarOpen(false); router.push("/parent/settings"); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted"
                   >
-                    <Settings className="size-4 text-gray-400" />
+                    <Settings className="size-4 text-muted-foreground" />
                     Settings
                   </button>
-                  <div className="my-1 h-px bg-gray-100" />
+                  <div className="my-1 h-px bg-border" />
                   <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50">
                     <LogOut className="size-4" />
                     Sign Out

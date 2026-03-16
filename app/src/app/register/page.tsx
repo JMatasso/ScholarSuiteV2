@@ -6,7 +6,7 @@ import { useState } from "react";
 import { GraduationCap, Eye, EyeOff, Loader2, User, Users, Shield } from "lucide-react";
 import { toast } from "sonner";
 
-type RoleOption = "STUDENT" | "PARENT" | "ADMIN";
+type RoleOption = "STUDENT" | "PARENT";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -22,7 +22,6 @@ export default function RegisterPage() {
   const roles: { value: RoleOption; label: string; description: string; icon: React.ReactNode }[] = [
     { value: "STUDENT", label: "Student", description: "Track scholarships and applications", icon: <User className="w-5 h-5" /> },
     { value: "PARENT", label: "Parent", description: "Monitor your child's progress", icon: <Users className="w-5 h-5" /> },
-    { value: "ADMIN", label: "Consultant", description: "Manage students and scholarships", icon: <Shield className="w-5 h-5" /> },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {

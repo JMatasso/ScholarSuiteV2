@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -95,6 +96,7 @@ export default function StudentLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { data: session } = useSession()
   const userName = session?.user?.name || "User"
   const userEmail = session?.user?.email || ""
@@ -102,7 +104,27 @@ export default function StudentLayout({
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notifCount, setNotifCount] = useState(0)
+  const [profileCompletion, setProfileCompletion] = useState(100)
   const breadcrumbs = getBreadcrumbs(pathname)
+
+  // Fetch profile completion
+  useEffect(() => {
+    fetch("/api/students/profile/completion")
+      .then(r => r.json())
+      .then(data => { if (typeof data.percentage === "number") setProfileCompletion(data.percentage) })
+      .catch(() => {})
+  }, [])
+
+  // First-login detection: redirect to onboarding if profile incomplete
+  useEffect(() => {
+    if (pathname === "/student/onboarding" || pathname === "/student/settings" || pathname === "/student/profile") return
+    fetch("/api/auth/onboarding-status")
+      .then(r => r.json())
+      .then(data => {
+        if (data.needsOnboarding) router.push("/student/onboarding")
+      })
+      .catch(() => {})
+  }, [pathname, router])
 
   useEffect(() => {
     fetch("/api/notifications?unread=true")
@@ -170,6 +192,25 @@ export default function StudentLayout({
         ))}
       </nav>
 
+      {/* Profile completion indicator */}
+      {!collapsed && profileCompletion < 100 && (
+        <div className="border-t px-3 py-3">
+          <Link href="/student/profile" className="block">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-medium text-muted-foreground">Profile</span>
+              <span className="text-xs font-semibold text-primary">{profileCompletion}%</span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500"
+                style={{ width: `${profileCompletion}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1">Complete your profile for better matches</p>
+          </Link>
+        </div>
+      )}
+
       {/* Collapse toggle */}
       <div className="hidden border-t p-3 lg:block">
         <Button
@@ -185,7 +226,7 @@ export default function StudentLayout({
   )
 
   return (
-    <div className="flex h-screen bg-[#FAFAF8]">
+    <div className="flex h-screen bg-background">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -197,7 +238,7 @@ export default function StudentLayout({
       {/* Mobile sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-lg transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-64 transform bg-card shadow-lg transition-transform lg:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -207,7 +248,7 @@ export default function StudentLayout({
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "hidden border-r bg-white transition-all duration-200 lg:flex lg:flex-col",
+          "hidden border-r border-border bg-card transition-all duration-200 lg:flex lg:flex-col",
           collapsed ? "w-16" : "w-64"
         )}
       >
@@ -217,7 +258,7 @@ export default function StudentLayout({
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b bg-white px-4 lg:px-6">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -245,6 +286,7 @@ export default function StudentLayout({
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link href="/student/messages">
               <Button variant="ghost" size="icon-sm" className="relative">
                 <Bell className="h-4 w-4" />
@@ -268,11 +310,11 @@ export default function StudentLayout({
               <DropdownMenuContent align="end" sideOffset={8}>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => window.location.href = "/student/onboarding"}>
+                <DropdownMenuItem onClick={() => window.location.href = "/student/profile"}>
                   <User className="h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = "/student/onboarding"}>
+                <DropdownMenuItem onClick={() => window.location.href = "/student/settings"}>
                   <Settings className="h-4 w-4" />
                   Settings
                 </DropdownMenuItem>

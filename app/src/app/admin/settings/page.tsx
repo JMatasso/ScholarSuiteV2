@@ -5,8 +5,10 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
+import { ProfileSettings } from "@/components/ui/profile-settings"
 
 const tabItems = [
+  { id: "Account", label: "Account" },
   { id: "General", label: "General" },
   { id: "Email", label: "Email" },
   { id: "Security", label: "Security" },
@@ -77,7 +79,11 @@ export default function SettingsPage() {
         className="border-b border-border pb-[6px]"
       />
 
-      <div className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">
+      {activeTab === "Account" && (
+        <ProfileSettings />
+      )}
+
+      <div className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
         {activeTab === "General" && (
           <div className="flex flex-col gap-6 max-w-lg">
             <div>

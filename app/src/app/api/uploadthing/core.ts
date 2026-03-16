@@ -5,6 +5,22 @@ import { db } from "@/lib/db"
 const f = createUploadthing()
 
 export const ourFileRouter = {
+  profileImage: f({
+    image: { maxFileSize: "4MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      const session = await auth()
+      if (!session?.user) throw new Error("Unauthorized")
+      return { userId: session.user.id }
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      await db.user.update({
+        where: { id: metadata.userId },
+        data: { image: file.ufsUrl },
+      })
+      return { uploadedBy: metadata.userId, url: file.ufsUrl }
+    }),
+
   documentUploader: f({
     pdf: { maxFileSize: "16MB" },
     image: { maxFileSize: "8MB" },

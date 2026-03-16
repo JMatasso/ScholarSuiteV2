@@ -24,6 +24,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // Only allow STUDENT and PARENT roles from public registration
+    const allowedRoles = ["STUDENT", "PARENT"];
+    const userRole = allowedRoles.includes(role) ? role : "STUDENT";
+
     const hashedPassword = await hash(password, 12);
 
     const user = await db.user.create({
@@ -31,15 +35,15 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
-        role: role || "STUDENT",
+        role: userRole,
       },
     });
 
-    if (role === "STUDENT") {
+    if (userRole === "STUDENT") {
       await db.studentProfile.create({
         data: { userId: user.id },
       });
-    } else if (role === "PARENT") {
+    } else if (userRole === "PARENT") {
       await db.parentProfile.create({
         data: { userId: user.id },
       });
