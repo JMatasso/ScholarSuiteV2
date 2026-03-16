@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, GraduationCap, Loader2 } from "lucide-react";
+import { AnimatedLogo } from "@/components/ui/animated-logo";
 
 // --- TYPE DEFINITIONS ---
 
@@ -48,11 +49,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({
           <div className="flex flex-col gap-6">
             {/* Logo */}
             <div className="animate-element animate-delay-100">
-              <Link href="/" className="flex items-center gap-2 mb-2">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-primary" />
-                </div>
-                <span className="text-2xl font-semibold text-foreground">ScholarSuite</span>
+              <Link href="/" className="mb-2 inline-block">
+                <AnimatedLogo size="md" />
               </Link>
             </div>
 

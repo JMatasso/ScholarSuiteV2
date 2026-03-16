@@ -21,9 +21,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ScholarSuite — Scholarship Management Platform",
+  title: "ScholarSuite — Scholarship & College Prep Platform",
   description:
-    "Discover scholarships, track applications, and plan your financial future with expert guidance.",
+    "Discover scholarships, track college applications, and plan your path to higher education with expert guidance.",
 };
 
 export default function RootLayout({

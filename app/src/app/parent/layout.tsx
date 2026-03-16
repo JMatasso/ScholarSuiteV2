@@ -13,6 +13,7 @@ import { UserProfileSidebar } from "@/components/ui/menu";
 import { ThemeSelect } from "@/components/ui/theme-select";
 import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { ChatWidget } from "@/components/chat/chat-widget"
+import { AnimatedLogo } from "@/components/ui/animated-logo"
 import {
   LayoutDashboard,
   User,
@@ -174,8 +175,7 @@ export default function ParentLayout({
       >
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center gap-2 border-b border-border px-4">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-bold text-sm">S</div>
-            <span className="text-base font-semibold text-[#1E3A5F] tracking-tight">ScholarSuite</span>
+            <Link href="/parent"><AnimatedLogo size="sm" /></Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 py-4">
             {(() => { let i = 0; return sidebarGroups.map((group, gi) => (
@@ -211,8 +211,7 @@ export default function ParentLayout({
         )}
       >
         <div className="flex h-16 items-center gap-2 border-b border-border px-4">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-bold text-sm">S</div>
-          {!collapsed && <span className="text-base font-semibold text-[#1E3A5F] tracking-tight">ScholarSuite</span>}
+          <Link href="/parent"><AnimatedLogo size="sm" showText={!collapsed} /></Link>
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           {(() => { let i = 0; return sidebarGroups.map((group, gi) => (

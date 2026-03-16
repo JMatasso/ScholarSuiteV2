@@ -12,6 +12,7 @@ import { UserProfileSidebar } from "@/components/ui/menu"
 import { ThemeSelect } from "@/components/ui/theme-select"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { ChatWidget } from "@/components/chat/chat-widget"
+import { AnimatedLogo } from "@/components/ui/animated-logo"
 import {
   LayoutDashboard,
   Search,
@@ -182,18 +183,9 @@ export default function StudentLayout({
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className={cn("flex h-16 items-center border-b px-4", collapsed && !isMobile && "justify-center px-2")}>
-        {(!collapsed || isMobile) ? (
-          <Link href="/student" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1E3A5F] text-white text-sm font-bold">
-              S
-            </div>
-            <span className="text-base font-semibold text-[#1E3A5F]">ScholarSuite</span>
-          </Link>
-        ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1E3A5F] text-white text-sm font-bold">
-            S
-          </div>
-        )}
+        <Link href="/student">
+          <AnimatedLogo size="sm" showText={!collapsed || isMobile} />
+        </Link>
       </div>
 
       {/* Nav */}

@@ -21,6 +21,7 @@ import {
 import { motion, useInView, useScroll } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { AnimatedLogo } from "@/components/ui/animated-logo";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 import { ElegantShape } from "@/components/ui/elegant-shape";
 import { AnimatedNumber } from "@/components/ui/animated-number";
@@ -138,13 +139,8 @@ export default function LandingPage() {
         )}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-semibold text-[#1A1A1A]">
-              ScholarSuite
-            </span>
+          <Link href="/">
+            <AnimatedLogo size="sm" />
           </Link>
 
           <div className="hidden md:flex items-center gap-8">

@@ -42,6 +42,7 @@ import { UserProfileSidebar } from "@/components/ui/menu"
 import { ThemeSelect } from "@/components/ui/theme-select"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { signOut, useSession } from "next-auth/react"
+import { AnimatedLogo } from "@/components/ui/animated-logo"
 
 interface NavItem {
   label: string
@@ -182,8 +183,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="flex h-full flex-col">
           <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-semibold text-sm">S</div>
-            <span className="text-sm font-semibold text-foreground tracking-tight">ScholarSuite</span>
+            <AnimatedLogo size="sm" />
           </div>
           <nav className="flex-1 overflow-y-auto px-2 py-3">
             {(() => { let i = 0; return navGroups.map((group) => (
@@ -219,8 +219,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
       >
         <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-semibold text-sm">S</div>
-          {!collapsed && <span className="text-sm font-semibold text-foreground tracking-tight">ScholarSuite</span>}
+          <AnimatedLogo size="sm" showText={!collapsed} />
         </div>
         <nav className="flex-1 overflow-y-auto px-2 py-3">
           {(() => { let i = 0; return navGroups.map((group) => (
