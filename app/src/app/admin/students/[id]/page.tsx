@@ -2,15 +2,24 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, GraduationCap, FileText, CheckCircle2, Clock } from "lucide-react"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 
-const tabs = ["Profile", "Applications", "Tasks", "Essays", "Documents", "Financial", "Notes"] as const
-type Tab = typeof tabs[number]
+const tabItems = [
+  { id: "Profile", label: "Profile" },
+  { id: "Applications", label: "Applications" },
+  { id: "Tasks", label: "Tasks" },
+  { id: "Essays", label: "Essays" },
+  { id: "Documents", label: "Documents" },
+  { id: "Financial", label: "Financial" },
+  { id: "Notes", label: "Notes" },
+]
+type Tab = typeof tabItems[number]["id"]
 
 interface StudentData {
   id: string
@@ -63,8 +72,9 @@ interface StudentData {
 
 function StudentDetailContent() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
-  const [activeTab, setActiveTab] = React.useState<Tab>("Profile")
+  const [activeTab, setActiveTab] = React.useState<Tab>("Profile" as Tab)
   const [student, setStudent] = React.useState<StudentData | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [noteText, setNoteText] = React.useState("")
@@ -154,27 +164,17 @@ function StudentDetailContent() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm"><Mail className="size-3.5" /> Message</Button>
-          <Button size="sm"><Calendar className="size-3.5" /> Schedule</Button>
+          <Button variant="outline" size="sm" onClick={() => router.push("/admin/messages")}><Mail className="size-3.5" /> Message</Button>
+          <Button size="sm" onClick={() => router.push("/admin/meetings")}><Calendar className="size-3.5" /> Schedule</Button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-border">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-              activeTab === tab
-                ? "border-[#1E3A5F] text-[#1E3A5F]"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      <VercelTabs
+        tabs={tabItems}
+        onTabChange={(tabId) => setActiveTab(tabId as Tab)}
+        className="border-b border-border pb-[6px]"
+      />
 
       {/* Tab Content */}
       <div className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">

@@ -119,9 +119,9 @@ function ScholarshipCard({
               Apply
             </Button>
           ) : (
-            <Button size="sm" className="flex-1 gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
-              <ExternalLink className="h-3.5 w-3.5" />
-              Apply
+            <Button size="sm" className="flex-1 gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={onSave}>
+              <CheckCircle className="h-3.5 w-3.5" />
+              Track
             </Button>
           )}
           <Button variant="ghost" size="icon-sm" onClick={onDismiss}>

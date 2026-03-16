@@ -12,6 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DollarSign, FileText, GraduationCap, Trophy } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs";
 
 interface Scholarship {
   name: string;
@@ -52,10 +54,10 @@ export default function ApplicationsPage() {
     0
   );
 
-  const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
-    { key: "scholarships", label: "Scholarships", icon: FileText },
-    { key: "colleges", label: "Colleges", icon: GraduationCap },
-    { key: "awards", label: "Awards", icon: Trophy },
+  const tabItems = [
+    { id: "scholarships", label: "Scholarships" },
+    { id: "colleges", label: "Colleges" },
+    { id: "awards", label: "Awards" },
   ];
 
   if (loading) {
@@ -115,23 +117,11 @@ export default function ApplicationsPage() {
 
       {/* Tabs */}
       <div className="rounded-xl bg-white ring-1 ring-gray-200/60 shadow-sm">
-        <div className="flex border-b border-gray-200">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                "flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors",
-                activeTab === tab.key
-                  ? "border-[#1E3A5F] text-[#1E3A5F]"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              )}
-            >
-              <tab.icon className="size-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <VercelTabs
+          tabs={tabItems}
+          onTabChange={(tabId) => setActiveTab(tabId as Tab)}
+          className="border-b border-gray-200 px-5 pt-3 pb-[6px]"
+        />
 
         <div className="p-5">
           {/* Scholarships tab */}
@@ -184,9 +174,11 @@ export default function ApplicationsPage() {
 
           {/* Colleges tab */}
           {activeTab === "colleges" && (
-            <div className="py-8 text-center text-sm text-gray-400">
-              College application tracking coming soon.
-            </div>
+            <EmptyState
+              icon={GraduationCap}
+              title="College Applications"
+              description="College application tracking is coming soon. Check back later for updates on your child's college applications."
+            />
           )}
 
           {/* Awards tab */}

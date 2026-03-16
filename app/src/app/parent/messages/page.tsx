@@ -339,7 +339,10 @@ export default function MessagesPage() {
           {/* Message input */}
           <div className="border-t border-gray-200 px-4 py-3">
             <div className="flex items-center gap-2">
-              <button className="flex size-9 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+              <button
+                onClick={() => toast.info("File attachments coming soon")}
+                className="flex size-9 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+              >
                 <Paperclip className="size-4" />
               </button>
               <Input

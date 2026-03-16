@@ -3,7 +3,7 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
-import { Plus, GripVertical, MoreHorizontal, BookOpen } from "lucide-react"
+import { Plus, GripVertical, MoreHorizontal, BookOpen, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 interface LearningModule {
@@ -48,6 +48,20 @@ export default function LearningPage() {
   }, [])
 
   React.useEffect(() => { loadModules() }, [loadModules])
+
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
+
+  const handleDeleteModule = async (id: string) => {
+    try {
+      const res = await fetch(`/api/learning/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      toast.success("Module deleted")
+      loadModules()
+    } catch {
+      toast.error("Failed to delete module")
+    }
+    setOpenMenuId(null)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -135,9 +149,9 @@ export default function LearningPage() {
         <div className="flex flex-col gap-2">
           {modules.map((mod) => (
             <div key={mod.id} className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm">
-              <button className="cursor-grab text-muted-foreground hover:text-foreground">
+              <span className="cursor-grab text-muted-foreground hover:text-foreground" title="Drag to reorder">
                 <GripVertical className="size-4" />
-              </button>
+              </span>
               <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-xs font-semibold text-[#1E3A5F]">
                 {mod.order}
               </span>
@@ -165,7 +179,23 @@ export default function LearningPage() {
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <BookOpen className="size-3" /> {mod.lessons?.length || 0} lessons
                 </span>
-                <Button variant="ghost" size="icon-xs"><MoreHorizontal className="size-3.5" /></Button>
+                <div className="relative">
+                  <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === mod.id ? null : mod.id)}>
+                    <MoreHorizontal className="size-3.5" />
+                  </Button>
+                  {openMenuId === mod.id && (
+                    <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
+                      <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                        onClick={() => { toast.info("Edit module coming soon"); setOpenMenuId(null) }}>
+                        <Pencil className="size-3.5" /> Edit
+                      </button>
+                      <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
+                        onClick={() => handleDeleteModule(mod.id)}>
+                        <Trash2 className="size-3.5" /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}

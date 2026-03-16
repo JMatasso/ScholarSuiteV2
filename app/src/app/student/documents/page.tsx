@@ -159,7 +159,11 @@ export default function DocumentsPage() {
                       <p className="text-xs text-muted-foreground">{req.description}</p>
                     )}
                     <div className="flex items-center justify-end">
-                      <Button size="xs" className="gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
+                      <Button size="xs" className="gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => {
+                        const uploadZone = document.querySelector('[data-ut-element="button"]') as HTMLButtonElement
+                        if (uploadZone) uploadZone.click()
+                        else window.scrollTo({ top: document.querySelector('.ut-uploading-container, [data-ut-element]')?.getBoundingClientRect().top ?? 500, behavior: 'smooth' })
+                      }}>
                         <Upload className="h-3 w-3" />
                         Upload
                       </Button>

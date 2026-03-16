@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Plus, MoreHorizontal, Mail } from "lucide-react"
+import { Plus, MoreHorizontal, Mail, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -39,6 +39,9 @@ export default function ParentsPage() {
   const [parents, setParents] = React.useState<ParentRow[]>([])
   const [loading, setLoading] = React.useState(true)
   const [search, setSearch] = React.useState("")
+  const [showAddForm, setShowAddForm] = React.useState(false)
+  const [newParent, setNewParent] = React.useState({ name: "", email: "", phone: "" })
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     // Fetch users with PARENT role via a custom query on students API
@@ -73,6 +76,24 @@ export default function ParentsPage() {
       })
       .catch(() => { toast.error("Failed to load parents"); setLoading(false) })
   }, [])
+
+  const handleAddParent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const res = await fetch("/api/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newParent, role: "PARENT" }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Parent added")
+      setShowAddForm(false)
+      setNewParent({ name: "", email: "", phone: "" })
+      window.location.reload()
+    } catch {
+      toast.error("Failed to add parent")
+    }
+  }
 
   const columns: ColumnDef<ParentRow, unknown>[] = [
     {
@@ -122,10 +143,28 @@ export default function ParentsPage() {
     },
     {
       id: "actions",
-      cell: () => (
+      cell: ({ row }) => (
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon-xs"><Mail className="size-3.5" /></Button>
-          <Button variant="ghost" size="icon-xs"><MoreHorizontal className="size-3.5" /></Button>
+          <Button variant="ghost" size="icon-xs" onClick={() => {
+            window.location.href = `mailto:${row.original.email}`
+          }}><Mail className="size-3.5" /></Button>
+          <div className="relative">
+            <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === row.original.id ? null : row.original.id)}>
+              <MoreHorizontal className="size-3.5" />
+            </Button>
+            {openMenuId === row.original.id && (
+              <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
+                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                  onClick={() => { toast.info("Edit parent coming soon"); setOpenMenuId(null) }}>
+                  <Pencil className="size-3.5" /> Edit
+                </button>
+                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
+                  onClick={() => { toast.info("Remove parent coming soon"); setOpenMenuId(null) }}>
+                  <Trash2 className="size-3.5" /> Remove
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       ),
     },
@@ -137,11 +176,38 @@ export default function ParentsPage() {
         title="Parents"
         description="Manage parent accounts and their linked students."
         actions={
-          <Button size="sm">
+          <Button size="sm" onClick={() => setShowAddForm(true)}>
             <Plus className="size-3.5" /> Add Parent
           </Button>
         }
       />
+
+      {showAddForm && (
+        <form onSubmit={handleAddParent} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">Add Parent</h3>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Name *</label>
+              <input required type="text" value={newParent.name} onChange={e => setNewParent(p => ({ ...p, name: e.target.value }))}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Email *</label>
+              <input required type="email" value={newParent.email} onChange={e => setNewParent(p => ({ ...p, email: e.target.value }))}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Phone</label>
+              <input type="text" value={newParent.phone} onChange={e => setNewParent(p => ({ ...p, phone: e.target.value }))}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" size="sm">Add Parent</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(false)}>Cancel</Button>
+          </div>
+        </form>
+      )}
 
       <div className="flex items-center gap-3">
         <SearchInput

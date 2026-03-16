@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import {
   GraduationCap,
@@ -9,8 +10,67 @@ import {
   Sparkles,
   BookOpen,
   DollarSign,
-  Star,
 } from "lucide-react";
+import { motion } from "motion/react";
+import { toast } from "sonner";
+import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
+
+const testimonials = [
+  {
+    text: "ScholarSuite helped me find 23 scholarships I never knew I qualified for. I ended up winning $15,000 in awards my senior year alone.",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+    name: "Jessica Martinez",
+    role: "College Freshman, UT Austin",
+  },
+  {
+    text: "The application tracking board is a lifesaver. I went from missing deadlines to submitting every single one on time. Totally changed my process.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    name: "Marcus Thompson",
+    role: "High School Senior",
+  },
+  {
+    text: "As a consultant managing 40+ students, ScholarSuite cut my admin time in half. The dashboard gives me everything I need at a glance.",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face",
+    name: "Dr. Maria Santos",
+    role: "College Prep Consultant",
+  },
+  {
+    text: "I can finally see exactly where my daughter stands with all her applications. The parent dashboard gives me peace of mind without being overbearing.",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    name: "Patricia Chen",
+    role: "Parent",
+  },
+  {
+    text: "The essay tools alone are worth it. Having AI feedback before my consultant review saved so much back-and-forth. My essays were polished and ready.",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+    name: "David Okafor",
+    role: "Scholarship Recipient, Spelman College",
+  },
+  {
+    text: "We adopted ScholarSuite for our entire college prep program. The matching engine alone helped our students collectively win over $2M last year.",
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
+    name: "Angela Rivera",
+    role: "Director, Pathways Educational Services",
+  },
+  {
+    text: "The financial planning feature opened my eyes. I could actually see my funding gap and knew exactly how many more scholarships I needed to apply for.",
+    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
+    name: "James Park",
+    role: "Pre-Med Student, UCLA",
+  },
+  {
+    text: "My students love the Kanban boards. They went from scattered spreadsheets to organized pipelines practically overnight. It just clicks.",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+    name: "Keisha Washington",
+    role: "High School Counselor",
+  },
+  {
+    text: "I was overwhelmed by the scholarship search until I found ScholarSuite. It matched me with scholarships based on my actual profile — not just GPA.",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    name: "Ryan Gonzalez",
+    role: "First-Gen College Student",
+  },
+];
 
 export default function LandingPage() {
   return (
@@ -41,7 +101,7 @@ export default function LandingPage() {
               How It Works
             </Link>
             <Link
-              href="#pricing"
+              href="#features"
               className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
             >
               Pricing
@@ -92,12 +152,12 @@ export default function LandingPage() {
               Get Started Free
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href="#demo"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white hover:border-gray-300 transition-all"
+            <button
+              onClick={() => toast.info("Demo request form coming soon!")}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white hover:border-gray-300 transition-all cursor-pointer"
             >
               Request a Demo
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -311,20 +371,32 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonial */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex justify-center gap-1 mb-6">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-            ))}
-          </div>
-          <blockquote className="text-2xl md:text-3xl font-medium text-[#1A1A1A] leading-relaxed mb-8">
-            &ldquo;ScholarSuite completely transformed how I manage my scholarship consulting practice. My students have collectively won over $2M in scholarships since we started using it.&rdquo;
-          </blockquote>
-          <div>
-            <p className="font-semibold text-[#1A1A1A]">Dr. Maria Santos</p>
-            <p className="text-gray-500">College Prep Consultant, Pathways Educational Services</p>
+      {/* Testimonials */}
+      <section className="py-24 px-6 bg-white relative">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center justify-center max-w-[540px] mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
+              Testimonials
+            </div>
+
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] tracking-tight text-center">
+              What our users say
+            </h2>
+            <p className="text-center mt-4 text-gray-500">
+              See how ScholarSuite is helping students, parents, and consultants win more scholarships.
+            </p>
+          </motion.div>
+
+          <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[740px] overflow-hidden">
+            <TestimonialsColumn testimonials={testimonials.slice(0, 3)} duration={15} />
+            <TestimonialsColumn testimonials={testimonials.slice(3, 6)} className="hidden md:block" duration={19} />
+            <TestimonialsColumn testimonials={testimonials.slice(6, 9)} className="hidden lg:block" duration={17} />
           </div>
         </div>
       </section>
@@ -346,12 +418,12 @@ export default function LandingPage() {
               Get Started Free
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href="#demo"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/30 text-white px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white/10 transition-all"
+            <button
+              onClick={() => toast.info("Demo request form coming soon!")}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/30 text-white px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white/10 transition-all cursor-pointer"
             >
               Request a Demo
-            </Link>
+            </button>
           </div>
         </div>
       </section>
@@ -363,37 +435,37 @@ export default function LandingPage() {
             <div>
               <h4 className="text-white font-semibold mb-4">Product</h4>
               <ul className="space-y-3 text-sm">
-                <li><Link href="#" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Integrations</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Changelog</Link></li>
+                <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
+                <li><Link href="#features" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Integrations</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Changelog</button></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Resources</h4>
               <ul className="space-y-3 text-sm">
-                <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Webinars</Link></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Documentation</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Help Center</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Blog</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Webinars</button></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <ul className="space-y-3 text-sm">
-                <li><Link href="#" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Partners</Link></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">About</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Careers</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Contact</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Partners</button></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <ul className="space-y-3 text-sm">
-                <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">FERPA Compliance</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Data Security</Link></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Privacy Policy</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Terms of Service</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">FERPA Compliance</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Data Security</button></li>
               </ul>
             </div>
           </div>

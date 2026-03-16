@@ -4,6 +4,14 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
   Activity,
   Plus,
   Clock,
@@ -15,6 +23,7 @@ import {
   Heart,
   Dumbbell,
   Calendar,
+  Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -52,9 +61,56 @@ function formatDateRange(start: string | null, end: string | null): string {
   return `${fmt(start)} - ${end ? fmt(end) : "Present"}`
 }
 
+const CATEGORIES = ["ATHLETICS", "ARTS", "ACADEMIC", "VOLUNTEER", "LEADERSHIP", "WORK", "OTHER"] as const
+
 export default function ActivitiesPage() {
   const [activities, setActivities] = useState<ActivityEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [addOpen, setAddOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState({
+    title: "",
+    organization: "",
+    role: "",
+    category: "OTHER" as string,
+    description: "",
+    hoursPerWeek: "",
+    isLeadership: false,
+    isAward: false,
+  })
+
+  const resetForm = () => setForm({ title: "", organization: "", role: "", category: "OTHER", description: "", hoursPerWeek: "", isLeadership: false, isAward: false })
+
+  const handleAddActivity = async () => {
+    if (!form.title.trim()) { toast.error("Title is required"); return }
+    setSaving(true)
+    try {
+      const res = await fetch("/api/activities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title,
+          organization: form.organization || null,
+          role: form.role || null,
+          category: form.category,
+          description: form.description || null,
+          hoursPerWeek: form.hoursPerWeek ? Number(form.hoursPerWeek) : null,
+          isLeadership: form.isLeadership,
+          isAward: form.isAward,
+        }),
+      })
+      if (res.ok) {
+        const newActivity = await res.json()
+        setActivities((prev) => [...prev, newActivity])
+        toast.success("Activity added!")
+        setAddOpen(false)
+        resetForm()
+      } else {
+        toast.error("Failed to add activity")
+      }
+    } catch { toast.error("Something went wrong") }
+    finally { setSaving(false) }
+  }
 
   useEffect(() => {
     fetch("/api/activities")
@@ -92,10 +148,62 @@ export default function ActivitiesPage() {
           <h1 className="text-2xl font-semibold text-[#1E3A5F]">Activities</h1>
           <p className="mt-1 text-muted-foreground">Track your extracurricular activities and achievements.</p>
         </div>
-        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90">
+        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setAddOpen(true)}>
           <Plus className="h-4 w-4" />
           Add Activity
         </Button>
+
+        <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Activity</DialogTitle>
+              <DialogDescription>Add an extracurricular activity to your profile.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div>
+                <label className="text-sm font-medium">Title *</label>
+                <input className="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="e.g., Debate Team" value={form.title} onChange={(e) => setForm(f => ({...f, title: e.target.value}))} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">Organization</label>
+                  <input className="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="e.g., Lincoln High" value={form.organization} onChange={(e) => setForm(f => ({...f, organization: e.target.value}))} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Role</label>
+                  <input className="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="e.g., Captain" value={form.role} onChange={(e) => setForm(f => ({...f, role: e.target.value}))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">Category</label>
+                  <select className="mt-1 w-full rounded-md border px-3 py-2 text-sm" value={form.category} onChange={(e) => setForm(f => ({...f, category: e.target.value}))}>
+                    {CATEGORIES.map(c => <option key={c} value={c}>{categoryConfig[c]?.label ?? c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Hours/week</label>
+                  <input type="number" className="mt-1 w-full rounded-md border px-3 py-2 text-sm" value={form.hoursPerWeek} onChange={(e) => setForm(f => ({...f, hoursPerWeek: e.target.value}))} />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <textarea className="mt-1 w-full rounded-md border px-3 py-2 text-sm resize-none" rows={2} value={form.description} onChange={(e) => setForm(f => ({...f, description: e.target.value}))} />
+              </div>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isLeadership} onChange={(e) => setForm(f => ({...f, isLeadership: e.target.checked}))} /> Leadership Role</label>
+                <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isAward} onChange={(e) => setForm(f => ({...f, isAward: e.target.checked}))} /> Award/Honor</label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
+              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleAddActivity} disabled={saving}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Add Activity
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Summary stats */}

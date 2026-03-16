@@ -276,7 +276,7 @@ export default function MessagesPage() {
             {/* Message input */}
             <div className="border-t p-3">
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon-sm">
+                <Button variant="ghost" size="icon-sm" onClick={() => toast.info("File attachments coming soon")}>
                   <Paperclip className="h-4 w-4" />
                 </Button>
                 <Input

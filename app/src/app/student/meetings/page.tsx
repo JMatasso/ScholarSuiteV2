@@ -5,6 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
   Video,
   Plus,
   Calendar,
@@ -12,6 +20,7 @@ import {
   ExternalLink,
   CheckCircle2,
   MapPin,
+  Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -74,6 +83,35 @@ function isUpcoming(meeting: Meeting): boolean {
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [loading, setLoading] = useState(true)
+  const [requestOpen, setRequestOpen] = useState(false)
+  const [viewMeeting, setViewMeeting] = useState<Meeting | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [reqForm, setReqForm] = useState({ title: "", description: "", startTime: "", endTime: "" })
+
+  const handleRequestMeeting = async () => {
+    if (!reqForm.title.trim() || !reqForm.startTime) { toast.error("Title and start time are required"); return }
+    setSaving(true)
+    try {
+      const res = await fetch("/api/meetings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: reqForm.title,
+          description: reqForm.description || null,
+          startTime: new Date(reqForm.startTime).toISOString(),
+          endTime: reqForm.endTime ? new Date(reqForm.endTime).toISOString() : new Date(new Date(reqForm.startTime).getTime() + 30 * 60000).toISOString(),
+        }),
+      })
+      if (res.ok) {
+        const meeting = await res.json()
+        setMeetings((prev) => [...prev, meeting])
+        toast.success("Meeting requested!")
+        setRequestOpen(false)
+        setReqForm({ title: "", description: "", startTime: "", endTime: "" })
+      } else { toast.error("Failed to request meeting") }
+    } catch { toast.error("Something went wrong") }
+    finally { setSaving(false) }
+  }
 
   useEffect(() => {
     fetch("/api/meetings")
@@ -143,7 +181,7 @@ export default function MeetingsPage() {
                   </Button>
                 )}
                 {isUpcomingMeeting && !meeting.meetingUrl && (
-                  <Button size="sm" className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0">
+                  <Button size="sm" className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0" onClick={() => setViewMeeting(meeting)}>
                     <MapPin className="h-3.5 w-3.5" />
                     View
                   </Button>
@@ -192,10 +230,65 @@ export default function MeetingsPage() {
             Schedule and manage meetings with your counselors and consultants.
           </p>
         </div>
-        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90">
+        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setRequestOpen(true)}>
           <Plus className="h-4 w-4" />
           Request Meeting
         </Button>
+
+        <Dialog open={requestOpen} onOpenChange={setRequestOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Request a Meeting</DialogTitle>
+              <DialogDescription>Schedule a meeting with your counselor.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div>
+                <label className="text-sm font-medium">Title *</label>
+                <input className="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="e.g., Scholarship Review" value={reqForm.title} onChange={(e) => setReqForm(f => ({...f, title: e.target.value}))} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <textarea className="mt-1 w-full rounded-md border px-3 py-2 text-sm resize-none" rows={2} placeholder="What would you like to discuss?" value={reqForm.description} onChange={(e) => setReqForm(f => ({...f, description: e.target.value}))} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">Start Time *</label>
+                  <input type="datetime-local" className="mt-1 w-full rounded-md border px-3 py-2 text-sm" value={reqForm.startTime} onChange={(e) => setReqForm(f => ({...f, startTime: e.target.value}))} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">End Time</label>
+                  <input type="datetime-local" className="mt-1 w-full rounded-md border px-3 py-2 text-sm" value={reqForm.endTime} onChange={(e) => setReqForm(f => ({...f, endTime: e.target.value}))} />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setRequestOpen(false)}>Cancel</Button>
+              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleRequestMeeting} disabled={saving}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Request Meeting
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!viewMeeting} onOpenChange={() => setViewMeeting(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{viewMeeting?.title}</DialogTitle>
+              <DialogDescription>In-person meeting details</DialogDescription>
+            </DialogHeader>
+            {viewMeeting && (
+              <div className="space-y-3 py-2">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div><p className="text-muted-foreground text-xs">Date</p><p className="font-medium">{formatDate(viewMeeting.startTime)}</p></div>
+                  <div><p className="text-muted-foreground text-xs">Time</p><p className="font-medium">{formatTime(viewMeeting.startTime)} - {formatTime(viewMeeting.endTime)}</p></div>
+                </div>
+                {viewMeeting.description && <div><p className="text-muted-foreground text-xs">Description</p><p className="text-sm">{viewMeeting.description}</p></div>}
+                <div><p className="text-muted-foreground text-xs">Type</p><p className="text-sm flex items-center gap-1"><MapPin className="h-3 w-3" /> In Person</p></div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Upcoming Meetings */}

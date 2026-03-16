@@ -36,6 +36,12 @@ export default function MessagesPage() {
   const [newMessage, setNewMessage] = React.useState("")
   const [loading, setLoading] = React.useState(true)
   const [currentUserId, setCurrentUserId] = React.useState<string>("")
+  const [showBroadcast, setShowBroadcast] = React.useState(false)
+  const [broadcastContent, setBroadcastContent] = React.useState("")
+  const [broadcastTarget, setBroadcastTarget] = React.useState("")
+  const [showNewMessage, setShowNewMessage] = React.useState(false)
+  const [newMsgReceiverId, setNewMsgReceiverId] = React.useState("")
+  const [newMsgContent, setNewMsgContent] = React.useState("")
 
   const loadMessages = React.useCallback(() => {
     fetch("/api/messages")
@@ -106,6 +112,44 @@ export default function MessagesPage() {
     }
   }
 
+  const handleBroadcast = async () => {
+    if (!broadcastContent.trim()) return
+    try {
+      const res = await fetch("/api/messages/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: broadcastContent, targetRole: broadcastTarget || null }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Broadcast sent")
+      setBroadcastContent("")
+      setShowBroadcast(false)
+      loadMessages()
+    } catch {
+      toast.error("Failed to send broadcast")
+    }
+  }
+
+  const handleNewMessage = async () => {
+    if (!newMsgContent.trim() || !newMsgReceiverId.trim()) return
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receiverId: newMsgReceiverId, content: newMsgContent }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Message sent")
+      setNewMsgContent("")
+      setNewMsgReceiverId("")
+      setShowNewMessage(false)
+      setSelectedUserId(newMsgReceiverId)
+      loadMessages()
+    } catch {
+      toast.error("Failed to send message")
+    }
+  }
+
   const filteredConversations = conversations.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   )
@@ -117,15 +161,64 @@ export default function MessagesPage() {
         description="Communicate with students and parents."
         actions={
           <>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setShowBroadcast(true)}>
               <Megaphone className="size-3.5" /> Broadcast
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setShowNewMessage(true)}>
               <Plus className="size-3.5" /> New Message
             </Button>
           </>
         }
       />
+
+      {showBroadcast && (
+        <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">Send Broadcast</h3>
+          <div className="flex flex-col gap-3 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Target Audience</label>
+              <select value={broadcastTarget} onChange={e => setBroadcastTarget(e.target.value)}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+                <option value="">All Users</option>
+                <option value="STUDENT">Students</option>
+                <option value="PARENT">Parents</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Message *</label>
+              <textarea value={broadcastContent} onChange={e => setBroadcastContent(e.target.value)} rows={3}
+                className="w-full rounded-lg border border-input bg-transparent p-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleBroadcast}>Send Broadcast</Button>
+            <Button variant="outline" size="sm" onClick={() => setShowBroadcast(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
+      {showNewMessage && (
+        <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">New Message</h3>
+          <div className="flex flex-col gap-3 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Recipient ID *</label>
+              <input type="text" value={newMsgReceiverId} onChange={e => setNewMsgReceiverId(e.target.value)}
+                placeholder="Enter user ID"
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Message *</label>
+              <textarea value={newMsgContent} onChange={e => setNewMsgContent(e.target.value)} rows={3}
+                className="w-full rounded-lg border border-input bg-transparent p-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleNewMessage}>Send Message</Button>
+            <Button variant="outline" size="sm" onClick={() => setShowNewMessage(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
 
       <div className="flex h-[calc(100vh-14rem)] rounded-xl bg-white ring-1 ring-foreground/10 overflow-hidden">
         {/* Conversation List */}
@@ -213,7 +306,7 @@ export default function MessagesPage() {
           {/* Input */}
           <div className="border-t border-border p-4">
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon"><Paperclip className="size-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => toast.info("File attachments coming soon")}><Paperclip className="size-4" /></Button>
               <input
                 type="text"
                 value={newMessage}

@@ -46,6 +46,14 @@ export default function AnnouncementsPage() {
     isPinned: false,
     expiresAt: "",
   })
+  const [editingId, setEditingId] = React.useState<string | null>(null)
+  const [editForm, setEditForm] = React.useState({
+    title: "",
+    content: "",
+    targetRole: "",
+    isPinned: false,
+    expiresAt: "",
+  })
 
   const loadAnnouncements = React.useCallback(() => {
     fetch("/api/announcements")
@@ -77,6 +85,41 @@ export default function AnnouncementsPage() {
       loadAnnouncements()
     } catch {
       toast.error("Failed to create announcement")
+    }
+  }
+
+  const handleEditStart = (ann: Announcement) => {
+    setEditingId(ann.id)
+    setEditForm({
+      title: ann.title,
+      content: ann.content,
+      targetRole: ann.targetRole || "",
+      isPinned: ann.isPinned,
+      expiresAt: ann.expiresAt ? ann.expiresAt.substring(0, 10) : "",
+    })
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingId) return
+    try {
+      const res = await fetch(`/api/announcements/${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editForm.title,
+          content: editForm.content,
+          targetRole: editForm.targetRole || null,
+          isPinned: editForm.isPinned,
+          expiresAt: editForm.expiresAt || null,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Announcement updated")
+      setEditingId(null)
+      loadAnnouncements()
+    } catch {
+      toast.error("Failed to update announcement")
     }
   }
 
@@ -188,8 +231,48 @@ export default function AnnouncementsPage() {
                     </span>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">Edit</Button>
+                <Button variant="ghost" size="sm" onClick={() => handleEditStart(ann)}>Edit</Button>
               </div>
+              {editingId === ann.id && (
+                <form onSubmit={handleEditSubmit} className="mt-4 border-t border-border/50 pt-4">
+                  <div className="flex flex-col gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
+                      <input required type="text" value={editForm.title} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-foreground mb-1">Content *</label>
+                      <textarea required value={editForm.content} onChange={e => setEditForm(p => ({ ...p, content: e.target.value }))} rows={2}
+                        className="w-full rounded-lg border border-input bg-transparent p-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-foreground mb-1">Target Audience</label>
+                        <select value={editForm.targetRole} onChange={e => setEditForm(p => ({ ...p, targetRole: e.target.value }))}
+                          className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+                          <option value="">All Users</option>
+                          <option value="STUDENT">Students</option>
+                          <option value="PARENT">Parents</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-foreground mb-1">Expires At</label>
+                        <input type="date" value={editForm.expiresAt} onChange={e => setEditForm(p => ({ ...p, expiresAt: e.target.value }))}
+                          className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="checkbox" checked={editForm.isPinned} onChange={e => setEditForm(p => ({ ...p, isPinned: e.target.checked }))} className="size-4 rounded border-input" />
+                      <label className="text-sm text-foreground">Pinned</label>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="submit" size="sm">Save Changes</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancel</Button>
+                  </div>
+                </form>
+              )}
             </div>
           )
         })}

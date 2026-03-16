@@ -4,7 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Plus, Users, MoreHorizontal } from "lucide-react"
+import { Plus, Users, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 interface CohortMember {
@@ -44,6 +44,20 @@ export default function CohortsPage() {
   }, [])
 
   React.useEffect(() => { loadCohorts() }, [loadCohorts])
+
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/cohorts/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      toast.success("Cohort deleted")
+      loadCohorts()
+    } catch {
+      toast.error("Failed to delete cohort")
+    }
+    setOpenMenuId(null)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,7 +138,27 @@ export default function CohortsPage() {
                   <span className={`size-3 rounded-full ${cohort.color || "bg-gray-400"}`} />
                   <h3 className="text-sm font-semibold text-foreground">{cohort.name}</h3>
                 </div>
-                <Button variant="ghost" size="icon-xs"><MoreHorizontal className="size-3.5" /></Button>
+                <div className="relative">
+                  <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === cohort.id ? null : cohort.id)}>
+                    <MoreHorizontal className="size-3.5" />
+                  </Button>
+                  {openMenuId === cohort.id && (
+                    <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
+                      <button
+                        className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                        onClick={() => { toast.info("Edit cohort coming soon"); setOpenMenuId(null) }}
+                      >
+                        <Pencil className="size-3.5" /> Edit
+                      </button>
+                      <button
+                        className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
+                        onClick={() => handleDelete(cohort.id)}
+                      >
+                        <Trash2 className="size-3.5" /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <p className="text-sm text-muted-foreground mb-4">{cohort.description || "No description"}</p>
               <div className="flex items-center justify-between">

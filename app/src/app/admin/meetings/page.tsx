@@ -49,6 +49,8 @@ export default function MeetingsPage() {
     endTime: "",
     meetingUrl: "",
   })
+  const [rescheduleId, setRescheduleId] = React.useState<string | null>(null)
+  const [rescheduleForm, setRescheduleForm] = React.useState({ startTime: "", endTime: "" })
 
   const loadMeetings = React.useCallback(() => {
     fetch("/api/meetings")
@@ -74,6 +76,27 @@ export default function MeetingsPage() {
       loadMeetings()
     } catch {
       toast.error("Failed to schedule meeting")
+    }
+  }
+
+  const handleReschedule = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!rescheduleId) return
+    try {
+      const res = await fetch(`/api/meetings/${rescheduleId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          startTime: rescheduleForm.startTime,
+          endTime: rescheduleForm.endTime,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Meeting rescheduled")
+      setRescheduleId(null)
+      loadMeetings()
+    } catch {
+      toast.error("Failed to reschedule meeting")
     }
   }
 
@@ -135,6 +158,30 @@ export default function MeetingsPage() {
         </form>
       )}
 
+      {rescheduleId && (
+        <form onSubmit={handleReschedule} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">Reschedule Meeting</h3>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">New Start Time *</label>
+              <input required type="datetime-local" value={rescheduleForm.startTime}
+                onChange={e => setRescheduleForm(p => ({ ...p, startTime: e.target.value }))}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">New End Time *</label>
+              <input required type="datetime-local" value={rescheduleForm.endTime}
+                onChange={e => setRescheduleForm(p => ({ ...p, endTime: e.target.value }))}
+                className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" size="sm">Confirm Reschedule</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setRescheduleId(null)}>Cancel</Button>
+          </div>
+        </form>
+      )}
+
       {loading ? (
         <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading meetings...</div>
       ) : (
@@ -181,7 +228,13 @@ export default function MeetingsPage() {
                         {meeting.description && <p className="mt-1 text-xs text-muted-foreground/70">{meeting.description}</p>}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="xs">Reschedule</Button>
+                        <Button variant="outline" size="xs" onClick={() => {
+                          setRescheduleId(meeting.id)
+                          setRescheduleForm({
+                            startTime: meeting.startTime.substring(0, 16),
+                            endTime: meeting.endTime.substring(0, 16),
+                          })
+                        }}>Reschedule</Button>
                         {meeting.meetingUrl && (
                           <a href={meeting.meetingUrl} target="_blank" rel="noopener noreferrer">
                             <Button size="xs"><Video className="size-3" /> Join</Button>

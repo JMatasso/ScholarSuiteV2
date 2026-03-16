@@ -51,6 +51,7 @@ export default function AnalyticsPage() {
   const [students, setStudents] = React.useState<Student[]>([])
   const [scholarships, setScholarships] = React.useState<Scholarship[]>([])
   const [loading, setLoading] = React.useState(true)
+  const [dateRange, setDateRange] = React.useState("30")
 
   React.useEffect(() => {
     Promise.all([
@@ -65,12 +66,24 @@ export default function AnalyticsPage() {
       .catch(() => { toast.error("Failed to load analytics data"); setLoading(false) })
   }, [])
 
-  const activeStudents = students.filter(s => s.studentProfile?.status === "ACTIVE").length
-  const totalScholarshipValue = scholarships.reduce((sum, s) => sum + (s.amount || 0), 0)
+  // Filter data based on date range
+  const filterByDateRange = React.useCallback((items: { createdAt: string }[]) => {
+    if (dateRange === "all") return items
+    const now = new Date()
+    const daysAgo = dateRange === "365" ? 365 : dateRange === "90" ? 90 : 30
+    const cutoff = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
+    return items.filter(item => new Date(item.createdAt) >= cutoff)
+  }, [dateRange])
+
+  const filteredStudents = filterByDateRange(students as unknown as { createdAt: string }[]) as unknown as Student[]
+  const filteredScholarships = filterByDateRange(scholarships as unknown as { createdAt: string }[]) as unknown as Scholarship[]
+
+  const activeStudents = filteredStudents.filter(s => s.studentProfile?.status === "ACTIVE").length
+  const totalScholarshipValue = filteredScholarships.reduce((sum, s) => sum + (s.amount || 0), 0)
 
   // Awards by category from scholarship tags
   const tagCounts: Record<string, number> = {}
-  scholarships.forEach(s => {
+  filteredScholarships.forEach(s => {
     s.tags?.forEach(tag => {
       tagCounts[tag.name] = (tagCounts[tag.name] || 0) + (s.amount || 0)
     })
@@ -91,7 +104,7 @@ export default function AnalyticsPage() {
 
   // Student enrollment by month
   const monthCounts: Record<string, number> = {}
-  students.forEach(s => {
+  filteredStudents.forEach(s => {
     const month = new Date(s.createdAt).toLocaleDateString([], { month: "short" })
     monthCounts[month] = (monthCounts[month] || 0) + 1
   })
@@ -103,20 +116,24 @@ export default function AnalyticsPage() {
         title="Analytics"
         description="Track performance metrics across your practice."
         actions={
-          <select className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
-            <option>Last 30 Days</option>
-            <option>Last 90 Days</option>
-            <option>This Year</option>
-            <option>All Time</option>
+          <select
+            value={dateRange}
+            onChange={e => setDateRange(e.target.value)}
+            className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">This Year</option>
+            <option value="all">All Time</option>
           </select>
         }
       />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Students" value={loading ? "—" : students.length} icon={Users} trend={{ value: 8, label: "vs last month" }} />
+        <StatCard title="Total Students" value={loading ? "—" : filteredStudents.length} icon={Users} trend={{ value: 8, label: "vs last month" }} />
         <StatCard title="Active Students" value={loading ? "—" : activeStudents} icon={Award} trend={{ value: 23, label: "this cycle" }} />
-        <StatCard title="Scholarships Available" value={loading ? "—" : scholarships.length} icon={TrendingUp} trend={{ value: 5, label: "vs last month" }} />
+        <StatCard title="Scholarships Available" value={loading ? "—" : filteredScholarships.length} icon={TrendingUp} trend={{ value: 5, label: "vs last month" }} />
         <StatCard title="Total Scholarship Value" value={loading ? "—" : `$${(totalScholarshipValue / 1000).toFixed(0)}k`} icon={BookOpen} trend={{ value: 12, label: "this month" }} />
       </div>
 

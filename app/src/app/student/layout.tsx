@@ -245,14 +245,16 @@ export default function StudentLayout({
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon-sm" className="relative">
-              <Bell className="h-4 w-4" />
-              {notifCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2563EB] text-[9px] font-bold text-white">
-                  {notifCount}
-                </span>
-              )}
-            </Button>
+            <Link href="/student/messages">
+              <Button variant="ghost" size="icon-sm" className="relative">
+                <Bell className="h-4 w-4" />
+                {notifCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2563EB] text-[9px] font-bold text-white">
+                    {notifCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors outline-none">
@@ -266,11 +268,11 @@ export default function StudentLayout({
               <DropdownMenuContent align="end" sideOffset={8}>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = "/student/onboarding"}>
                   <User className="h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = "/student/onboarding"}>
                   <Settings className="h-4 w-4" />
                   Settings
                 </DropdownMenuItem>

@@ -5,6 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
   PenTool,
   Plus,
   Clock,
@@ -12,6 +20,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Edit3,
+  Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -71,6 +80,52 @@ export default function EssaysPage() {
   const [essays, setEssays] = useState<Essay[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [newOpen, setNewOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [newTitle, setNewTitle] = useState("")
+  const [newContent, setNewContent] = useState("")
+  const [editContent, setEditContent] = useState("")
+  const [saving, setSaving] = useState(false)
+
+  const handleNewEssay = async () => {
+    if (!newTitle.trim()) { toast.error("Title is required"); return }
+    setSaving(true)
+    try {
+      const res = await fetch("/api/essays", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle, content: newContent }),
+      })
+      if (res.ok) {
+        const essay = await res.json()
+        setEssays((prev) => [...prev, essay])
+        setSelectedId(essay.id)
+        toast.success("Essay created!")
+        setNewOpen(false)
+        setNewTitle("")
+        setNewContent("")
+      } else { toast.error("Failed to create essay") }
+    } catch { toast.error("Something went wrong") }
+    finally { setSaving(false) }
+  }
+
+  const handleEditEssay = async () => {
+    if (!selectedId) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/essays/${selectedId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editContent }),
+      })
+      if (res.ok) {
+        setEssays((prev) => prev.map((e) => e.id === selectedId ? { ...e, content: editContent, updatedAt: new Date().toISOString() } : e))
+        toast.success("Essay updated!")
+        setEditOpen(false)
+      } else { toast.error("Failed to update essay") }
+    } catch { toast.error("Something went wrong") }
+    finally { setSaving(false) }
+  }
 
   useEffect(() => {
     fetch("/api/essays")
@@ -117,10 +172,55 @@ export default function EssaysPage() {
           <h1 className="text-2xl font-semibold text-[#1E3A5F]">Essays</h1>
           <p className="mt-1 text-muted-foreground">Write, review, and manage your scholarship essays.</p>
         </div>
-        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90">
+        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setNewOpen(true)}>
           <Plus className="h-4 w-4" />
           New Essay
         </Button>
+
+        <Dialog open={newOpen} onOpenChange={setNewOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>New Essay</DialogTitle>
+              <DialogDescription>Start a new scholarship essay.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div>
+                <label className="text-sm font-medium">Title *</label>
+                <input className="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="e.g., Personal Statement" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Content</label>
+                <textarea className="mt-1 w-full rounded-md border px-3 py-2 text-sm resize-none" rows={6} placeholder="Start writing your essay..." value={newContent} onChange={(e) => setNewContent(e.target.value)} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
+              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleNewEssay} disabled={saving}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Create Essay
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Essay</DialogTitle>
+              <DialogDescription>Edit your essay content below.</DialogDescription>
+            </DialogHeader>
+            <div className="py-2">
+              <textarea className="w-full rounded-md border px-3 py-2 text-sm resize-none" rows={12} value={editContent} onChange={(e) => setEditContent(e.target.value)} />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleEditEssay} disabled={saving}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {essays.length === 0 ? (
@@ -247,7 +347,7 @@ export default function EssaysPage() {
                   )}
 
                   <div className="flex gap-2">
-                    <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90">
+                    <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => { setEditContent(selected.content); setEditOpen(true) }}>
                       <PenTool className="h-4 w-4" />
                       Edit Essay
                     </Button>

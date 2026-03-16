@@ -16,6 +16,7 @@ import {
   PenTool,
   DollarSign,
 } from "lucide-react"
+import { toast } from "sonner"
 
 interface LearningProgress {
   id: string
@@ -193,6 +194,28 @@ export default function LearningPage() {
                     variant={isComplete ? "outline" : "default"}
                     size="sm"
                     className={`w-full gap-2 ${!isComplete ? "bg-[#2563EB] hover:bg-[#2563EB]/90" : ""}`}
+                    onClick={() => {
+                      if (isComplete) {
+                        toast.info(`Reviewing "${mod.title}" module`)
+                      } else {
+                        // Mark next incomplete lesson as complete
+                        const nextLesson = mod.lessons.find(l => l.progress.length === 0 || !l.progress[0].isCompleted)
+                        if (nextLesson) {
+                          fetch("/api/learning", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ lessonId: nextLesson.id }),
+                          }).then(res => {
+                            if (res.ok) {
+                              setModules(prev => prev.map(m => m.id === mod.id ? {
+                                ...m, lessons: m.lessons.map(l => l.id === nextLesson.id ? { ...l, progress: [{ id: "temp", isCompleted: true }] } : l)
+                              } : m))
+                              toast.success(`Completed lesson: ${nextLesson.title}`)
+                            }
+                          })
+                        }
+                      }
+                    }}
                   >
                     {isComplete ? (
                       <>

@@ -4,7 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Plus, Mail, Phone, MoreHorizontal } from "lucide-react"
+import { Plus, Mail, Phone, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 interface Prospect {
@@ -81,6 +81,20 @@ export default function CRMPage() {
     } catch {
       toast.error("Failed to add prospect")
     }
+  }
+
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
+
+  const handleDeleteProspect = async (id: string) => {
+    try {
+      const res = await fetch(`/api/crm/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      toast.success("Prospect removed")
+      loadProspects()
+    } catch {
+      toast.error("Failed to remove prospect")
+    }
+    setOpenMenuId(null)
   }
 
   const pipelineStats = stages.map(stage => ({
@@ -197,9 +211,23 @@ export default function CRMPage() {
                               <p className="text-[11px] text-muted-foreground">{prospect.email || "—"}</p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="icon-xs">
-                            <MoreHorizontal className="size-3" />
-                          </Button>
+                          <div className="relative">
+                            <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === prospect.id ? null : prospect.id)}>
+                              <MoreHorizontal className="size-3" />
+                            </Button>
+                            {openMenuId === prospect.id && (
+                              <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
+                                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                                  onClick={() => { toast.info("Edit prospect coming soon"); setOpenMenuId(null) }}>
+                                  <Pencil className="size-3.5" /> Edit
+                                </button>
+                                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
+                                  onClick={() => handleDeleteProspect(prospect.id)}>
+                                  <Trash2 className="size-3.5" /> Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                           {prospect.serviceTier && (
@@ -212,8 +240,14 @@ export default function CRMPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-1 mt-2">
-                          <Button variant="ghost" size="icon-xs"><Mail className="size-3" /></Button>
-                          <Button variant="ghost" size="icon-xs"><Phone className="size-3" /></Button>
+                          <Button variant="ghost" size="icon-xs" onClick={() => {
+                            if (prospect.email) { window.location.href = `mailto:${prospect.email}` }
+                            else { toast.info("No email address available") }
+                          }}><Mail className="size-3" /></Button>
+                          <Button variant="ghost" size="icon-xs" onClick={() => {
+                            if (prospect.phone) { window.location.href = `tel:${prospect.phone}` }
+                            else { toast.info("No phone number available") }
+                          }}><Phone className="size-3" /></Button>
                         </div>
                       </div>
                     )

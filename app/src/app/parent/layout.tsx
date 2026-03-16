@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,7 @@ export default function ParentLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   const userName = session?.user?.name || "User";
   const userEmail = session?.user?.email || "";
@@ -184,7 +185,10 @@ export default function ParentLayout({
 
           <div className="flex items-center gap-3">
             {/* Notifications */}
-            <button className="relative flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+            <button
+              onClick={() => router.push("/parent/messages")}
+              className="relative flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+            >
               <Bell className="size-[18px]" />
               {notifCount > 0 && (
                 <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-red-500" />
@@ -216,7 +220,10 @@ export default function ParentLayout({
               </button>
               {avatarOpen && (
                 <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg z-50">
-                  <button className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <button
+                    onClick={() => { setAvatarOpen(false); router.push("/parent/profile"); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
                     <Settings className="size-4 text-gray-400" />
                     Settings
                   </button>

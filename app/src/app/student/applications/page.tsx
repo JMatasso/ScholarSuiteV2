@@ -13,6 +13,14 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Plus,
@@ -24,6 +32,8 @@ import {
   XCircle,
   Award,
   CircleDot,
+  Loader2,
+  Search,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -191,6 +201,39 @@ function ApplicationCard({ app }: { app: Application }) {
 export default function ApplicationTracking() {
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
+  const [addOpen, setAddOpen] = useState(false)
+  const [scholarships, setScholarships] = useState<Scholarship[]>([])
+  const [selectedScholarshipId, setSelectedScholarshipId] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [saving, setSaving] = useState(false)
+
+  const handleAddApplication = async () => {
+    if (!selectedScholarshipId) { toast.error("Select a scholarship"); return }
+    setSaving(true)
+    try {
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scholarshipId: selectedScholarshipId }),
+      })
+      if (res.ok) {
+        const newApp = await res.json()
+        setApplications((prev) => [...prev, newApp])
+        toast.success("Application added!")
+        setAddOpen(false)
+        setSelectedScholarshipId("")
+        setSearchQuery("")
+      } else {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.error || "Failed to add application")
+      }
+    } catch { toast.error("Something went wrong") }
+    finally { setSaving(false) }
+  }
+
+  useEffect(() => {
+    fetch("/api/scholarships").then(r => r.json()).then(d => setScholarships(Array.isArray(d) ? d : [])).catch(() => {})
+  }, [])
 
   useEffect(() => {
     fetch("/api/applications")
@@ -219,10 +262,43 @@ export default function ApplicationTracking() {
             Track your scholarship applications from start to finish.
           </p>
         </div>
-        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90">
+        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setAddOpen(true)}>
           <Plus className="h-4 w-4" />
           Add Application
         </Button>
+
+        <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Application</DialogTitle>
+              <DialogDescription>Select a scholarship to start tracking an application.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input className="w-full rounded-md border pl-9 pr-3 py-2 text-sm" placeholder="Search scholarships..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              </div>
+              <div className="max-h-[250px] overflow-y-auto space-y-1.5">
+                {scholarships.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase())).map(s => (
+                  <button key={s.id} onClick={() => setSelectedScholarshipId(s.id)} className={`w-full text-left rounded-lg border p-3 transition-colors ${selectedScholarshipId === s.id ? "border-[#2563EB] bg-blue-50/50 ring-1 ring-[#2563EB]/20" : "hover:bg-muted/50"}`}>
+                    <p className="text-sm font-medium">{s.name}</p>
+                    <p className="text-xs text-muted-foreground">{s.provider} · {s.amount ? `$${s.amount.toLocaleString()}` : "Varies"}</p>
+                  </button>
+                ))}
+                {scholarships.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">No scholarships found.</p>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
+              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleAddApplication} disabled={saving || !selectedScholarshipId}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Add Application
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Kanban Board */}

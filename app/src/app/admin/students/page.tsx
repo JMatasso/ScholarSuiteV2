@@ -8,8 +8,9 @@ import { SearchInput } from "@/components/ui/search-input"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
-import { Plus, Upload, MoreHorizontal, Mail, Eye, Trash2 } from "lucide-react"
+import { Plus, Upload, MoreHorizontal, Mail, Eye, Trash2, Pencil } from "lucide-react"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 import type { ColumnDef } from "@tanstack/react-table"
 
 type StudentStatus = "NEW" | "ACTIVE" | "AT_RISK" | "INACTIVE" | "GRADUATED"
@@ -47,6 +48,9 @@ export default function StudentsPage() {
   const [showAddForm, setShowAddForm] = React.useState(false)
   const [newStudent, setNewStudent] = React.useState({ name: "", email: "", school: "", phone: "" })
   const csvInputRef = React.useRef<HTMLInputElement>(null)
+  const router = useRouter()
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
 
   const loadStudents = React.useCallback(() => {
     setLoading(true)
@@ -123,7 +127,7 @@ export default function StudentsPage() {
         <input
           type="checkbox"
           checked={table.getIsAllPageRowsSelected()}
-          onChange={(e) => { table.toggleAllPageRowsSelected(e.target.checked); setSelectedCount(e.target.checked ? filtered.length : 0) }}
+          onChange={(e) => { table.toggleAllPageRowsSelected(e.target.checked); setSelectedCount(e.target.checked ? filtered.length : 0); setSelectedIds(e.target.checked ? new Set(filtered.map(s => s.id)) : new Set()) }}
           className="size-4 rounded border-input"
         />
       ),
@@ -131,7 +135,7 @@ export default function StudentsPage() {
         <input
           type="checkbox"
           checked={row.getIsSelected()}
-          onChange={(e) => { row.toggleSelected(e.target.checked); setSelectedCount(prev => e.target.checked ? prev + 1 : prev - 1) }}
+          onChange={(e) => { row.toggleSelected(e.target.checked); setSelectedCount(prev => e.target.checked ? prev + 1 : prev - 1); setSelectedIds(prev => { const next = new Set(prev); e.target.checked ? next.add(row.original.id) : next.delete(row.original.id); return next }) }}
           className="size-4 rounded border-input"
         />
       ),
@@ -178,8 +182,26 @@ export default function StudentsPage() {
           <Link href={`/admin/students/${row.original.id}`}>
             <Button variant="ghost" size="icon-xs"><Eye className="size-3.5" /></Button>
           </Link>
-          <Button variant="ghost" size="icon-xs"><Mail className="size-3.5" /></Button>
-          <Button variant="ghost" size="icon-xs"><MoreHorizontal className="size-3.5" /></Button>
+          <Button variant="ghost" size="icon-xs" onClick={() => {
+            window.location.href = `mailto:${row.original.email}`
+          }}><Mail className="size-3.5" /></Button>
+          <div className="relative">
+            <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === row.original.id ? null : row.original.id)}>
+              <MoreHorizontal className="size-3.5" />
+            </Button>
+            {openMenuId === row.original.id && (
+              <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
+                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                  onClick={() => { router.push(`/admin/students/${row.original.id}`); setOpenMenuId(null) }}>
+                  <Pencil className="size-3.5" /> View / Edit
+                </button>
+                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
+                  onClick={() => { toast.info("Remove student from student detail page"); setOpenMenuId(null) }}>
+                  <Trash2 className="size-3.5" /> Remove
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       ),
     },
@@ -296,10 +318,22 @@ export default function StudentsPage() {
       {selectedCount > 0 && (
         <div className="flex items-center gap-3 rounded-lg bg-[#1E3A5F]/5 p-3">
           <span className="text-sm font-medium text-[#1E3A5F]">{selectedCount} selected</span>
-          <Button variant="outline" size="xs">Send Message</Button>
-          <Button variant="outline" size="xs">Assign Task</Button>
-          <Button variant="outline" size="xs">Export</Button>
-          <Button variant="destructive" size="xs"><Trash2 className="size-3" /> Remove</Button>
+          <Button variant="outline" size="xs" onClick={() => router.push("/admin/messages")}>Send Message</Button>
+          <Button variant="outline" size="xs" onClick={() => toast.info("Navigate to Tasks to assign tasks to selected students")}>Assign Task</Button>
+          <Button variant="outline" size="xs" onClick={() => {
+            const csv = ["Name,Email,Status,School"].concat(
+              filtered.filter(s => selectedIds.has(s.id)).map(s => `${s.name},${s.email},${s.status},${s.school}`)
+            ).join("\n")
+            const blob = new Blob([csv], { type: "text/csv" })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url; a.download = "students-export.csv"; a.click()
+            URL.revokeObjectURL(url)
+            toast.success("Students exported")
+          }}>Export</Button>
+          <Button variant="destructive" size="xs" onClick={() => {
+            toast.info(`Remove ${selectedCount} student(s) - confirm action in student detail page`)
+          }}><Trash2 className="size-3" /> Remove</Button>
         </div>
       )}
 

@@ -16,6 +16,7 @@ import {
   BookOpen,
   Lock,
 } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Document {
   id: string;
@@ -157,9 +158,12 @@ export default function DocumentsPage() {
             </p>
           </div>
         </div>
-        <p className="text-sm text-gray-400 text-center py-6">
-          Learning progress data will appear here once modules are completed.
-        </p>
+        <EmptyState
+          icon={BookOpen}
+          title="No Learning Progress Yet"
+          description="Learning progress data will appear here once your child starts completing modules."
+          className="py-4"
+        />
       </div>
     </div>
   );

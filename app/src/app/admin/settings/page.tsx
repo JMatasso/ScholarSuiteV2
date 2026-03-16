@@ -4,15 +4,22 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 
-const tabs = ["General", "Email", "Security", "API"] as const
-type Tab = typeof tabs[number]
+const tabItems = [
+  { id: "General", label: "General" },
+  { id: "Email", label: "Email" },
+  { id: "Security", label: "Security" },
+  { id: "API", label: "API" },
+]
+type Tab = typeof tabItems[number]["id"]
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = React.useState<Tab>("General")
   const [settings, setSettings] = React.useState<Record<string, string>>({})
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
+  const [apiKeyRevealed, setApiKeyRevealed] = React.useState(false)
 
   React.useEffect(() => {
     fetch("/api/settings")
@@ -64,21 +71,11 @@ export default function SettingsPage() {
       />
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-border">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-              activeTab === tab
-                ? "border-[#1E3A5F] text-[#1E3A5F]"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      <VercelTabs
+        tabs={tabItems}
+        onTabChange={(tabId) => setActiveTab(tabId as Tab)}
+        className="border-b border-border pb-[6px]"
+      />
 
       <div className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">
         {activeTab === "General" && (
@@ -260,13 +257,25 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">API Key</label>
               <div className="flex gap-2">
                 <input
-                  type="text"
+                  type={apiKeyRevealed ? "text" : "password"}
                   readOnly
                   value={get("apiKey", "sk_live_••••••••••••••••••••••••")}
                   className="h-9 flex-1 rounded-lg border border-input bg-muted/50 px-3 text-sm font-mono outline-none"
                 />
-                <Button variant="outline" size="sm">Reveal</Button>
-                <Button variant="outline" size="sm">Regenerate</Button>
+                <Button variant="outline" size="sm" onClick={() => setApiKeyRevealed(!apiKeyRevealed)}>
+                  {apiKeyRevealed ? "Hide" : "Reveal"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  const newKey = `sk_live_${Array.from(crypto.getRandomValues(new Uint8Array(24)), b => b.toString(16).padStart(2, "0")).join("")}`
+                  set("apiKey", newKey)
+                  try {
+                    await handleSave({ apiKey: newKey })
+                    toast.success("API key regenerated")
+                    setApiKeyRevealed(true)
+                  } catch {
+                    toast.error("Failed to regenerate API key")
+                  }
+                }}>Regenerate</Button>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">Keep this key secret. Do not share it publicly.</p>
             </div>
