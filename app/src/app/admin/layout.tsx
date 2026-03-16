@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { motion, AnimatePresence, useMotionValue } from "motion/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,6 +32,7 @@ import {
   Search,
   LogOut,
   CalendarDays,
+  Menu,
   type LucideIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -111,6 +113,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const userEmail = session?.user?.email || ""
   const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
   const [collapsed, setCollapsed] = React.useState(false)
+  const [mobileOpen, setMobileOpen] = React.useState(false)
+  const dragX = useMotionValue(0)
+
+  const handleDragEnd = (_event: unknown, info: { offset: { x: number } }) => {
+    if (info.offset.x < -100) setMobileOpen(false)
+    dragX.set(0)
+  }
 
   // Force password change redirect
   React.useEffect(() => {
@@ -126,70 +135,97 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
+      {/* Mobile overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px] lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mobile sidebar */}
+      <motion.aside
+        initial={{ x: "-100%" }}
+        animate={{ x: mobileOpen ? 0 : "-100%" }}
+        transition={{ type: "spring", stiffness: 200, damping: 30, mass: 0.8 }}
+        drag="x"
+        dragConstraints={{ left: -280, right: 0 }}
+        dragElastic={0.15}
+        onDragEnd={handleDragEnd}
+        style={{ x: mobileOpen ? dragX : "-100%" }}
+        className="fixed inset-y-0 left-0 z-50 w-64 bg-card shadow-2xl lg:hidden"
+      >
+        <div className="flex h-full flex-col">
+          <div className="flex h-14 items-center gap-2 border-b border-border px-4">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-semibold text-sm">S</div>
+            <span className="text-sm font-semibold text-foreground tracking-tight">ScholarSuite</span>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-2 py-3">
+            {(() => { let i = 0; return navGroups.map((group) => (
+              <div key={group.title} className="mb-4">
+                <p className="mb-1 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">{group.title}</p>
+                <div className="flex flex-col gap-0.5">
+                  {group.items.map((item) => {
+                    const active = isActive(item.href)
+                    const idx = i++
+                    return (
+                      <motion.div key={item.href} initial={{ x: -40, opacity: 0 }} animate={mobileOpen ? { x: 0, opacity: 1, transition: { delay: 0.05 + idx * 0.03, type: "spring", stiffness: 260, damping: 24 } } : { x: -40, opacity: 0 }}>
+                        <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors", active ? "bg-[#1E3A5F]/5 text-[#1E3A5F]" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                          {active && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#1E3A5F]" />}
+                          <item.icon className="size-4 shrink-0" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              </div>
+            )); })()}
+          </nav>
+        </div>
+      </motion.aside>
+
+      {/* Desktop sidebar */}
       <aside
         className={cn(
-          "flex h-full flex-col border-r border-border bg-card transition-all duration-200",
+          "hidden lg:flex h-full flex-col border-r border-border bg-card transition-all duration-200",
           collapsed ? "w-16" : "w-64"
         )}
       >
-        {/* Logo */}
         <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-semibold text-sm">
-            S
-          </div>
-          {!collapsed && (
-            <span className="text-sm font-semibold text-foreground tracking-tight">
-              ScholarSuite
-            </span>
-          )}
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-semibold text-sm">S</div>
+          {!collapsed && <span className="text-sm font-semibold text-foreground tracking-tight">ScholarSuite</span>}
         </div>
-
-        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-2 py-3">
-          {navGroups.map((group) => (
+          {(() => { let i = 0; return navGroups.map((group) => (
             <div key={group.title} className="mb-4">
-              {!collapsed && (
-                <p className="mb-1 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
-                  {group.title}
-                </p>
-              )}
+              {!collapsed && <p className="mb-1 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">{group.title}</p>}
               <div className="flex flex-col gap-0.5">
                 {group.items.map((item) => {
                   const active = isActive(item.href)
+                  const idx = i++
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        active
-                          ? "bg-[#1E3A5F]/5 text-[#1E3A5F]"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                        collapsed && "justify-center px-0"
-                      )}
-                    >
-                      {active && (
-                        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#1E3A5F]" />
-                      )}
-                      <item.icon className="size-4 shrink-0" />
-                      {!collapsed && <span>{item.label}</span>}
-                    </Link>
+                    <motion.div key={item.href} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.02 } }}>
+                      <Link href={item.href} className={cn("group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors", active ? "bg-[#1E3A5F]/5 text-[#1E3A5F]" : "text-muted-foreground hover:bg-muted hover:text-foreground", collapsed && "justify-center px-0")}>
+                        {active && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#1E3A5F]" />}
+                        <item.icon className="size-4 shrink-0" />
+                        {!collapsed && <span>{item.label}</span>}
+                      </Link>
+                    </motion.div>
                   )
                 })}
               </div>
             </div>
-          ))}
+          )); })()}
         </nav>
-
-        {/* Collapse Toggle */}
         <div className="border-t border-border p-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn("w-full", collapsed ? "justify-center" : "justify-start")}
-            onClick={() => setCollapsed(!collapsed)}
-          >
+          <Button variant="ghost" size="sm" className={cn("w-full", collapsed ? "justify-center" : "justify-start")} onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
             {!collapsed && <span className="ml-2">Collapse</span>}
           </Button>
@@ -199,8 +235,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="flex h-14 items-center justify-between border-b border-border bg-card px-6">
+        <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={() => setMobileOpen(true)}>
+              <Menu className="h-5 w-5" />
+            </Button>
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <input
