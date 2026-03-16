@@ -935,3 +935,28 @@ model SatisfactionSurvey {
   feedback  String?
   createdAt DateTime @default(now())
 }
+
+// ─── ACCESS REQUESTS ────────────────────────────────────────
+
+enum AccessRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+model AccessRequest {
+  id         String              @id @default(cuid())
+  name       String
+  email      String
+  role       Role
+  school     String?
+  phone      String?
+  message    String?
+  status     AccessRequestStatus @default(PENDING)
+  reviewedAt DateTime?
+  reviewedBy String?
+  createdAt  DateTime            @default(now())
+
+  @@index([status])
+  @@index([email])
+}

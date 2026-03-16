@@ -149,7 +149,20 @@ export default function ParentsPage() {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.error || "Failed")
       }
-      toast.success("Parent added successfully")
+      const user = await res.json()
+
+      // Send invite email
+      try {
+        await fetch("/api/invites/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        })
+        toast.success("Parent added and invite email sent!")
+      } catch {
+        toast.success("Parent added, but invite email failed to send.")
+      }
+
       setShowAddForm(false)
       setNewParent({ name: "", email: "", phone: "", relationship: "", studentIds: [] })
       fetchParents()

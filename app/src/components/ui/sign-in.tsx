@@ -141,10 +141,10 @@ export const SignInPage: React.FC<SignInPageProps> = ({
             <p className="animate-element animate-delay-700 text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
-                href="/register"
+                href="/request-access"
                 className="text-primary font-medium hover:underline transition-colors"
               >
-                Get started free
+                Request access
               </Link>
             </p>
           </div>

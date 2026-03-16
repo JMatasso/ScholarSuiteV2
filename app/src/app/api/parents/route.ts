@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { hash } from "bcryptjs";
-import crypto from "crypto";
 
 export async function GET() {
   try {
@@ -66,15 +64,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate a random temporary password (parent will use forgot-password flow)
-    const tempPassword = crypto.randomBytes(16).toString("hex");
-    const hashedPassword = await hash(tempPassword, 12);
-
+    // No password — parent will set it via invite email
     const parent = await db.user.create({
       data: {
         name,
         email,
-        password: hashedPassword,
         role: "PARENT",
         parentProfile: {
           create: {

@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Users,
   UserPlus,
+  UserCheck,
   Layers,
   Award,
   ListTodo,
@@ -57,6 +58,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Students", href: "/admin/students", icon: Users },
       { label: "Parents", href: "/admin/parents", icon: UserPlus },
+      { label: "Access Requests", href: "/admin/access-requests", icon: UserCheck },
       { label: "Cohorts", href: "/admin/cohorts", icon: Layers },
     ],
   },
