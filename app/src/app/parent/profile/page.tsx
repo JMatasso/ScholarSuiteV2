@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/format";
@@ -213,7 +214,12 @@ export default function StudentProfilePage() {
       {/* Top row: avatar card + journey + completion */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Student card */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm">
+        <motion.div
+          className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="flex items-center gap-4">
             <Avatar className="size-16">
               <AvatarFallback className="bg-[#1E3A5F] text-white text-xl font-semibold">
@@ -229,10 +235,15 @@ export default function StudentProfilePage() {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Journey stage */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm flex flex-col justify-center">
+        <motion.div
+          className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm flex flex-col justify-center"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-lg bg-[#2563EB]/10">
               <TrendingUp className="size-5 text-[#2563EB]" />
@@ -257,10 +268,15 @@ export default function StudentProfilePage() {
             <span>Early Exploration</span>
             <span>Post Acceptance</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Profile completion ring */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm flex flex-col items-center justify-center">
+        <motion.div
+          className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm flex flex-col items-center justify-center"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="relative size-24">
             <svg className="size-full -rotate-90" viewBox="0 0 100 100">
               <circle
@@ -290,12 +306,18 @@ export default function StudentProfilePage() {
             </div>
           </div>
           <p className="mt-2 text-xs text-gray-500">Profile Completion</p>
-        </div>
+        </motion.div>
       </div>
 
       {/* Profile sections */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Personal Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
         <ProfileSection title="Personal Information" icon={User}>
           <div className="grid grid-cols-2 gap-x-6">
             <InfoRow label="Full Name" value={fullName} />
@@ -353,8 +375,15 @@ export default function StudentProfilePage() {
             )}
           </div>
         </ProfileSection>
+        </motion.div>
 
         {/* Academic Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
         <ProfileSection title="Academic Information" icon={GraduationCap}>
           <div className="grid grid-cols-2 gap-x-6">
             <InfoRow label="School" value={schoolName} />
@@ -384,8 +413,15 @@ export default function StudentProfilePage() {
             )}
           </div>
         </ProfileSection>
+        </motion.div>
 
         {/* Background */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
         <ProfileSection title="Background" icon={Globe}>
           <div className="grid grid-cols-2 gap-x-6">
             <InfoRow
@@ -406,8 +442,15 @@ export default function StudentProfilePage() {
             />
           </div>
         </ProfileSection>
+        </motion.div>
 
         {/* Goals */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
         <ProfileSection title="Goals &amp; Preferences" icon={Target}>
           <div className="grid grid-cols-2 gap-x-6">
             <InfoRow
@@ -420,6 +463,7 @@ export default function StudentProfilePage() {
             />
           </div>
         </ProfileSection>
+        </motion.div>
       </div>
     </div>
   );

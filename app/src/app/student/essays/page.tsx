@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -228,7 +229,12 @@ export default function EssaysPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
           {/* Left panel - Essay list */}
-          <div className="space-y-2">
+          <motion.div
+            className="space-y-2"
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
             {essays.map((essay) => {
               const config = statusConfig[essay.status] ?? statusConfig.DRAFT
               const Icon = config.icon
@@ -262,7 +268,7 @@ export default function EssaysPage() {
                 </button>
               )
             })}
-          </div>
+          </motion.div>
 
           {/* Right panel - Essay preview */}
           {selected && (() => {
@@ -271,6 +277,11 @@ export default function EssaysPage() {
             const wordCount = countWords(selected.content)
             const targetWords = selected.prompt?.wordLimit ?? 650
             return (
+              <motion.div
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              >
               <Card>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -356,6 +367,7 @@ export default function EssaysPage() {
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
             )
           })()}
         </div>

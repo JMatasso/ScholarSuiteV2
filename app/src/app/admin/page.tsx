@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { StatCard } from "@/components/ui/stat-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Users, FileText, Award, AlertTriangle, Clock } from "lucide-react"
@@ -112,10 +113,14 @@ export default function AdminDashboardPage() {
   return (
     <div className="flex flex-col gap-10 pb-8">
       {/* Header */}
-      <div className="animate-card-entrance">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         <h1 className="text-4xl font-black tracking-tight text-foreground font-display">Dashboard</h1>
         <p className="mt-2 text-base text-muted-foreground">Welcome back. Here is your practice overview.</p>
-      </div>
+      </motion.div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -125,16 +130,20 @@ export default function AdminDashboardPage() {
           { title: "Scholarships Awarded", value: "$1.2M", icon: Award, trend: { value: 23, label: "this cycle" } },
           { title: "At Risk Students", value: atRiskStudents.length, icon: AlertTriangle, trend: { value: -5, label: "vs last week" } },
         ].map((stat, i) => (
-          <div key={stat.title} className="animate-card-entrance" style={{ animationDelay: `${i * 80}ms` }}>
-            <StatCard {...stat} />
-          </div>
+          <StatCard key={stat.title} {...stat} index={i} />
         ))}
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Engagement Chart */}
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "200ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="mb-5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Student Engagement</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -168,10 +177,16 @@ export default function AdminDashboardPage() {
               <span className="size-2.5 rounded-full bg-[#7c3aed]" /> Essays
             </span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Pipeline Chart */}
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "280ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="mb-5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Application Pipeline</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -192,13 +207,19 @@ export default function AdminDashboardPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "360ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="mb-5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Recent Activity</h3>
           <div className="flex flex-col gap-3">
             {auditLogs.length === 0 ? (
@@ -218,10 +239,16 @@ export default function AdminDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* At-Risk Students */}
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "440ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <div className="mb-5 flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-xl bg-amber-50">
               <AlertTriangle className="size-4 text-amber-500" />
@@ -246,7 +273,7 @@ export default function AdminDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

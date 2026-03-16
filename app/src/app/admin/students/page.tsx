@@ -10,7 +10,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
 import { SchoolAutocomplete } from "@/components/ui/school-autocomplete"
-import { Plus, Upload, MoreHorizontal, Mail, Eye, Trash2, Pencil } from "lucide-react"
+import { Plus, Upload, Mail, Eye, Trash2, Pencil } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -44,7 +45,6 @@ export default function StudentsPage() {
   const [newStudent, setNewStudent] = React.useState({ name: "", email: "", school: "", phone: "", tempPassword: "" })
   const csvInputRef = React.useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
 
   const loadStudents = React.useCallback(() => {
@@ -198,32 +198,18 @@ export default function StudentsPage() {
           <Button variant="ghost" size="icon-xs" onClick={() => {
             window.location.href = `mailto:${row.original.email}`
           }}><Mail className="size-3.5" /></Button>
-          <div className="relative">
-            <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === row.original.id ? null : row.original.id)}>
-              <MoreHorizontal className="size-3.5" />
-            </Button>
-            {openMenuId === row.original.id && (
-              <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
-                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                  onClick={() => { router.push(`/admin/students/${row.original.id}`); setOpenMenuId(null) }}>
-                  <Pencil className="size-3.5" /> View / Edit
-                </button>
-                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                  onClick={async () => {
-                    if (!confirm(`Remove ${row.original.name}? This cannot be undone.`)) { setOpenMenuId(null); return }
-                    try {
-                      const res = await fetch(`/api/students/${row.original.id}`, { method: "DELETE" })
-                      if (!res.ok) throw new Error()
-                      toast.success("Student removed")
-                      loadStudents()
-                    } catch { toast.error("Failed to remove student") }
-                    setOpenMenuId(null)
-                  }}>
-                  <Trash2 className="size-3.5" /> Remove
-                </button>
-              </div>
-            )}
-          </div>
+          <ActionMenu items={[
+            { label: "View / Edit", icon: <Pencil className="size-3.5" />, onClick: () => router.push(`/admin/students/${row.original.id}`) },
+            { label: "Remove", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: async () => {
+              if (!confirm(`Remove ${row.original.name}? This cannot be undone.`)) return
+              try {
+                const res = await fetch(`/api/students/${row.original.id}`, { method: "DELETE" })
+                if (!res.ok) throw new Error()
+                toast.success("Student removed")
+                loadStudents()
+              } catch { toast.error("Failed to remove student") }
+            }},
+          ]} />
         </div>
       ),
     },

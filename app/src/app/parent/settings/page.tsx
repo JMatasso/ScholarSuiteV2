@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { toast } from "sonner"
 import { Loader2, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -50,10 +51,21 @@ export default function ParentSettingsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Settings" description="Manage your account and notification preferences." />
 
-      <ProfileSettings />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <ProfileSettings />
+      </motion.div>
 
       {/* Notification Preferences */}
-      <div className="max-w-2xl">
+      <motion.div
+        className="max-w-2xl"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      >
         <section className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
           <h3 className="text-base font-semibold text-foreground mb-4">Notification Preferences</h3>
           {loading ? (
@@ -113,7 +125,7 @@ export default function ParentSettingsPage() {
             </div>
           )}
         </section>
-      </div>
+      </motion.div>
     </div>
   )
 }

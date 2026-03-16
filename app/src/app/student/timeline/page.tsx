@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   CheckCircle2,
@@ -193,12 +194,19 @@ export default function TimelinePage() {
           <div className="absolute left-[7px] top-0 bottom-0 w-0.5 bg-gray-200" />
 
           <div className="space-y-4">
-            {orderedEvents.map((event) => {
+            {orderedEvents.map((event, eventIndex) => {
               const Icon = event.icon
               const styles = statusStyles[event.status]
 
               return (
-                <div key={event.id} className="relative">
+                <motion.div
+                  key={event.id}
+                  className="relative"
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: eventIndex * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                  viewport={{ once: true }}
+                >
                   {/* Dot on the line */}
                   <div
                     className={cn(
@@ -251,7 +259,7 @@ export default function TimelinePage() {
                       </div>
                     </CardContent>
                   </Card>
-                </div>
+                </motion.div>
               )
             })}
           </div>

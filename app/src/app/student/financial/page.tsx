@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/lib/format"
@@ -140,10 +141,16 @@ export default function FinancialPlanPage() {
 
       {/* Summary cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        {summaryCards.map((card) => {
+        {summaryCards.map((card, i) => {
           const Icon = card.icon
           return (
-            <Card key={card.label}>
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            >
+            <Card>
               <CardContent className="pt-0">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
@@ -157,6 +164,7 @@ export default function FinancialPlanPage() {
                 </div>
               </CardContent>
             </Card>
+            </motion.div>
           )
         })}
       </div>

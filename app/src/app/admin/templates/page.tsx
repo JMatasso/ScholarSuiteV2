@@ -4,7 +4,8 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, MoreHorizontal, CheckSquare, Copy, Pencil, Trash2 } from "lucide-react"
+import { Plus, CheckSquare, Copy, Pencil, Trash2 } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 
 interface Task {
@@ -62,8 +63,6 @@ export default function TemplatesPage() {
       toast.error("Failed to create task")
     }
   }
-
-  const [openMenuPhase, setOpenMenuPhase] = React.useState<string | null>(null)
 
   // Group tasks by phase
   const tasksByPhase = tasks.reduce((acc, task) => {
@@ -169,23 +168,10 @@ export default function TemplatesPage() {
                     navigator.clipboard.writeText(taskNames)
                     toast.success("Task names copied to clipboard")
                   }}><Copy className="size-3.5" /></Button>
-                  <div className="relative">
-                    <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuPhase(openMenuPhase === phase ? null : phase)}>
-                      <MoreHorizontal className="size-3.5" />
-                    </Button>
-                    {openMenuPhase === phase && (
-                      <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
-                        <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                          onClick={() => { toast.info("Edit phase coming soon"); setOpenMenuPhase(null) }}>
-                          <Pencil className="size-3.5" /> Edit Phase
-                        </button>
-                        <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                          onClick={() => { toast.info("Delete phase coming soon"); setOpenMenuPhase(null) }}>
-                          <Trash2 className="size-3.5" /> Delete Phase
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <ActionMenu items={[
+                    { label: "Edit Phase", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit phase coming soon") },
+                    { label: "Delete Phase", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => toast.info("Delete phase coming soon") },
+                  ]} />
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">

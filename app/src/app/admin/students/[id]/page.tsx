@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -129,7 +130,12 @@ function StudentDetailContent() {
       </Link>
 
       {/* Student Header */}
-      <div className="flex items-start gap-5 rounded-xl bg-white p-6 ring-1 ring-foreground/10">
+      <motion.div
+        className="flex items-start gap-5 rounded-xl bg-white p-6 ring-1 ring-foreground/10"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         <Avatar size="lg">
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
@@ -167,7 +173,7 @@ function StudentDetailContent() {
           <Button variant="outline" size="sm" onClick={() => router.push("/admin/messages")}><Mail className="size-3.5" /> Message</Button>
           <Button size="sm" onClick={() => router.push("/admin/meetings")}><Calendar className="size-3.5" /> Schedule</Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Tabs */}
       <VercelTabs
@@ -177,7 +183,12 @@ function StudentDetailContent() {
       />
 
       {/* Tab Content */}
-      <div className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">
+      <motion.div
+        className="rounded-xl bg-white p-6 ring-1 ring-foreground/10"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      >
         {activeTab === "Profile" && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
@@ -383,7 +394,7 @@ function StudentDetailContent() {
             </Button>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

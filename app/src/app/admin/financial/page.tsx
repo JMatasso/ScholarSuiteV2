@@ -121,10 +121,10 @@ export default function FinancialPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Aid Secured" value={fmt(totalAid)} icon={DollarSign} trend={{ value: 18, label: "this cycle" }} />
-        <StatCard title="Average Gap" value={fmt(avgGap)} icon={TrendingUp} trend={{ value: -12, label: "vs last month" }} />
-        <StatCard title="Students w/ Aid" value={fullyFunded} icon={CheckCircle} description={`out of ${students.length} students`} />
-        <StatCard title="Total Students" value={students.length} icon={Users} trend={{ value: 8, label: "vs last month" }} />
+        <StatCard title="Total Aid Secured" value={fmt(totalAid)} icon={DollarSign} trend={{ value: 18, label: "this cycle" }} index={0} />
+        <StatCard title="Average Gap" value={fmt(avgGap)} icon={TrendingUp} trend={{ value: -12, label: "vs last month" }} index={1} />
+        <StatCard title="Students w/ Aid" value={fullyFunded} icon={CheckCircle} description={`out of ${students.length} students`} index={2} />
+        <StatCard title="Total Students" value={students.length} icon={Users} trend={{ value: 8, label: "vs last month" }} index={3} />
       </div>
 
       <div className="flex items-center gap-3">

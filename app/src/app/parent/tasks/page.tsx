@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -245,12 +246,15 @@ export default function TasksPage() {
 
       {/* Task list */}
       <div className="space-y-2">
-        {filteredTasks.map((task) => {
+        {filteredTasks.map((task, i) => {
           const config = statusConfig[task.status];
           const StatusIcon = config.icon;
           return (
-            <div
+            <motion.div
               key={task.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
               className={cn(
                 "flex items-start gap-3 rounded-xl bg-white px-5 py-4 ring-1 shadow-sm transition-colors",
                 task.status === "overdue"
@@ -310,7 +314,7 @@ export default function TasksPage() {
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
 

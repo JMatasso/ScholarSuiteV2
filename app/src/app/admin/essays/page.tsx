@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -123,7 +124,12 @@ export default function AdminEssaysPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+      <motion.div
+        className="rounded-xl bg-card ring-1 ring-foreground/10"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         {loading ? (
           <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
             Loading essays...
@@ -189,7 +195,7 @@ export default function AdminEssaysPage() {
             </tbody>
           </table>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

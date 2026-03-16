@@ -5,7 +5,9 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { Plus, Mail, Phone, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { Plus, Mail, Phone, Pencil, Trash2 } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
+import { motion } from "motion/react"
 import { toast } from "sonner"
 
 interface Prospect {
@@ -84,8 +86,6 @@ export default function CRMPage() {
     }
   }
 
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
-
   const handleDeleteProspect = async (id: string) => {
     try {
       const res = await fetch(`/api/crm/${id}`, { method: "DELETE" })
@@ -95,7 +95,6 @@ export default function CRMPage() {
     } catch {
       toast.error("Failed to remove prospect")
     }
-    setOpenMenuId(null)
   }
 
   const pipelineStats = stages.map(stage => ({
@@ -194,12 +193,15 @@ export default function CRMPage() {
               <div className="flex flex-col gap-2">
                 {prospects
                   .filter(p => p.stage === stage)
-                  .map((prospect) => {
+                  .map((prospect, index) => {
                     const fullName = `${prospect.firstName} ${prospect.lastName}`
                     const initials = `${prospect.firstName[0] || ""}${prospect.lastName[0] || ""}`.toUpperCase()
                     return (
-                      <div
+                      <motion.div
                         key={prospect.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
                         className={`rounded-lg border p-3 transition-shadow hover:shadow-sm ${stageColors[stage]}`}
                       >
                         <div className="flex items-start justify-between mb-2">
@@ -212,23 +214,10 @@ export default function CRMPage() {
                               <p className="text-[11px] text-muted-foreground">{prospect.email || "—"}</p>
                             </div>
                           </div>
-                          <div className="relative">
-                            <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === prospect.id ? null : prospect.id)}>
-                              <MoreHorizontal className="size-3" />
-                            </Button>
-                            {openMenuId === prospect.id && (
-                              <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
-                                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                                  onClick={() => { toast.info("Edit prospect coming soon"); setOpenMenuId(null) }}>
-                                  <Pencil className="size-3.5" /> Edit
-                                </button>
-                                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                                  onClick={() => handleDeleteProspect(prospect.id)}>
-                                  <Trash2 className="size-3.5" /> Delete
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          <ActionMenu items={[
+                            { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit prospect coming soon") },
+                            { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => handleDeleteProspect(prospect.id) },
+                          ]} />
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                           {prospect.serviceTier && (
@@ -250,7 +239,7 @@ export default function CRMPage() {
                             else { toast.info("No phone number available") }
                           }}><Phone className="size-3" /></Button>
                         </div>
-                      </div>
+                      </motion.div>
                     )
                   })}
               </div>

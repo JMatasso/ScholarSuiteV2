@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -228,7 +229,12 @@ export default function ParentDashboard() {
   return (
     <div className="space-y-10 pb-8">
       {/* Page header + student selector */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-card-entrance">
+      <motion.div
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div>
           <h1 className="text-4xl font-black tracking-tight text-foreground font-display">
             Parent Dashboard
@@ -281,10 +287,15 @@ export default function ParentDashboard() {
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Student profile card */}
-      <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "80ms" }}>
+      <motion.div
+        className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
           <Avatar size="lg" className="size-14">
             <AvatarFallback className="bg-[#1E3A5F] text-white text-lg font-semibold">
@@ -315,7 +326,7 @@ export default function ParentDashboard() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -325,16 +336,19 @@ export default function ParentDashboard() {
           { title: "Scholarships Won", value: `$${totalAwarded.toLocaleString()}`, description: `${awardedApps.length} awards received`, icon: DollarSign },
           { title: "Upcoming Deadlines", value: upcomingDeadlines.length, description: "Within the next 14 days", icon: Clock },
         ].map((stat, i) => (
-          <div key={stat.title} className="animate-card-entrance" style={{ animationDelay: `${160 + i * 80}ms` }}>
-            <StatCard {...stat} />
-          </div>
+          <StatCard key={stat.title} {...stat} index={i} />
         ))}
       </div>
 
       {/* Progress overview row */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {/* Task completion */}
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "400ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Overall Task Completion
           </h3>
@@ -371,10 +385,15 @@ export default function ParentDashboard() {
           <p className="mt-3 text-center text-xs text-muted-foreground">
             {totalTasks - completedTasks} tasks remaining
           </p>
-        </div>
+        </motion.div>
 
         {/* Applications by status */}
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "480ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.48, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Applications by Status
           </h3>
@@ -404,10 +423,15 @@ export default function ParentDashboard() {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Financial summary */}
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "560ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.56, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Financial Summary
           </h3>
@@ -434,12 +458,18 @@ export default function ParentDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Alerts section */}
       {alerts.length > 0 && (
-        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "640ms" }}>
+        <motion.div
+          className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4">
             Alerts &amp; Deadlines
           </h3>
@@ -499,7 +529,7 @@ export default function ParentDashboard() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

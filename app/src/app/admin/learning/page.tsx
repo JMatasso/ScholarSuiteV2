@@ -4,7 +4,9 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, GripVertical, MoreHorizontal, BookOpen, Pencil, Trash2 } from "lucide-react"
+import { Plus, GripVertical, BookOpen, Pencil, Trash2 } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
+import { motion } from "motion/react"
 import { toast } from "sonner"
 
 interface LearningModule {
@@ -50,8 +52,6 @@ export default function LearningPage() {
 
   React.useEffect(() => { loadModules() }, [loadModules])
 
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
-
   const handleDeleteModule = async (id: string) => {
     try {
       const res = await fetch(`/api/learning/${id}`, { method: "DELETE" })
@@ -61,7 +61,6 @@ export default function LearningPage() {
     } catch {
       toast.error("Failed to delete module")
     }
-    setOpenMenuId(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -148,8 +147,14 @@ export default function LearningPage() {
         <p className="text-sm text-muted-foreground">No modules yet.</p>
       ) : (
         <div className="flex flex-col gap-2">
-          {modules.map((mod) => (
-            <div key={mod.id} className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm">
+          {modules.map((mod, index) => (
+            <motion.div
+              key={mod.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
+            >
               <span className="cursor-grab text-muted-foreground hover:text-foreground" title="Drag to reorder">
                 <GripVertical className="size-4" />
               </span>
@@ -180,25 +185,12 @@ export default function LearningPage() {
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <BookOpen className="size-3" /> {mod.lessons?.length || 0} lessons
                 </span>
-                <div className="relative">
-                  <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === mod.id ? null : mod.id)}>
-                    <MoreHorizontal className="size-3.5" />
-                  </Button>
-                  {openMenuId === mod.id && (
-                    <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
-                      <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                        onClick={() => { toast.info("Edit module coming soon"); setOpenMenuId(null) }}>
-                        <Pencil className="size-3.5" /> Edit
-                      </button>
-                      <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                        onClick={() => handleDeleteModule(mod.id)}>
-                        <Trash2 className="size-3.5" /> Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <ActionMenu items={[
+                  { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit module coming soon") },
+                  { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => handleDeleteModule(mod.id) },
+                ]} />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}

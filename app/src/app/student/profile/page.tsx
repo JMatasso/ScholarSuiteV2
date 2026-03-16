@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2, Save, Edit3 } from "lucide-react"
@@ -116,6 +117,11 @@ export default function StudentProfilePage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0, ease: [0.16, 1, 0.3, 1] }}
+        >
         <ProfileCard title="Personal Information">
           <Field label="First Name" value={data.firstName} onChange={v => update("firstName", v)} editing={editing} />
           <Field label="Last Name" value={data.lastName} onChange={v => update("lastName", v)} editing={editing} />
@@ -126,7 +132,13 @@ export default function StudentProfilePage() {
           <Field label="State" value={data.state} onChange={v => update("state", v)} editing={editing} />
           <Field label="ZIP Code" value={data.zipCode} onChange={v => update("zipCode", v)} editing={editing} />
         </ProfileCard>
+        </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+        >
         <ProfileCard title="Academic Information">
           <Field label="High School" value={data.highSchool} onChange={v => update("highSchool", v)} editing={editing} />
           <Field label="Grade Level" value={data.gradeLevel} onChange={v => update("gradeLevel", v)} editing={editing} />
@@ -136,7 +148,13 @@ export default function StudentProfilePage() {
           <Field label="ACT Score" value={data.actScore} onChange={v => update("actScore", v)} editing={editing} />
           <Field label="Intended Major" value={data.intendedMajor} onChange={v => update("intendedMajor", v)} editing={editing} />
         </ProfileCard>
+        </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+        >
         <ProfileCard title="Background">
           <Field label="Ethnicity" value={data.ethnicity} onChange={v => update("ethnicity", v)} editing={editing} />
           <Field label="Citizenship" value={data.citizenship} onChange={v => update("citizenship", v)} editing={editing} />
@@ -144,11 +162,18 @@ export default function StudentProfilePage() {
           <BoolField label="Pell Grant Eligible" value={data.isPellEligible} onChange={v => update("isPellEligible", v)} editing={editing} />
           <BoolField label="Financial Need" value={data.hasFinancialNeed} onChange={v => update("hasFinancialNeed", v)} editing={editing} />
         </ProfileCard>
+        </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+        >
         <ProfileCard title="Journey">
           <Field label="Journey Stage" value={data.journeyStage?.replace(/_/g, " ")} onChange={v => update("journeyStage", v)} editing={false} />
           <Field label="Pathway" value={data.postSecondaryPath?.replace(/_/g, " ")} onChange={v => update("postSecondaryPath", v)} editing={false} />
         </ProfileCard>
+        </motion.div>
       </div>
     </div>
   )

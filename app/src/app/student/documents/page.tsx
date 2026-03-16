@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -200,10 +201,16 @@ export default function DocumentsPage() {
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {documents.map((doc) => {
+            {documents.map((doc, i) => {
               const Icon = typeIcons[doc.type] ?? File
               return (
-                <Card key={doc.id} className="hover:shadow-sm transition-shadow">
+                <motion.div
+                  key={doc.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                >
+                <Card className="hover:shadow-sm transition-shadow">
                   <CardContent className="pt-0 space-y-3">
                     <div className="flex items-start gap-3">
                       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${typeColors[doc.type]}`}>
@@ -237,6 +244,7 @@ export default function DocumentsPage() {
                     </div>
                   </CardContent>
                 </Card>
+                </motion.div>
               )
             })}
           </div>

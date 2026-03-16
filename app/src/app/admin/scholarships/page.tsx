@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
-import { Plus, Upload, MoreHorizontal, ExternalLink, Pencil, Trash2 } from "lucide-react"
+import { Plus, Upload, ExternalLink, Pencil, Trash2 } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -39,7 +40,6 @@ export default function ScholarshipsPage() {
     name: "", provider: "", amount: "", deadline: "", description: "", url: ""
   })
   const csvInputRef = React.useRef<HTMLInputElement>(null)
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
 
   const handleDeleteScholarship = async (id: string) => {
     try {
@@ -50,7 +50,6 @@ export default function ScholarshipsPage() {
     } catch {
       toast.error("Failed to delete scholarship")
     }
-    setOpenMenuId(null)
   }
 
   const loadScholarships = React.useCallback(() => {
@@ -183,23 +182,10 @@ export default function ScholarshipsPage() {
           ) : (
             <Button variant="ghost" size="icon-xs" disabled><ExternalLink className="size-3.5" /></Button>
           )}
-          <div className="relative">
-            <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === row.original.id ? null : row.original.id)}>
-              <MoreHorizontal className="size-3.5" />
-            </Button>
-            {openMenuId === row.original.id && (
-              <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
-                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                  onClick={() => { toast.info("Edit scholarship coming soon"); setOpenMenuId(null) }}>
-                  <Pencil className="size-3.5" /> Edit
-                </button>
-                <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                  onClick={() => handleDeleteScholarship(row.original.id)}>
-                  <Trash2 className="size-3.5" /> Delete
-                </button>
-              </div>
-            )}
-          </div>
+          <ActionMenu items={[
+            { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit scholarship coming soon") },
+            { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => handleDeleteScholarship(row.original.id) },
+          ]} />
         </div>
       ),
     },

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -211,14 +212,18 @@ export default function StudentDashboard() {
   return (
     <div className="space-y-10 pb-8">
       {/* Welcome */}
-      <div className="animate-card-entrance">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         <h1 className="text-4xl font-black tracking-tight text-[#1E3A5F] font-display">
           Welcome back{userName ? `, ${userName}` : ""}
         </h1>
         <p className="mt-2 text-base text-muted-foreground">
           Here is what is happening with your scholarship journey today.
         </p>
-      </div>
+      </motion.div>
 
       {/* Stat Cards */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -233,10 +238,14 @@ export default function StudentDashboard() {
           stats.map((stat, i) => {
             const Icon = stat.icon
             return (
-              <Card
+              <motion.div
                 key={stat.label}
-                className={`animate-card-entrance transition-all duration-300 hover:scale-[1.02]`}
-                style={{ animationDelay: `${i * 80}ms` }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              >
+              <Card
+                className="transition-all duration-300 hover:scale-[1.02]"
               >
                 <CardContent className="pt-0">
                   <div className="flex items-start justify-between">
@@ -253,6 +262,7 @@ export default function StudentDashboard() {
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
             )
           })
         )}
@@ -261,7 +271,13 @@ export default function StudentDashboard() {
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2 animate-card-entrance" style={{ animationDelay: "200ms" }}>
+        <motion.div
+          className="lg:col-span-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50">
@@ -303,9 +319,15 @@ export default function StudentDashboard() {
             )}
           </CardContent>
         </Card>
+        </motion.div>
 
         {/* Upcoming Deadlines */}
-        <Card className="animate-card-entrance" style={{ animationDelay: "300ms" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50">
@@ -361,10 +383,16 @@ export default function StudentDashboard() {
             )}
           </CardContent>
         </Card>
+        </motion.div>
       </div>
 
       {/* Quick Actions */}
-      <Card className="animate-card-entrance" style={{ animationDelay: "400ms" }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg font-semibold">
             <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50">
@@ -394,6 +422,7 @@ export default function StudentDashboard() {
           </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -116,9 +117,12 @@ export default function MessagesPage() {
       </div>
 
       {activeView === "chat" ? (
-        <div
+        <motion.div
           className="flex flex-col rounded-xl bg-card ring-1 ring-foreground/10 shadow-sm"
           style={{ height: "calc(100vh - 320px)", minHeight: 400 }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Chat header */}
           <div className="flex items-center gap-3 border-b border-border px-5 py-3">
@@ -249,7 +253,7 @@ export default function MessagesPage() {
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       ) : (
         /* Notifications view */
         <div className="space-y-2">

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -287,7 +288,16 @@ export default function MeetingsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {upcoming.map((m) => renderMeetingCard(m, true))}
+            {upcoming.map((m, i) => (
+              <motion.div
+                key={m.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {renderMeetingCard(m, true)}
+              </motion.div>
+            ))}
           </div>
         )}
       </div>
@@ -300,7 +310,17 @@ export default function MeetingsPage() {
             Past Meetings ({completed.length})
           </h2>
           <div className="space-y-2.5">
-            {completed.map((m) => renderMeetingCard(m, false))}
+            {completed.map((m, i) => (
+              <motion.div
+                key={m.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true }}
+              >
+                {renderMeetingCard(m, false)}
+              </motion.div>
+            ))}
           </div>
         </div>
       )}

@@ -12,12 +12,12 @@ import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-selec
 import { EditLinksDialog } from "@/components/ui/edit-links-dialog"
 import {
   Plus,
-  MoreHorizontal,
   Mail,
   Pencil,
   Trash2,
   Link2,
 } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -56,7 +56,6 @@ export default function ParentsPage() {
   const [loading, setLoading] = React.useState(true)
   const [search, setSearch] = React.useState("")
   const [showAddForm, setShowAddForm] = React.useState(false)
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
   const [editLinksParent, setEditLinksParent] = React.useState<ParentRow | null>(null)
 
   // All students for linking
@@ -272,47 +271,18 @@ export default function ParentsPage() {
           >
             <Link2 className="size-3.5" />
           </Button>
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={() =>
-                setOpenMenuId(
-                  openMenuId === row.original.id ? null : row.original.id
-                )
-              }
-            >
-              <MoreHorizontal className="size-3.5" />
-            </Button>
-            {openMenuId === row.original.id && (
-              <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-card py-1 shadow-lg">
-                <button
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                  onClick={() => {
-                    setEditLinksParent(row.original)
-                    setOpenMenuId(null)
-                  }}
-                >
-                  <Pencil className="size-3.5" /> Edit Links
-                </button>
-                <button
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                  onClick={async () => {
-                    if (!confirm(`Remove ${row.original.name}? This cannot be undone.`)) { setOpenMenuId(null); return }
-                    try {
-                      const res = await fetch(`/api/parents/${row.original.id}`, { method: "DELETE" })
-                      if (!res.ok) throw new Error()
-                      toast.success("Parent removed")
-                      fetchParents()
-                    } catch { toast.error("Failed to remove parent") }
-                    setOpenMenuId(null)
-                  }}
-                >
-                  <Trash2 className="size-3.5" /> Remove
-                </button>
-              </div>
-            )}
-          </div>
+          <ActionMenu items={[
+            { label: "Edit Links", icon: <Pencil className="size-3.5" />, onClick: () => setEditLinksParent(row.original) },
+            { label: "Remove", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: async () => {
+              if (!confirm(`Remove ${row.original.name}? This cannot be undone.`)) return
+              try {
+                const res = await fetch(`/api/parents/${row.original.id}`, { method: "DELETE" })
+                if (!res.ok) throw new Error()
+                toast.success("Parent removed")
+                fetchParents()
+              } catch { toast.error("Failed to remove parent") }
+            }},
+          ]} />
         </div>
       ),
     },

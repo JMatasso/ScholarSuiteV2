@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -58,7 +59,12 @@ export default function MessagesPage() {
         <p className="mt-1 text-muted-foreground">Communicate with your counselors, tutors, and consultants.</p>
       </div>
 
-      <div className="grid h-[calc(100vh-260px)] min-h-[500px] gap-0 overflow-hidden rounded-xl border bg-card lg:grid-cols-[340px_1fr]">
+      <motion.div
+        className="grid h-[calc(100vh-260px)] min-h-[500px] gap-0 overflow-hidden rounded-xl border bg-card lg:grid-cols-[340px_1fr]"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         {/* Left panel - Conversation list */}
         <div className="flex flex-col border-r">
           <div className="p-3">
@@ -186,7 +192,7 @@ export default function MessagesPage() {
             <p className="text-sm">No conversations yet.</p>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

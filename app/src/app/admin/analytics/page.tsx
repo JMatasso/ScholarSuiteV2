@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Users, Award, TrendingUp, BookOpen } from "lucide-react"
@@ -131,16 +132,22 @@ export default function AnalyticsPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Students" value={loading ? "—" : filteredStudents.length} icon={Users} trend={{ value: 8, label: "vs last month" }} />
-        <StatCard title="Active Students" value={loading ? "—" : activeStudents} icon={Award} trend={{ value: 23, label: "this cycle" }} />
-        <StatCard title="Scholarships Available" value={loading ? "—" : filteredScholarships.length} icon={TrendingUp} trend={{ value: 5, label: "vs last month" }} />
-        <StatCard title="Total Scholarship Value" value={loading ? "—" : `$${(totalScholarshipValue / 1000).toFixed(0)}k`} icon={BookOpen} trend={{ value: 12, label: "this month" }} />
+        <StatCard title="Total Students" value={loading ? "—" : filteredStudents.length} icon={Users} trend={{ value: 8, label: "vs last month" }} index={0} />
+        <StatCard title="Active Students" value={loading ? "—" : activeStudents} icon={Award} trend={{ value: 23, label: "this cycle" }} index={1} />
+        <StatCard title="Scholarships Available" value={loading ? "—" : filteredScholarships.length} icon={TrendingUp} trend={{ value: 5, label: "vs last month" }} index={2} />
+        <StatCard title="Total Scholarship Value" value={loading ? "—" : `$${(totalScholarshipValue / 1000).toFixed(0)}k`} icon={BookOpen} trend={{ value: 12, label: "this month" }} index={3} />
       </div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Engagement Over Time */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <motion.div
+          className="rounded-xl bg-white p-5 ring-1 ring-foreground/10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="mb-4 text-sm font-medium text-foreground">Engagement Over Time</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -160,10 +167,16 @@ export default function AnalyticsPage() {
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="size-2 rounded-full bg-[#2563EB]" /> Engaged</span>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="size-2 rounded-full bg-[#94a3b8]" /> Dormant</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Awards by Category */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <motion.div
+          className="rounded-xl bg-white p-5 ring-1 ring-foreground/10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="mb-4 text-sm font-medium text-foreground">Scholarships by Tag Value</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -176,10 +189,16 @@ export default function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Student Enrollment */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <motion.div
+          className="rounded-xl bg-white p-5 ring-1 ring-foreground/10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="mb-4 text-sm font-medium text-foreground">Student Enrollment by Month</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -192,10 +211,16 @@ export default function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Module Completion */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <motion.div
+          className="rounded-xl bg-white p-5 ring-1 ring-foreground/10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+        >
           <h3 className="mb-4 text-sm font-medium text-foreground">Module Completion Rate</h3>
           <div className="h-64 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
@@ -209,7 +234,7 @@ export default function AnalyticsPage() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

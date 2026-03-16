@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -235,10 +236,13 @@ export default function TeamManagementPage() {
             <p className="text-sm text-muted-foreground">No team members found</p>
           </div>
         ) : (
-          filtered.map((admin) => (
-            <div
+          filtered.map((admin, index) => (
+            <motion.div
               key={admin.id}
               className="flex items-center justify-between rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className="flex items-center gap-3">
                 <Avatar>
@@ -288,7 +292,7 @@ export default function TeamManagementPage() {
                   </Button>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))
         )}
       </div>

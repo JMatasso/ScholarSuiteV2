@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -82,37 +83,32 @@ export default function ApplicationsPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-purple-50">
-            <FileText className="size-5 text-purple-600" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-400">Total Applications</p>
-            <p className="text-xl font-bold text-gray-900">
-              {scholarshipApplications.length}
-            </p>
-          </div>
-        </div>
-        <div className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-green-50">
-            <DollarSign className="size-5 text-green-600" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-400">Total Awarded</p>
-            <p className="text-xl font-bold text-green-600">
-              ${totalAwarded.toLocaleString()}
-            </p>
-          </div>
-        </div>
-        <div className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-blue-50">
-            <Trophy className="size-5 text-blue-600" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-400">Awards Received</p>
-            <p className="text-xl font-bold text-gray-900">{awards.length}</p>
-          </div>
-        </div>
+        {[
+          { icon: FileText, label: "Total Applications", value: scholarshipApplications.length, valueColor: "text-gray-900", bg: "bg-purple-50", iconColor: "text-purple-600" },
+          { icon: DollarSign, label: "Total Awarded", value: `$${totalAwarded.toLocaleString()}`, valueColor: "text-green-600", bg: "bg-green-50", iconColor: "text-green-600" },
+          { icon: Trophy, label: "Awards Received", value: awards.length, valueColor: "text-gray-900", bg: "bg-blue-50", iconColor: "text-blue-600" },
+        ].map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm flex items-center gap-3"
+            >
+              <div className={`flex size-10 items-center justify-center rounded-lg ${card.bg}`}>
+                <Icon className={`size-5 ${card.iconColor}`} />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">{card.label}</p>
+                <p className={`text-xl font-bold ${card.valueColor}`}>
+                  {card.value}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Tabs */}

@@ -5,7 +5,9 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { Plus, Users, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { Plus, Users, Pencil, Trash2 } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
+import { motion } from "motion/react"
 import { toast } from "sonner"
 
 interface CohortMember {
@@ -46,8 +48,6 @@ export default function CohortsPage() {
 
   React.useEffect(() => { loadCohorts() }, [loadCohorts])
 
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
-
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/cohorts/${id}`, { method: "DELETE" })
@@ -57,7 +57,6 @@ export default function CohortsPage() {
     } catch {
       toast.error("Failed to delete cohort")
     }
-    setOpenMenuId(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,34 +131,23 @@ export default function CohortsPage() {
         <p className="text-sm text-muted-foreground">No cohorts yet. Create one to get started.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {cohorts.map((cohort) => (
-            <div key={cohort.id} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm">
+          {cohorts.map((cohort, index) => (
+            <motion.div
+              key={cohort.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <span className={`size-3 rounded-full ${cohort.color || "bg-gray-400"}`} />
                   <h3 className="text-sm font-semibold text-foreground">{cohort.name}</h3>
                 </div>
-                <div className="relative">
-                  <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === cohort.id ? null : cohort.id)}>
-                    <MoreHorizontal className="size-3.5" />
-                  </Button>
-                  {openMenuId === cohort.id && (
-                    <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-white py-1 shadow-lg">
-                      <button
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                        onClick={() => { toast.info("Edit cohort coming soon"); setOpenMenuId(null) }}
-                      >
-                        <Pencil className="size-3.5" /> Edit
-                      </button>
-                      <button
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                        onClick={() => handleDelete(cohort.id)}
-                      >
-                        <Trash2 className="size-3.5" /> Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <ActionMenu items={[
+                  { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit cohort coming soon") },
+                  { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => handleDelete(cohort.id) },
+                ]} />
               </div>
               <p className="text-sm text-muted-foreground mb-4">{cohort.description || "No description"}</p>
               <div className="flex items-center justify-between">
@@ -180,7 +168,7 @@ export default function CohortsPage() {
                 </div>
                 <span className="text-xs text-muted-foreground">Created {new Date(cohort.createdAt).toLocaleDateString()}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -141,7 +142,7 @@ export default function LearningPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {modules.map((mod) => {
+          {modules.map((mod, modIndex) => {
             const Icon = getModuleIcon(mod.icon)
             const completedCount = getCompletedCount(mod)
             const lessonCount = mod.lessons.length
@@ -153,7 +154,13 @@ export default function LearningPage() {
             const catLabel = categoryLabels[category] ?? category
 
             return (
-              <Card key={mod.id} className="flex flex-col justify-between hover:shadow-md transition-shadow">
+              <motion.div
+                key={mod.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: modIndex * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              >
+              <Card className="flex flex-col justify-between hover:shadow-md transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
@@ -236,6 +243,7 @@ export default function LearningPage() {
                   </Button>
                 </CardContent>
               </Card>
+              </motion.div>
             )
           })}
         </div>

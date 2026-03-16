@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -286,13 +287,19 @@ export default function ScholarshipDiscovery() {
           {["matched", "all", "saved", "dismissed"].map((tab) => (
             <TabsContent key={tab} value={tab}>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-4">
-                {filterByTab(tab).map((s) => (
-                  <ScholarshipCard
+                {filterByTab(tab).map((s, i) => (
+                  <motion.div
                     key={s.id}
-                    scholarship={s}
-                    onSave={() => handleSave(s)}
-                    onDismiss={() => handleDismiss(s.id)}
-                  />
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <ScholarshipCard
+                      scholarship={s}
+                      onSave={() => handleSave(s)}
+                      onDismiss={() => handleDismiss(s.id)}
+                    />
+                  </motion.div>
                 ))}
                 {filterByTab(tab).length === 0 && (
                   <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">

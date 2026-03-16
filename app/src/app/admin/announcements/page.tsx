@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -206,13 +207,19 @@ export default function AnnouncementsPage() {
           <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading announcements...</div>
         ) : announcements.length === 0 ? (
           <p className="text-sm text-muted-foreground">No announcements yet.</p>
-        ) : announcements.map((ann) => {
+        ) : announcements.map((ann, index) => {
           const statusLabel = getStatusLabel(ann)
           const sc = statusConfig[statusLabel]
           const TargetIcon = getTargetIcon(ann.targetRole)
           const targetRoleLabel = ann.targetRole === "STUDENT" ? "Students" : ann.targetRole === "PARENT" ? "Parents" : "All Users"
           return (
-            <div key={ann.id} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm">
+            <motion.div
+              key={ann.id}
+              className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -273,7 +280,7 @@ export default function AnnouncementsPage() {
                   </div>
                 </form>
               )}
-            </div>
+            </motion.div>
           )
         })}
       </div>

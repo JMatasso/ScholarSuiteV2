@@ -9,7 +9,8 @@ import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, MoreHorizontal, Pencil, Trash2, CheckCircle2 } from "lucide-react"
+import { Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react"
+import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -61,8 +62,6 @@ export default function SupportPage() {
     }
   }
 
-  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
-
   const handleResolve = async (id: string) => {
     try {
       const res = await fetch(`/api/support/${id}`, {
@@ -76,7 +75,6 @@ export default function SupportPage() {
     } catch {
       toast.error("Failed to update ticket")
     }
-    setOpenMenuId(null)
   }
 
   const filtered = tickets.filter(t => {
@@ -138,27 +136,11 @@ export default function SupportPage() {
     {
       id: "actions",
       cell: ({ row }) => (
-        <div className="relative">
-          <Button variant="ghost" size="icon-xs" onClick={() => setOpenMenuId(openMenuId === row.original.id ? null : row.original.id)}>
-            <MoreHorizontal className="size-3.5" />
-          </Button>
-          {openMenuId === row.original.id && (
-            <div className="absolute right-0 top-full z-10 mt-1 w-40 rounded-lg border border-border bg-white py-1 shadow-lg">
-              <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                onClick={() => { toast.info("Edit ticket coming soon"); setOpenMenuId(null) }}>
-                <Pencil className="size-3.5" /> Edit
-              </button>
-              <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-green-600 hover:bg-muted"
-                onClick={() => handleResolve(row.original.id)}>
-                <CheckCircle2 className="size-3.5" /> Mark Resolved
-              </button>
-              <button className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-muted"
-                onClick={() => { toast.info("Delete ticket coming soon"); setOpenMenuId(null) }}>
-                <Trash2 className="size-3.5" /> Delete
-              </button>
-            </div>
-          )}
-        </div>
+        <ActionMenu items={[
+          { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit ticket coming soon") },
+          { label: "Mark Resolved", icon: <CheckCircle2 className="size-3.5" />, onClick: () => handleResolve(row.original.id) },
+          { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => toast.info("Delete ticket coming soon") },
+        ]} />
       ),
     },
   ]

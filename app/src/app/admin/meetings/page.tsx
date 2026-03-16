@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -194,7 +195,7 @@ export default function MeetingsPage() {
               <p className="text-sm text-muted-foreground">No upcoming meetings.</p>
             ) : (
               <div className="flex flex-col gap-3">
-                {upcoming.map((meeting) => {
+                {upcoming.map((meeting, index) => {
                   const start = new Date(meeting.startTime)
                   const end = new Date(meeting.endTime)
                   const durationMs = end.getTime() - start.getTime()
@@ -204,7 +205,13 @@ export default function MeetingsPage() {
                   const otherParticipants = meeting.participants.filter(p => !p.isHost)
                   const firstOther = otherParticipants[0]
                   return (
-                    <div key={meeting.id} className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm">
+                    <motion.div
+                      key={meeting.id}
+                      className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    >
                       <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-lg bg-[#1E3A5F]/5 text-[#1E3A5F]">
                         <Calendar className="size-4 mb-0.5" />
                         <span className="text-[10px] font-medium">{start.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
@@ -242,7 +249,7 @@ export default function MeetingsPage() {
                           </a>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   )
                 })}
               </div>
@@ -254,7 +261,7 @@ export default function MeetingsPage() {
             <div>
               <h2 className="mb-3 text-sm font-semibold text-foreground">Past Meetings</h2>
               <div className="flex flex-col gap-3">
-                {past.map((meeting) => {
+                {past.map((meeting, index) => {
                   const start = new Date(meeting.startTime)
                   const end = new Date(meeting.endTime)
                   const durationMs = end.getTime() - start.getTime()
@@ -264,7 +271,13 @@ export default function MeetingsPage() {
                   const otherParticipants = meeting.participants.filter(p => !p.isHost)
                   const firstOther = otherParticipants[0]
                   return (
-                    <div key={meeting.id} className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 opacity-75">
+                    <motion.div
+                      key={meeting.id}
+                      className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 opacity-75"
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 0.75, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    >
                       <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-lg bg-muted text-muted-foreground">
                         <Calendar className="size-4 mb-0.5" />
                         <span className="text-[10px] font-medium">{start.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
@@ -283,7 +296,7 @@ export default function MeetingsPage() {
                         </div>
                         {meeting.description && <p className="mt-1 text-xs text-muted-foreground/70">{meeting.description}</p>}
                       </div>
-                    </div>
+                    </motion.div>
                   )
                 })}
               </div>

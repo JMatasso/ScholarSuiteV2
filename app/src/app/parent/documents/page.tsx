@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -79,7 +80,12 @@ export default function DocumentsPage() {
       </div>
 
       {/* Documents section */}
-      <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm">
+      <motion.div
+        className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="flex items-center gap-2 mb-4">
           <div className="flex size-8 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
             <FileText className="size-4 text-[#1E3A5F]" />
@@ -141,10 +147,17 @@ export default function DocumentsPage() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </motion.div>
 
       {/* Learning Progress placeholder */}
-      <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm" id="progress">
+      <motion.div
+        className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm"
+        id="progress"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        viewport={{ once: true }}
+      >
         <div className="flex items-center gap-2 mb-4">
           <div className="flex size-8 items-center justify-center rounded-lg bg-[#2563EB]/10">
             <BookOpen className="size-4 text-[#2563EB]" />
@@ -164,7 +177,7 @@ export default function DocumentsPage() {
           description="Learning progress data will appear here once your child starts completing modules."
           className="py-4"
         />
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -208,45 +209,35 @@ export default function ActivitiesPage() {
 
       {/* Summary stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="pt-0">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                <Clock className="h-5 w-5 text-[#2563EB]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#1E3A5F]">{totalHours.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Total Hours</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-0">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
-                <Users className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#1E3A5F]">{leadershipRoles}</p>
-                <p className="text-xs text-muted-foreground">Leadership Roles</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-0">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
-                <Trophy className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#1E3A5F]">{totalAwards}</p>
-                <p className="text-xs text-muted-foreground">Awards & Honors</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {[
+          { icon: Clock, value: totalHours.toLocaleString(), label: "Total Hours", bg: "bg-blue-50", color: "text-[#2563EB]" },
+          { icon: Users, value: leadershipRoles, label: "Leadership Roles", bg: "bg-amber-50", color: "text-amber-600" },
+          { icon: Trophy, value: totalAwards, label: "Awards & Honors", bg: "bg-emerald-50", color: "text-emerald-600" },
+        ].map((stat, i) => {
+          const Icon = stat.icon
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Card>
+                <CardContent className="pt-0">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bg}`}>
+                      <Icon className={`h-5 w-5 ${stat.color}`} />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-[#1E3A5F]">{stat.value}</p>
+                      <p className="text-xs text-muted-foreground">{stat.label}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )
+        })}
       </div>
 
       {/* Activities grouped by category */}
@@ -257,11 +248,17 @@ export default function ActivitiesPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {groupedActivities.map((group) => {
+          {groupedActivities.map((group, groupIndex) => {
             const config = categoryConfig[group.category] ?? categoryConfig.OTHER
             const Icon = config.icon
             return (
-              <div key={group.category}>
+              <motion.div
+                key={group.category}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: groupIndex * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true }}
+              >
                 <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#1E3A5F]">
                   <Icon className={`h-4 w-4 ${config.color}`} />
                   {config.label} ({group.items.length})
@@ -313,7 +310,7 @@ export default function ActivitiesPage() {
                     </Card>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>

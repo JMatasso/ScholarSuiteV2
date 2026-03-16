@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -303,10 +304,16 @@ export default function ApplicationTracking() {
 
       {/* Kanban Board */}
       <div className="flex gap-4 overflow-x-auto pb-4">
-        {columns.map((col) => {
+        {columns.map((col, colIndex) => {
           const colApps = applications.filter((a) => STATUS_MAP[a.status] === col.key)
           return (
-            <div key={col.key} className="flex w-64 shrink-0 flex-col">
+            <motion.div
+              key={col.key}
+              className="flex w-64 shrink-0 flex-col"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: colIndex * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            >
               {/* Column Header */}
               <div className="mb-3 flex items-center gap-2 px-1">
                 <span className={`h-2.5 w-2.5 rounded-full ${col.color}`} />
@@ -326,7 +333,7 @@ export default function ApplicationTracking() {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           )
         })}
       </div>

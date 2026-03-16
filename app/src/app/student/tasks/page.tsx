@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -190,7 +191,12 @@ export default function TasksPage() {
           if (phaseTasks.length === 0) return null
           const dueStatus = (t: Task) => getDueDateStatus(t.dueDate)
           return (
-            <div key={phase}>
+            <motion.div
+              key={phase}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: phaseOrder.indexOf(phase) * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            >
               <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
                 {phaseLabels[phase]}
               </h2>
@@ -236,7 +242,7 @@ export default function TasksPage() {
                   ))}
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           )
         })}
         {filteredTasks.length === 0 && (
