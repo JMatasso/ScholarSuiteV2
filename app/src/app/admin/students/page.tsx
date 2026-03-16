@@ -66,7 +66,20 @@ export default function StudentsPage() {
         body: JSON.stringify(newStudent),
       })
       if (!res.ok) throw new Error()
-      toast.success("Student added successfully")
+      const user = await res.json()
+
+      // Send invite email
+      try {
+        await fetch("/api/invites/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        })
+        toast.success("Student added and invite email sent!")
+      } catch {
+        toast.success("Student added, but invite email failed to send.")
+      }
+
       setShowAddForm(false)
       setNewStudent({ name: "", email: "", school: "", phone: "" })
       loadStudents()
