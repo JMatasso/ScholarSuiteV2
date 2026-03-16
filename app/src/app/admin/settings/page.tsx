@@ -18,7 +18,7 @@ const tabItems = [
 type Tab = typeof tabItems[number]["id"]
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = React.useState<Tab>("General")
+  const [activeTab, setActiveTab] = React.useState<Tab>("Account")
   const [settings, setSettings] = React.useState<Record<string, string>>({})
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)

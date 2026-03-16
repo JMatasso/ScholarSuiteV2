@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/format";
 import {
   CheckSquare,
@@ -32,6 +32,7 @@ interface Student {
   id: string;
   name?: string;
   email: string;
+  image?: string | null;
   studentProfile?: StudentProfile;
   school?: { name: string };
 }
@@ -291,6 +292,7 @@ export default function ParentDashboard() {
             className="flex items-center gap-3 rounded-2xl bg-card px-4 py-2.5 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 hover:shadow-xl transition-all duration-200"
           >
             <Avatar size="sm">
+              {selectedStudent.image && <AvatarImage src={selectedStudent.image} alt={selectedStudent.name ?? selectedStudent.email} />}
               <AvatarFallback className="bg-[#2563EB]/10 text-[#2563EB] text-xs font-semibold">
                 {avatar}
               </AvatarFallback>
@@ -315,6 +317,7 @@ export default function ParentDashboard() {
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors rounded-xl mx-1"
                 >
                   <Avatar size="sm">
+                    {student.image && <AvatarImage src={student.image} alt={student.name ?? student.email} />}
                     <AvatarFallback className="bg-[#2563EB]/10 text-[#2563EB] text-xs font-semibold">
                       {getInitials(student.name)}
                     </AvatarFallback>
@@ -338,6 +341,7 @@ export default function ParentDashboard() {
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
           <Avatar size="lg" className="size-14">
+            {selectedStudent.image && <AvatarImage src={selectedStudent.image} alt={selectedStudent.name ?? selectedStudent.email} />}
             <AvatarFallback className="bg-[#1E3A5F] text-white text-lg font-semibold">
               {avatar}
             </AvatarFallback>

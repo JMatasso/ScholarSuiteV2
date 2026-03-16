@@ -22,7 +22,7 @@ export async function GET(req: Request) {
             parentProfile: true,
             linkedStudents: {
               include: {
-                student: { select: { id: true, name: true, email: true } },
+                student: { select: { id: true, name: true, email: true, image: true } },
               },
             },
           },

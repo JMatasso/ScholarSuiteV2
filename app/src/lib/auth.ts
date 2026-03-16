@@ -51,6 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.role = (user as { role: string }).role;
         token.id = user.id;
+        token.picture = user.image;
         token.isMasterAdmin = (user as { isMasterAdmin?: boolean }).isMasterAdmin;
         token.mustChangePassword = (user as { mustChangePassword?: boolean }).mustChangePassword;
       }
@@ -66,6 +67,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.image = (token.picture as string) || null;
         (session.user as { role: string }).role = token.role as string;
         (session.user as { isMasterAdmin?: boolean }).isMasterAdmin = Boolean(token.isMasterAdmin);
         (session.user as { mustChangePassword?: boolean }).mustChangePassword = Boolean(token.mustChangePassword);

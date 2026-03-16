@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getInitials } from "@/lib/format";
@@ -52,6 +52,7 @@ interface UIMeeting {
   location: string;
   host: string;
   hostInitials: string;
+  hostImage?: string | null;
   status: MeetingStatus;
   type: "video" | "in-person";
   isVideoCall: boolean;
@@ -128,6 +129,7 @@ function toUIMeeting(m: Meeting, currentUserId?: string): UIMeeting {
     location: m.meetingUrl ?? "TBD",
     host: host?.user.name ?? "Consultant",
     hostInitials: getInitials(host?.user.name),
+    hostImage: host?.user.image,
     status: uiStatus,
     type: m.isVideoCall || m.meetingUrl ? "video" : "in-person",
     isVideoCall: Boolean(m.isVideoCall),
@@ -387,6 +389,7 @@ export default function MeetingsPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     <Avatar size="sm">
+                      {meeting.hostImage && <AvatarImage src={meeting.hostImage} alt={meeting.host} />}
                       <AvatarFallback className="bg-purple-100 text-purple-700 text-xs font-semibold">
                         {meeting.hostInitials}
                       </AvatarFallback>

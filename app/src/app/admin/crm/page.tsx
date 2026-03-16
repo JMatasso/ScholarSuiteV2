@@ -3,7 +3,7 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Plus, Mail, Phone, Pencil, Trash2 } from "lucide-react"
 import { ActionMenu } from "@/components/ui/action-menu"
@@ -208,7 +208,7 @@ export default function CRMPage() {
                           <div className="flex items-center gap-2">
                             <Avatar size="sm">
                               <AvatarFallback>{initials}</AvatarFallback>
-                            </Avatar>
+                          </Avatar>
                             <div>
                               <p className="text-sm font-medium text-foreground">{fullName}</p>
                               <p className="text-[11px] text-muted-foreground">{prospect.email || "—"}</p>

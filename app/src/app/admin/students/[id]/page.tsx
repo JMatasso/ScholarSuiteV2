@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, GraduationCap, FileText, CheckCircle2, Clock } from "lucide-react"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
@@ -26,6 +26,7 @@ interface StudentData {
   id: string
   name: string
   email: string
+  image?: string | null
   createdAt: string
   school?: { name: string } | null
   studentProfile?: {
@@ -137,6 +138,7 @@ function StudentDetailContent() {
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       >
         <Avatar size="lg">
+          {student.image && <AvatarImage src={student.image} alt={student.name || student.email} />}
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
         <div className="flex-1">

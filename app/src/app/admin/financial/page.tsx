@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DollarSign, TrendingUp, Users, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -13,6 +13,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 interface StudentFinancial {
   id: string
   name: string
+  image?: string | null
   initials: string
   school: string
   aidSecured: number
@@ -26,6 +27,7 @@ interface Student {
   id: string
   name?: string | null
   email: string
+  image?: string | null
   school?: { name: string } | null
   scholarshipApps?: Array<{
     status: string
@@ -55,6 +57,7 @@ export default function FinancialPage() {
           return {
             id: s.id,
             name,
+            image: s.image,
             initials: name.substring(0, 2).toUpperCase(),
             school: s.school?.name || "—",
             aidSecured,
@@ -80,7 +83,7 @@ export default function FinancialPage() {
       header: ({ column }) => <SortableHeader column={column}>Student</SortableHeader>,
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
-          <Avatar size="sm"><AvatarFallback>{row.original.initials}</AvatarFallback></Avatar>
+          <Avatar size="sm">{row.original.image && <AvatarImage src={row.original.image} alt={row.original.name} />}<AvatarFallback>{row.original.initials}</AvatarFallback></Avatar>
           <div>
             <p className="text-sm font-medium text-foreground">{row.original.name}</p>
             <p className="text-[11px] text-muted-foreground">{row.original.school}</p>

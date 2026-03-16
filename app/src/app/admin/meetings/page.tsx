@@ -4,7 +4,7 @@ import * as React from "react"
 import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -36,6 +36,7 @@ interface UserOption {
   id: string
   name: string | null
   email: string | null
+  image?: string | null
   role: string
 }
 
@@ -250,6 +251,7 @@ export default function MeetingsPage() {
         <div className="flex -space-x-1.5">
           {others.slice(0, 4).map(p => (
             <Avatar key={p.id} size="sm" className="ring-2 ring-white">
+              {p.user.image && <AvatarImage src={p.user.image} alt={p.user.name || "Participant"} />}
               <AvatarFallback className="text-[9px]">{getInitials(p.user.name)}</AvatarFallback>
             </Avatar>
           ))}
@@ -359,6 +361,7 @@ export default function MeetingsPage() {
                         onCheckedChange={() => toggleParticipant(user.id)}
                       />
                       <Avatar size="sm">
+                        {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
                         <AvatarFallback className="text-[9px]">{getInitials(user.name)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
@@ -577,6 +580,7 @@ export default function MeetingsPage() {
                       }}
                     />
                     <Avatar size="sm">
+                      {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
                       <AvatarFallback className="text-[9px]">{getInitials(user.name)}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">

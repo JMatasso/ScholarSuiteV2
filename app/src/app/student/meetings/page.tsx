@@ -5,7 +5,7 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Dialog,
   DialogContent,
@@ -152,6 +152,7 @@ export default function MeetingsPage() {
                   <p className="text-sm font-medium">{meeting.title}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <Avatar size="sm">
+                      {host?.user.image && <AvatarImage src={host.user.image} alt={hostName} />}
                       <AvatarFallback>{hostInitials}</AvatarFallback>
                     </Avatar>
                     <p className="text-xs font-medium">{hostName}</p>

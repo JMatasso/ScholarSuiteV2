@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { StatusBadge } from "@/components/ui/status-badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
 import { SchoolAutocomplete } from "@/components/ui/school-autocomplete"
@@ -120,6 +120,7 @@ export default function StudentsPage() {
     id: s.id,
     name: s.name || s.email,
     email: s.email,
+    image: (s as Student & { image?: string | null }).image || null,
     status: (s.studentProfile?.status || "NEW") as StudentStatus,
     school: s.school?.name || "—",
     journeyStage: s.studentProfile?.journeyStage || "—",
@@ -160,6 +161,7 @@ export default function StudentsPage() {
       cell: ({ row }) => (
         <Link href={`/admin/students/${row.original.id}`} className="flex items-center gap-3 hover:underline">
           <Avatar size="sm">
+            {row.original.image && <AvatarImage src={row.original.image} alt={row.original.name} />}
             <AvatarFallback>{row.original.initials}</AvatarFallback>
           </Avatar>
           <span className="font-medium text-foreground">{row.original.name}</span>

@@ -26,6 +26,7 @@ export interface Conversation {
   partnerId: string
   partnerName: string
   partnerInitials: string
+  partnerImage?: string | null
   partnerRole: string
   lastMessage: string
   lastTime: string
@@ -120,6 +121,7 @@ export function useMessaging() {
           partnerId,
           partnerName,
           partnerInitials: getInitials(partnerName),
+          partnerImage: partner.image,
           partnerRole: partner.role || "User",
           lastMessage: msg.content,
           lastTime: msg.createdAt,

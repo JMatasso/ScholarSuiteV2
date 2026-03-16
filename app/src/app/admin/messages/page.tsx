@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { SearchInput } from "@/components/ui/search-input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Megaphone, Send, Paperclip } from "lucide-react"
 import { toast } from "sonner"
@@ -270,6 +270,7 @@ export default function MessagesPage() {
                         className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-muted/50"
                       >
                         <Avatar size="sm">
+                          {user.image && <AvatarImage src={user.image} alt={user.name || user.email} />}
                           <AvatarFallback>{(user.name || user.email).substring(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
@@ -382,6 +383,7 @@ export default function MessagesPage() {
               >
                 <div className="relative">
                   <Avatar size="sm">
+                    {convo.partnerImage && <AvatarImage src={convo.partnerImage} alt={convo.partnerName} />}
                     <AvatarFallback className={cn(
                       convo.partnerRole === "STUDENT" ? "bg-blue-100 text-blue-700" :
                       convo.partnerRole === "PARENT" ? "bg-purple-100 text-purple-700" :
@@ -423,6 +425,7 @@ export default function MessagesPage() {
           {/* Chat Header */}
           <div className="flex items-center gap-3 border-b border-gray-100 px-6 py-4">
             <Avatar size="sm">
+              {activeConversation?.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={activeConversation.partnerName} />}
               <AvatarFallback className="bg-[#1E3A5F]/10 text-[#1E3A5F]">{activeConversation?.partnerInitials ?? "?"}</AvatarFallback>
             </Avatar>
             <div>
@@ -449,6 +452,7 @@ export default function MessagesPage() {
                   <div key={msg.id} className={cn("flex gap-2.5 max-w-[70%]", isOwn ? "ml-auto flex-row-reverse" : "")}>
                     {!isOwn && (
                       <Avatar size="sm" className="shrink-0 mt-0.5">
+                        {activeConversation?.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={activeConversation.partnerName} />}
                         <AvatarFallback className="bg-gray-200 text-gray-600 text-xs">
                           {activeConversation?.partnerInitials ?? "?"}
                         </AvatarFallback>

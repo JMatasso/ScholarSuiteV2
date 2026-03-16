@@ -8,7 +8,8 @@ import { motion, AnimatePresence, useMotionValue } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserProfileSidebar } from "@/components/ui/menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { ChatWidget } from "@/components/chat/chat-widget"
@@ -23,7 +24,6 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   LogOut,
   Settings,
   Bell,
@@ -86,7 +86,8 @@ export default function ParentLayout({
   const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [avatarOpen, setAvatarOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = React.useRef<HTMLDivElement>(null);
   const [notifCount, setNotifCount] = useState(0);
   const dragX = useMotionValue(0);
 
@@ -119,6 +120,18 @@ export default function ParentLayout({
       .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
       .catch(() => {});
   }, []);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    if (profileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [profileOpen]);
 
   const currentPage = breadcrumbMap[pathname] || "Dashboard";
 
@@ -243,40 +256,40 @@ export default function ParentLayout({
             <Separator orientation="vertical" className="h-6" />
 
             {/* Avatar dropdown */}
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
-                onClick={() => setAvatarOpen(!avatarOpen)}
+                onClick={() => setProfileOpen(!profileOpen)}
                 className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
               >
                 <Avatar size="sm">
+                  {session?.user?.image && <AvatarImage src={session.user.image} alt={userName} />}
                   <AvatarFallback className="bg-[#1E3A5F] text-white text-xs font-medium">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
-                {!collapsed && (
-                  <>
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-foreground">{userName}</p>
-                      <p className="text-[11px] text-muted-foreground">Parent</p>
-                    </div>
-                    <ChevronDown className="size-3.5 text-muted-foreground" />
-                  </>
-                )}
+                <div className="hidden text-left sm:block">
+                  <p className="text-xs font-medium text-foreground">{userName}</p>
+                  <p className="text-[11px] text-muted-foreground">{userEmail}</p>
+                </div>
               </button>
-              {avatarOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-border bg-card py-1 shadow-lg z-50">
-                  <button
-                    onClick={() => { setAvatarOpen(false); router.push("/parent/settings"); }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted"
-                  >
-                    <Settings className="size-4 text-muted-foreground" />
-                    Settings
-                  </button>
-                  <div className="my-1 h-px bg-border" />
-                  <button onClick={() => signOut({ redirect: false }).then(() => { window.location.href = "/login" })} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50">
-                    <LogOut className="size-4" />
-                    Sign Out
-                  </button>
+              {profileOpen && (
+                <div className="absolute right-0 top-full mt-2 z-50" onClick={() => setProfileOpen(false)}>
+                  <UserProfileSidebar
+                    user={{
+                      name: userName,
+                      email: userEmail,
+                      avatarUrl: session?.user?.image || `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231E3A5F" width="100" height="100" rx="50"/><text x="50" y="55" font-size="40" fill="white" text-anchor="middle" dominant-baseline="middle" font-family="system-ui">${userInitials}</text></svg>`)}`,
+                    }}
+                    navItems={[
+                      { icon: <User className="h-full w-full" />, label: "My Profile", href: "/parent/profile" },
+                      { icon: <Settings className="h-full w-full" />, label: "Settings", href: "/parent/settings" },
+                    ]}
+                    logoutItem={{
+                      icon: <LogOut className="h-full w-full" />,
+                      label: "Sign Out",
+                      onClick: () => signOut({ redirect: false }).then(() => { window.location.href = "/login" }),
+                    }}
+                  />
                 </div>
               )}
             </div>

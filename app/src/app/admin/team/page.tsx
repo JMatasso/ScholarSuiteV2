@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
@@ -17,6 +17,7 @@ interface AdminUser {
   id: string
   name?: string | null
   email: string
+  image?: string | null
   isActive: boolean
   isMasterAdmin?: boolean
   createdAt: string
@@ -246,6 +247,7 @@ export default function TeamManagementPage() {
             >
               <div className="flex items-center gap-3">
                 <Avatar>
+                  {admin.image && <AvatarImage src={admin.image} alt={admin.name || admin.email} />}
                   <AvatarFallback>{getInitials(admin.name, admin.email)}</AvatarFallback>
                 </Avatar>
                 <div>

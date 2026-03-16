@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react"
@@ -20,7 +20,7 @@ interface Ticket {
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT"
   status: "OPEN" | "IN_PROGRESS" | "RESOLVED"
   createdAt: string
-  author: { name?: string | null; email: string }
+  author: { name?: string | null; email: string; image?: string | null }
   assignee?: { name?: string | null } | null
 }
 
@@ -100,6 +100,7 @@ export default function SupportPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <Avatar size="sm">
+            {row.original.author.image && <AvatarImage src={row.original.author.image} alt={row.original.author.name || row.original.author.email} />}
             <AvatarFallback>{(row.original.author.name || row.original.author.email).substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>

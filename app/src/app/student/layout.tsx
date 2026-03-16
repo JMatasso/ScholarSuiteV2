@@ -7,18 +7,10 @@ import { signOut, useSession } from "next-auth/react"
 import { motion, AnimatePresence, useMotionValue } from "motion/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { UserProfileSidebar } from "@/components/ui/menu"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu"
 import { ChatWidget } from "@/components/chat/chat-widget"
 import {
   LayoutDashboard,
@@ -108,6 +100,8 @@ export default function StudentLayout({
   const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const profileRef = React.useRef<HTMLDivElement>(null)
   const [notifCount, setNotifCount] = useState(0)
   const [profileCompletion, setProfileCompletion] = useState(100)
   const breadcrumbs = getBreadcrumbs(pathname)
@@ -144,6 +138,18 @@ export default function StudentLayout({
       .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
       .catch(() => {})
   }, [])
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false)
+      }
+    }
+    if (profileOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [profileOpen])
 
   const isActive = (href: string) => {
     if (href === "/student") return pathname === "/student"
@@ -342,33 +348,41 @@ export default function StudentLayout({
             <ThemeToggle />
             <NotificationDropdown />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors outline-none">
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
+              >
                 <Avatar size="sm">
+                  {session?.user?.image && <AvatarImage src={session.user.image} alt={userName} />}
                   <AvatarFallback>{userInitials}</AvatarFallback>
                 </Avatar>
-                {!collapsed && (
-                  <span className="hidden text-sm font-medium md:block">{userName}</span>
-                )}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" sideOffset={8}>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => window.location.href = "/student/profile"}>
-                  <User className="h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = "/student/settings"}>
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut({ redirect: false }).then(() => { window.location.href = "/login" })}>
-                  <LogOut className="h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <div className="hidden text-left sm:block">
+                  <p className="text-xs font-medium text-foreground">{userName}</p>
+                  <p className="text-[11px] text-muted-foreground">{userEmail}</p>
+                </div>
+              </button>
+              {profileOpen && (
+                <div className="absolute right-0 top-full mt-2 z-50" onClick={() => setProfileOpen(false)}>
+                  <UserProfileSidebar
+                    user={{
+                      name: userName,
+                      email: userEmail,
+                      avatarUrl: session?.user?.image || `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231E3A5F" width="100" height="100" rx="50"/><text x="50" y="55" font-size="40" fill="white" text-anchor="middle" dominant-baseline="middle" font-family="system-ui">${userInitials}</text></svg>`)}`,
+                    }}
+                    navItems={[
+                      { icon: <User className="h-full w-full" />, label: "My Profile", href: "/student/profile" },
+                      { icon: <Settings className="h-full w-full" />, label: "Settings", href: "/student/settings" },
+                    ]}
+                    logoutItem={{
+                      icon: <LogOut className="h-full w-full" />,
+                      label: "Sign Out",
+                      onClick: () => signOut({ redirect: false }).then(() => { window.location.href = "/login" }),
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

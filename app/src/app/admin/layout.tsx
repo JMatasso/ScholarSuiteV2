@@ -33,9 +33,11 @@ import {
   LogOut,
   CalendarDays,
   Menu,
+  User,
   type LucideIcon,
 } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { UserProfileSidebar } from "@/components/ui/menu"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { signOut, useSession } from "next-auth/react"
@@ -115,6 +117,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
   const [collapsed, setCollapsed] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
+  const [profileOpen, setProfileOpen] = React.useState(false)
+  const profileRef = React.useRef<HTMLDivElement>(null)
   const dragX = useMotionValue(0)
 
   const handleDragEnd = (_event: unknown, info: { offset: { x: number } }) => {
@@ -128,6 +132,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       router.push("/change-password")
     }
   }, [session, router])
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false)
+      }
+    }
+    if (profileOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [profileOpen])
 
   const isActive = (href: string) => {
     if (href === "/admin") return pathname === "/admin"
@@ -262,23 +278,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <NotificationDropdown />
-            <div className="flex items-center gap-2">
-              <Avatar size="sm">
-                <AvatarFallback>{userInitials}</AvatarFallback>
-              </Avatar>
-              <div className="hidden text-left sm:block">
-                <p className="text-xs font-medium text-foreground">{userName}</p>
-                <p className="text-[11px] text-muted-foreground">{userEmail}</p>
-              </div>
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
+              >
+                <Avatar size="sm">
+                  {session?.user?.image && <AvatarImage src={session.user.image} alt={userName} />}
+                  <AvatarFallback>{userInitials}</AvatarFallback>
+                </Avatar>
+                <div className="hidden text-left sm:block">
+                  <p className="text-xs font-medium text-foreground">{userName}</p>
+                  <p className="text-[11px] text-muted-foreground">{userEmail}</p>
+                </div>
+              </button>
+              {profileOpen && (
+                <div className="absolute right-0 top-full mt-2 z-50" onClick={() => setProfileOpen(false)}>
+                  <UserProfileSidebar
+                    user={{
+                      name: userName,
+                      email: userEmail,
+                      avatarUrl: session?.user?.image || `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231E3A5F" width="100" height="100" rx="50"/><text x="50" y="55" font-size="40" fill="white" text-anchor="middle" dominant-baseline="middle" font-family="system-ui">${userInitials}</text></svg>`)}`,
+                    }}
+                    navItems={[
+                      { icon: <User className="h-full w-full" />, label: "My Profile", href: "/admin/settings" },
+                      { icon: <Settings className="h-full w-full" />, label: "Settings", href: "/admin/settings" },
+                      { icon: <Shield className="h-full w-full" />, label: "Audit Log", href: "/admin/audit" },
+                    ]}
+                    logoutItem={{
+                      icon: <LogOut className="h-full w-full" />,
+                      label: "Sign Out",
+                      onClick: () => signOut({ redirect: false }).then(() => { window.location.href = "/login" }),
+                    }}
+                  />
+                </div>
+              )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => signOut({ redirect: false }).then(() => { window.location.href = "/login" })}
-              title="Sign out"
-            >
-              <LogOut className="size-4" />
-            </Button>
           </div>
         </header>
 

@@ -40,7 +40,7 @@ export async function GET(
         linkedParents: {
           include: {
             parent: {
-              select: { id: true, name: true, email: true },
+              select: { id: true, name: true, email: true, image: true },
             },
           },
         },

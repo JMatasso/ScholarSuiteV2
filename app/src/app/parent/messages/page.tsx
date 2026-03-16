@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -127,6 +127,7 @@ export default function MessagesPage() {
           {/* Chat header */}
           <div className="flex items-center gap-3 border-b border-border px-5 py-3">
             <Avatar size="sm">
+              {activeConversation?.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={consultantDisplayName} />}
               <AvatarFallback className="bg-purple-100 text-purple-700 text-xs font-semibold">
                 {consultantInitials}
               </AvatarFallback>
@@ -163,6 +164,7 @@ export default function MessagesPage() {
                   )}
                 >
                   <Avatar size="sm" className="shrink-0 mt-1">
+                    {msg.sender.image && <AvatarImage src={msg.sender.image} alt={senderName} />}
                     <AvatarFallback
                       className={cn(
                         "text-xs font-semibold",

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -37,6 +37,7 @@ interface Student {
   id: string
   name: string | null
   email: string | null
+  image?: string | null
 }
 
 /* ------------------------------------------------------------------ */
@@ -405,6 +406,7 @@ export default function CohortsPage() {
                         <div className="flex -space-x-1.5">
                           {cohort.members.slice(0, 4).map((member) => (
                             <Avatar key={member.id} size="sm" className="ring-2 ring-white">
+                              {member.user.image && <AvatarImage src={member.user.image} alt={member.user.name || "Member"} />}
                               <AvatarFallback>{getInitials(member.user.name)}</AvatarFallback>
                             </Avatar>
                           ))}
@@ -447,6 +449,7 @@ export default function CohortsPage() {
                           >
                             <div className="flex items-center gap-3">
                               <Avatar size="sm">
+                                {member.user.image && <AvatarImage src={member.user.image} alt={member.user.name || "Member"} />}
                                 <AvatarFallback>{getInitials(member.user.name)}</AvatarFallback>
                               </Avatar>
                               <div>
@@ -569,6 +572,7 @@ export default function CohortsPage() {
                       onCheckedChange={() => toggleStudentSelection(student.id)}
                     />
                     <Avatar size="sm">
+                      {student.image && <AvatarImage src={student.image} alt={student.name || "Student"} />}
                       <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">

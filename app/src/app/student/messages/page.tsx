@@ -4,7 +4,7 @@ import { useState } from "react"
 import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Send, Search, Paperclip } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useMessaging } from "@/hooks/use-messaging"
@@ -94,6 +94,7 @@ export default function MessagesPage() {
                 )}
               >
                 <Avatar size="default">
+                  {conv.partnerImage && <AvatarImage src={conv.partnerImage} alt={conv.partnerName} />}
                   <AvatarFallback>{conv.partnerInitials}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
@@ -114,6 +115,7 @@ export default function MessagesPage() {
             {/* Thread header */}
             <div className="flex items-center gap-3 border-b px-4 py-3">
               <Avatar size="default">
+                {activeConversation.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={activeConversation.partnerName} />}
                 <AvatarFallback>{activeConversation.partnerInitials}</AvatarFallback>
               </Avatar>
               <div>

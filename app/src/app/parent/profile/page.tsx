@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,6 +69,7 @@ interface Student {
   id: string;
   name?: string;
   email: string;
+  image?: string | null;
   studentProfile?: StudentProfile;
   school?: { name: string };
 }
@@ -537,6 +538,7 @@ export default function ParentProfilePage() {
             >
               <div className="flex items-center gap-4">
                 <Avatar className="size-16">
+                  {student.image && <AvatarImage src={student.image} alt={student.name || student.email} />}
                   <AvatarFallback className="bg-[#1E3A5F] text-white text-xl font-semibold">
                     {getInitials(student.name)}
                   </AvatarFallback>

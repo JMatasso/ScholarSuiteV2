@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select"
 import { EditLinksDialog } from "@/components/ui/edit-links-dialog"
@@ -29,6 +29,7 @@ interface ParentUser {
   id: string
   name?: string | null
   email: string
+  image?: string | null
   createdAt: string
   parentProfile?: { phone?: string | null; relationship?: string | null } | null
   linkedStudents?: Array<{
@@ -40,6 +41,7 @@ interface ParentRow {
   id: string
   name: string
   email: string
+  image?: string | null
   phone: string
   relationship: string
   initials: string
@@ -76,6 +78,7 @@ export default function ParentsPage() {
       id: u.id,
       name: u.name || u.email,
       email: u.email,
+      image: u.image,
       phone: u.parentProfile?.phone || "\u2014",
       relationship: u.parentProfile?.relationship || "\u2014",
       initials: (u.name || u.email).substring(0, 2).toUpperCase(),
@@ -187,6 +190,7 @@ export default function ParentsPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <Avatar size="sm">
+            {row.original.image && <AvatarImage src={row.original.image} alt={row.original.name} />}
             <AvatarFallback>{row.original.initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0">
