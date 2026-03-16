@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserProfileSidebar } from "@/components/ui/menu";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeSelect } from "@/components/ui/theme-select";
 import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { ChatWidget } from "@/components/chat/chat-widget"
 import {
@@ -29,6 +29,8 @@ import {
   Bell,
   CalendarDays,
   Menu,
+  GraduationCap,
+  CheckCircle2,
 } from "lucide-react";
 
 const sidebarGroups = [
@@ -45,6 +47,13 @@ const sidebarGroups = [
       { name: "Profile", href: "/parent/profile", icon: User },
       { name: "Applications", href: "/parent/applications", icon: FileText },
       { name: "Tasks", href: "/parent/tasks", icon: CheckSquare },
+    ],
+  },
+  {
+    label: "Colleges",
+    items: [
+      { name: "Applications", href: "/parent/colleges", icon: GraduationCap },
+      { name: "Decisions", href: "/parent/colleges/decisions", icon: CheckCircle2 },
     ],
   },
   {
@@ -249,7 +258,7 @@ export default function ParentLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            <ThemeToggle />
+            <ThemeSelect />
             {/* Notifications */}
             <NotificationDropdown />
 

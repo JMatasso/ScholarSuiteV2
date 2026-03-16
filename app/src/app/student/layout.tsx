@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UserProfileSidebar } from "@/components/ui/menu"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { ThemeSelect } from "@/components/ui/theme-select"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { ChatWidget } from "@/components/chat/chat-widget"
 import {
@@ -34,6 +34,9 @@ import {
   User,
   Menu,
   CalendarDays,
+  GraduationCap,
+  Building2,
+  CheckCircle2,
 } from "lucide-react"
 
 const navGroups = [
@@ -50,6 +53,14 @@ const navGroups = [
       { name: "Discovery", href: "/student/scholarships", icon: Search },
       { name: "Applications", href: "/student/applications", icon: FileText },
       { name: "Won Awards", href: "/student/awards", icon: Trophy },
+    ],
+  },
+  {
+    label: "Colleges",
+    items: [
+      { name: "Search", href: "/student/colleges", icon: Building2 },
+      { name: "Applications", href: "/student/colleges/applications", icon: GraduationCap },
+      { name: "Decisions", href: "/student/colleges/decisions", icon: CheckCircle2 },
     ],
   },
   {
@@ -346,7 +357,7 @@ export default function StudentLayout({
           </div>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle />
+            <ThemeSelect />
             <NotificationDropdown />
 
             <div className="relative" ref={profileRef}>
