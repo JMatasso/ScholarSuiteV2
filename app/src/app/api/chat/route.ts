@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { checkRateLimit } from "@/lib/chat-rate-limit"
 import { searchUserContext } from "@/lib/chat-rag"
 import { generateChatResponse } from "@/lib/chat-ai"
+import { tryRuleBasedResponse } from "@/lib/chat-rules"
 
 export const POST = withAuth(async (session, request: NextRequest) => {
   const { role } = session.user
@@ -56,7 +57,30 @@ export const POST = withAuth(async (session, request: NextRequest) => {
     },
   })
 
-  // RAG search (non-fatal if it fails)
+  // Layer 1: Try rule-based response first (instant, free, always works)
+  const ruleResult = tryRuleBasedResponse(message, session.user.name || "", role)
+  if (ruleResult) {
+    await db.chatMessage.create({
+      data: {
+        conversationId: convoId,
+        role: "ASSISTANT",
+        content: ruleResult.reply,
+        sources: ruleResult.sources ? JSON.stringify(ruleResult.sources) : null,
+      },
+    })
+    await db.chatConversation.update({
+      where: { id: convoId },
+      data: { updatedAt: new Date() },
+    })
+    return NextResponse.json({
+      conversationId: convoId,
+      reply: ruleResult.reply,
+      sources: ruleResult.sources || [],
+      remaining: rateLimit.remaining,
+    })
+  }
+
+  // Layer 2+3: RAG search then AI (non-fatal if they fail)
   let ragResult = { context: "", sources: [] as { type: string; id: string; label: string }[], hasRelevantData: false }
   try {
     ragResult = await searchUserContext(session.user.id, message, role)
