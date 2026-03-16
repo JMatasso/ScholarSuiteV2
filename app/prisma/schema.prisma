@@ -951,6 +951,66 @@ model SatisfactionSurvey {
   createdAt DateTime @default(now())
 }
 
+// ─── GRADUATION REVIEWS ────────────────────────────────────
+
+enum ReviewRequestStatus {
+  PENDING
+  SENT
+  OPENED
+  COMPLETED
+  EXPIRED
+}
+
+model ReviewCampaign {
+  id           String          @id @default(cuid())
+  name         String
+  message      String?
+  sentBy       String
+  recipientCount Int           @default(0)
+  responseCount  Int           @default(0)
+  requests     ReviewRequest[]
+  createdAt    DateTime        @default(now())
+}
+
+model ReviewRequest {
+  id           String              @id @default(cuid())
+  campaignId   String
+  recipientId  String
+  recipientEmail String
+  recipientName  String
+  recipientRole  Role
+  token        String              @unique
+  status       ReviewRequestStatus @default(PENDING)
+  sentAt       DateTime?
+  openedAt     DateTime?
+  completedAt  DateTime?
+  campaign     ReviewCampaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  response     ReviewResponse?
+  createdAt    DateTime            @default(now())
+
+  @@index([token])
+  @@index([campaignId])
+}
+
+model ReviewResponse {
+  id              String        @id @default(cuid())
+  requestId       String        @unique
+  overallRating   Int
+  npsScore        Int?
+  wouldRecommend  Boolean?
+  mostHelpful     String?
+  improvements    String?
+  testimonial     String?
+  mentoring       Int?
+  scholarshipHelp Int?
+  essaySupport    Int?
+  collegePrep     Int?
+  communication   Int?
+  isFlagged       Boolean       @default(false)
+  request         ReviewRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+}
+
 // ─── AI CHATBOT ─────────────────────────────────────────────
 
 enum ChatMessageRole {

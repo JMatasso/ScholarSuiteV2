@@ -21,6 +21,7 @@ import {
   Megaphone,
   Video,
   Briefcase,
+  ClipboardCheck,
   BarChart3,
   DollarSign,
   LifeBuoy,
@@ -69,6 +70,7 @@ const navGroups: NavGroup[] = [
       { label: "Access Requests", href: "/admin/access-requests", icon: UserCheck },
       { label: "Cohorts", href: "/admin/cohorts", icon: Layers },
       { label: "Schools", href: "/admin/schools", icon: School },
+      { label: "Reviews", href: "/admin/reviews", icon: ClipboardCheck },
     ],
   },
   {
