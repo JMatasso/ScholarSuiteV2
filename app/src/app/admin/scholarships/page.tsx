@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
-import { Plus, Upload, ExternalLink, Pencil, Trash2 } from "lucide-react"
+import { Plus, Upload, ExternalLink, Pencil, Trash2, Globe } from "lucide-react"
+import Link from "next/link"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { ScholarshipUrlImportDialog } from "@/components/scholarship-url-import-dialog"
 import { toast } from "sonner"
@@ -26,6 +27,10 @@ interface Scholarship {
   isActive: boolean
   url?: string | null
   tags: ScholarshipTag[]
+  lastScrapedAt?: string | null
+  scrapeStatus?: string | null
+  sourceUrl?: string | null
+  applicationYear?: string | null
 }
 
 import { parseCSV } from "@/lib/csv-parser"
@@ -173,6 +178,42 @@ export default function ScholarshipsPage() {
       ),
     },
     {
+      accessorKey: "lastScrapedAt",
+      header: "Last Scraped",
+      cell: ({ row }) => {
+        const val = row.original.lastScrapedAt
+        if (!val) return <span className="text-sm text-muted-foreground">Never</span>
+        const diff = Date.now() - new Date(val).getTime()
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+        let label: string
+        if (days === 0) label = "Today"
+        else if (days === 1) label = "1 day ago"
+        else if (days < 30) label = `${days} days ago`
+        else if (days < 365) label = `${Math.floor(days / 30)} mo ago`
+        else label = `${Math.floor(days / 365)}y ago`
+        return <span className="text-sm text-muted-foreground">{label}</span>
+      },
+    },
+    {
+      accessorKey: "scrapeStatus",
+      header: "Scrape Status",
+      cell: ({ row }) => {
+        const status = row.original.scrapeStatus
+        if (!status) return <span className="text-sm text-muted-foreground">&mdash;</span>
+        const styles: Record<string, string> = {
+          CURRENT: "bg-emerald-100 text-emerald-700 ring-emerald-300",
+          NEEDS_REVIEW: "bg-amber-100 text-amber-700 ring-amber-300",
+          EXPIRED: "bg-rose-100 text-rose-700 ring-rose-300",
+          ERROR: "bg-red-100 text-red-700 ring-red-300",
+        }
+        return (
+          <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${styles[status] || "bg-gray-100 text-gray-600 ring-gray-300"}`}>
+            {status.replace("_", " ")}
+          </span>
+        )
+      },
+    },
+    {
       id: "actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
@@ -210,6 +251,11 @@ export default function ScholarshipsPage() {
               <Upload className="size-3.5" /> Import CSV
             </Button>
             <ScholarshipUrlImportDialog onImported={loadScholarships} />
+            <Link href="/admin/scholarships/scraper">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Globe className="h-3.5 w-3.5" /> Scraper
+              </Button>
+            </Link>
             <Button size="sm" onClick={() => setShowAddForm(true)}>
               <Plus className="size-3.5" /> Add Scholarship
             </Button>

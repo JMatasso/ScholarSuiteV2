@@ -252,6 +252,12 @@ model Scholarship {
   minSat          Int?
   minAct          Int?
 
+  // Scraper tracking
+  sourceUrl         String?
+  lastScrapedAt     DateTime?
+  applicationYear   String?
+  scrapeStatus      ScrapeStatus?
+
   tags            ScholarshipTag[]
   applications    ScholarshipApplication[]
   matches         ScholarshipMatch[]
@@ -260,6 +266,13 @@ model Scholarship {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+enum ScrapeStatus {
+  CURRENT
+  NEEDS_REVIEW
+  EXPIRED
+  ERROR
 }
 
 model ScholarshipTag {

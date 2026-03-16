@@ -53,6 +53,19 @@ export async function PATCH(
     if (data.minGpa !== undefined) updateData.minGpa = data.minGpa
     if (data.states !== undefined) updateData.states = data.states
     if (data.isActive !== undefined) updateData.isActive = data.isActive
+    if (data.sourceUrl !== undefined) updateData.sourceUrl = data.sourceUrl
+    if (data.lastScrapedAt !== undefined) updateData.lastScrapedAt = data.lastScrapedAt ? new Date(data.lastScrapedAt) : null
+    if (data.applicationYear !== undefined) updateData.applicationYear = data.applicationYear
+    if (data.scrapeStatus !== undefined) updateData.scrapeStatus = data.scrapeStatus
+    if (data.citizenships !== undefined) updateData.citizenships = data.citizenships
+    if (data.gradeLevels !== undefined) updateData.gradeLevels = data.gradeLevels
+    if (data.fieldsOfStudy !== undefined) updateData.fieldsOfStudy = data.fieldsOfStudy
+    if (data.ethnicities !== undefined) updateData.ethnicities = data.ethnicities
+    if (data.requiresFirstGen !== undefined) updateData.requiresFirstGen = data.requiresFirstGen
+    if (data.requiresPell !== undefined) updateData.requiresPell = data.requiresPell
+    if (data.requiresFinancialNeed !== undefined) updateData.requiresFinancialNeed = data.requiresFinancialNeed
+    if (data.minSat !== undefined) updateData.minSat = data.minSat
+    if (data.minAct !== undefined) updateData.minAct = data.minAct
 
     const scholarship = await db.scholarship.update({
       where: { id },
