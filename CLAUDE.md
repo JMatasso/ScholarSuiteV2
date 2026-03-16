@@ -166,6 +166,127 @@ export default function Page() {
 - `SupportTicket` / `TicketComment` — helpdesk
 - `AuditLog` — action tracking
 
+## Design System
+
+### Color Palette (ALWAYS use these exact hex values)
+| Token | Value | Usage |
+|-------|-------|-------|
+| Primary | `#1E3A5F` | Headings, sidebar, primary brand color, icon backgrounds |
+| Accent / CTA | `#2563EB` | Primary action buttons, links, active icon color, focus rings |
+| Accent hover | `#2563EB/90` | Hover state on accent buttons (`hover:bg-[#2563EB]/90`) |
+| Primary dark | `#162d4a` | Hover state on primary buttons (`hover:bg-[#162d4a]`) |
+| Background | `#FAFAF8` | Page background (`bg-[#FAFAF8]`) |
+| Body text | `#1A1A1A` | Primary text color |
+| Muted text | `text-muted-foreground` | Secondary/subtitle text, labels |
+| Card background | `bg-white` | All card surfaces |
+| Border | `border-gray-200` | Default borders on inputs, cards |
+| Danger | `text-rose-600` / `bg-rose-50` | Delete actions, at-risk status |
+| Warning | `text-amber-600` / `bg-amber-50` | Pending items, deadline alerts |
+| Success | `text-emerald-600` / `bg-emerald-50` | Awarded, completed, active status |
+
+### Typography
+- Page title: `text-2xl font-semibold text-[#1E3A5F]`
+- Page subtitle: `text-muted-foreground mt-1`
+- Section heading: `text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide`
+- Card title: `CardTitle` component (uses shadcn default, `text-sm` variant common)
+- Body: `text-sm`
+- Meta/label: `text-xs text-muted-foreground`
+
+### Page Layout Pattern
+Every page MUST follow this structure:
+```tsx
+<div className="space-y-6">
+  {/* Page header */}
+  <div className="flex items-center justify-between">
+    <div>
+      <h1 className="text-2xl font-semibold text-[#1E3A5F]">Page Title</h1>
+      <p className="mt-1 text-muted-foreground">Short description of this section.</p>
+    </div>
+    {/* Optional action buttons */}
+    <div className="flex items-center gap-2">
+      <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2">
+        <Plus className="h-4 w-4" />
+        Add Item
+      </Button>
+    </div>
+  </div>
+
+  {/* Page content sections */}
+</div>
+```
+
+### Card Pattern
+```tsx
+<Card className="hover:shadow-sm transition-shadow">
+  <CardHeader>
+    <CardTitle className="text-sm">Title</CardTitle>
+  </CardHeader>
+  <CardContent className="space-y-3">
+    {/* content */}
+  </CardContent>
+</Card>
+```
+- Stats/KPI cards: use `<StatCard>` from `components/ui/stat-card.tsx`
+- Content cards: `<Card>` with `CardHeader` + `CardContent`
+- Warning cards: `className="border-amber-200 bg-amber-50/30"`
+
+### Button Variants
+| Use Case | Code |
+|----------|------|
+| Primary CTA | `<Button className="bg-[#2563EB] hover:bg-[#2563EB]/90">` |
+| Secondary | `<Button variant="outline">` |
+| Destructive | `<Button variant="ghost" className="hover:text-rose-600">` |
+| Icon-only (small) | `<Button variant="ghost" size="icon-sm">` |
+| Inline/compact | `<Button size="xs">` or `<Button size="sm">` |
+
+### Badge / Status Pill Pattern
+Use `<StatusBadge>` from `components/ui/status-badge.tsx` for status indicators.
+Color map for custom inline badges:
+- Active/Awarded/Done → `bg-emerald-100 text-emerald-700 border-emerald-200`
+- Pending/In Progress → `bg-amber-100 text-amber-700 border-amber-200`
+- At Risk/Denied → `bg-rose-100 text-rose-700 border-rose-200`
+- Inactive/Unknown → `bg-gray-100 text-gray-600 border-gray-200`
+- New/Submitted → `bg-blue-100 text-blue-700 border-blue-200`
+
+### Icon Usage
+- Always use `lucide-react` icons
+- Standard sizes: `h-4 w-4` (body), `h-5 w-5` (medium), `h-8 w-8` (hero)
+- Icon in colored box: `<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]"><Icon className="h-5 w-5" /></div>`
+- Active nav icon: `text-[#2563EB]`
+
+### Loading & Empty States
+- Use `<Skeleton>` from `components/ui/skeleton.tsx` for loading placeholders
+- Use `<EmptyState>` from `components/ui/empty-state.tsx` for no-data views
+- Simple loading fallback: `<div className="flex items-center justify-center py-16 text-muted-foreground"><p className="text-sm">Loading...</p></div>`
+
+### Grid Layout Pattern
+- Card grids: `className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"`
+- Two-col grids: `className="grid gap-4 sm:grid-cols-2"`
+- Four-col stat grids: `className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"`
+
+### Form Input Pattern
+```tsx
+<div className="space-y-1.5">
+  <label className="text-xs font-medium text-muted-foreground">Field Label</label>
+  <Input placeholder="Placeholder text" />
+</div>
+```
+- Auth page inputs: `className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"`
+
+### Tag/Chip Pattern
+```tsx
+<span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+  Tag Name
+</span>
+```
+
+### Do Not
+- Do NOT use arbitrary purple/teal/orange colors not in this palette
+- Do NOT use inline `style={}` for colors — always use Tailwind classes
+- Do NOT create new color tokens — reuse the palette above
+- Do NOT use `bg-primary` or `text-primary` Tailwind tokens — use explicit hex values (`#1E3A5F`, `#2563EB`)
+- Do NOT skip `"use client"` on interactive pages
+
 ## Code Standards
 
 ### Component Rules
@@ -235,6 +356,14 @@ export default function Page() {
 | auth | `auth.ts` | NextAuth config |
 | store | `store.ts` | Zustand stores (sidebar, notifications) |
 | utils | `utils.ts` | `cn()` class merge utility |
+
+## MCP Servers
+
+### 21st.dev Magic
+- **Tool:** `21st-dev-magic`
+- **Purpose:** Pull modern, high-quality React/Tailwind components
+- **Usage:** Use when building new UI components to get production-ready starting points that align with our shadcn/Tailwind stack
+- **Note:** API key configured in MCP settings (not stored in repo)
 
 ## Important Notes
 - Node >= 22.12.0 required
