@@ -41,6 +41,7 @@ const sidebarGroups = [
     items: [
       { name: "Dashboard", href: "/parent", icon: LayoutDashboard },
       { name: "Calendar", href: "/parent/calendar", icon: CalendarDays },
+      { name: "Timeline", href: "/parent/timeline", icon: Clock },
     ],
   },
   {
@@ -52,23 +53,10 @@ const sidebarGroups = [
     ],
   },
   {
-    label: "Planning",
-    items: [
-      { name: "Timeline", href: "/parent/timeline", icon: Clock },
-    ],
-  },
-  {
     label: "Colleges",
     items: [
       { name: "Applications", href: "/parent/colleges", icon: GraduationCap },
       { name: "Decisions", href: "/parent/colleges/decisions", icon: CheckCircle2 },
-    ],
-  },
-  {
-    label: "Communication",
-    items: [
-      { name: "Messages", href: "/parent/messages", icon: MessageSquare },
-      { name: "Meetings", href: "/parent/meetings", icon: Video },
     ],
   },
   {
@@ -106,6 +94,7 @@ export default function ParentLayout({
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = React.useRef<HTMLDivElement>(null);
   const [notifCount, setNotifCount] = useState(0);
+  const [unreadMsgCount, setUnreadMsgCount] = useState(0);
   const dragX = useMotionValue(0);
 
   const handleDragEnd = (_event: unknown, info: { offset: { x: number } }) => {
@@ -137,6 +126,20 @@ export default function ParentLayout({
       .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetch("/api/messages")
+      .then(r => r.json())
+      .then(msgs => {
+        if (Array.isArray(msgs)) {
+          const unread = msgs.filter((m: { senderId: string; read?: boolean; isRead?: boolean }) =>
+            m.senderId !== session?.user?.id && !(m.read ?? m.isRead ?? true)
+          ).length
+          setUnreadMsgCount(unread)
+        }
+      })
+      .catch(() => {})
+  }, [session?.user?.id])
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -265,6 +268,22 @@ export default function ParentLayout({
 
           <div className="flex items-center gap-3">
             <ThemeSelect />
+
+            {/* Messages */}
+            <Link href="/parent/messages" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <MessageSquare className="h-4 w-4" />
+              {unreadMsgCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
+                  {unreadMsgCount > 9 ? "9+" : unreadMsgCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Meetings */}
+            <Link href="/parent/meetings" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <Video className="h-4 w-4" />
+            </Link>
+
             {/* Notifications */}
             <NotificationDropdown />
 

@@ -46,6 +46,8 @@ const navGroups = [
     items: [
       { name: "Dashboard", href: "/student", icon: LayoutDashboard },
       { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
+      { name: "Timeline", href: "/student/timeline", icon: Clock },
+      { name: "Learning", href: "/student/learning", icon: BookOpen },
     ],
   },
   {
@@ -62,6 +64,7 @@ const navGroups = [
       { name: "Search", href: "/student/colleges", icon: Building2 },
       { name: "Applications", href: "/student/colleges/applications", icon: GraduationCap },
       { name: "Decisions", href: "/student/colleges/decisions", icon: CheckCircle2 },
+      { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
     ],
   },
   {
@@ -71,22 +74,7 @@ const navGroups = [
       { name: "Essays", href: "/student/essays", icon: PenTool },
       { name: "Resume", href: "/student/resume", icon: FileText },
       { name: "Documents", href: "/student/documents", icon: FolderOpen },
-      { name: "Learning", href: "/student/learning", icon: BookOpen },
-    ],
-  },
-  {
-    label: "Planning",
-    items: [
-      { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
       { name: "Activities", href: "/student/activities", icon: Activity },
-      { name: "Timeline", href: "/student/timeline", icon: Clock },
-    ],
-  },
-  {
-    label: "Communication",
-    items: [
-      { name: "Messages", href: "/student/messages", icon: MessageSquare },
-      { name: "Meetings", href: "/student/meetings", icon: Video },
     ],
   },
 ]
@@ -116,6 +104,7 @@ export default function StudentLayout({
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = React.useRef<HTMLDivElement>(null)
   const [notifCount, setNotifCount] = useState(0)
+  const [unreadMsgCount, setUnreadMsgCount] = useState(0)
   const [profileCompletion, setProfileCompletion] = useState(100)
   const breadcrumbs = getBreadcrumbs(pathname)
 
@@ -151,6 +140,20 @@ export default function StudentLayout({
       .then(data => setNotifCount(Array.isArray(data) ? data.length : 0))
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    fetch("/api/messages")
+      .then(r => r.json())
+      .then(msgs => {
+        if (Array.isArray(msgs)) {
+          const unread = msgs.filter((m: { senderId: string; read?: boolean; isRead?: boolean }) =>
+            m.senderId !== session?.user?.id && !(m.read ?? m.isRead ?? true)
+          ).length
+          setUnreadMsgCount(unread)
+        }
+      })
+      .catch(() => {})
+  }, [session?.user?.id])
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -350,6 +353,22 @@ export default function StudentLayout({
 
           <div className="flex items-center gap-2">
             <ThemeSelect />
+
+            {/* Messages */}
+            <Link href="/student/messages" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <MessageSquare className="h-4 w-4" />
+              {unreadMsgCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
+                  {unreadMsgCount > 9 ? "9+" : unreadMsgCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Meetings */}
+            <Link href="/student/meetings" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <Video className="h-4 w-4" />
+            </Link>
+
             <NotificationDropdown />
 
             <div className="relative" ref={profileRef}>

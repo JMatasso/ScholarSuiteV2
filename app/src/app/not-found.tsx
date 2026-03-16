@@ -1,7 +1,25 @@
-import Link from "next/link";
-import { GraduationCap, ArrowLeft } from "lucide-react";
+"use client"
+
+import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { GraduationCap, ArrowLeft } from "lucide-react"
 
 export default function NotFoundPage() {
+  const { data: session } = useSession()
+  const role = (session?.user as { role?: string })?.role
+
+  const dashboardHref =
+    role === "ADMIN" ? "/admin" :
+    role === "PARENT" ? "/parent" :
+    role === "STUDENT" ? "/student" :
+    "/"
+
+  const dashboardLabel =
+    role === "ADMIN" ? "Back to Admin Dashboard" :
+    role === "PARENT" ? "Back to Parent Dashboard" :
+    role === "STUDENT" ? "Back to Student Dashboard" :
+    "Back to Home"
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center p-8">
       <div className="text-center">
@@ -15,13 +33,13 @@ export default function NotFoundPage() {
           Let&apos;s get you back on track.
         </p>
         <Link
-          href="/"
+          href={dashboardHref}
           className="inline-flex items-center gap-2 bg-[#1E3A5F] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#162d4a] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
+          {dashboardLabel}
         </Link>
       </div>
     </div>
-  );
+  )
 }
