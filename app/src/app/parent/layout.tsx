@@ -32,6 +32,7 @@ import {
   Menu,
   GraduationCap,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 
 const sidebarGroups = [
@@ -48,6 +49,12 @@ const sidebarGroups = [
       { name: "Profile", href: "/parent/profile", icon: User },
       { name: "Applications", href: "/parent/applications", icon: FileText },
       { name: "Tasks", href: "/parent/tasks", icon: CheckSquare },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      { name: "Timeline", href: "/parent/timeline", icon: Clock },
     ],
   },
   {

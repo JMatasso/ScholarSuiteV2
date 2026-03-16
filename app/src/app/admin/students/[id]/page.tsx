@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
-import { ArrowLeft, Mail, Phone, MapPin, Calendar, GraduationCap, FileText, CheckCircle2, Clock } from "lucide-react"
+import { ArrowLeft, Mail, Phone, MapPin, Calendar, GraduationCap, FileText, CheckCircle2, Clock, ListTodo } from "lucide-react"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
+import { JourneyTimeline } from "@/components/ui/journey-timeline"
+import { TASK_PHASE_TO_JOURNEY_STAGE, SERVICE_TIER_LABELS, JOURNEY_STAGE_LABELS } from "@/lib/constants"
 
 const tabItems = [
   { id: "Profile", label: "Profile" },
@@ -38,6 +40,7 @@ interface StudentData {
     journeyStage?: string | null
     gradeLevel?: number | null
     status?: string | null
+    serviceTier?: string | null
   } | null
   scholarshipApps?: Array<{
     id: string
@@ -50,6 +53,7 @@ interface StudentData {
     id: string
     title: string
     status: string
+    phase?: string | null
     dueDate?: string | null
   }>
   essays?: Array<{
@@ -80,6 +84,61 @@ function StudentDetailContent() {
   const [student, setStudent] = React.useState<StudentData | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [noteText, setNoteText] = React.useState("")
+  const [assigningTasks, setAssigningTasks] = React.useState(false)
+
+  const handleServiceTierChange = async (value: string) => {
+    try {
+      const res = await fetch(`/api/students/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile: { serviceTier: value || null } }),
+      })
+      if (!res.ok) throw new Error()
+      setStudent(prev => prev ? { ...prev, studentProfile: { ...prev.studentProfile, serviceTier: value || null } } : prev)
+      toast.success("Service tier updated")
+    } catch {
+      toast.error("Failed to update service tier")
+    }
+  }
+
+  const handleJourneyStageChange = async (value: string) => {
+    try {
+      const res = await fetch(`/api/students/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile: { journeyStage: value } }),
+      })
+      if (!res.ok) throw new Error()
+      setStudent(prev => prev ? { ...prev, studentProfile: { ...prev.studentProfile, journeyStage: value } } : prev)
+      toast.success("Journey stage updated")
+    } catch {
+      toast.error("Failed to update journey stage")
+    }
+  }
+
+  const handleAssignPhaseTasks = async () => {
+    setAssigningTasks(true)
+    try {
+      const res = await fetch("/api/task-templates/assign-phase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: id }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to assign tasks")
+      toast.success(data.message || `${data.count || 0} tasks assigned`)
+      // Refresh student data
+      const refreshRes = await fetch(`/api/students/${id}`)
+      if (refreshRes.ok) {
+        const refreshed = await refreshRes.json()
+        setStudent(refreshed)
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to assign phase tasks")
+    } finally {
+      setAssigningTasks(false)
+    }
+  }
 
   React.useEffect(() => {
     fetch(`/api/students/${id}`)
@@ -123,6 +182,21 @@ function StudentDetailContent() {
   const totalCost = financialPlan?.semesters?.reduce((sum, s) => sum + s.tuition + s.housing + s.food + s.transportation + s.books + s.personal + s.other, 0) || 0
   const totalIncome = financialPlan?.semesters?.reduce((sum, s) => sum + s.incomeSources.reduce((a, src) => a + src.amount, 0), 0) || 0
 
+  // Compute task counts per journey stage
+  const tasksByStage: Record<string, { total: number; completed: number }> = {
+    EARLY_EXPLORATION: { total: 0, completed: 0 },
+    ACTIVE_PREP: { total: 0, completed: 0 },
+    APPLICATION_PHASE: { total: 0, completed: 0 },
+    POST_ACCEPTANCE: { total: 0, completed: 0 },
+  }
+  for (const task of tasks) {
+    const stage = TASK_PHASE_TO_JOURNEY_STAGE[task.phase || ""] || "EARLY_EXPLORATION"
+    if (tasksByStage[stage]) {
+      tasksByStage[stage].total++
+      if (task.status === "DONE") tasksByStage[stage].completed++
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Back Link */}
@@ -145,6 +219,16 @@ function StudentDetailContent() {
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-xl font-semibold text-foreground">{student.name || student.email}</h1>
             {profile?.status && <StatusBadge status={profile.status as "NEW" | "ACTIVE" | "AT_RISK" | "INACTIVE" | "GRADUATED"} />}
+            <select
+              value={profile?.serviceTier || ""}
+              onChange={e => handleServiceTierChange(e.target.value)}
+              className="h-7 rounded-md border border-gray-200 bg-white px-2 text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+            >
+              <option value="">No Tier</option>
+              {Object.entries(SERVICE_TIER_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             {student.school?.name && <span className="flex items-center gap-1"><GraduationCap className="size-3.5" /> {student.school.name}</span>}
@@ -192,6 +276,30 @@ function StudentDetailContent() {
         transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       >
         {activeTab === "Profile" && (
+          <div className="flex flex-col gap-6">
+            {/* Journey Timeline */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-foreground">Journey Progress</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Update Stage:</span>
+                  <select
+                    value={profile?.journeyStage || "EARLY_EXPLORATION"}
+                    onChange={e => handleJourneyStageChange(e.target.value)}
+                    className="h-7 rounded-md border border-gray-200 bg-white px-2 text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                  >
+                    {Object.entries(JOURNEY_STAGE_LABELS).map(([key, val]) => (
+                      <option key={key} value={key}>{val.shortLabel}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <JourneyTimeline
+                currentStage={profile?.journeyStage || "EARLY_EXPLORATION"}
+                taskCounts={tasksByStage}
+              />
+            </div>
+
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <h3 className="mb-3 text-sm font-medium text-foreground">Academic Information</h3>
@@ -210,7 +318,7 @@ function StudentDetailContent() {
                 </div>
                 <div className="flex justify-between py-2 border-b border-border/50">
                   <span className="text-sm text-muted-foreground">Journey Stage</span>
-                  <span className="text-sm font-medium">{profile?.journeyStage ?? "—"}</span>
+                  <span className="text-sm font-medium">{profile?.journeyStage ? (JOURNEY_STAGE_LABELS[profile.journeyStage]?.shortLabel || profile.journeyStage) : "—"}</span>
                 </div>
                 <div className="flex justify-between py-2">
                   <span className="text-sm text-muted-foreground">Joined</span>
@@ -244,6 +352,7 @@ function StudentDetailContent() {
               </div>
             </div>
           </div>
+          </div>
         )}
 
         {activeTab === "Applications" && (
@@ -271,6 +380,18 @@ function StudentDetailContent() {
 
         {activeTab === "Tasks" && (
           <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm font-medium text-foreground">Tasks ({tasks.length})</h3>
+              <Button
+                size="sm"
+                className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+                disabled={assigningTasks}
+                onClick={handleAssignPhaseTasks}
+              >
+                <ListTodo className="h-4 w-4" />
+                {assigningTasks ? "Assigning..." : "Assign Phase Tasks"}
+              </Button>
+            </div>
             {tasks.length === 0 ? (
               <p className="text-sm text-muted-foreground">No tasks yet.</p>
             ) : tasks.map((task) => (

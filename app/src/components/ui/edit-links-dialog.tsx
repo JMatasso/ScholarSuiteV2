@@ -4,18 +4,26 @@ import * as React from "react"
 import { X } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
+
+interface StudentOption {
+  id: string
+  name?: string | null
+  email: string
+  image?: string | null
+}
 
 interface EditLinksDialogProps {
   parent: { id: string; name: string; linkedStudents: { id: string }[] }
-  students: MultiSelectOption[]
+  fetchStudents: () => Promise<StudentOption[]>
   onClose: () => void
   onSaved: () => void
 }
 
 export function EditLinksDialog({
   parent,
-  students,
+  fetchStudents,
   onClose,
   onSaved,
 }: EditLinksDialogProps) {
@@ -57,13 +65,32 @@ export function EditLinksDialog({
             <X className="size-4 text-muted-foreground" />
           </button>
         </div>
-        <MultiSelect
-          options={students}
-          selectedIds={selectedIds}
+        <AsyncMultiSelect<StudentOption>
+          fetcher={fetchStudents}
+          preload={true}
+          filterFn={(student, query) =>
+            ((student.name || "").toLowerCase().includes(query.toLowerCase()) ||
+             student.email.toLowerCase().includes(query.toLowerCase()))
+          }
+          renderOption={(student) => (
+            <div className="flex items-center gap-2">
+              <Avatar size="sm">
+                {student.image && <AvatarImage src={student.image} alt={student.name || "Student"} />}
+                <AvatarFallback>{(student.name || student.email).substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{student.name || "Unnamed"}</p>
+                <p className="text-xs text-muted-foreground truncate">{student.email}</p>
+              </div>
+            </div>
+          )}
+          getOptionValue={(student) => student.id}
+          getDisplayValue={(student) => student.name || student.email}
+          label="students"
+          placeholder="Search and select students..."
+          value={selectedIds}
           onChange={setSelectedIds}
-          placeholder="Select students..."
-          searchPlaceholder="Search students..."
-          emptyMessage="No students found."
+          width="100%"
         />
         <div className="mt-4 flex gap-2">
           <Button size="sm" onClick={handleSave} disabled={saving}>

@@ -8,10 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ActionMenu } from "@/components/ui/action-menu"
-import { Plus, Users, Pencil, Trash2, UserPlus, ListTodo, Megaphone, X, Search } from "lucide-react"
+import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
+import { Plus, Users, Pencil, Trash2, UserPlus, ListTodo, Megaphone, X } from "lucide-react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
 
@@ -89,10 +89,7 @@ export default function CohortsPage() {
   // Add Members dialog
   const [membersDialogOpen, setMembersDialogOpen] = React.useState(false)
   const [membersCohort, setMembersCohort] = React.useState<Cohort | null>(null)
-  const [allStudents, setAllStudents] = React.useState<Student[]>([])
-  const [studentsLoading, setStudentsLoading] = React.useState(false)
-  const [memberSearch, setMemberSearch] = React.useState("")
-  const [selectedUserIds, setSelectedUserIds] = React.useState<Set<string>>(new Set())
+  const [selectedUserIds, setSelectedUserIds] = React.useState<string[]>([])
   const [addingMembers, setAddingMembers] = React.useState(false)
 
   // Assign Task dialog
@@ -194,44 +191,29 @@ export default function CohortsPage() {
   /*  Add Members                                                      */
   /* ---------------------------------------------------------------- */
 
+  const fetchStudents = React.useCallback(async (): Promise<Student[]> => {
+    const res = await fetch("/api/students")
+    const data = await res.json()
+    return Array.isArray(data) ? data : []
+  }, [])
+
   function openMembersDialog(cohort: Cohort) {
     setMembersCohort(cohort)
-    setSelectedUserIds(new Set())
-    setMemberSearch("")
+    setSelectedUserIds([])
     setMembersDialogOpen(true)
-    setStudentsLoading(true)
-    fetch("/api/students")
-      .then((res) => res.json())
-      .then((d) => {
-        setAllStudents(Array.isArray(d) ? d : [])
-        setStudentsLoading(false)
-      })
-      .catch(() => {
-        toast.error("Failed to load students")
-        setStudentsLoading(false)
-      })
-  }
-
-  function toggleStudentSelection(userId: string) {
-    setSelectedUserIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(userId)) next.delete(userId)
-      else next.add(userId)
-      return next
-    })
   }
 
   async function handleAddMembers() {
-    if (!membersCohort || selectedUserIds.size === 0) return
+    if (!membersCohort || selectedUserIds.length === 0) return
     setAddingMembers(true)
     try {
       const res = await fetch(`/api/cohorts/${membersCohort.id}/members`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userIds: Array.from(selectedUserIds) }),
+        body: JSON.stringify({ userIds: selectedUserIds }),
       })
       if (!res.ok) throw new Error()
-      toast.success(`Added ${selectedUserIds.size} member(s)`)
+      toast.success(`Added ${selectedUserIds.length} member(s)`)
       setMembersDialogOpen(false)
       loadCohorts()
     } catch {
@@ -335,15 +317,6 @@ export default function CohortsPage() {
     if (!membersCohort) return new Set<string>()
     return new Set(membersCohort.members.map((m) => m.user.id))
   }, [membersCohort])
-
-  const filteredStudents = React.useMemo(() => {
-    const q = memberSearch.toLowerCase()
-    return allStudents.filter((s) => {
-      if (existingMemberIds.has(s.id)) return false
-      if (!q) return true
-      return (s.name?.toLowerCase().includes(q) || s.email?.toLowerCase().includes(q))
-    })
-  }, [allStudents, memberSearch, existingMemberIds])
 
   /* ---------------------------------------------------------------- */
   /*  Render                                                           */
@@ -545,49 +518,34 @@ export default function CohortsPage() {
             <DialogTitle>Add Members to {membersCohort?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search students by name or email..."
-                className="pl-9"
-                value={memberSearch}
-                onChange={(e) => setMemberSearch(e.target.value)}
-              />
-            </div>
-            <div className="max-h-64 overflow-y-auto space-y-1 rounded-lg border border-gray-200 p-2">
-              {studentsLoading ? (
-                <p className="text-sm text-muted-foreground text-center py-4">Loading students...</p>
-              ) : filteredStudents.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  {memberSearch ? "No matching students found" : "All students are already in this cohort"}
-                </p>
-              ) : (
-                filteredStudents.map((student) => (
-                  <label
-                    key={student.id}
-                    className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-muted/50 cursor-pointer"
-                  >
-                    <Checkbox
-                      checked={selectedUserIds.has(student.id)}
-                      onCheckedChange={() => toggleStudentSelection(student.id)}
-                    />
-                    <Avatar size="sm">
-                      {student.image && <AvatarImage src={student.image} alt={student.name || "Student"} />}
-                      <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{student.name || "Unknown"}</p>
-                      {student.email && (
-                        <p className="text-xs text-muted-foreground truncate">{student.email}</p>
-                      )}
-                    </div>
-                  </label>
-                ))
+            <AsyncMultiSelect<Student>
+              fetcher={fetchStudents}
+              preload={true}
+              filterFn={(student, query) =>
+                (student.name?.toLowerCase().includes(query.toLowerCase()) ||
+                 student.email?.toLowerCase().includes(query.toLowerCase())) ?? false
+              }
+              renderOption={(student) => (
+                <div className="flex items-center gap-2">
+                  <Avatar size="sm">
+                    {student.image && <AvatarImage src={student.image} alt={student.name || "Student"} />}
+                    <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium truncate">{student.name || "Unknown"}</p>
+                    {student.email && <p className="text-[10px] text-muted-foreground truncate">{student.email}</p>}
+                  </div>
+                </div>
               )}
-            </div>
-            {selectedUserIds.size > 0 && (
-              <p className="text-xs text-muted-foreground">{selectedUserIds.size} student(s) selected</p>
-            )}
+              getOptionValue={(student) => student.id}
+              getDisplayValue={(student) => student.name || "Unknown"}
+              label="students"
+              placeholder="Search and select students..."
+              value={selectedUserIds}
+              onChange={setSelectedUserIds}
+              excludeValues={existingMemberIds}
+              width="100%"
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMembersDialogOpen(false)}>
@@ -596,10 +554,10 @@ export default function CohortsPage() {
             <Button
               className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
               onClick={handleAddMembers}
-              disabled={addingMembers || selectedUserIds.size === 0}
+              disabled={addingMembers || selectedUserIds.length === 0}
             >
               <UserPlus className="h-4 w-4" />
-              {addingMembers ? "Adding..." : `Add Selected (${selectedUserIds.size})`}
+              {addingMembers ? "Adding..." : `Add Selected (${selectedUserIds.length})`}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -26,6 +26,7 @@ import {
   ArrowRight,
   Star,
 } from "lucide-react"
+import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
 import { CompletionBanner } from "@/components/ui/completion-banner"
 import Link from "next/link"
 
@@ -83,14 +84,8 @@ interface Message {
   isRead: boolean
 }
 
-function getJourneyStageName(stage?: string) {
-  const map: Record<string, string> = {
-    EARLY_EXPLORATION: "Early Exploration",
-    ACTIVE_PREP: "Active Prep",
-    APPLICATION_PHASE: "Application Phase",
-    POST_ACCEPTANCE: "Post Acceptance",
-  }
-  return stage ? (map[stage] ?? stage) : "Unknown"
+function getJourneyStageName(stage?: string): string {
+  return stage ? (JOURNEY_STAGE_LABELS[stage]?.shortLabel ?? stage) : "Unknown"
 }
 
 function getGradeLabel(level?: number) {

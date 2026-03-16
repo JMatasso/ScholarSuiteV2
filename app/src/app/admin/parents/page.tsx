@@ -8,7 +8,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select"
+import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
 import { EditLinksDialog } from "@/components/ui/edit-links-dialog"
 import {
   Plus,
@@ -60,9 +60,6 @@ export default function ParentsPage() {
   const [showAddForm, setShowAddForm] = React.useState(false)
   const [editLinksParent, setEditLinksParent] = React.useState<ParentRow | null>(null)
 
-  // All students for linking
-  const [allStudents, setAllStudents] = React.useState<MultiSelectOption[]>([])
-
   // Add-parent form state
   const [newParent, setNewParent] = React.useState({
     name: "",
@@ -106,30 +103,14 @@ export default function ParentsPage() {
       })
   }, [])
 
+  const fetchStudents = React.useCallback(async () => {
+    const res = await fetch("/api/students")
+    const data = await res.json()
+    return Array.isArray(data) ? (data as Array<{ id: string; name?: string | null; email: string; image?: string | null }>) : []
+  }, [])
+
   React.useEffect(() => {
     fetchParents()
-
-    // Load students for linking
-    fetch("/api/students")
-      .then((res) => res.json())
-      .then(
-        (
-          data:
-            | Array<{ id: string; name?: string | null; email: string }>
-            | { error: string }
-        ) => {
-          if (Array.isArray(data)) {
-            setAllStudents(
-              data.map((s) => ({
-                id: s.id,
-                label: s.name || s.email,
-                sublabel: s.email,
-              }))
-            )
-          }
-        }
-      )
-      .catch(() => {})
   }, [fetchParents])
 
   /* ---- Add parent ---- */
@@ -376,15 +357,32 @@ export default function ParentsPage() {
               <label className="mb-1 block text-xs font-medium text-foreground">
                 Link Students
               </label>
-              <MultiSelect
-                options={allStudents}
-                selectedIds={newParent.studentIds}
-                onChange={(ids) =>
-                  setNewParent((p) => ({ ...p, studentIds: ids }))
+              <AsyncMultiSelect
+                fetcher={fetchStudents}
+                preload={true}
+                filterFn={(student, query) =>
+                  ((student.name || "").toLowerCase().includes(query.toLowerCase()) ||
+                   student.email.toLowerCase().includes(query.toLowerCase()))
                 }
-                placeholder="Select students..."
-                searchPlaceholder="Search students..."
-                emptyMessage="No students found."
+                renderOption={(student) => (
+                  <div className="flex items-center gap-2">
+                    <Avatar size="sm">
+                      {student.image && <AvatarImage src={student.image} alt={student.name || "Student"} />}
+                      <AvatarFallback>{(student.name || student.email).substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{student.name || "Unnamed"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{student.email}</p>
+                    </div>
+                  </div>
+                )}
+                getOptionValue={(student) => student.id}
+                getDisplayValue={(student) => student.name || student.email}
+                label="students"
+                placeholder="Search and select students..."
+                value={newParent.studentIds}
+                onChange={(ids) => setNewParent((p) => ({ ...p, studentIds: ids }))}
+                width="100%"
               />
             </div>
             <div className="col-span-2">
@@ -447,7 +445,7 @@ export default function ParentsPage() {
       {editLinksParent && (
         <EditLinksDialog
           parent={editLinksParent}
-          students={allStudents}
+          fetchStudents={fetchStudents}
           onClose={() => setEditLinksParent(null)}
           onSaved={fetchParents}
         />

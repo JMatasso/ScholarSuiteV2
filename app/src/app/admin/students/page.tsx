@@ -29,10 +29,12 @@ interface Student {
     status?: StudentStatus
     journeyStage?: string
     gradeLevel?: number
+    serviceTier?: string | null
   } | null
 }
 
 import { parseCSV } from "@/lib/csv-parser"
+import { SERVICE_TIER_LABELS, JOURNEY_STAGE_LABELS } from "@/lib/constants"
 
 export default function StudentsPage() {
   const [students, setStudents] = React.useState<Student[]>([])
@@ -40,6 +42,7 @@ export default function StudentsPage() {
   const [search, setSearch] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState("")
   const [phaseFilter, setPhaseFilter] = React.useState("")
+  const [tierFilter, setTierFilter] = React.useState<string>("ALL")
   const [selectedCount, setSelectedCount] = React.useState(0)
   const [showAddForm, setShowAddForm] = React.useState(false)
   const [newStudent, setNewStudent] = React.useState({ name: "", email: "", school: "", phone: "", tempPassword: "" })
@@ -124,6 +127,7 @@ export default function StudentsPage() {
     status: (s.studentProfile?.status || "NEW") as StudentStatus,
     school: s.school?.name || "—",
     journeyStage: s.studentProfile?.journeyStage || "—",
+    serviceTier: s.studentProfile?.serviceTier || null,
     phase: s.studentProfile?.gradeLevel ? `Grade ${s.studentProfile.gradeLevel}` : "—",
     initials: (s.name || s.email).substring(0, 2).toUpperCase(),
   }))
@@ -131,7 +135,8 @@ export default function StudentsPage() {
   const filtered = displayStudents.filter(s => {
     const matchesStatus = !statusFilter || s.status === statusFilter
     const matchesPhase = !phaseFilter || s.phase.toLowerCase().includes(phaseFilter)
-    return matchesStatus && matchesPhase
+    const matchesTier = tierFilter === "ALL" || (tierFilter === "NONE" ? !s.serviceTier : s.serviceTier === tierFilter)
+    return matchesStatus && matchesPhase && matchesTier
   })
 
   const columns: ColumnDef<typeof filtered[0], unknown>[] = [
@@ -185,6 +190,26 @@ export default function StudentsPage() {
     {
       accessorKey: "journeyStage",
       header: "Journey Stage",
+      cell: ({ row }) => {
+        const stage = row.original.journeyStage
+        return stage && stage !== "—" ? (JOURNEY_STAGE_LABELS[stage]?.shortLabel ?? stage) : "—"
+      },
+    },
+    {
+      accessorKey: "serviceTier",
+      header: "Service Tier",
+      cell: ({ row }) => {
+        const tier = row.original.serviceTier
+        return tier ? (
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+            {SERVICE_TIER_LABELS[tier] ?? tier}
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-600">
+            No Tier
+          </span>
+        )
+      },
     },
     {
       accessorKey: "phase",
@@ -330,6 +355,17 @@ export default function StudentsPage() {
           <option value="junior">Junior Year</option>
           <option value="senior">Senior Year</option>
           <option value="alumni">Alumni</option>
+        </select>
+        <select
+          value={tierFilter}
+          onChange={e => setTierFilter(e.target.value)}
+          className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <option value="ALL">All Tiers</option>
+          <option value="INTRODUCTORY">Introductory</option>
+          <option value="FLAT_RATE">Flat Rate</option>
+          <option value="ONGOING">Ongoing</option>
+          <option value="NONE">No Tier</option>
         </select>
       </div>
 

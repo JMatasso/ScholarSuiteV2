@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { Checkbox } from "@/components/ui/checkbox"
+import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import Link from "next/link"
-import { Plus, Video, Clock, Calendar, MapPin, Search, Users, X, UserPlus } from "lucide-react"
+import { Plus, Video, Clock, Calendar, MapPin, Users, X, UserPlus } from "lucide-react"
 import { toast } from "sonner"
 
 interface MeetingParticipant {
@@ -66,12 +66,7 @@ export default function MeetingsPage() {
   const [form, setForm] = React.useState({
     title: "", description: "", startTime: "", endTime: "", meetingUrl: "", isVideoCall: false,
   })
-  const [selectedParticipantIds, setSelectedParticipantIds] = React.useState<Set<string>>(new Set())
-
-  // Participant picker
-  const [allUsers, setAllUsers] = React.useState<UserOption[]>([])
-  const [usersLoading, setUsersLoading] = React.useState(false)
-  const [participantSearch, setParticipantSearch] = React.useState("")
+  const [selectedParticipantIds, setSelectedParticipantIds] = React.useState<string[]>([])
 
   // Reschedule
   const [rescheduleId, setRescheduleId] = React.useState<string | null>(null)
@@ -80,8 +75,7 @@ export default function MeetingsPage() {
   // Add participants to existing meeting
   const [addParticipantsDialogOpen, setAddParticipantsDialogOpen] = React.useState(false)
   const [addParticipantsMeetingId, setAddParticipantsMeetingId] = React.useState<string | null>(null)
-  const [addParticipantsSelected, setAddParticipantsSelected] = React.useState<Set<string>>(new Set())
-  const [addParticipantsSearch, setAddParticipantsSearch] = React.useState("")
+  const [addParticipantsSelected, setAddParticipantsSelected] = React.useState<string[]>([])
   const [addingParticipants, setAddingParticipants] = React.useState(false)
 
   const loadMeetings = React.useCallback(() => {
@@ -93,47 +87,22 @@ export default function MeetingsPage() {
 
   React.useEffect(() => { loadMeetings() }, [loadMeetings])
 
-  const loadUsers = React.useCallback(() => {
-    if (allUsers.length > 0) return
-    setUsersLoading(true)
-    fetch("/api/students")
-      .then(res => res.json())
-      .then(students => {
-        const studentList = (Array.isArray(students) ? students : []).map((s: { id: string; name: string | null; email: string | null }) => ({ ...s, role: "STUDENT" }))
-        // Also load parents
-        fetch("/api/parents")
-          .then(res => res.json())
-          .then(parents => {
-            const parentList = (Array.isArray(parents) ? parents : []).map((p: { id: string; name: string | null; email: string | null }) => ({ ...p, role: "PARENT" }))
-            setAllUsers([...studentList, ...parentList])
-            setUsersLoading(false)
-          })
-          .catch(() => { setAllUsers(studentList); setUsersLoading(false) })
-      })
-      .catch(() => { setUsersLoading(false) })
-  }, [allUsers.length])
+  const fetchParticipants = React.useCallback(async (): Promise<UserOption[]> => {
+    const [studentsRes, parentsRes] = await Promise.all([
+      fetch("/api/students"),
+      fetch("/api/parents"),
+    ])
+    const students = await studentsRes.json()
+    const parents = await parentsRes.json()
+    const studentList = (Array.isArray(students) ? students : []).map((s: { id: string; name: string | null; email: string | null; image?: string | null }) => ({ ...s, role: "STUDENT" }))
+    const parentList = (Array.isArray(parents) ? parents : []).map((p: { id: string; name: string | null; email: string | null; image?: string | null }) => ({ ...p, role: "PARENT" }))
+    return [...studentList, ...parentList]
+  }, [])
 
   const handleShowForm = () => {
     setShowForm(true)
-    setSelectedParticipantIds(new Set())
-    loadUsers()
+    setSelectedParticipantIds([])
   }
-
-  const toggleParticipant = (userId: string) => {
-    setSelectedParticipantIds(prev => {
-      const next = new Set(prev)
-      next.has(userId) ? next.delete(userId) : next.add(userId)
-      return next
-    })
-  }
-
-  const filteredUsers = React.useMemo(() => {
-    const q = participantSearch.toLowerCase()
-    return allUsers.filter(u => {
-      if (!q) return true
-      return (u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q))
-    })
-  }, [allUsers, participantSearch])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -143,15 +112,15 @@ export default function MeetingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          participantIds: Array.from(selectedParticipantIds),
+          participantIds: selectedParticipantIds,
         }),
       })
       if (!res.ok) throw new Error()
-      const count = selectedParticipantIds.size
+      const count = selectedParticipantIds.length
       toast.success(`Meeting scheduled${count > 0 ? ` with ${count} participant${count !== 1 ? "s" : ""}` : ""}`)
       setShowForm(false)
       setForm({ title: "", description: "", startTime: "", endTime: "", meetingUrl: "", isVideoCall: false })
-      setSelectedParticipantIds(new Set())
+      setSelectedParticipantIds([])
       loadMeetings()
     } catch {
       toast.error("Failed to schedule meeting")
@@ -179,23 +148,21 @@ export default function MeetingsPage() {
   // Add participants to existing meeting
   const openAddParticipants = (meetingId: string) => {
     setAddParticipantsMeetingId(meetingId)
-    setAddParticipantsSelected(new Set())
-    setAddParticipantsSearch("")
+    setAddParticipantsSelected([])
     setAddParticipantsDialogOpen(true)
-    loadUsers()
   }
 
   const handleAddParticipants = async () => {
-    if (!addParticipantsMeetingId || addParticipantsSelected.size === 0) return
+    if (!addParticipantsMeetingId || addParticipantsSelected.length === 0) return
     setAddingParticipants(true)
     try {
       const res = await fetch(`/api/meetings/${addParticipantsMeetingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ addParticipantIds: Array.from(addParticipantsSelected) }),
+        body: JSON.stringify({ addParticipantIds: addParticipantsSelected }),
       })
       if (!res.ok) throw new Error()
-      toast.success(`Added ${addParticipantsSelected.size} participant(s)`)
+      toast.success(`Added ${addParticipantsSelected.length} participant(s)`)
       setAddParticipantsDialogOpen(false)
       loadMeetings()
     } catch {
@@ -224,15 +191,6 @@ export default function MeetingsPage() {
     const meeting = meetings.find(m => m.id === addParticipantsMeetingId)
     return new Set(meeting?.participants.map(p => p.user.id) || [])
   }, [addParticipantsMeetingId, meetings])
-
-  const filteredAddUsers = React.useMemo(() => {
-    const q = addParticipantsSearch.toLowerCase()
-    return allUsers.filter(u => {
-      if (existingParticipantIds.has(u.id)) return false
-      if (!q) return true
-      return (u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q))
-    })
-  }, [allUsers, addParticipantsSearch, existingParticipantIds])
 
   const upcoming = meetings.filter(m => m.status === "SCHEDULED" || m.status === "PENDING_APPROVAL")
   const past = meetings.filter(m => m.status === "COMPLETED" || m.status === "CANCELLED")
@@ -313,65 +271,38 @@ export default function MeetingsPage() {
             )}
 
             {/* Participant Picker */}
-            <div className="col-span-2 space-y-3">
+            <div className="col-span-2 space-y-1.5">
               <label className="block text-xs font-medium text-muted-foreground">
                 <Users className="inline h-3.5 w-3.5 mr-1" />
                 Add Participants (Students & Parents)
               </label>
-
-              {/* Selected participants */}
-              {selectedParticipantIds.size > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {Array.from(selectedParticipantIds).map(uid => {
-                    const user = allUsers.find(u => u.id === uid)
-                    return (
-                      <span key={uid} className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                        {user?.name || "Unknown"}
-                        <button type="button" onClick={() => toggleParticipant(uid)} className="hover:text-blue-900">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    )
-                  })}
-                </div>
-              )}
-
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search students and parents..."
-                  className="pl-9 h-9"
-                  value={participantSearch}
-                  onChange={e => setParticipantSearch(e.target.value)}
-                />
-              </div>
-
-              <div className="max-h-40 overflow-y-auto space-y-0.5 rounded-lg border border-gray-200 p-1.5">
-                {usersLoading ? (
-                  <p className="text-xs text-muted-foreground text-center py-3">Loading users...</p>
-                ) : filteredUsers.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-3">
-                    {participantSearch ? "No matches" : "No users found"}
-                  </p>
-                ) : (
-                  filteredUsers.slice(0, 30).map(user => (
-                    <label key={user.id} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-pointer">
-                      <Checkbox
-                        checked={selectedParticipantIds.has(user.id)}
-                        onCheckedChange={() => toggleParticipant(user.id)}
-                      />
-                      <Avatar size="sm">
-                        {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
-                        <AvatarFallback className="text-[9px]">{getInitials(user.name)}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-medium truncate">{user.name || "Unknown"}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">{user.email} · {user.role}</p>
-                      </div>
-                    </label>
-                  ))
+              <AsyncMultiSelect<UserOption>
+                fetcher={fetchParticipants}
+                preload={true}
+                filterFn={(user, query) =>
+                  (user.name?.toLowerCase().includes(query.toLowerCase()) ||
+                   user.email?.toLowerCase().includes(query.toLowerCase())) ?? false
+                }
+                renderOption={(user) => (
+                  <div className="flex items-center gap-2">
+                    <Avatar size="sm">
+                      {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
+                      <AvatarFallback className="text-[9px]">{getInitials(user.name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium truncate">{user.name || "Unknown"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{user.email} · {user.role}</p>
+                    </div>
+                  </div>
                 )}
-              </div>
+                getOptionValue={(user) => user.id}
+                getDisplayValue={(user) => user.name || "Unknown"}
+                label="participants"
+                placeholder="Search and select participants..."
+                value={selectedParticipantIds}
+                onChange={setSelectedParticipantIds}
+                width="100%"
+              />
             </div>
           </div>
           <div className="flex gap-2">
@@ -550,57 +481,44 @@ export default function MeetingsPage() {
             <DialogTitle>Add Participants</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search students and parents..."
-                className="pl-9"
-                value={addParticipantsSearch}
-                onChange={e => setAddParticipantsSearch(e.target.value)}
-              />
-            </div>
-            <div className="max-h-64 overflow-y-auto space-y-0.5 rounded-lg border border-gray-200 p-1.5">
-              {usersLoading ? (
-                <p className="text-xs text-muted-foreground text-center py-4">Loading...</p>
-              ) : filteredAddUsers.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-4">
-                  {addParticipantsSearch ? "No matches" : "All users are already participants"}
-                </p>
-              ) : (
-                filteredAddUsers.slice(0, 30).map(user => (
-                  <label key={user.id} className="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-pointer">
-                    <Checkbox
-                      checked={addParticipantsSelected.has(user.id)}
-                      onCheckedChange={() => {
-                        setAddParticipantsSelected(prev => {
-                          const next = new Set(prev)
-                          next.has(user.id) ? next.delete(user.id) : next.add(user.id)
-                          return next
-                        })
-                      }}
-                    />
-                    <Avatar size="sm">
-                      {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
-                      <AvatarFallback className="text-[9px]">{getInitials(user.name)}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium truncate">{user.name || "Unknown"}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{user.email} · {user.role}</p>
-                    </div>
-                  </label>
-                ))
+            <AsyncMultiSelect<UserOption>
+              fetcher={fetchParticipants}
+              preload={true}
+              filterFn={(user, query) =>
+                (user.name?.toLowerCase().includes(query.toLowerCase()) ||
+                 user.email?.toLowerCase().includes(query.toLowerCase())) ?? false
+              }
+              renderOption={(user) => (
+                <div className="flex items-center gap-2">
+                  <Avatar size="sm">
+                    {user.image && <AvatarImage src={user.image} alt={user.name || "User"} />}
+                    <AvatarFallback className="text-[9px]">{getInitials(user.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium truncate">{user.name || "Unknown"}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{user.email} · {user.role}</p>
+                  </div>
+                </div>
               )}
-            </div>
+              getOptionValue={(user) => user.id}
+              getDisplayValue={(user) => user.name || "Unknown"}
+              label="participants"
+              placeholder="Search and select participants..."
+              value={addParticipantsSelected}
+              onChange={setAddParticipantsSelected}
+              excludeValues={existingParticipantIds}
+              width="100%"
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddParticipantsDialogOpen(false)}>Cancel</Button>
             <Button
               className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
               onClick={handleAddParticipants}
-              disabled={addingParticipants || addParticipantsSelected.size === 0}
+              disabled={addingParticipants || addParticipantsSelected.length === 0}
             >
               <UserPlus className="h-4 w-4" />
-              {addingParticipants ? "Adding..." : `Add ${addParticipantsSelected.size} Selected`}
+              {addingParticipants ? "Adding..." : `Add ${addParticipantsSelected.length} Selected`}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { SearchInput } from "@/components/ui/search-input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { AsyncSelect } from "@/components/ui/async-select"
 import { Plus, Megaphone, Send, Paperclip } from "lucide-react"
 import { toast } from "sonner"
 import { useMessaging } from "@/hooks/use-messaging"
@@ -63,10 +64,6 @@ export default function MessagesPage() {
 
   // User picker state
   const [allUsers, setAllUsers] = React.useState<UserOption[]>([])
-  const [recipientSearch, setRecipientSearch] = React.useState("")
-  const [recipientDropdownOpen, setRecipientDropdownOpen] = React.useState(false)
-  const [selectedRecipientName, setSelectedRecipientName] = React.useState("")
-  const recipientRef = React.useRef<HTMLDivElement>(null)
 
   // Filter state
   const [roleFilter, setRoleFilter] = React.useState<string>("ALL")
@@ -92,15 +89,11 @@ export default function MessagesPage() {
       .catch(() => {})
   }, [])
 
-  // Close recipient dropdown on outside click
-  React.useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (recipientRef.current && !recipientRef.current.contains(e.target as Node)) {
-        setRecipientDropdownOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
+  // Stable fetcher for AsyncSelect
+  const fetchUsers = React.useCallback(async (): Promise<UserOption[]> => {
+    const res = await fetch("/api/admin/users/all")
+    const data = await res.json()
+    return Array.isArray(data) ? data : []
   }, [])
 
   const handleBroadcast = async () => {
@@ -138,23 +131,10 @@ export default function MessagesPage() {
       toast.success("Message sent")
       setNewMsgContent("")
       setNewMsgReceiverId("")
-      setRecipientSearch("")
-      setSelectedRecipientName("")
       setShowNewMessage(false)
       setSelectedPartnerId(newMsgReceiverId)
     }
   }
-
-  // Filtered recipient list for picker
-  const filteredUsers = React.useMemo(() => {
-    if (!recipientSearch.trim()) return allUsers.slice(0, 20)
-    const q = recipientSearch.toLowerCase()
-    return allUsers.filter(u =>
-      (u.name && u.name.toLowerCase().includes(q)) ||
-      u.email.toLowerCase().includes(q) ||
-      u.role.toLowerCase().includes(q)
-    ).slice(0, 20)
-  }, [allUsers, recipientSearch])
 
   // Apply filters to conversations from the hook
   const filteredConversations = React.useMemo(() => {
@@ -237,54 +217,46 @@ export default function MessagesPage() {
         <div className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
           <h3 className="mb-4 text-sm font-semibold text-foreground">New Message</h3>
           <div className="flex flex-col gap-3 mb-4">
-            <div ref={recipientRef} className="relative">
+            <div>
               <label className="block text-xs font-medium text-foreground mb-1">Recipient *</label>
-              <Input
-                type="text"
-                value={selectedRecipientName || recipientSearch}
-                onChange={e => {
-                  setRecipientSearch(e.target.value)
-                  setSelectedRecipientName("")
-                  setNewMsgReceiverId("")
-                  setRecipientDropdownOpen(true)
-                }}
-                onFocus={() => setRecipientDropdownOpen(true)}
+              <AsyncSelect<UserOption>
+                fetcher={fetchUsers}
+                preload={true}
+                value={newMsgReceiverId}
+                onChange={setNewMsgReceiverId}
+                label="Recipient"
                 placeholder="Search by name or email..."
-                className="h-9"
+                width="100%"
+                clearable={false}
+                filterFn={(user, query) =>
+                  (user.name?.toLowerCase().includes(query.toLowerCase()) ||
+                  user.email.toLowerCase().includes(query.toLowerCase()) ||
+                  user.role.toLowerCase().includes(query.toLowerCase()))
+                }
+                getOptionValue={(user) => user.id}
+                renderOption={(user) => (
+                  <div className="flex items-center gap-2">
+                    <Avatar size="sm">
+                      {user.image && <AvatarImage src={user.image} alt={user.name || user.email} />}
+                      <AvatarFallback>{(user.name || user.email).substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{user.name || "Unnamed"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] shrink-0">{user.role}</Badge>
+                  </div>
+                )}
+                getDisplayValue={(user) => (
+                  <div className="flex items-center gap-2 text-left">
+                    <Avatar size="sm">
+                      {user.image && <AvatarImage src={user.image} alt={user.name || user.email} />}
+                      <AvatarFallback>{(user.name || user.email).substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium">{user.name || user.email}</span>
+                  </div>
+                )}
               />
-              {recipientDropdownOpen && !selectedRecipientName && (
-                <div className="absolute z-50 mt-1 w-full max-h-56 overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
-                  {filteredUsers.length === 0 ? (
-                    <p className="p-3 text-xs text-muted-foreground">No users found</p>
-                  ) : (
-                    filteredUsers.map(user => (
-                      <button
-                        key={user.id}
-                        type="button"
-                        onClick={() => {
-                          setNewMsgReceiverId(user.id)
-                          setSelectedRecipientName(user.name || user.email)
-                          setRecipientSearch("")
-                          setRecipientDropdownOpen(false)
-                        }}
-                        className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-muted/50"
-                      >
-                        <Avatar size="sm">
-                          {user.image && <AvatarImage src={user.image} alt={user.name || user.email} />}
-                          <AvatarFallback>{(user.name || user.email).substring(0, 2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{user.name || "Unnamed"}</p>
-                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                        </div>
-                        <Badge variant={roleBadgeVariant(user.role)} className="text-[10px] shrink-0">
-                          {user.role}
-                        </Badge>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">Message *</label>
@@ -294,7 +266,7 @@ export default function MessagesPage() {
           </div>
           <div className="flex gap-2">
             <Button size="sm" onClick={handleNewMessage}>Send Message</Button>
-            <Button variant="outline" size="sm" onClick={() => { setShowNewMessage(false); setRecipientSearch(""); setSelectedRecipientName(""); setNewMsgReceiverId("") }}>Cancel</Button>
+            <Button variant="outline" size="sm" onClick={() => { setShowNewMessage(false); setNewMsgReceiverId("") }}>Cancel</Button>
           </div>
         </div>
       )}

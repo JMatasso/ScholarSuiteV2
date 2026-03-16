@@ -1,3 +1,64 @@
+// ─── JOURNEY STAGE LABELS ────────────────────────────────────
+// Maps the JourneyStage enum to the advisor's 4-phase model
+
+export const JOURNEY_STAGE_LABELS: Record<string, { label: string; shortLabel: string; description: string; gradeRange: string }> = {
+  EARLY_EXPLORATION: {
+    label: "Phase 1: Foundation",
+    shortLabel: "Foundation",
+    description: "Building your academic profile, gathering documents, and exploring options",
+    gradeRange: "Freshman / Sophomore",
+  },
+  ACTIVE_PREP: {
+    label: "Phase 2: Testing & Prep",
+    shortLabel: "Testing & Prep",
+    description: "SAT/ACT prep, scholarship research, and essay drafting",
+    gradeRange: "Junior",
+  },
+  APPLICATION_PHASE: {
+    label: "Phase 3: Application Sprint",
+    shortLabel: "Application Sprint",
+    description: "Submitting scholarship and college applications",
+    gradeRange: "Summer / Senior Fall",
+  },
+  POST_ACCEPTANCE: {
+    label: "Phase 4: Transition & Networking",
+    shortLabel: "Transition",
+    description: "College decision, financial planning, and building your network",
+    gradeRange: "Senior Spring",
+  },
+}
+
+export const JOURNEY_STAGES_ORDERED = [
+  "EARLY_EXPLORATION",
+  "ACTIVE_PREP",
+  "APPLICATION_PHASE",
+  "POST_ACCEPTANCE",
+] as const
+
+// Maps TaskPhase values to JourneyStage values
+export const TASK_PHASE_TO_JOURNEY_STAGE: Record<string, string> = {
+  INTRODUCTION: "EARLY_EXPLORATION",
+  PHASE_1: "EARLY_EXPLORATION",
+  PHASE_2: "ACTIVE_PREP",
+  ONGOING: "APPLICATION_PHASE",
+  FINAL: "POST_ACCEPTANCE",
+}
+
+// Reverse: JourneyStage → TaskPhase[] for filtering template items
+export const JOURNEY_STAGE_TO_TASK_PHASES: Record<string, string[]> = {
+  EARLY_EXPLORATION: ["INTRODUCTION", "PHASE_1"],
+  ACTIVE_PREP: ["PHASE_2"],
+  APPLICATION_PHASE: ["ONGOING"],
+  POST_ACCEPTANCE: ["FINAL"],
+}
+
+export const SERVICE_TIER_LABELS: Record<string, string> = {
+  INTRODUCTORY: "Introductory",
+  FLAT_RATE: "Flat Rate",
+  ONGOING: "Ongoing Advisory",
+}
+
+// ─── DOCUMENT FOLDERS ────────────────────────────────────────
 // Standard document folders created for every student
 export const DOCUMENT_FOLDERS = [
   "Transcripts",

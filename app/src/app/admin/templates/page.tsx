@@ -30,11 +30,11 @@ interface Template {
 }
 
 const phaseLabels: Record<string, string> = {
-  INTRODUCTION: "Introduction",
-  PHASE_1: "Phase 1",
-  PHASE_2: "Phase 2",
-  ONGOING: "Ongoing",
-  FINAL: "Final Tasks",
+  INTRODUCTION: "Foundation (Intro)",
+  PHASE_1: "Phase 1: Foundation",
+  PHASE_2: "Phase 2: Testing & Prep",
+  ONGOING: "Phase 3: Application Sprint",
+  FINAL: "Phase 4: Transition",
 }
 
 const phaseColors: Record<string, string> = {
