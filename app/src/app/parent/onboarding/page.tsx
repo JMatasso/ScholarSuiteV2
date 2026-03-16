@@ -14,11 +14,48 @@ import {
   Loader2,
   Phone,
   Mail,
+  Sparkles,
+  TrendingUp,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { WelcomeTour } from "@/components/ui/welcome-tour";
 import { cn } from "@/lib/utils";
+
+const tourSlides = [
+  {
+    icon: <GraduationCap className="size-10" />,
+    title: "Welcome to ScholarSuite",
+    description:
+      "Stay connected to your student's college prep journey. We're glad you're here.",
+  },
+  {
+    icon: <TrendingUp className="size-10" />,
+    title: "Track Progress",
+    description:
+      "See your student's applications, tasks, and milestones at a glance from your dashboard.",
+  },
+  {
+    icon: <Bell className="size-10" />,
+    title: "Stay Notified",
+    description:
+      "Get alerts when tasks are due, scholarships are awarded, or counselors reach out.",
+  },
+  {
+    icon: <MessageSquare className="size-10" />,
+    title: "Communicate",
+    description:
+      "Message counselors directly and stay in the loop on meetings and important updates.",
+  },
+  {
+    icon: <Sparkles className="size-10" />,
+    title: "Let's Get You Set Up",
+    description:
+      "A quick setup to connect with your student. You can always finish later.",
+  },
+];
 
 const STEPS = [
   { id: 1, label: "Contact" },
@@ -37,6 +74,7 @@ interface LinkedStudent {
 }
 
 export default function ParentOnboardingPage() {
+  const [showTour, setShowTour] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [linkedStudents, setLinkedStudents] = useState<LinkedStudent[]>([]);
@@ -51,6 +89,7 @@ export default function ParentOnboardingPage() {
     notifyDeadlines: true,
     notifyAwards: true,
     notifyMessages: true,
+    tourComplete: false,
   });
 
   useEffect(() => {
@@ -70,13 +109,15 @@ export default function ParentOnboardingPage() {
   const next = () => setCurrentStep((s) => Math.min(s + 1, 4));
   const prev = () => setCurrentStep((s) => Math.max(s - 1, 1));
 
+  const canContinueStep1 = formData.firstName.trim() !== "" && formData.lastName.trim() !== "";
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/parents/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, tourComplete: true }),
       });
       if (res.ok) {
         toast.success("Profile completed! Welcome to ScholarSuite.");
@@ -92,8 +133,39 @@ export default function ParentOnboardingPage() {
     }
   };
 
+  const handleSavePartial = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/parents/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, tourComplete: true }),
+      });
+      if (res.ok) {
+        toast.success("Progress saved! You can finish anytime.");
+        window.location.href = "/parent";
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || "Something went wrong. Please try again.");
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      {/* Welcome Tour Overlay */}
+      {showTour && (
+        <WelcomeTour
+          slides={tourSlides}
+          onComplete={() => setShowTour(false)}
+          onSkip={() => setShowTour(false)}
+        />
+      )}
+
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="flex justify-center mb-8">
@@ -424,32 +496,55 @@ export default function ParentOnboardingPage() {
                   <div />
                 )}
 
+                {/* Skip button for steps 2 and 3 */}
+                {(currentStep === 2 || currentStep === 3) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground"
+                    onClick={next}
+                  >
+                    Skip
+                  </Button>
+                )}
+
                 {currentStep < 4 ? (
                   <Button
                     onClick={next}
+                    disabled={currentStep === 1 && !canContinueStep1}
                     className="gap-1.5 bg-[#1E3A5F] hover:bg-[#162d4a]"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 ) : (
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="gap-1.5 bg-[#2563EB] hover:bg-blue-700"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        Complete Profile
-                        <CheckCircle2 className="w-4 h-4" />
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={handleSavePartial}
+                      disabled={isSubmitting}
+                      className="gap-1.5"
+                    >
+                      Save & Finish Later
+                    </Button>
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className="gap-1.5 bg-[#2563EB] hover:bg-blue-700"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          Complete Profile
+                          <CheckCircle2 className="w-4 h-4" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 )}
               </CardFooter>
             </Card>

@@ -18,6 +18,7 @@ export async function GET() {
         notifyDeadlines: true,
         notifyAwards: true,
         notifyMessages: true,
+        tourComplete: true,
       },
     });
 
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
         notifyDeadlines: notifyDeadlines ?? true,
         notifyAwards: notifyAwards ?? true,
         notifyMessages: notifyMessages ?? true,
+        tourComplete: body.tourComplete ?? false,
       },
       create: {
         userId: session.user.id,
@@ -82,6 +84,7 @@ export async function POST(request: NextRequest) {
         notifyDeadlines: notifyDeadlines ?? true,
         notifyAwards: notifyAwards ?? true,
         notifyMessages: notifyMessages ?? true,
+        tourComplete: body.tourComplete ?? false,
       },
     });
 

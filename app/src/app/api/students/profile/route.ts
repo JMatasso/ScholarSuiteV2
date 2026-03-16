@@ -34,5 +34,18 @@ export const GET = withAuth(async (session) => {
     hasFinancialNeed: profile.hasFinancialNeed || false,
     journeyStage: profile.journeyStage || "EARLY_EXPLORATION",
     postSecondaryPath: profile.postSecondaryPath || "COLLEGE",
+    activities: profile.activities || "",
+    communityService: profile.communityService || "",
+    leadershipRoles: profile.leadershipRoles || "",
+    awards: profile.awards || "",
+    dreamSchools: profile.dreamSchools || "",
+    goals: profile.goals || "",
+    tourComplete: profile.tourComplete || false,
+    personalComplete: profile.personalComplete || false,
+    academicComplete: profile.academicComplete || false,
+    backgroundComplete: profile.backgroundComplete || false,
+    financialComplete: profile.financialComplete || false,
+    activitiesComplete: profile.activitiesComplete || false,
+    goalsComplete: profile.goalsComplete || false,
   })
 })

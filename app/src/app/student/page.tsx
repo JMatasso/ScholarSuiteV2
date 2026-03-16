@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/lib/format"
+import { CompletionBanner } from "@/components/ui/completion-banner"
 
 interface Task {
   id: string
@@ -102,6 +103,18 @@ function DeadlineSkeleton() {
   )
 }
 
+function getIncompleteSections(flags: Record<string, boolean> | null): Array<{ label: string; href: string }> {
+  if (!flags) return []
+  const sections: Array<{ label: string; href: string }> = []
+  if (!flags.personal) sections.push({ label: "Personal Info", href: "/student/onboarding" })
+  if (!flags.academic) sections.push({ label: "Academic Info", href: "/student/onboarding" })
+  if (!flags.background) sections.push({ label: "Background", href: "/student/onboarding" })
+  if (!flags.financial) sections.push({ label: "Financial Info", href: "/student/onboarding" })
+  if (!flags.activities) sections.push({ label: "Activities", href: "/student/onboarding" })
+  if (!flags.goals) sections.push({ label: "Goals", href: "/student/onboarding" })
+  return sections
+}
+
 export default function StudentDashboard() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [applications, setApplications] = useState<Application[]>([])
@@ -109,6 +122,29 @@ export default function StudentDashboard() {
   const [essays, setEssays] = useState<Essay[]>([])
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState<string | null>(null)
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+  const [completionData, setCompletionData] = useState<{ percentage: number; flags: Record<string, boolean> | null } | null>(null)
+
+  useEffect(() => {
+    // Check if banner was dismissed this session
+    if (sessionStorage.getItem("student-banner-dismissed")) {
+      setBannerDismissed(true)
+    } else {
+      fetch("/api/auth/onboarding-status")
+        .then(r => r.json())
+        .then(d => {
+          if (d.completionPercentage < 100) {
+            setCompletionData({ percentage: d.completionPercentage, flags: d.completionFlags })
+          }
+        })
+        .catch(() => {})
+    }
+  }, [])
+
+  const handleDismissBanner = () => {
+    setBannerDismissed(true)
+    sessionStorage.setItem("student-banner-dismissed", "true")
+  }
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -211,6 +247,14 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-10 pb-8">
+      {!bannerDismissed && completionData && completionData.percentage < 100 && (
+        <CompletionBanner
+          percentage={completionData.percentage}
+          incompleteSections={getIncompleteSections(completionData.flags)}
+          onDismiss={handleDismissBanner}
+        />
+      )}
+
       {/* Welcome */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}

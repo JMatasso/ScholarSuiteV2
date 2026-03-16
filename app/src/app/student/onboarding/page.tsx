@@ -20,6 +20,11 @@ import {
   Briefcase,
   Shield,
   Compass,
+  Search,
+  CheckSquare,
+  PenTool,
+  MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -32,6 +37,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { WelcomeTour } from "@/components/ui/welcome-tour";
 
 const STEPS = [
   { id: 1, label: "Personal", icon: User },
@@ -57,6 +63,15 @@ const PATH_OPTIONS = [
   { value: "WORKFORCE", label: "Workforce", icon: Users },
 ];
 
+const tourSlides = [
+  { icon: <GraduationCap className="size-10" />, title: "Welcome to ScholarSuite", description: "Your personal scholarship and college prep assistant. Let's get you set up for success." },
+  { icon: <Search className="size-10" />, title: "Discover Scholarships", description: "Find scholarships matched to your profile. Track applications and never miss a deadline." },
+  { icon: <CheckSquare className="size-10" />, title: "Stay on Track", description: "Personalized tasks and milestones keep your college prep journey organized and on schedule." },
+  { icon: <PenTool className="size-10" />, title: "Write Better Essays", description: "Draft, get feedback, and manage all your application essays in one place." },
+  { icon: <MessageSquare className="size-10" />, title: "Stay Connected", description: "Message your counselors, join meetings, and keep your parents in the loop." },
+  { icon: <Sparkles className="size-10" />, title: "Let's Set Up Your Profile", description: "We'll walk you through a few quick steps. You can always come back to finish later." },
+];
+
 const slideVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? 300 : -300,
@@ -73,6 +88,7 @@ const slideVariants = {
 };
 
 export default function OnboardingPage() {
+  const [showTour, setShowTour] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,6 +122,7 @@ export default function OnboardingPage() {
     awards: "",
     goals: "",
     dreamSchools: "",
+    tourComplete: false,
   });
 
   const update = (field: string, value: string | boolean) => {
@@ -135,7 +152,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/students/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, tourComplete: true }),
       });
       if (res.ok) {
         toast.success("Profile completed! Welcome to ScholarSuite.");
@@ -151,11 +168,45 @@ export default function OnboardingPage() {
     }
   };
 
+  const handleSavePartial = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/students/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, tourComplete: true }),
+      });
+      if (res.ok) {
+        toast.success("Progress saved! You can finish anytime.");
+        window.location.href = "/student";
+      } else {
+        toast.error("Something went wrong.");
+      }
+    } catch {
+      toast.error("Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const canProceedStep1 = formData.firstName.trim() !== "" && formData.lastName.trim() !== "";
+
   const stepInfo = STEPS[currentStep - 1];
   const progressPercent = ((currentStep - 1) / (STEPS.length - 1)) * 100;
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Welcome Tour Overlay */}
+      <AnimatePresence>
+        {showTour && (
+          <WelcomeTour
+            slides={tourSlides}
+            onComplete={() => setShowTour(false)}
+            onSkip={() => setShowTour(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -250,7 +301,8 @@ export default function OnboardingPage() {
                 title="Personal Information"
                 description="Tell us a bit about yourself"
                 onPrev={null}
-                onNext={next}
+                onNext={canProceedStep1 ? next : undefined}
+                nextDisabled={!canProceedStep1}
                 step={currentStep}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -272,6 +324,7 @@ export default function OnboardingPage() {
                 description="Your school and academic details"
                 onPrev={prev}
                 onNext={next}
+                onSkip={next}
                 step={currentStep}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -292,6 +345,7 @@ export default function OnboardingPage() {
                 description="This information helps match you with scholarships"
                 onPrev={prev}
                 onNext={next}
+                onSkip={next}
                 step={currentStep}
               >
                 <div className="space-y-5">
@@ -312,6 +366,7 @@ export default function OnboardingPage() {
                 description="Help us understand your financial planning needs"
                 onPrev={prev}
                 onNext={next}
+                onSkip={next}
                 step={currentStep}
               >
                 <div className="space-y-6">
@@ -347,6 +402,7 @@ export default function OnboardingPage() {
                 description="Tell us about your extracurricular involvement"
                 onPrev={prev}
                 onNext={next}
+                onSkip={next}
                 step={currentStep}
               >
                 <div className="space-y-5">
@@ -364,6 +420,7 @@ export default function OnboardingPage() {
                 description="What are you working toward?"
                 onPrev={prev}
                 onNext={next}
+                onSkip={next}
                 step={currentStep}
               >
                 <div className="space-y-6">
@@ -410,6 +467,7 @@ export default function OnboardingPage() {
                 description="Make sure everything looks good before submitting"
                 onPrev={prev}
                 onSubmit={handleSubmit}
+                onSavePartial={handleSavePartial}
                 isSubmitting={isSubmitting}
                 step={currentStep}
               >
@@ -452,7 +510,7 @@ export default function OnboardingPage() {
   );
 }
 
-/* ─── Sub-components ─────────────────────────────────────────────── */
+/* --- Sub-components ------------------------------------------------- */
 
 function StepCard({
   title,
@@ -460,8 +518,11 @@ function StepCard({
   children,
   onPrev,
   onNext,
+  onSkip,
   onSubmit,
+  onSavePartial,
   isSubmitting,
+  nextDisabled,
   step,
 }: {
   title: string;
@@ -469,8 +530,11 @@ function StepCard({
   children: React.ReactNode;
   onPrev: (() => void) | null;
   onNext?: () => void;
+  onSkip?: () => void;
   onSubmit?: () => void;
+  onSavePartial?: () => void;
   isSubmitting?: boolean;
+  nextDisabled?: boolean;
   step: number;
 }) {
   return (
@@ -494,35 +558,61 @@ function StepCard({
           <div />
         )}
 
-        {onNext && (
-          <Button
-            onClick={onNext}
-            className="rounded-2xl gap-1.5"
-          >
-            Next
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {onSkip && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onSkip}
+              className="text-muted-foreground"
+            >
+              Skip for now
+            </Button>
+          )}
 
-        {onSubmit && (
-          <Button
-            onClick={onSubmit}
-            disabled={isSubmitting}
-            className="rounded-2xl gap-1.5"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                Complete Profile
-                <Check className="w-4 h-4" />
-              </>
-            )}
-          </Button>
-        )}
+          {onNext && (
+            <Button
+              onClick={onNext}
+              disabled={nextDisabled}
+              className="rounded-2xl gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          )}
+
+          {onSubmit && (
+            <div className="flex items-center gap-2">
+              {onSavePartial && (
+                <Button
+                  variant="outline"
+                  onClick={onSavePartial}
+                  disabled={isSubmitting}
+                  className="rounded-2xl gap-1.5"
+                >
+                  Save & Finish Later
+                </Button>
+              )}
+              <Button
+                onClick={onSubmit}
+                disabled={isSubmitting}
+                className="rounded-2xl gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    Complete Profile
+                    <Check className="w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

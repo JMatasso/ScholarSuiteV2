@@ -31,6 +31,12 @@ interface StudentData {
   hasFinancialNeed: boolean
   journeyStage: string
   postSecondaryPath: string
+  activities: string
+  communityService: string
+  leadershipRoles: string
+  awards: string
+  dreamSchools: string
+  goals: string
 }
 
 export default function StudentProfilePage() {
@@ -169,9 +175,24 @@ export default function StudentProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
         >
-        <ProfileCard title="Journey">
+        <ProfileCard title="Activities & Interests">
+          <TextAreaField label="Activities & Clubs" value={data.activities} onChange={v => update("activities", v)} editing={editing} />
+          <TextAreaField label="Community Service" value={data.communityService} onChange={v => update("communityService", v)} editing={editing} />
+          <TextAreaField label="Leadership Roles" value={data.leadershipRoles} onChange={v => update("leadershipRoles", v)} editing={editing} />
+          <TextAreaField label="Awards & Achievements" value={data.awards} onChange={v => update("awards", v)} editing={editing} />
+        </ProfileCard>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+        >
+        <ProfileCard title="Goals & Journey">
           <Field label="Journey Stage" value={data.journeyStage?.replace(/_/g, " ")} onChange={v => update("journeyStage", v)} editing={false} />
           <Field label="Pathway" value={data.postSecondaryPath?.replace(/_/g, " ")} onChange={v => update("postSecondaryPath", v)} editing={false} />
+          <TextAreaField label="Dream Schools" value={data.dreamSchools} onChange={v => update("dreamSchools", v)} editing={editing} />
+          <TextAreaField label="Personal Goals" value={data.goals} onChange={v => update("goals", v)} editing={editing} />
         </ProfileCard>
         </motion.div>
       </div>
@@ -226,6 +247,26 @@ function BoolField({ label, value, onChange, editing }: {
         <span className={`text-sm font-medium ${value ? "text-primary" : "text-muted-foreground"}`}>
           {value ? "Yes" : "No"}
         </span>
+      )}
+    </div>
+  )
+}
+
+function TextAreaField({ label, value, onChange, editing }: {
+  label: string; value: string; onChange: (v: string) => void; editing: boolean
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      {editing ? (
+        <textarea
+          value={value || ""}
+          onChange={e => onChange(e.target.value)}
+          rows={2}
+          className="w-full rounded-md border border-input bg-transparent px-2 py-1.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 resize-none"
+        />
+      ) : (
+        <span className="text-sm font-medium text-foreground whitespace-pre-line">{value || "—"}</span>
       )}
     </div>
   )

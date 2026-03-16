@@ -18,6 +18,7 @@ import {
   GraduationCap,
   TrendingUp,
 } from "lucide-react";
+import { CompletionBanner } from "@/components/ui/completion-banner";
 
 interface StudentProfile {
   gpa?: number;
@@ -65,6 +66,14 @@ function getGradeLabel(level?: number) {
   return `${level}${suffix[(v - 20) % 10] ?? suffix[v] ?? suffix[0]} Grade`;
 }
 
+function getIncompleteSections(flags: Record<string, boolean> | null): Array<{ label: string; href: string }> {
+  if (!flags) return []
+  const sections: Array<{ label: string; href: string }> = []
+  if (!flags.contact) sections.push({ label: "Contact Info", href: "/parent/onboarding" })
+  if (!flags.tour) sections.push({ label: "Welcome Tour", href: "/parent/onboarding" })
+  return sections
+}
+
 function DashboardSkeleton() {
   return (
     <div className="space-y-8">
@@ -94,6 +103,29 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [completionData, setCompletionData] = useState<{ percentage: number; flags: Record<string, boolean> | null } | null>(null);
+
+  useEffect(() => {
+    // Check if banner was dismissed this session
+    if (sessionStorage.getItem("parent-banner-dismissed")) {
+      setBannerDismissed(true);
+    } else {
+      fetch("/api/auth/onboarding-status")
+        .then(r => r.json())
+        .then(d => {
+          if (d.completionPercentage < 100) {
+            setCompletionData({ percentage: d.completionPercentage, flags: d.completionFlags });
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
+
+  const handleDismissBanner = () => {
+    setBannerDismissed(true);
+    sessionStorage.setItem("parent-banner-dismissed", "true");
+  };
 
   useEffect(() => {
     Promise.all([
@@ -228,6 +260,14 @@ export default function ParentDashboard() {
 
   return (
     <div className="space-y-10 pb-8">
+      {!bannerDismissed && completionData && completionData.percentage < 100 && (
+        <CompletionBanner
+          percentage={completionData.percentage}
+          incompleteSections={getIncompleteSections(completionData.flags)}
+          onDismiss={handleDismissBanner}
+        />
+      )}
+
       {/* Page header + student selector */}
       <motion.div
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
