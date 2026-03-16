@@ -27,7 +27,7 @@ const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
 export const SignInPage: React.FC<SignInPageProps> = ({
   onSignIn,
   isLoading = false,
-  heroImageSrc = "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=2160&q=80",
+  heroImageSrc = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&q=80",
   heroTagline = "Your scholarship journey starts here.",
   heroDescription = "Discover scholarships, track applications, and plan your financial future with expert guidance every step of the way.",
 }) => {
@@ -154,11 +154,16 @@ export const SignInPage: React.FC<SignInPageProps> = ({
       {/* Right column: hero image + tagline overlay */}
       <section className="hidden md:block flex-1 relative p-4">
         <div
-          className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImageSrc})` }}
+          className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl overflow-hidden"
         >
+          {/* Background image */}
+          <img
+            src={heroImageSrc}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
           {/* Dark overlay */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-t from-[#1E3A5F]/90 via-[#1E3A5F]/40 to-[#1E3A5F]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A5F]/90 via-[#1E3A5F]/40 to-[#1E3A5F]/20" />
 
           {/* Bottom content */}
           <div className="absolute bottom-0 left-0 right-0 p-10">
