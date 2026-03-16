@@ -56,8 +56,13 @@ export const POST = withAuth(async (session, request: NextRequest) => {
     },
   })
 
-  // RAG search
-  const ragResult = await searchUserContext(session.user.id, message, role)
+  // RAG search (non-fatal if it fails)
+  let ragResult = { context: "", sources: [] as { type: string; id: string; label: string }[], hasRelevantData: false }
+  try {
+    ragResult = await searchUserContext(session.user.id, message, role)
+  } catch (ragError) {
+    console.error("RAG search failed:", ragError)
+  }
 
   // Get conversation history (last 10 messages)
   const history = await db.chatMessage.findMany({
@@ -72,17 +77,42 @@ export const POST = withAuth(async (session, request: NextRequest) => {
     content: m.content,
   }))
 
-  // Call AI
-  const aiResponse = await generateChatResponse(messages, ragResult.context)
+  // Try AI first, fall back to RAG-only response
+  let reply: string
+  let tokenCount: number | null = null
+
+  try {
+    const aiResponse = await generateChatResponse(messages, ragResult.context)
+    reply = aiResponse.reply
+    tokenCount = aiResponse.inputTokens + aiResponse.outputTokens
+  } catch (aiError) {
+    console.error("AI call failed, falling back to RAG-only response:", aiError)
+
+    // Build a helpful response from RAG data alone
+    if (ragResult.hasRelevantData) {
+      reply = "I found some relevant information from your data:\n\n" + ragResult.context
+        .split("\n\n")
+        .map((section) => {
+          const lines = section.split("\n")
+          const header = lines[0]?.replace(/^\[|\]$/g, "")
+          const items = lines.slice(1).join("\n")
+          return `**${header}**\n${items}`
+        })
+        .join("\n\n")
+      reply += "\n\n*Note: AI assistant is temporarily unavailable. Showing data from your account.*"
+    } else {
+      reply = "I'm sorry, I couldn't find specific information related to your question in your account data, and the AI assistant is temporarily unavailable. Please try again later, or check the relevant section of the app directly."
+    }
+  }
 
   // Save assistant message
   await db.chatMessage.create({
     data: {
       conversationId: convoId,
       role: "ASSISTANT",
-      content: aiResponse.reply,
+      content: reply,
       sources: ragResult.sources.length > 0 ? JSON.stringify(ragResult.sources) : null,
-      tokenCount: aiResponse.inputTokens + aiResponse.outputTokens,
+      tokenCount,
     },
   })
 
@@ -94,7 +124,7 @@ export const POST = withAuth(async (session, request: NextRequest) => {
 
   return NextResponse.json({
     conversationId: convoId,
-    reply: aiResponse.reply,
+    reply,
     sources: ragResult.sources,
     remaining: rateLimit.remaining,
   })
