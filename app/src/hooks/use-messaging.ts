@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { toast } from "sonner"
 import { getInitials, formatTime } from "@/lib/format"
+import { useUploadThing } from "@/lib/uploadthing"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -13,6 +14,7 @@ export interface ApiMessage {
   senderId: string
   receiverId: string
   content: string
+  imageUrl?: string | null
   createdAt: string
   read?: boolean
   isRead?: boolean
@@ -41,7 +43,35 @@ export function useMessaging() {
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null)
   const [messageInput, setMessageInput] = useState("")
   const [sending, setSending] = useState(false)
+  const [pendingAttachment, setPendingAttachment] = useState<{ url: string; name: string; type: string } | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const { startUpload } = useUploadThing("messageAttachment")
+
+  const handleFileSelect = useCallback(async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    const file = files[0]
+    setUploading(true)
+    try {
+      const res = await startUpload([file])
+      if (res && res[0]) {
+        const uploaded = res[0]
+        setPendingAttachment({ url: uploaded.ufsUrl, name: uploaded.name, type: uploaded.type })
+        toast.success(`Attached: ${uploaded.name}`)
+      }
+    } catch {
+      toast.error("Failed to upload file")
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }, [startUpload])
+
+  const clearAttachment = useCallback(() => {
+    setPendingAttachment(null)
+  }, [])
 
   // Fetch current session
   useEffect(() => {
@@ -127,17 +157,23 @@ export function useMessaging() {
     async (receiverId?: string, content?: string) => {
       const targetId = receiverId || activePartnerId
       const text = content || messageInput.trim()
-      if (!text || !targetId) return false
+      if ((!text && !pendingAttachment) || !targetId) return false
 
       setSending(true)
       try {
+        const payload: Record<string, string | undefined> = {
+          receiverId: targetId,
+          content: text || (pendingAttachment ? `📎 ${pendingAttachment.name}` : ""),
+          imageUrl: pendingAttachment?.url,
+        }
         const res = await fetch("/api/messages", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ receiverId: targetId, content: text }),
+          body: JSON.stringify(payload),
         })
         if (!res.ok) throw new Error()
         if (!receiverId) setMessageInput("")
+        setPendingAttachment(null)
         fetchMessages()
         return true
       } catch {
@@ -147,7 +183,7 @@ export function useMessaging() {
         setSending(false)
       }
     },
-    [activePartnerId, messageInput, fetchMessages]
+    [activePartnerId, messageInput, pendingAttachment, fetchMessages]
   )
 
   // Handle Enter key
@@ -169,6 +205,9 @@ export function useMessaging() {
     selectedPartnerId,
     messageInput,
     sending,
+    uploading,
+    pendingAttachment,
+    fileInputRef,
     messagesEndRef,
 
     // Derived
@@ -182,6 +221,8 @@ export function useMessaging() {
     setMessageInput,
     sendMessage,
     handleKeyDown,
+    handleFileSelect,
+    clearAttachment,
     fetchMessages,
 
     // Utilities (re-exported for convenience)

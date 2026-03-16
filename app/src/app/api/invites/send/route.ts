@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     const firstName = user.name?.split(" ")[0] || "there";
 
     await getResend().emails.send({
-      from: "ScholarSuite <noreply@scholarsuite.app>",
+      from: process.env.EMAIL_FROM || "ScholarSuite <noreply@scholarsuite.app>",
       to: user.email,
       subject: "You've been invited to ScholarSuite",
       html: `

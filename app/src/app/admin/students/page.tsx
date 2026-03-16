@@ -41,7 +41,7 @@ export default function StudentsPage() {
   const [phaseFilter, setPhaseFilter] = React.useState("")
   const [selectedCount, setSelectedCount] = React.useState(0)
   const [showAddForm, setShowAddForm] = React.useState(false)
-  const [newStudent, setNewStudent] = React.useState({ name: "", email: "", school: "", phone: "" })
+  const [newStudent, setNewStudent] = React.useState({ name: "", email: "", school: "", phone: "", tempPassword: "" })
   const csvInputRef = React.useRef<HTMLInputElement>(null)
   const router = useRouter()
   const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
@@ -68,20 +68,25 @@ export default function StudentsPage() {
       if (!res.ok) throw new Error()
       const user = await res.json()
 
-      // Send invite email
-      try {
-        await fetch("/api/invites/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id }),
-        })
-        toast.success("Student added and invite email sent!")
-      } catch {
-        toast.success("Student added, but invite email failed to send.")
+      if (newStudent.tempPassword) {
+        // Temp password set — no invite email needed
+        toast.success("Student added with temporary password. They will be prompted to change it on first login.")
+      } else {
+        // No temp password — send invite email
+        try {
+          await fetch("/api/invites/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.id }),
+          })
+          toast.success("Student added and invite email sent!")
+        } catch {
+          toast.success("Student added, but invite email failed to send.")
+        }
       }
 
       setShowAddForm(false)
-      setNewStudent({ name: "", email: "", school: "", phone: "" })
+      setNewStudent({ name: "", email: "", school: "", phone: "", tempPassword: "" })
       loadStudents()
     } catch {
       toast.error("Failed to add student")
@@ -286,6 +291,16 @@ export default function StudentsPage() {
                 type="text"
                 value={newStudent.phone}
                 onChange={e => setNewStudent(p => ({ ...p, phone: e.target.value }))}
+                className="h-9"
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-xs font-medium text-foreground mb-1">Temporary Password <span className="text-muted-foreground font-normal">(optional — leave blank to send invite email instead)</span></label>
+              <Input
+                type="text"
+                value={newStudent.tempPassword}
+                onChange={e => setNewStudent(p => ({ ...p, tempPassword: e.target.value }))}
+                placeholder="e.g. Welcome123!"
                 className="h-9"
               />
             </div>

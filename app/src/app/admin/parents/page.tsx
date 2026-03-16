@@ -69,6 +69,7 @@ export default function ParentsPage() {
     phone: "",
     relationship: "",
     studentIds: [] as string[],
+    tempPassword: "",
   })
 
   const mapParents = (data: ParentUser[]): ParentRow[] =>
@@ -143,6 +144,7 @@ export default function ParentsPage() {
           phone: newParent.phone || undefined,
           relationship: newParent.relationship || undefined,
           studentIds: newParent.studentIds,
+          tempPassword: newParent.tempPassword || undefined,
         }),
       })
       if (!res.ok) {
@@ -151,20 +153,23 @@ export default function ParentsPage() {
       }
       const user = await res.json()
 
-      // Send invite email
-      try {
-        await fetch("/api/invites/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id }),
-        })
-        toast.success("Parent added and invite email sent!")
-      } catch {
-        toast.success("Parent added, but invite email failed to send.")
+      if (newParent.tempPassword) {
+        toast.success("Parent added with temporary password. They will be prompted to change it on first login.")
+      } else {
+        try {
+          await fetch("/api/invites/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.id }),
+          })
+          toast.success("Parent added and invite email sent!")
+        } catch {
+          toast.success("Parent added, but invite email failed to send.")
+        }
       }
 
       setShowAddForm(false)
-      setNewParent({ name: "", email: "", phone: "", relationship: "", studentIds: [] })
+      setNewParent({ name: "", email: "", phone: "", relationship: "", studentIds: [], tempPassword: "" })
       fetchParents()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to add parent"
@@ -406,6 +411,17 @@ export default function ParentsPage() {
                 placeholder="Select students..."
                 searchPlaceholder="Search students..."
                 emptyMessage="No students found."
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="mb-1 block text-xs font-medium text-foreground">
+                Temporary Password <span className="text-muted-foreground font-normal">(optional — leave blank to send invite email instead)</span>
+              </label>
+              <Input
+                type="text"
+                value={newParent.tempPassword}
+                onChange={(e) => setNewParent((p) => ({ ...p, tempPassword: e.target.value }))}
+                placeholder="e.g. Welcome123!"
               />
             </div>
           </div>

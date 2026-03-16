@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Send, Paperclip, Bell, Check, CheckCheck } from "lucide-react";
 import { useMessaging } from "@/hooks/use-messaging";
+import { AttachmentPreview, UploadingIndicator, MessageAttachmentDisplay } from "@/components/ui/message-attachment";
 
 interface Notification {
   id: string;
@@ -23,6 +24,9 @@ export default function MessagesPage() {
     currentUserId,
     messageInput,
     sending,
+    uploading,
+    pendingAttachment,
+    fileInputRef,
     messagesEndRef,
     conversations,
     chatMessages,
@@ -30,6 +34,8 @@ export default function MessagesPage() {
     setMessageInput,
     sendMessage,
     handleKeyDown,
+    handleFileSelect,
+    clearAttachment,
     formatTime,
     getInitials,
   } = useMessaging();
@@ -181,6 +187,9 @@ export default function MessagesPage() {
                       )}
                     >
                       <p className="text-left">{msg.content}</p>
+                      {msg.imageUrl && (
+                        <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isMine} />
+                      )}
                     </div>
                     <div
                       className={cn(
@@ -204,11 +213,23 @@ export default function MessagesPage() {
           </div>
 
           {/* Message input */}
-          <div className="border-t border-border px-4 py-3">
+          <div className="border-t border-border px-4 py-3 space-y-2">
+            {uploading && <UploadingIndicator />}
+            {pendingAttachment && !uploading && (
+              <AttachmentPreview attachment={pendingAttachment} onRemove={clearAttachment} />
+            )}
             <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx"
+                onChange={(e) => handleFileSelect(e.target.files)}
+              />
               <button
-                onClick={() => toast.info("File attachments coming soon")}
-                className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-40"
               >
                 <Paperclip className="size-4" />
               </button>
@@ -221,7 +242,7 @@ export default function MessagesPage() {
               />
               <Button
                 onClick={() => sendMessage()}
-                disabled={!messageInput.trim() || sending}
+                disabled={(!messageInput.trim() && !pendingAttachment) || sending}
                 className="flex size-9 items-center justify-center rounded-xl bg-primary p-0 text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
               >
                 <Send className="size-4" />

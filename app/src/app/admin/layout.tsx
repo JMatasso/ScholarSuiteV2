@@ -108,6 +108,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const userInitials = userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
   const [collapsed, setCollapsed] = React.useState(false)
 
+  // Force password change redirect
+  React.useEffect(() => {
+    if (session?.user?.mustChangePassword) {
+      router.push("/change-password")
+    }
+  }, [session, router])
+
   const isActive = (href: string) => {
     if (href === "/admin") return pathname === "/admin"
     return pathname.startsWith(href)
@@ -223,7 +230,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => signOut({ redirect: false }).then(() => { window.location.href = "/login" })}
               title="Sign out"
             >
               <LogOut className="size-4" />

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Megaphone, Send, Paperclip } from "lucide-react"
 import { toast } from "sonner"
 import { useMessaging } from "@/hooks/use-messaging"
+import { AttachmentPreview, UploadingIndicator, MessageAttachmentDisplay } from "@/components/ui/message-attachment"
 
 interface UserOption {
   id: string
@@ -33,6 +34,9 @@ export default function MessagesPage() {
     currentUserId,
     messageInput,
     sending,
+    uploading,
+    pendingAttachment,
+    fileInputRef,
     messagesEndRef,
     conversations,
     chatMessages,
@@ -42,6 +46,8 @@ export default function MessagesPage() {
     setMessageInput,
     sendMessage,
     handleKeyDown,
+    handleFileSelect,
+    clearAttachment,
     fetchMessages,
     formatTime,
   } = useMessaging()
@@ -410,6 +416,9 @@ export default function MessagesPage() {
                       isOwn ? "bg-[#1E3A5F] text-white" : "bg-muted text-foreground"
                     )}>
                       {msg.content}
+                      {msg.imageUrl && (
+                        <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isOwn} />
+                      )}
                     </div>
                     <span className="mt-1 text-[11px] text-muted-foreground">
                       {formatTime(msg.createdAt)}
@@ -422,9 +431,20 @@ export default function MessagesPage() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-border p-4">
+          <div className="border-t border-border p-4 space-y-2">
+            {uploading && <UploadingIndicator />}
+            {pendingAttachment && !uploading && (
+              <AttachmentPreview attachment={pendingAttachment} onRemove={clearAttachment} />
+            )}
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => toast.info("File attachments coming soon")}><Paperclip className="size-4" /></Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx"
+                onChange={(e) => handleFileSelect(e.target.files)}
+              />
+              <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={uploading}><Paperclip className="size-4" /></Button>
               <Input
                 type="text"
                 value={messageInput}
@@ -434,7 +454,7 @@ export default function MessagesPage() {
                 disabled={sending}
                 className="flex-1 h-9"
               />
-              <Button size="icon" onClick={() => sendMessage()} disabled={sending}><Send className="size-4" /></Button>
+              <Button size="icon" onClick={() => sendMessage()} disabled={(!messageInput.trim() && !pendingAttachment) || sending}><Send className="size-4" /></Button>
             </div>
           </div>
         </div>

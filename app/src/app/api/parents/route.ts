@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, phone, relationship, studentIds } = body;
+    const { name, email, phone, relationship, studentIds, tempPassword } = body;
 
     if (!name || !email) {
       return NextResponse.json(
@@ -64,12 +64,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // No password — parent will set it via invite email
+    // Hash temp password if provided
+    let hashedPassword: string | undefined;
+    if (tempPassword) {
+      const { hash } = await import("bcryptjs");
+      hashedPassword = await hash(tempPassword, 10);
+    }
+
     const parent = await db.user.create({
       data: {
         name,
         email,
         role: "PARENT",
+        ...(hashedPassword ? { password: hashedPassword, mustChangePassword: true } : {}),
         parentProfile: {
           create: {
             phone: phone || null,

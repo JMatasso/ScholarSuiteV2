@@ -82,6 +82,13 @@ export default function ParentLayout({
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
 
+  // Force password change redirect
+  useEffect(() => {
+    if (session?.user?.mustChangePassword) {
+      router.push("/change-password");
+    }
+  }, [session, router]);
+
   // First-login detection: redirect to onboarding if profile incomplete
   useEffect(() => {
     if (pathname === "/parent/onboarding" || pathname === "/parent/settings") return;
@@ -241,7 +248,7 @@ export default function ParentLayout({
                     Settings
                   </button>
                   <div className="my-1 h-px bg-border" />
-                  <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50">
+                  <button onClick={() => signOut({ redirect: false }).then(() => { window.location.href = "/login" })} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50">
                     <LogOut className="size-4" />
                     Sign Out
                   </button>

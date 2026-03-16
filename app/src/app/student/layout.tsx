@@ -115,6 +115,13 @@ export default function StudentLayout({
       .catch(() => {})
   }, [])
 
+  // Force password change redirect
+  useEffect(() => {
+    if (session?.user?.mustChangePassword) {
+      router.push("/change-password")
+    }
+  }, [session, router])
+
   // First-login detection: redirect to onboarding if profile incomplete
   useEffect(() => {
     if (pathname === "/student/onboarding" || pathname === "/student/settings" || pathname === "/student/profile") return
@@ -319,7 +326,7 @@ export default function StudentLayout({
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
+                <DropdownMenuItem onClick={() => signOut({ redirect: false }).then(() => { window.location.href = "/login" })}>
                   <LogOut className="h-4 w-4" />
                   Log out
                 </DropdownMenuItem>

@@ -78,11 +78,19 @@ export async function POST(req: Request) {
 
     const data = await req.json();
 
+    // If admin provides a temporary password, hash it and flag for change
+    let hashedPassword: string | undefined;
+    if (data.tempPassword) {
+      const { hash } = await import("bcryptjs");
+      hashedPassword = await hash(data.tempPassword, 10);
+    }
+
     const user = await db.user.create({
       data: {
         email: data.email,
         name: data.name,
         role: "STUDENT",
+        ...(hashedPassword ? { password: hashedPassword, mustChangePassword: true } : {}),
       },
     });
 

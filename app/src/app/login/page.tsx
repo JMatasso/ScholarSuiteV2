@@ -25,8 +25,14 @@ export default function LoginPage() {
       } else {
         const res = await fetch("/api/auth/session");
         const session = await res.json();
-        const role = session?.user?.role?.toLowerCase();
 
+        // Force password change for temp password accounts
+        if (session?.user?.mustChangePassword) {
+          router.push("/change-password");
+          return;
+        }
+
+        const role = session?.user?.role?.toLowerCase();
         if (role === "admin") router.push("/admin");
         else if (role === "parent") router.push("/parent");
         else router.push("/student");

@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       const resetUrl = `${process.env.NEXTAUTH_URL || process.env.AUTH_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`
 
       await getResend().emails.send({
-        from: "ScholarSuite <noreply@scholarsuite.app>",
+        from: process.env.EMAIL_FROM || "ScholarSuite <noreply@scholarsuite.app>",
         to: email,
         subject: "Reset your ScholarSuite password",
         html: `

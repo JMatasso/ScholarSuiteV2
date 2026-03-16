@@ -41,6 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           image: user.image,
           role: user.role,
           isMasterAdmin: user.isMasterAdmin,
+          mustChangePassword: user.mustChangePassword,
         };
       },
     }),
@@ -51,12 +52,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = (user as { role: string }).role;
         token.id = user.id;
         token.isMasterAdmin = (user as { isMasterAdmin?: boolean }).isMasterAdmin;
+        token.mustChangePassword = (user as { mustChangePassword?: boolean }).mustChangePassword;
       }
       // Allow client-side session updates to refresh token data
       if (trigger === "update" && updateData) {
         if (updateData.name !== undefined) token.name = updateData.name;
         if (updateData.email !== undefined) token.email = updateData.email;
         if (updateData.image !== undefined) token.picture = updateData.image;
+        if (updateData.mustChangePassword !== undefined) token.mustChangePassword = updateData.mustChangePassword;
       }
       return token;
     },
@@ -65,6 +68,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         (session.user as { role: string }).role = token.role as string;
         (session.user as { isMasterAdmin?: boolean }).isMasterAdmin = Boolean(token.isMasterAdmin);
+        (session.user as { mustChangePassword?: boolean }).mustChangePassword = Boolean(token.mustChangePassword);
       }
       return session;
     },

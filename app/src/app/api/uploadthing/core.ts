@@ -53,6 +53,20 @@ export const ourFileRouter = {
       })
       return { uploadedBy: metadata.userId }
     }),
+  messageAttachment: f({
+    image: { maxFileSize: "8MB" },
+    pdf: { maxFileSize: "16MB" },
+    "application/msword": { maxFileSize: "16MB" },
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "16MB" },
+  })
+    .middleware(async () => {
+      const session = await auth()
+      if (!session?.user) throw new Error("Unauthorized")
+      return { userId: session.user.id }
+    })
+    .onUploadComplete(async ({ file }) => {
+      return { url: file.ufsUrl, name: file.name, size: file.size, type: file.type }
+    }),
 } satisfies FileRouter
 
 export type OurFileRouter = typeof ourFileRouter
