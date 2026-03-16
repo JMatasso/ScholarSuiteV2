@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ChatWidget } from "@/components/chat/chat-widget"
 import {
   LayoutDashboard,
   User,
@@ -263,6 +264,9 @@ export default function ParentLayout({
           <div className="mx-auto max-w-7xl px-6 py-6">{children}</div>
         </main>
       </div>
+
+      {/* AI Chat Widget */}
+      <ChatWidget role="PARENT" />
     </div>
   );
 }

@@ -84,6 +84,7 @@ model User {
   cohorts   CohortMember[]
 
   prospect  Prospect?
+  chatConversations ChatConversation[]
 }
 
 model Account {
@@ -714,6 +715,7 @@ model Meeting {
   startTime      DateTime
   endTime        DateTime
   meetingUrl     String?
+  isVideoCall    Boolean              @default(false)
   status         MeetingStatus        @default(SCHEDULED)
   isRecurring    Boolean              @default(false)
   recurrenceRule String?
@@ -935,6 +937,46 @@ model SatisfactionSurvey {
   rating    Int
   feedback  String?
   createdAt DateTime @default(now())
+}
+
+// ─── AI CHATBOT ─────────────────────────────────────────────
+
+enum ChatMessageRole {
+  USER
+  ASSISTANT
+}
+
+model ChatConversation {
+  id        String        @id @default(cuid())
+  userId    String
+  title     String?
+  isActive  Boolean       @default(true)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([userId, updatedAt])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  role           ChatMessageRole
+  content        String
+  sources        String?
+  tokenCount     Int?
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+}
+
+model ChatRateLimit {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
+
+  @@index([userId, windowStart])
 }
 
 // ─── ACCESS REQUESTS ────────────────────────────────────────

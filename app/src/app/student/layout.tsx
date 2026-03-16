@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
+import { ChatWidget } from "@/components/chat/chat-widget"
 import {
   LayoutDashboard,
   Search,
@@ -342,6 +343,9 @@ export default function StudentLayout({
           </div>
         </main>
       </div>
+
+      {/* AI Chat Widget */}
+      <ChatWidget role="STUDENT" />
     </div>
   )
 }
