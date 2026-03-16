@@ -56,7 +56,7 @@ function StatCard({
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <span className="text-2xl font-semibold tracking-tight text-foreground">
+        <span className="text-2xl font-semibold tracking-tight text-foreground font-display">
           {value}
         </span>
         <div className="flex items-center gap-2">
