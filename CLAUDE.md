@@ -365,6 +365,58 @@ Color map for custom inline badges:
 - **Usage:** Use when building new UI components to get production-ready starting points that align with our shadcn/Tailwind stack
 - **Note:** API key configured in MCP settings (not stored in repo)
 
+## Scholarship Scraper System
+
+### Overview
+The platform includes an automated scholarship data pipeline for finding, extracting, and keeping scholarships current. There are three layers: CLI slash commands (run in Claude Code), admin portal UI, and API endpoints.
+
+### CLI Slash Commands
+Run these in any Claude Code session — they work from any machine with the repo cloned.
+
+| Command | Purpose | Output |
+|---------|---------|--------|
+| `/harvest-scholarships` | Search the web for scholarship URLs from Fastweb, Scholarships.com, Bold.org, etc. | CSV file in `app/data/harvested-urls-{date}.csv` |
+| `/import-scholarships` | Take a CSV of URLs, fetch each page, extract scholarship data via AI, import to database | CSV + database entries |
+| `/refresh-scholarships` | Re-check all existing scholarships for updated deadlines, amounts, or discontinued status | Change report + optional database updates |
+
+**Usage examples:**
+```
+/harvest-scholarships California first-generation STEM $5000+
+/harvest-scholarships national scholarships for women in engineering
+/import-scholarships                    # processes most recent harvested CSV
+/import-scholarships app/data/my-urls.csv   # processes specific file
+/refresh-scholarships                   # checks all tracked scholarships
+```
+
+**Expected yield:** 500-2,000 URLs per `/harvest-scholarships` run (20-40 min). Run multiple times with different criteria to accumulate 3,000-5,000+ URLs.
+
+### Admin Portal Scraper Page (`/admin/scholarships/scraper`)
+Two-tab interface:
+- **Extract tab:** Paste URLs → AI extracts scholarship data → review in table → one-click "Add to Database" with duplicate detection
+- **Refresh tab:** View all tracked scholarships with last-scraped date, scrape status badges, bulk or per-row refresh with field-level change diffs
+
+### Scraper API Endpoints
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/scholarships/extract` | POST | Extract data from single URL via Claude AI |
+| `/api/scholarships/extract-batch` | POST | Batch extract (up to 50 URLs) |
+| `/api/scholarships/refresh` | POST | Re-check scholarships for updates, detect changes |
+
+### Scraper Tracking Fields (Scholarship model)
+| Field | Type | Purpose |
+|-------|------|---------|
+| `sourceUrl` | String? | Original URL the scholarship was scraped from |
+| `lastScrapedAt` | DateTime? | When the scholarship was last checked |
+| `applicationYear` | String? | e.g. "2025-2026" |
+| `scrapeStatus` | ScrapeStatus? | CURRENT, NEEDS_REVIEW, EXPIRED, ERROR |
+
+### Workflow for Building Your Database
+1. Run `/harvest-scholarships` with specific criteria → get URL CSV
+2. Run `/import-scholarships` → extract data from URLs → review → import to database
+3. Repeat steps 1-2 with different criteria to build coverage
+4. Periodically run `/refresh-scholarships` to keep data current
+5. Use admin scraper page for one-off URL imports and monitoring refresh status
+
 ## Important Notes
 - Node >= 22.12.0 required
 - `"use client"` directive required on all interactive pages
