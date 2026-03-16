@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Search,
   FileText,
@@ -63,6 +64,43 @@ function daysUntil(dateStr: string | null): number | null {
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 
+function StatSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-3 w-24 skeleton-shimmer" />
+        <Skeleton className="size-10 rounded-xl skeleton-shimmer" />
+      </div>
+      <Skeleton className="h-9 w-20 skeleton-shimmer" />
+      <Skeleton className="h-3 w-16 skeleton-shimmer" />
+    </div>
+  )
+}
+
+function ActivitySkeleton() {
+  return (
+    <div className="flex items-start gap-3">
+      <Skeleton className="size-8 rounded-full shrink-0 skeleton-shimmer" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-3/4 skeleton-shimmer" />
+        <Skeleton className="h-3 w-16 skeleton-shimmer" />
+      </div>
+    </div>
+  )
+}
+
+function DeadlineSkeleton() {
+  return (
+    <div className="rounded-xl bg-muted/30 p-4 space-y-3">
+      <div className="flex items-start justify-between">
+        <Skeleton className="h-4 w-32 skeleton-shimmer" />
+        <Skeleton className="h-5 w-16 rounded-full skeleton-shimmer" />
+      </div>
+      <Skeleton className="h-3 w-24 skeleton-shimmer" />
+    </div>
+  )
+}
+
 export default function StudentDashboard() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [applications, setApplications] = useState<Application[]>([])
@@ -72,7 +110,6 @@ export default function StudentDashboard() {
   const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
-    // Get user name from session
     fetch("/api/auth/session")
       .then((r) => r.json())
       .then((s) => {
@@ -172,64 +209,83 @@ export default function StudentDashboard() {
   ].slice(0, 5)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-8">
       {/* Welcome */}
-      <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">
+      <div className="animate-card-entrance">
+        <h1 className="text-4xl font-black tracking-tight text-[#1E3A5F] font-display">
           Welcome back{userName ? `, ${userName}` : ""}
         </h1>
-        <p className="mt-1 text-muted-foreground">
+        <p className="mt-2 text-base text-muted-foreground">
           Here is what is happening with your scholarship journey today.
         </p>
       </div>
 
       {/* Stat Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.label}>
-              <CardContent className="pt-0">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-2xl font-bold text-[#1E3A5F]">
-                      {loading ? "—" : stat.value}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{stat.change}</p>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {loading ? (
+          <>
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+          </>
+        ) : (
+          stats.map((stat, i) => {
+            const Icon = stat.icon
+            return (
+              <Card
+                key={stat.label}
+                className={`animate-card-entrance transition-all duration-300 hover:scale-[1.02]`}
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <CardContent className="pt-0">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1.5">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{stat.label}</p>
+                      <p className="text-3xl font-bold tracking-tight text-[#1E3A5F] font-display">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{stat.change}</p>
+                    </div>
+                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${stat.bg}`}>
+                      <Icon className={`h-5 w-5 ${stat.color}`} />
+                    </div>
                   </div>
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bg}`}>
-                    <Icon className={`h-5 w-5 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
+                </CardContent>
+              </Card>
+            )
+          })
+        )}
       </div>
 
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 animate-card-entrance" style={{ animationDelay: "200ms" }}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-[#2563EB]" />
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50">
+                <TrendingUp className="h-4 w-4 text-[#2563EB]" />
+              </div>
               Recent Activity
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <div className="space-y-4">
+                <ActivitySkeleton />
+                <ActivitySkeleton />
+                <ActivitySkeleton />
+              </div>
             ) : recentActivity.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No recent activity yet.</p>
+              <p className="text-sm text-muted-foreground py-4">No recent activity yet.</p>
             ) : (
               <div className="space-y-4">
                 {recentActivity.map((activity) => {
                   const Icon = activity.icon
                   return (
-                    <div key={activity.id} className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                    <div key={activity.id} className="flex items-start gap-3 rounded-xl p-2 transition-colors hover:bg-muted/50">
+                      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted">
                         <Icon className={`h-4 w-4 ${activity.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -249,24 +305,30 @@ export default function StudentDashboard() {
         </Card>
 
         {/* Upcoming Deadlines */}
-        <Card>
+        <Card className="animate-card-entrance" style={{ animationDelay: "300ms" }}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-[#2563EB]" />
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50">
+                <Clock className="h-4 w-4 text-[#2563EB]" />
+              </div>
               Upcoming Deadlines
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <div className="space-y-3">
+                <DeadlineSkeleton />
+                <DeadlineSkeleton />
+                <DeadlineSkeleton />
+              </div>
             ) : upcomingDeadlines.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No upcoming deadlines.</p>
+              <p className="text-sm text-muted-foreground py-4">No upcoming deadlines.</p>
             ) : (
               <div className="space-y-3">
                 {upcomingDeadlines.map((app) => {
                   const days = daysUntil(app.scholarship.deadline)
                   return (
-                    <div key={app.id} className="rounded-lg border p-3 space-y-2">
+                    <div key={app.id} className="rounded-xl bg-muted/30 p-4 space-y-2 transition-colors hover:bg-muted/50">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-medium leading-tight">{app.scholarship.name}</p>
                         <Badge
@@ -282,13 +344,13 @@ export default function StudentDashboard() {
                           {formatDate(app.scholarship.deadline, "No deadline")}
                         </span>
                         {app.scholarship.amount && (
-                          <span className="font-medium text-[#1E3A5F]">
+                          <span className="font-semibold text-[#1E3A5F]">
                             ${app.scholarship.amount.toLocaleString()}
                           </span>
                         )}
                       </div>
                       {days !== null && (
-                        <p className={`text-xs font-medium ${days <= 14 ? "text-rose-600" : "text-muted-foreground"}`}>
+                        <p className={`text-xs font-semibold ${days <= 14 ? "text-rose-600" : "text-muted-foreground"}`}>
                           {days} days left
                         </p>
                       )}
@@ -302,10 +364,12 @@ export default function StudentDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="animate-card-entrance" style={{ animationDelay: "400ms" }}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-[#2563EB]" />
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50">
+              <BookOpen className="h-4 w-4 text-[#2563EB]" />
+            </div>
             Quick Actions
           </CardTitle>
         </CardHeader>
@@ -315,7 +379,11 @@ export default function StudentDashboard() {
               const Icon = action.icon
               return (
                 <Link key={action.label} href={action.href}>
-                  <Button variant={action.variant} size="lg" className="gap-2">
+                  <Button
+                    variant={action.variant}
+                    size="lg"
+                    className="gap-2 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md"
+                  >
                     <Icon className="h-4 w-4" />
                     {action.label}
                     <ArrowRight className="h-3 w-3" />

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/format";
 import {
@@ -63,6 +64,28 @@ function getGradeLabel(level?: number) {
   return `${level}${suffix[(v - 20) % 10] ?? suffix[v] ?? suffix[0]} Grade`;
 }
 
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <Skeleton className="h-10 w-64 skeleton-shimmer" />
+        <Skeleton className="h-4 w-48 skeleton-shimmer" />
+      </div>
+      <Skeleton className="h-24 w-full rounded-2xl skeleton-shimmer" />
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-32 rounded-2xl skeleton-shimmer" />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} className="h-56 rounded-2xl skeleton-shimmer" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ParentDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -89,17 +112,13 @@ export default function ParentDashboard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <p className="text-sm text-gray-400">Loading dashboard…</p>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!selectedStudent) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-sm text-gray-400">No linked student found.</p>
+        <p className="text-sm text-muted-foreground">No linked student found.</p>
       </div>
     );
   }
@@ -207,14 +226,14 @@ export default function ParentDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 pb-8">
       {/* Page header + student selector */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-card-entrance">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <h1 className="text-4xl font-black tracking-tight text-foreground font-display">
             Parent Dashboard
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-2 text-base text-muted-foreground">
             Monitor your child&apos;s college preparation progress
           </p>
         </div>
@@ -223,7 +242,7 @@ export default function ParentDashboard() {
         <div className="relative">
           <button
             onClick={() => setSelectorOpen(!selectorOpen)}
-            className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 shadow-sm hover:border-gray-300 transition-colors"
+            className="flex items-center gap-3 rounded-2xl bg-card px-4 py-2.5 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 hover:shadow-xl transition-all duration-200"
           >
             <Avatar size="sm">
               <AvatarFallback className="bg-[#2563EB]/10 text-[#2563EB] text-xs font-semibold">
@@ -231,15 +250,15 @@ export default function ParentDashboard() {
               </AvatarFallback>
             </Avatar>
             <div className="text-left">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-foreground">
                 {selectedStudent.name ?? selectedStudent.email}
               </p>
-              <p className="text-[11px] text-gray-400">{schoolName}</p>
+              <p className="text-[11px] text-muted-foreground">{schoolName}</p>
             </div>
-            <ChevronDown className="size-4 text-gray-400" />
+            <ChevronDown className="size-4 text-muted-foreground" />
           </button>
           {selectorOpen && students.length > 1 && (
-            <div className="absolute right-0 top-full mt-1 w-full rounded-lg border border-gray-200 bg-white py-1 shadow-lg z-50">
+            <div className="absolute right-0 top-full mt-2 w-full rounded-2xl bg-card py-1 shadow-xl shadow-black/[0.08] ring-1 ring-white/60 z-50">
               {students.map((student) => (
                 <button
                   key={student.id}
@@ -247,14 +266,14 @@ export default function ParentDashboard() {
                     setSelectedStudent(student);
                     setSelectorOpen(false);
                   }}
-                  className="flex w-full items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors rounded-xl mx-1"
                 >
                   <Avatar size="sm">
                     <AvatarFallback className="bg-[#2563EB]/10 text-[#2563EB] text-xs font-semibold">
                       {getInitials(student.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-foreground">
                     {student.name ?? student.email}
                   </span>
                 </button>
@@ -265,7 +284,7 @@ export default function ParentDashboard() {
       </div>
 
       {/* Student profile card */}
-      <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm">
+      <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "80ms" }}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
           <Avatar size="lg" className="size-14">
             <AvatarFallback className="bg-[#1E3A5F] text-white text-lg font-semibold">
@@ -274,12 +293,12 @@ export default function ParentDashboard() {
           </Avatar>
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-xl font-bold text-foreground font-display">
                 {selectedStudent.name ?? selectedStudent.email}
               </h2>
               <StatusBadge status={status} />
             </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <GraduationCap className="size-3.5" />
                 {schoolName}
@@ -288,53 +307,39 @@ export default function ParentDashboard() {
               {profile?.gpa && <span>GPA: {profile.gpa}</span>}
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-lg bg-[#2563EB]/5 px-4 py-2.5">
+          <div className="flex items-center gap-2 rounded-xl bg-[#2563EB]/5 px-4 py-2.5">
             <TrendingUp className="size-4 text-[#2563EB]" />
             <div>
-              <p className="text-xs text-gray-500">Journey Stage</p>
-              <p className="text-sm font-semibold text-[#1E3A5F]">{stage}</p>
+              <p className="text-xs text-muted-foreground">Journey Stage</p>
+              <p className="text-sm font-bold text-[#1E3A5F]">{stage}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Tasks Completed"
-          value={`${completedTasks}/${totalTasks}`}
-          description={`${completionPercent}% complete`}
-          icon={CheckSquare}
-        />
-        <StatCard
-          title="Applications Submitted"
-          value={submittedApps}
-          description={`${applications.length} total applications`}
-          icon={FileText}
-        />
-        <StatCard
-          title="Scholarships Won"
-          value={`$${totalAwarded.toLocaleString()}`}
-          description={`${awardedApps.length} awards received`}
-          icon={DollarSign}
-        />
-        <StatCard
-          title="Upcoming Deadlines"
-          value={upcomingDeadlines.length}
-          description="Within the next 14 days"
-          icon={Clock}
-        />
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { title: "Tasks Completed", value: `${completedTasks}/${totalTasks}`, description: `${completionPercent}% complete`, icon: CheckSquare },
+          { title: "Applications Submitted", value: submittedApps, description: `${applications.length} total applications`, icon: FileText },
+          { title: "Scholarships Won", value: `$${totalAwarded.toLocaleString()}`, description: `${awardedApps.length} awards received`, icon: DollarSign },
+          { title: "Upcoming Deadlines", value: upcomingDeadlines.length, description: "Within the next 14 days", icon: Clock },
+        ].map((stat, i) => (
+          <div key={stat.title} className="animate-card-entrance" style={{ animationDelay: `${160 + i * 80}ms` }}>
+            <StatCard {...stat} />
+          </div>
+        ))}
       </div>
 
       {/* Progress overview row */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {/* Task completion */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700">
+        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "400ms" }}>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Overall Task Completion
           </h3>
-          <div className="mt-4 flex items-center justify-center">
-            <div className="relative size-32">
+          <div className="mt-5 flex items-center justify-center">
+            <div className="relative size-36">
               <svg className="size-full -rotate-90" viewBox="0 0 120 120">
                 <circle
                   cx="60"
@@ -356,42 +361,42 @@ export default function ParentDashboard() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900">
+                <span className="text-3xl font-bold text-foreground font-display">
                   {completionPercent}%
                 </span>
-                <span className="text-[11px] text-gray-400">Complete</span>
+                <span className="text-[11px] text-muted-foreground">Complete</span>
               </div>
             </div>
           </div>
-          <p className="mt-3 text-center text-xs text-gray-500">
+          <p className="mt-3 text-center text-xs text-muted-foreground">
             {totalTasks - completedTasks} tasks remaining
           </p>
         </div>
 
         {/* Applications by status */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700">
+        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "480ms" }}>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Applications by Status
           </h3>
-          <div className="mt-4 space-y-3">
+          <div className="mt-5 space-y-3">
             {statusGroups.map((item) => (
               <div key={item.status} className="flex items-center gap-3">
                 <div className={cn("size-2.5 rounded-full", item.color)} />
-                <span className="flex-1 text-sm text-gray-600">
+                <span className="flex-1 text-sm text-muted-foreground">
                   {item.status}
                 </span>
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-bold text-foreground">
                   {item.count}
                 </span>
               </div>
             ))}
           </div>
           {totalAppCount > 0 && (
-            <div className="mt-4 h-2.5 flex rounded-full overflow-hidden bg-gray-100">
+            <div className="mt-5 h-3 flex rounded-full overflow-hidden bg-muted">
               {statusGroups.map((item) => (
                 <div
                   key={item.status}
-                  className={cn("h-full", item.color)}
+                  className={cn("h-full transition-all duration-500", item.color)}
                   style={{
                     width: `${(item.count / totalAppCount) * 100}%`,
                   }}
@@ -402,28 +407,28 @@ export default function ParentDashboard() {
         </div>
 
         {/* Financial summary */}
-        <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700">
+        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "560ms" }}>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Financial Summary
           </h3>
-          <div className="mt-4 space-y-4">
+          <div className="mt-5 space-y-4">
             <div>
-              <p className="text-xs text-gray-400">Total Awarded</p>
-              <p className="text-xl font-bold text-green-600">
+              <p className="text-xs text-muted-foreground">Total Awarded</p>
+              <p className="text-3xl font-bold text-green-600 font-display">
                 ${totalAwarded.toLocaleString()}
               </p>
             </div>
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-border" />
             <div className="flex justify-between">
               <div>
-                <p className="text-xs text-gray-400">Applied For</p>
-                <p className="text-sm font-semibold text-gray-700">
+                <p className="text-xs text-muted-foreground">Applied For</p>
+                <p className="text-sm font-bold text-foreground">
                   ${totalApplied.toLocaleString()}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-gray-400">Pending</p>
-                <p className="text-sm font-semibold text-gray-700">
+                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-sm font-bold text-foreground">
                   ${potentialRemaining.toLocaleString()}
                 </p>
               </div>
@@ -434,8 +439,8 @@ export default function ParentDashboard() {
 
       {/* Alerts section */}
       {alerts.length > 0 && (
-        <div className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">
+        <div className="rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 animate-card-entrance" style={{ animationDelay: "640ms" }}>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4">
             Alerts &amp; Deadlines
           </h3>
           <div className="space-y-2">
@@ -443,7 +448,7 @@ export default function ParentDashboard() {
               <div
                 key={alert.id}
                 className={cn(
-                  "flex items-start gap-3 rounded-lg px-4 py-3",
+                  "flex items-start gap-3 rounded-xl px-4 py-3 transition-colors",
                   alert.type === "overdue"
                     ? "bg-red-50 ring-1 ring-red-200/60"
                     : "bg-amber-50 ring-1 ring-amber-200/60"

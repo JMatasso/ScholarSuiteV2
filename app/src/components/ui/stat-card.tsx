@@ -40,23 +40,23 @@ function StatCard({
     <div
       data-slot="stat-card"
       className={cn(
-        "flex flex-col gap-3 rounded-xl bg-card p-5 ring-1 ring-foreground/10",
+        "flex flex-col gap-3 rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 transition-all duration-300 hover:shadow-xl hover:shadow-black/[0.06] hover:scale-[1.02]",
         className
       )}
       {...props}
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {title}
         </span>
         {Icon && (
-          <div className="flex size-9 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-            <Icon className="size-4 text-[#1E3A5F]" />
+          <div className="flex size-10 items-center justify-center rounded-xl bg-[#1E3A5F]/8">
+            <Icon className="size-5 text-[#1E3A5F]" />
           </div>
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <span className="text-2xl font-semibold tracking-tight text-foreground font-display">
+        <span className="text-3xl font-bold tracking-tight text-foreground font-display">
           {value}
         </span>
         <div className="flex items-center gap-2">
