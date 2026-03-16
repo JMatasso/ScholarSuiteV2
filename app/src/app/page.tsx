@@ -1,5 +1,7 @@
 "use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import {
   GraduationCap,
   Search,
@@ -10,10 +12,16 @@ import {
   Sparkles,
   BookOpen,
   DollarSign,
+  Menu,
+  X,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useInView, useScroll } from "motion/react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
+import { ElegantShape } from "@/components/ui/elegant-shape";
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import { BentoGrid, BentoCard } from "@/components/ui/bento-grid";
 
 const testimonials = [
   {
@@ -72,11 +80,60 @@ const testimonials = [
   },
 ];
 
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1,
+      delay: 0.3 + i * 0.15,
+      ease: [0.25, 0.4, 0.25, 1],
+    },
+  }),
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.3 },
+  },
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 20, filter: "blur(8px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { type: "spring", bounce: 0.3, duration: 1.5 },
+  },
+};
+
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollYProgress } = useScroll();
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      setScrolled(latest > 0.02);
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
+
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <nav
+        className={cn(
+          "fixed top-0 z-50 w-full border-b transition-all duration-300",
+          scrolled
+            ? "bg-white/80 backdrop-blur-xl border-gray-200/50 shadow-sm"
+            : "bg-transparent border-transparent"
+        )}
+      >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
@@ -108,7 +165,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <Link
               href="/request-access"
               className="text-sm font-medium text-gray-600 hover:text-[#1A1A1A] transition-colors px-4 py-2"
@@ -122,48 +179,152 @@ export default function LandingPage() {
               Sign In
             </Link>
           </div>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden relative z-20 -m-2.5 p-2.5"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-3">
+            <Link href="#features" className="block text-sm text-gray-600 py-2">Features</Link>
+            <Link href="#how-it-works" className="block text-sm text-gray-600 py-2">How It Works</Link>
+            <Link href="/request-access" className="block text-sm text-gray-600 py-2">Request Access</Link>
+            <Link href="/login" className="block text-sm font-medium bg-[#1E3A5F] text-white px-5 py-2.5 rounded-lg text-center">Sign In</Link>
+          </div>
+        )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-24 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-6">
-            <Sparkles className="w-4 h-4" />
-            AI-Powered Scholarship Matching
-          </div>
+      {/* Hero Section — Light with floating shapes */}
+      <section className="relative pt-32 pb-8 w-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#FAFAF8] via-blue-50/30 to-[#FAFAF8]">
+        {/* Floating elegant shapes — light mode */}
+        <div className="absolute inset-0 overflow-hidden">
+          <ElegantShape
+            delay={0.3}
+            width={600}
+            height={140}
+            rotate={12}
+            gradient="from-[#2563EB]/[0.07]"
+            className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
+            light
+          />
+          <ElegantShape
+            delay={0.5}
+            width={500}
+            height={120}
+            rotate={-15}
+            gradient="from-[#1E3A5F]/[0.06]"
+            className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
+            light
+          />
+          <ElegantShape
+            delay={0.4}
+            width={300}
+            height={80}
+            rotate={-8}
+            gradient="from-blue-400/[0.08]"
+            className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
+            light
+          />
+          <ElegantShape
+            delay={0.6}
+            width={200}
+            height={60}
+            rotate={20}
+            gradient="from-sky-300/[0.08]"
+            className="right-[15%] md:right-[20%] top-[10%] md:top-[15%]"
+            light
+          />
+          <ElegantShape
+            delay={0.7}
+            width={150}
+            height={40}
+            rotate={-25}
+            gradient="from-indigo-400/[0.06]"
+            className="left-[20%] md:left-[25%] top-[5%] md:top-[10%]"
+            light
+          />
+        </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#1A1A1A] tracking-tight leading-[1.1] mb-6">
+        <div className="relative z-10 max-w-4xl mx-auto text-center px-6 py-24">
+          <motion.div
+            custom={0}
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 mb-8"
+          >
+            <Sparkles className="w-4 h-4 text-[#2563EB]" />
+            <span className="text-sm text-[#2563EB] font-medium tracking-wide">
+              AI-Powered Scholarship Matching
+            </span>
+          </motion.div>
+
+          <motion.h1
+            custom={1}
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-[#1A1A1A]"
+          >
             Your scholarship journey,{" "}
             <span className="text-[#2563EB]">organized.</span>
-          </h1>
+          </motion.h1>
 
-          <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <motion.p
+            custom={2}
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed"
+          >
             ScholarSuite helps students discover scholarships, track
             applications, and plan their financial future — with expert guidance
             every step of the way.
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <motion.div
+            custom={3}
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
             <Link
               href="/request-access"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-lg text-base font-medium hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-xl text-base font-medium hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#1E3A5F]/20"
             >
               Request Access
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white hover:border-gray-300 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-xl text-base font-medium hover:bg-white hover:border-gray-300 transition-all"
             >
               Sign In
             </Link>
-          </div>
+          </motion.div>
         </div>
+      </section>
 
-        {/* Product Screenshot */}
-        <div className="max-w-6xl mx-auto mt-16">
-          <div className="relative rounded-xl border border-gray-200 bg-white shadow-2xl shadow-gray-200/50 overflow-hidden">
+      {/* Product Screenshot */}
+      <section className="relative px-6 pb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 60, scale: 0.95 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true }}
+          className="max-w-6xl mx-auto"
+        >
+          <div className="relative rounded-2xl border border-gray-200/80 bg-white shadow-2xl shadow-gray-300/30 overflow-hidden">
             <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -222,69 +383,121 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Social Proof */}
-      <section className="py-16 px-6 border-t border-gray-100">
-        <div className="max-w-5xl mx-auto text-center">
-          <p className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-8">
-            Trusted by schools and consultants nationwide
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-40">
-            {["Lincoln High School", "Edison Academy", "Westfield Prep", "Heritage College Prep", "Summit Educational Services", "Pathways Consulting"].map((name) => (
-              <div key={name} className="text-lg font-semibold text-gray-600">{name}</div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Stats Section — animated counters */}
+      <StatsSection />
 
-      {/* Features Section */}
+      {/* Features Bento Grid */}
       <section id="features" className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
+              Features
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
               Everything you need to win scholarships
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              From discovery to award — ScholarSuite streamlines the entire scholarship journey for students, consultants, and families.
+              From discovery to award — ScholarSuite streamlines the entire
+              scholarship journey for students, consultants, and families.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-            <FeatureBlock
-              icon={<Search className="w-6 h-6" />}
-              title="Smart Scholarship Matching"
-              description="AI-powered matching finds scholarships you actually qualify for. Hard filters on GPA, state, and eligibility — plus soft scoring on fit, deadline proximity, and award amount."
-              features={["Personalized match scores with explanations", "Filter by amount, deadline, field of study", "Save, dismiss, or apply with one click"]}
-            />
-            <FeatureBlock
-              icon={<BarChart3 className="w-6 h-6" />}
-              title="Application Tracking"
-              description="Kanban-style boards keep every scholarship and college application on track. Never miss a deadline again."
-              features={["Visual pipeline: Not Started → Awarded", "Per-application checklists and documents", "College app tracking with dream/safety flags"]}
-            />
-            <FeatureBlock
-              icon={<DollarSign className="w-6 h-6" />}
-              title="Financial Planning"
-              description="See your full college cost picture, semester by semester. Map scholarships, grants, and loans to visualize your funding gap."
-              features={["Semester-by-semester cost breakdown", "Income source mapping", "Gap analysis with visual charts"]}
-            />
-            <FeatureBlock
-              icon={<Users className="w-6 h-6" />}
-              title="Built for Teams"
-              description="Consultants, students, and parents — all on the same page. Manage cohorts, assign tasks, and track progress at scale."
-              features={["Multi-role dashboards (Student, Admin, Parent)", "In-app messaging and announcements", "CRM pipeline for prospect management"]}
-            />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+          >
+            <BentoGrid className="lg:grid-rows-3 auto-rows-[18rem]">
+              <BentoCard
+                Icon={Search}
+                name="Smart Scholarship Matching"
+                description="AI-powered matching finds scholarships you actually qualify for. Hard filters on GPA, state, and eligibility — plus soft scoring on fit, deadline proximity, and award amount."
+                href="#features"
+                cta="Learn more"
+                background={<FeatureCardBg color="blue" />}
+                className="lg:row-start-1 lg:row-end-4 lg:col-start-1 lg:col-end-2"
+              />
+              <BentoCard
+                Icon={BarChart3}
+                name="Application Tracking"
+                description="Kanban-style boards keep every scholarship and college application on track. Never miss a deadline again."
+                href="#features"
+                cta="Learn more"
+                background={<FeatureCardBg color="purple" />}
+                className="lg:col-start-2 lg:col-end-3 lg:row-start-1 lg:row-end-3"
+              />
+              <BentoCard
+                Icon={DollarSign}
+                name="Financial Planning"
+                description="See your full college cost picture, semester by semester. Map scholarships, grants, and loans to visualize your funding gap."
+                href="#features"
+                cta="Learn more"
+                background={<FeatureCardBg color="emerald" />}
+                className="lg:col-start-2 lg:col-end-3 lg:row-start-3 lg:row-end-4"
+              />
+              <BentoCard
+                Icon={Users}
+                name="Built for Teams"
+                description="Consultants, students, and parents — all on the same page. Manage cohorts, assign tasks, and track progress at scale."
+                href="#features"
+                cta="Learn more"
+                background={<FeatureCardBg color="sky" />}
+                className="lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2"
+              />
+              <BentoCard
+                Icon={BookOpen}
+                name="Essay Tools & AI Review"
+                description="Craft winning scholarship essays with version tracking, AI-powered feedback, and consultant review workflows."
+                href="#features"
+                cta="Learn more"
+                background={<FeatureCardBg color="amber" />}
+                className="lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4"
+              />
+            </BentoGrid>
+          </motion.div>
         </div>
       </section>
 
       {/* AI Section */}
-      <section className="py-24 px-6 bg-[#1E3A5F]">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-24 px-6 bg-[#1E3A5F] relative overflow-hidden">
+        {/* Subtle floating shapes */}
+        <div className="absolute inset-0 overflow-hidden opacity-30">
+          <ElegantShape
+            delay={0}
+            width={400}
+            height={100}
+            rotate={15}
+            gradient="from-[#2563EB]/[0.2]"
+            className="right-[-10%] top-[10%]"
+          />
+          <ElegantShape
+            delay={0.3}
+            width={300}
+            height={80}
+            rotate={-10}
+            gradient="from-blue-300/[0.15]"
+            className="left-[-5%] bottom-[15%]"
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true }}
+            >
               <div className="inline-flex items-center gap-2 bg-white/10 text-blue-200 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
                 <Sparkles className="w-4 h-4" />
                 AI-Powered
@@ -293,19 +506,32 @@ export default function LandingPage() {
                 Meet your AI scholarship advisor
               </h2>
               <p className="text-lg text-blue-100/80 mb-8 leading-relaxed">
-                Get instant answers about scholarships, receive AI-generated essay feedback, and let our matching engine work around the clock to find opportunities you qualify for.
+                Get instant answers about scholarships, receive AI-generated
+                essay feedback, and let our matching engine work around the clock
+                to find opportunities you qualify for.
               </p>
               <div className="space-y-4">
-                {["AI-driven intake summaries from student profiles", "First-pass essay review before consultant feedback", "Intelligent scholarship recommendations", "Natural language Q&A about the application process"].map((item) => (
+                {[
+                  "AI-driven intake summaries from student profiles",
+                  "First-pass essay review before consultant feedback",
+                  "Intelligent scholarship recommendations",
+                  "Natural language Q&A about the application process",
+                ].map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
                     <span className="text-blue-100">{item}</span>
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true }}
+              className="bg-white rounded-2xl shadow-2xl overflow-hidden"
+            >
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center gap-2">
                 <div className="w-8 h-8 bg-[#2563EB] rounded-full flex items-center justify-center">
                   <Sparkles className="w-4 h-4 text-white" />
@@ -342,7 +568,7 @@ export default function LandingPage() {
                   <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -350,22 +576,67 @@ export default function LandingPage() {
       {/* How It Works */}
       <section id="how-it-works" className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">Get started in minutes</h2>
-            <p className="text-lg text-gray-500">Three simple steps to transform your scholarship search</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
+              How It Works
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
+              Get started in minutes
+            </h2>
+            <p className="text-lg text-gray-500">
+              Three simple steps to transform your scholarship search
+            </p>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { step: "01", title: "Complete Your Profile", description: "Fill out our guided intake form with your academic, financial, and personal details. Takes about 10 minutes." },
-              { step: "02", title: "Discover Matches", description: "Our matching engine instantly finds scholarships you qualify for, ranked by fit and deadline urgency." },
-              { step: "03", title: "Track & Apply", description: "Manage your applications with Kanban boards, checklists, and essay tools. Your consultant guides you every step." },
-            ].map((item) => (
-              <div key={item.step} className="relative">
-                <div className="text-5xl font-bold text-gray-100 mb-4">{item.step}</div>
-                <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">{item.title}</h3>
-                <p className="text-gray-500 leading-relaxed">{item.description}</p>
-              </div>
+              {
+                step: "01",
+                title: "Complete Your Profile",
+                description:
+                  "Fill out our guided intake form with your academic, financial, and personal details. Takes about 10 minutes.",
+              },
+              {
+                step: "02",
+                title: "Discover Matches",
+                description:
+                  "Our matching engine instantly finds scholarships you qualify for, ranked by fit and deadline urgency.",
+              },
+              {
+                step: "03",
+                title: "Track & Apply",
+                description:
+                  "Manage your applications with Kanban boards, checklists, and essay tools. Your consultant guides you every step.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.6,
+                  delay: i * 0.15,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                viewport={{ once: true }}
+                className="relative group"
+              >
+                <div className="text-6xl font-bold text-[#2563EB]/10 mb-4 transition-colors group-hover:text-[#2563EB]/20">
+                  {item.step}
+                </div>
+                <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-gray-500 leading-relaxed">
+                  {item.description}
+                </p>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -384,12 +655,12 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
               Testimonials
             </div>
-
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] tracking-tight text-center">
               What our users say
             </h2>
             <p className="text-center mt-4 text-gray-500">
-              See how ScholarSuite is helping students, parents, and consultants win more scholarships.
+              See how ScholarSuite is helping students, parents, and consultants
+              win more scholarships.
             </p>
           </motion.div>
 
@@ -402,79 +673,110 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 bg-[#1E3A5F]">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to transform your scholarship practice?
-          </h2>
-          <p className="text-lg text-blue-100/80 mb-10">
-            Join hundreds of consultants and thousands of students already using ScholarSuite to discover, apply, and win scholarships.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/request-access"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-[#1E3A5F] px-8 py-3.5 rounded-lg text-base font-semibold hover:bg-gray-50 transition-all hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              Request Access
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/30 text-white px-8 py-3.5 rounded-lg text-base font-medium hover:bg-white/10 transition-all"
-            >
-              Sign In
-            </Link>
-          </div>
+      <section className="py-24 px-6 bg-gradient-to-b from-blue-50/50 to-[#FAFAF8] relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
+          <ElegantShape
+            delay={0}
+            width={500}
+            height={120}
+            rotate={10}
+            gradient="from-[#2563EB]/[0.06]"
+            className="left-[-10%] top-[20%]"
+            light
+          />
+          <ElegantShape
+            delay={0.2}
+            width={400}
+            height={100}
+            rotate={-12}
+            gradient="from-blue-400/[0.05]"
+            className="right-[-5%] bottom-[20%]"
+            light
+          />
+        </div>
+
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-6">
+              Ready to transform your scholarship practice?
+            </h2>
+            <p className="text-lg text-gray-500 mb-10">
+              Join hundreds of consultants and thousands of students already
+              using ScholarSuite to discover, apply, and win scholarships.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/request-access"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-xl text-base font-semibold hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#1E3A5F]/20"
+              >
+                Request Access
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/login"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-xl text-base font-medium hover:bg-white hover:border-gray-300 transition-all"
+              >
+                Sign In
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#0F172A] text-gray-400 py-16 px-6">
+      <footer className="bg-[#1E3A5F] text-blue-200/60 py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
+              <h4 className="text-white/90 font-semibold mb-4">Product</h4>
               <ul className="space-y-3 text-sm">
-                <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="#features" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Integrations</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Changelog</button></li>
+                <li><Link href="#features" className="hover:text-white/90 transition-colors">Features</Link></li>
+                <li><Link href="#features" className="hover:text-white/90 transition-colors">Pricing</Link></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Integrations</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Changelog</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Resources</h4>
+              <h4 className="text-white/90 font-semibold mb-4">Resources</h4>
               <ul className="space-y-3 text-sm">
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Documentation</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Help Center</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Blog</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Webinars</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Documentation</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Help Center</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Blog</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Webinars</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <h4 className="text-white/90 font-semibold mb-4">Company</h4>
               <ul className="space-y-3 text-sm">
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">About</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Careers</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Contact</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Partners</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">About</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Careers</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Contact</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Partners</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
+              <h4 className="text-white/90 font-semibold mb-4">Legal</h4>
               <ul className="space-y-3 text-sm">
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Privacy Policy</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Terms of Service</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">FERPA Compliance</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white transition-colors cursor-pointer">Data Security</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Privacy Policy</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Terms of Service</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">FERPA Compliance</button></li>
+                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Data Security</button></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
+              <div className="w-7 h-7 bg-white/10 rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm text-gray-500">ScholarSuite &copy; 2026. All rights reserved.</span>
+              <span className="text-sm text-blue-200/40">
+                ScholarSuite &copy; 2026. All rights reserved.
+              </span>
             </div>
           </div>
         </div>
@@ -483,12 +785,72 @@ export default function LandingPage() {
   );
 }
 
-function DashboardMockCard({ title, value, subtitle, icon }: { title: string; value: string; subtitle: string; icon: React.ReactNode }) {
+/* ─── Sub-components ─── */
+
+function StatsSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const stats = [
+    { value: 2500, label: "Students Served", suffix: "+" },
+    { value: 8, label: "In Scholarship Awards", prefix: "$", suffix: "M+" },
+    { value: 150, label: "Partner Schools", suffix: "+" },
+    { value: 95, label: "Student Satisfaction", suffix: "%" },
+  ];
+
+  return (
+    <section ref={ref} className="py-20 px-6 border-t border-gray-100">
+      <div className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map((stat) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <div className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-2 flex items-center justify-center">
+                {stat.prefix && <span>{stat.prefix}</span>}
+                {isInView ? (
+                  <AnimatedNumber
+                    value={stat.value}
+                    className="text-3xl md:text-4xl font-bold"
+                    springOptions={{ bounce: 0, duration: 2000 }}
+                  />
+                ) : (
+                  <span>0</span>
+                )}
+                {stat.suffix && <span>{stat.suffix}</span>}
+              </div>
+              <p className="text-sm text-gray-500">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DashboardMockCard({
+  title,
+  value,
+  subtitle,
+  icon,
+}: {
+  title: string;
+  value: string;
+  subtitle: string;
+  icon: React.ReactNode;
+}) {
   return (
     <div className="bg-white rounded-lg border border-gray-100 p-5 shadow-sm">
       <div className="flex items-start justify-between mb-3">
         <p className="text-sm text-gray-500">{title}</p>
-        <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center">{icon}</div>
+        <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center">
+          {icon}
+        </div>
       </div>
       <p className="text-2xl font-bold text-[#1A1A1A] mb-1">{value}</p>
       <p className="text-xs text-gray-400">{subtitle}</p>
@@ -496,28 +858,40 @@ function DashboardMockCard({ title, value, subtitle, icon }: { title: string; va
   );
 }
 
-function FeatureBlock({ icon, title, description, features }: { icon: React.ReactNode; title: string; description: string; features: string[] }) {
+function FeatureCardBg({ color }: { color: string }) {
+  const colorMap: Record<string, string> = {
+    blue: "from-blue-100/80 to-blue-50/30",
+    purple: "from-purple-100/80 to-purple-50/30",
+    emerald: "from-emerald-100/80 to-emerald-50/30",
+    sky: "from-sky-100/80 to-sky-50/30",
+    amber: "from-amber-100/80 to-amber-50/30",
+  };
   return (
-    <div>
-      <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#2563EB] mb-4">{icon}</div>
-      <h3 className="text-xl font-semibold text-[#1A1A1A] mb-3">{title}</h3>
-      <p className="text-gray-500 leading-relaxed mb-4">{description}</p>
-      <ul className="space-y-2">
-        {features.map((f) => (
-          <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-            {f}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <div
+      className={cn(
+        "absolute inset-0 bg-gradient-to-br opacity-40",
+        colorMap[color] || colorMap.blue
+      )}
+    />
   );
 }
 
-function ChatBubble({ message, isUser }: { message: string; isUser?: boolean }) {
+function ChatBubble({
+  message,
+  isUser,
+}: {
+  message: string;
+  isUser?: boolean;
+}) {
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${isUser ? "bg-[#1E3A5F] text-white rounded-br-md" : "bg-gray-100 text-gray-800 rounded-bl-md"}`}>
+      <div
+        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
+          isUser
+            ? "bg-[#1E3A5F] text-white rounded-br-md"
+            : "bg-gray-100 text-gray-800 rounded-bl-md"
+        }`}
+      >
         {message}
       </div>
     </div>
