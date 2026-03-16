@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { createActivityEvent, notifyLinkedParents } from "@/lib/activity-events";
 
 export async function PATCH(
   req: Request,
@@ -47,6 +48,24 @@ export async function PATCH(
       where: { id },
       data: updateData,
     });
+
+    // Fire activity event when task is completed
+    if (updateData.status === "DONE" && task.userId) {
+      createActivityEvent({
+        studentId: task.userId,
+        type: "TASK_COMPLETED",
+        title: `Task completed: ${task.title}`,
+        description: `"${task.title}" has been marked as done.`,
+        metadata: { taskId: task.id },
+      })
+      notifyLinkedParents({
+        studentId: task.userId,
+        title: "Task Completed",
+        message: `Your student completed the task "${task.title}".`,
+        link: "/parent/tasks",
+        type: "TASK_COMPLETED",
+      })
+    }
 
     return NextResponse.json(task);
   } catch (error) {

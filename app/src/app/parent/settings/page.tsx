@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
-import { Loader2, Save, Check, Sparkles, Crown, TrendingUp, Bell, MessageSquare, FileText } from "lucide-react"
+import { Loader2, Save, Shield, Check, Sparkles, Crown, TrendingUp, Bell, MessageSquare, FileText, Mail, Phone, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/ui/page-header"
 import { ProfileSettings } from "@/components/ui/profile-settings"
@@ -14,6 +14,7 @@ import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 const tabItems = [
   { id: "Account", label: "Account" },
   { id: "Notifications", label: "Notifications" },
+  { id: "Privacy", label: "Privacy" },
   { id: "Plan", label: "Plan & Billing" },
 ]
 type Tab = typeof tabItems[number]["id"]
@@ -32,27 +33,66 @@ const premiumFeatures = [
   { icon: Crown, label: "Priority support access" },
 ]
 
+const privacyItems = [
+  { key: "privacyHideContactFromCounselors", adminKey: "allowParentHideContactFromCounselors", label: "Hide contact info from counselors", desc: "Counselors won't see your phone number or email" },
+  { key: "privacyEmailOnlyComms", adminKey: "allowParentEmailOnlyComms", label: "Email-only communications", desc: "Receive updates via email only, not in-app notifications" },
+]
+
+interface Preferences {
+  phone: string
+  relationship: string
+  notifyTasks: boolean
+  notifyDeadlines: boolean
+  notifyAwards: boolean
+  notifyMessages: boolean
+  privacyHideContactFromCounselors: boolean
+  privacyEmailOnlyComms: boolean
+  notifyChannel: "EMAIL" | "SMS" | "BOTH"
+  smsConsent: boolean
+  smsPhone: string
+  [key: string]: string | boolean
+}
+
+interface AdminControls {
+  allowParentHideContactFromCounselors: string
+  allowParentEmailOnlyComms: string
+  [key: string]: string
+}
+
 export default function ParentSettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("Account")
-  const [prefs, setPrefs] = useState({
+  const [prefs, setPrefs] = useState<Preferences>({
     phone: "",
     relationship: "",
     notifyTasks: true,
     notifyDeadlines: true,
     notifyAwards: true,
     notifyMessages: true,
+    privacyHideContactFromCounselors: false,
+    privacyEmailOnlyComms: false,
+    notifyChannel: "EMAIL",
+    smsConsent: false,
+    smsPhone: "",
+  })
+  const [adminControls, setAdminControls] = useState<AdminControls>({
+    allowParentHideContactFromCounselors: "true",
+    allowParentEmailOnlyComms: "true",
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [savingPrivacy, setSavingPrivacy] = useState(false)
 
   useEffect(() => {
-    fetch("/api/parents/onboarding")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d) setPrefs(p => ({ ...p, ...d }))
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+    Promise.all([
+      fetch("/api/parents/onboarding").then(r => r.ok ? r.json() : null),
+      fetch("/api/preferences").then(r => r.ok ? r.json() : null),
+      fetch("/api/preferences/admin-controls").then(r => r.ok ? r.json() : null),
+    ]).then(([onboardingData, prefsData, controlsData]) => {
+      if (onboardingData) setPrefs(p => ({ ...p, ...onboardingData }))
+      if (prefsData) setPrefs(p => ({ ...p, ...prefsData }))
+      if (controlsData) setAdminControls(c => ({ ...c, ...controlsData }))
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [])
 
   const handleSave = async () => {
@@ -69,6 +109,26 @@ export default function ParentSettingsPage() {
       toast.error("Failed to save")
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleSavePrivacy = async () => {
+    setSavingPrivacy(true)
+    try {
+      const res = await fetch("/api/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          privacyHideContactFromCounselors: prefs.privacyHideContactFromCounselors,
+          privacyEmailOnlyComms: prefs.privacyEmailOnlyComms,
+        }),
+      })
+      if (res.ok) toast.success("Privacy preferences saved")
+      else toast.error("Failed to save preferences")
+    } catch {
+      toast.error("Failed to save preferences")
+    } finally {
+      setSavingPrivacy(false)
     }
   }
 
@@ -126,6 +186,54 @@ export default function ParentSettingsPage() {
                     </div>
                   ))}
                 </div>
+                {/* Notification Channel */}
+                <div className="rounded-lg border border-input p-4 space-y-3">
+                  <label className="text-xs font-medium text-muted-foreground block">Notification Channel</label>
+                  <div className="flex gap-2">
+                    {(["EMAIL", "SMS", "BOTH"] as const).map((ch) => (
+                      <button
+                        key={ch}
+                        onClick={() => setPrefs(p => ({ ...p, notifyChannel: ch }))}
+                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                          prefs.notifyChannel === ch
+                            ? "border-[#2563EB] bg-[#2563EB]/5 text-[#2563EB] font-medium"
+                            : "border-input text-muted-foreground hover:bg-accent"
+                        }`}
+                      >
+                        {ch === "EMAIL" && <Mail className="h-3.5 w-3.5" />}
+                        {ch === "SMS" && <Phone className="h-3.5 w-3.5" />}
+                        {ch === "BOTH" && <Smartphone className="h-3.5 w-3.5" />}
+                        {ch === "BOTH" ? "Email & Text" : ch === "EMAIL" ? "Email" : "Text"}
+                      </button>
+                    ))}
+                  </div>
+                  {(prefs.notifyChannel === "SMS" || prefs.notifyChannel === "BOTH") && (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">SMS Phone Number</label>
+                        <input
+                          type="tel"
+                          placeholder="(555) 123-4567"
+                          value={(prefs.smsPhone as string) || ""}
+                          onChange={e => setPrefs(p => ({ ...p, smsPhone: e.target.value }))}
+                          className="w-full h-10 rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                        />
+                      </div>
+                      <label className="flex items-start gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(prefs.smsConsent)}
+                          onChange={e => setPrefs(p => ({ ...p, smsConsent: e.target.checked }))}
+                          className="size-4 rounded border-input mt-0.5"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          I agree to receive text alerts from ScholarSuite. Reply STOP to unsubscribe.
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-1.5">Phone</label>
@@ -154,6 +262,57 @@ export default function ParentSettingsPage() {
                 <Button onClick={handleSave} disabled={saving} className="rounded-lg">
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   Save Preferences
+                </Button>
+              </div>
+            )}
+          </section>
+        </motion.div>
+      )}
+
+      {activeTab === "Privacy" && (
+        <motion.div
+          className="max-w-2xl"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <section className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="h-5 w-5 text-[#1E3A5F]" />
+              <h3 className="text-base font-semibold text-foreground">Privacy Settings</h3>
+            </div>
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  {privacyItems.map(item => {
+                    const adminAllows = adminControls[item.adminKey] === "true"
+                    return (
+                      <div key={item.key} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{item.label}</p>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          {!adminAllows && (
+                            <p className="text-xs text-amber-600 mt-0.5">This setting is managed by your administrator</p>
+                          )}
+                        </div>
+                        <button
+                          disabled={!adminAllows}
+                          onClick={() => setPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof Preferences] }))}
+                          className={`h-6 w-11 rounded-full transition-colors ${!adminAllows ? "opacity-40 cursor-not-allowed" : ""} ${prefs[item.key as keyof Preferences] ? "bg-primary" : "bg-muted"}`}
+                        >
+                          <span className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[item.key as keyof Preferences] ? "translate-x-5" : "translate-x-0.5"}`} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+                <Button onClick={handleSavePrivacy} disabled={savingPrivacy} className="rounded-lg gap-2">
+                  {savingPrivacy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save Privacy Settings
                 </Button>
               </div>
             )}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { createActivityEvent, notifyLinkedParents } from "@/lib/activity-events";
 
 export async function PATCH(
   req: Request,
@@ -50,6 +51,24 @@ export async function PATCH(
           version: (lastVersion?.version ?? 0) + 1,
         },
       });
+    }
+
+    // Fire activity event when essay status changes
+    if (data.status !== undefined && data.status !== essay.status) {
+      createActivityEvent({
+        studentId: essay.userId,
+        type: "ESSAY_STATUS_CHANGED",
+        title: `Essay status updated: ${updated.title}`,
+        description: `"${updated.title}" is now ${data.status}.`,
+        metadata: { essayId: updated.id, newStatus: data.status },
+      })
+      notifyLinkedParents({
+        studentId: essay.userId,
+        title: "Essay Update",
+        message: `Your student's essay "${updated.title}" status changed to ${data.status}.`,
+        link: "/parent/applications",
+        type: "ESSAY_STATUS_CHANGED",
+      })
     }
 
     return NextResponse.json(updated);

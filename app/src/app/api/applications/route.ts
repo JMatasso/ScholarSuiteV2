@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { createActivityEvent, notifyLinkedParents } from "@/lib/activity-events";
 
 export async function GET() {
   try {
@@ -86,6 +87,22 @@ export async function POST(req: Request) {
       },
       include: { scholarship: true },
     });
+
+    // Fire activity event for new scholarship application
+    createActivityEvent({
+      studentId: targetUserId,
+      type: "SCHOLARSHIP_APP_SUBMITTED",
+      title: `Scholarship application started: ${scholarship.name}`,
+      description: `Application for "${scholarship.name}" has been created.`,
+      metadata: { applicationId: application.id, scholarshipName: scholarship.name },
+    })
+    notifyLinkedParents({
+      studentId: targetUserId,
+      title: "New Scholarship Application",
+      message: `Your student started a scholarship application for "${scholarship.name}".`,
+      link: "/parent/applications",
+      type: "SCHOLARSHIP_APP_SUBMITTED",
+    })
 
     return NextResponse.json(application, { status: 201 });
   } catch (error) {

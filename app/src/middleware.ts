@@ -18,7 +18,8 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/access-requests") ||
     pathname.startsWith("/api/schools/search") ||
-    pathname.startsWith("/api/uploadthing");
+    pathname.startsWith("/api/uploadthing") ||
+    pathname.startsWith("/api/cron");
 
   if (isPublicPage) return NextResponse.next();
 

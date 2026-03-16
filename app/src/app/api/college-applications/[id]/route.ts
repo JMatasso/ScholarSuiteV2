@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { withAuth } from "@/lib/api-middleware"
 import { db } from "@/lib/db"
+import { createActivityEvent, notifyLinkedParents } from "@/lib/activity-events"
 
 export const GET = withAuth(
   async (session, request: NextRequest) => {
@@ -81,6 +82,24 @@ export const PATCH = withAuth(
         }),
       },
     })
+
+    // Fire activity event when status changes to SUBMITTED
+    if (data.status === "SUBMITTED" && existing.status !== "SUBMITTED") {
+      createActivityEvent({
+        studentId: existing.userId,
+        type: "COLLEGE_APP_SUBMITTED",
+        title: `College application submitted: ${updated.universityName}`,
+        description: `Application to "${updated.universityName}" has been submitted.`,
+        metadata: { applicationId: updated.id, university: updated.universityName },
+      })
+      notifyLinkedParents({
+        studentId: existing.userId,
+        title: "College Application Submitted",
+        message: `Your student submitted their application to "${updated.universityName}"!`,
+        link: "/parent/colleges",
+        type: "COLLEGE_APP_SUBMITTED",
+      })
+    }
 
     return NextResponse.json(updated)
   }

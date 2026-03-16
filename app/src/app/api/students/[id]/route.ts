@@ -17,7 +17,13 @@ export async function GET(
     const student = await db.user.findUnique({
       where: { id, role: "STUDENT" },
       include: {
-        studentProfile: true,
+        studentProfile: {
+          include: {
+            assignedAdmin: {
+              select: { id: true, name: true, image: true },
+            },
+          },
+        },
         school: true,
         scholarshipApps: {
           include: { scholarship: true },
@@ -120,6 +126,24 @@ export async function PATCH(
 
     const { id } = await params;
     const data = await req.json();
+
+    // Handle admin assignment
+    if (data.assignedAdminId !== undefined) {
+      // Validate admin exists if not null
+      if (data.assignedAdminId !== null) {
+        const admin = await db.user.findFirst({
+          where: { id: data.assignedAdminId, role: "ADMIN" },
+        });
+        if (!admin) {
+          return NextResponse.json({ error: "Admin not found" }, { status: 404 });
+        }
+      }
+      await db.studentProfile.upsert({
+        where: { userId: id },
+        update: { assignedAdminId: data.assignedAdminId },
+        create: { userId: id, assignedAdminId: data.assignedAdminId },
+      });
+    }
 
     if (data.profile) {
       await db.studentProfile.upsert({

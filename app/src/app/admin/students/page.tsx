@@ -30,6 +30,7 @@ interface Student {
     journeyStage?: string
     gradeLevel?: number
     serviceTier?: string | null
+    assignedAdmin?: { id: string; name: string | null; image: string | null } | null
   } | null
 }
 
@@ -128,6 +129,7 @@ export default function StudentsPage() {
     school: s.school?.name || "—",
     journeyStage: s.studentProfile?.journeyStage || "—",
     serviceTier: s.studentProfile?.serviceTier || null,
+    assignedAdmin: s.studentProfile?.assignedAdmin || null,
     phase: s.studentProfile?.gradeLevel ? `Grade ${s.studentProfile.gradeLevel}` : "—",
     initials: (s.name || s.email).substring(0, 2).toUpperCase(),
   }))
@@ -209,6 +211,21 @@ export default function StudentsPage() {
             No Tier
           </span>
         )
+      },
+    },
+    {
+      id: "counselor",
+      header: "Counselor",
+      cell: ({ row }) => {
+        const admin = row.original.assignedAdmin
+        return admin ? (
+          <div className="flex items-center gap-1.5">
+            <div className="size-5 rounded-full bg-secondary flex items-center justify-center text-[10px] font-medium">
+              {(admin.name || "?").split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)}
+            </div>
+            <span className="text-xs">{admin.name}</span>
+          </div>
+        ) : <span className="text-xs text-muted-foreground">—</span>
       },
     },
     {

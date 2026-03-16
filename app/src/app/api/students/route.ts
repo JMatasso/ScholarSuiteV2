@@ -34,7 +34,13 @@ export async function GET(req: Request) {
       const students = await db.user.findMany({
         where: { role: "STUDENT" },
         include: {
-          studentProfile: true,
+          studentProfile: {
+            include: {
+              assignedAdmin: {
+                select: { id: true, name: true, image: true },
+              },
+            },
+          },
           school: true,
         },
         orderBy: { createdAt: "desc" },

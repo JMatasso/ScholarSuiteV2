@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/ui/status-badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, GraduationCap, FileText, CheckCircle2, Clock, ListTodo } from "lucide-react"
+import { AssigneePicker, type AdminUser } from "@/components/ui/assignee-picker"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
 import { TASK_PHASE_TO_JOURNEY_STAGE, SERVICE_TIER_LABELS, JOURNEY_STAGE_LABELS } from "@/lib/constants"
@@ -41,6 +42,8 @@ interface StudentData {
     gradeLevel?: number | null
     status?: string | null
     serviceTier?: string | null
+    assignedAdminId?: string | null
+    assignedAdmin?: { id: string; name: string | null; image: string | null } | null
   } | null
   scholarshipApps?: Array<{
     id: string
@@ -85,6 +88,30 @@ function StudentDetailContent() {
   const [loading, setLoading] = React.useState(true)
   const [noteText, setNoteText] = React.useState("")
   const [assigningTasks, setAssigningTasks] = React.useState(false)
+  const [admins, setAdmins] = React.useState<AdminUser[]>([])
+
+  const handleAssignAdmin = async (adminId: string | null) => {
+    try {
+      const res = await fetch(`/api/students/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignedAdminId: adminId }),
+      })
+      if (!res.ok) throw new Error()
+      const admin = adminId ? admins.find(a => a.id === adminId) || null : null
+      setStudent(prev => prev ? {
+        ...prev,
+        studentProfile: {
+          ...prev.studentProfile,
+          assignedAdminId: adminId,
+          assignedAdmin: admin,
+        },
+      } : prev)
+      toast.success(adminId ? "Counselor assigned" : "Counselor removed")
+    } catch {
+      toast.error("Failed to assign counselor")
+    }
+  }
 
   const handleServiceTierChange = async (value: string) => {
     try {
@@ -145,6 +172,15 @@ function StudentDetailContent() {
       .then(res => res.json())
       .then(d => { setStudent(d); setLoading(false) })
       .catch(() => { toast.error("Failed to load student"); setLoading(false) })
+    // Fetch admin users for assignee picker
+    fetch("/api/admin/users/all")
+      .then(res => res.json())
+      .then(users => {
+        if (Array.isArray(users)) {
+          setAdmins(users.filter((u: { role: string }) => u.role === "ADMIN").map((u: { id: string; name: string | null; image: string | null }) => ({ id: u.id, name: u.name, image: u.image })))
+        }
+      })
+      .catch(() => {})
   }, [id])
 
   if (loading) {
@@ -229,6 +265,11 @@ function StudentDetailContent() {
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
+            <AssigneePicker
+              currentAdmin={profile?.assignedAdmin || null}
+              admins={admins}
+              onAssign={handleAssignAdmin}
+            />
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             {student.school?.name && <span className="flex items-center gap-1"><GraduationCap className="size-3.5" /> {student.school.name}</span>}

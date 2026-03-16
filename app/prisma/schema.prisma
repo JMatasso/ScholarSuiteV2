@@ -43,6 +43,12 @@ enum ServiceTier {
   ONGOING
 }
 
+enum NotifyChannel {
+  EMAIL
+  SMS
+  BOTH
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -88,6 +94,8 @@ model User {
   schoolId  String?
   school    School?  @relation(fields: [schoolId], references: [id])
   cohorts   CohortMember[]
+
+  assignedStudents StudentProfile[] @relation("AssignedStudents")
 
   prospect  Prospect?
   chatConversations ChatConversation[]
@@ -178,6 +186,9 @@ model StudentProfile {
   goalsComplete     Boolean          @default(false)
   tourComplete      Boolean          @default(false)
 
+  assignedAdminId   String?
+  assignedAdmin     User?            @relation("AssignedStudents", fields: [assignedAdminId], references: [id])
+
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 }
@@ -192,6 +203,14 @@ model ParentProfile {
   notifyDeadlines   Boolean  @default(true)
   notifyAwards      Boolean  @default(true)
   notifyMessages    Boolean  @default(true)
+
+  notifyChannel               NotifyChannel @default(EMAIL)
+  notifyScholarshipSubmissions Boolean       @default(true)
+  notifyCollegeAppSubmissions  Boolean       @default(true)
+  notifyWeeklyDigest          Boolean       @default(true)
+  smsConsent                  Boolean       @default(false)
+  smsPhone                    String?
+
   tourComplete      Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -1092,4 +1111,18 @@ model AccessRequest {
 
   @@index([status])
   @@index([email])
+}
+
+// ─── ACTIVITY EVENTS ────────────────────────────────────────
+
+model ActivityEvent {
+  id          String   @id @default(cuid())
+  studentId   String
+  type        String
+  title       String
+  description String?
+  metadata    String?
+  createdAt   DateTime @default(now())
+
+  @@index([studentId, createdAt])
 }

@@ -23,6 +23,7 @@ import {
   Briefcase,
   ClipboardCheck,
   BarChart3,
+  FileBarChart,
   DollarSign,
   LifeBuoy,
   Settings,
@@ -95,6 +96,7 @@ const navGroups: NavGroup[] = [
     title: "Business",
     items: [
       { label: "CRM", href: "/admin/crm", icon: Briefcase },
+      { label: "Reports", href: "/admin/reports", icon: FileBarChart },
       { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
       { label: "Financial", href: "/admin/financial", icon: DollarSign },
     ],

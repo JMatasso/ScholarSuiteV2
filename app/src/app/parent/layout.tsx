@@ -40,6 +40,7 @@ const sidebarGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/parent", icon: LayoutDashboard },
+      { name: "Updates", href: "/parent/updates", icon: Bell },
       { name: "Calendar", href: "/parent/calendar", icon: CalendarDays },
       { name: "Timeline", href: "/parent/timeline", icon: Clock },
     ],

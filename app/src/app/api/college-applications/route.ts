@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { withAuth } from "@/lib/api-middleware"
 import { db } from "@/lib/db"
+import { createActivityEvent, notifyLinkedParents } from "@/lib/activity-events"
 
 export const GET = withAuth(async (session) => {
   const role = session.user.role
@@ -57,6 +58,22 @@ export const POST = withAuth(async (session, request: NextRequest) => {
       isSafety: data.isSafety ?? false,
       notes: data.notes?.trim() || null,
     },
+  })
+
+  // Fire activity event for new college application
+  createActivityEvent({
+    studentId: session.user.id,
+    type: "COLLEGE_APP_SUBMITTED",
+    title: `College application added: ${app.universityName}`,
+    description: `Application to "${app.universityName}" has been created.`,
+    metadata: { applicationId: app.id, university: app.universityName },
+  })
+  notifyLinkedParents({
+    studentId: session.user.id,
+    title: "New College Application",
+    message: `Your student added a college application for "${app.universityName}".`,
+    link: "/parent/colleges",
+    type: "COLLEGE_APP_SUBMITTED",
   })
 
   return NextResponse.json(app, { status: 201 })
