@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/ui/status-badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
+import { SchoolAutocomplete } from "@/components/ui/school-autocomplete"
 import { Plus, Upload, MoreHorizontal, Mail, Eye, Trash2, Pencil } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -260,11 +261,10 @@ export default function StudentsPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-foreground mb-1">School</label>
-              <Input
-                type="text"
+              <SchoolAutocomplete
                 value={newStudent.school}
-                onChange={e => setNewStudent(p => ({ ...p, school: e.target.value }))}
-                className="h-9"
+                onValueChange={(val) => setNewStudent(p => ({ ...p, school: val }))}
+                onSchoolSelect={(school) => setNewStudent(p => ({ ...p, school: school.name }))}
               />
             </div>
             <div>
