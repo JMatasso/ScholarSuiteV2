@@ -8,6 +8,7 @@ import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
 import { Plus, Upload, ExternalLink, Pencil, Trash2 } from "lucide-react"
 import { ActionMenu } from "@/components/ui/action-menu"
+import { ScholarshipUrlImportDialog } from "@/components/scholarship-url-import-dialog"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -208,6 +209,7 @@ export default function ScholarshipsPage() {
             <Button variant="outline" size="sm" onClick={() => csvInputRef.current?.click()}>
               <Upload className="size-3.5" /> Import CSV
             </Button>
+            <ScholarshipUrlImportDialog onImported={loadScholarships} />
             <Button size="sm" onClick={() => setShowAddForm(true)}>
               <Plus className="size-3.5" /> Add Scholarship
             </Button>
