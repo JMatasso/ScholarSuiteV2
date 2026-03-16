@@ -553,11 +553,18 @@ model DocumentRequest {
 
 // ─── LEARNING ────────────────────────────────────────────────
 
+enum LearningSubject {
+  COLLEGE_PREP
+  SCHOLARSHIP
+}
+
 model LearningModule {
   id             String           @id @default(cuid())
   title          String
   description    String?
   icon           String?
+  imageUrl       String?
+  subject        LearningSubject  @default(COLLEGE_PREP)
   category       String?
   order          Int              @default(0)
   isPublished    Boolean          @default(false)

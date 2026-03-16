@@ -1,81 +1,83 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { motion } from "motion/react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import {
-  BookOpen,
-  Play,
-  CheckCircle2,
-  Clock,
-  GraduationCap,
-  FileText,
-  Target,
-  Lightbulb,
-  PenTool,
-  DollarSign,
-} from "lucide-react"
-import { toast } from "sonner"
+import { PageHeader } from "@/components/ui/page-header"
+import { Card, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { GraduationCap, DollarSign, BookOpen, ArrowRight, CheckCircle2 } from "lucide-react"
 
-interface LearningProgress {
+interface LessonProgress {
   id: string
   isCompleted: boolean
 }
 
 interface Lesson {
   id: string
-  title: string
-  order: number
-  progress: LearningProgress[]
+  progress: LessonProgress[]
 }
 
 interface LearningModule {
   id: string
-  title: string
-  description: string | null
-  icon: string | null
-  category: string | null
-  order: number
+  subject: string
   lessons: Lesson[]
 }
 
-const categoryColors: Record<string, string> = {
-  scholarship_prep: "bg-blue-50 text-blue-700 border-blue-200",
-  college_prep: "bg-purple-50 text-purple-700 border-purple-200",
+interface SubjectStats {
+  totalModules: number
+  totalLessons: number
+  completedLessons: number
+  percentage: number
 }
 
-const categoryLabels: Record<string, string> = {
-  scholarship_prep: "Scholarship Prep",
-  college_prep: "College Prep",
-}
-
-// Map icon string to Lucide component
-function getModuleIcon(iconName: string | null) {
-  const iconMap: Record<string, typeof BookOpen> = {
-    PenTool,
-    Target,
-    DollarSign,
-    FileText,
-    Lightbulb,
-    GraduationCap,
-    BookOpen,
+function computeStats(modules: LearningModule[], subject: string): SubjectStats {
+  const filtered = modules.filter((m) => m.subject === subject)
+  const totalModules = filtered.length
+  let totalLessons = 0
+  let completedLessons = 0
+  for (const m of filtered) {
+    for (const l of m.lessons) {
+      totalLessons++
+      if (l.progress?.some((p) => p.isCompleted)) completedLessons++
+    }
   }
-  return iconName && iconMap[iconName] ? iconMap[iconName] : BookOpen
+  return {
+    totalModules,
+    totalLessons,
+    completedLessons,
+    percentage: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
+  }
 }
 
-function getCompletedCount(module: LearningModule): number {
-  return module.lessons.filter((l) => l.progress.length > 0 && l.progress[0].isCompleted).length
+function ProgressRing({ percentage, color }: { percentage: number; color: string }) {
+  const radius = 40
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference - (percentage / 100) * circumference
+
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg className="size-24 -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r={radius} fill="none" stroke="currentColor" strokeWidth="6" className="text-gray-200" />
+        <motion.circle
+          cx="50" cy="50" r={radius} fill="none" stroke={color} strokeWidth="6"
+          strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        />
+      </svg>
+      <span className="absolute text-lg font-bold text-foreground">{percentage}%</span>
+    </div>
+  )
 }
 
-export default function LearningPage() {
+export default function LearningDashboard() {
   const [modules, setModules] = useState<LearningModule[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch("/api/learning")
-      .then((res) => res.json())
+      .then((r) => r.json())
       .then((data) => {
         setModules(Array.isArray(data) ? data : [])
         setLoading(false)
@@ -83,171 +85,113 @@ export default function LearningPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  const totalLessons = modules.reduce((a, m) => a + m.lessons.length, 0)
-  const completedLessons = modules.reduce((a, m) => a + getCompletedCount(m), 0)
-  const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground">
-        <p className="text-sm">Loading learning modules...</p>
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-64 rounded-xl" />
+        </div>
       </div>
     )
   }
 
+  const collegeStats = computeStats(modules, "COLLEGE_PREP")
+  const scholarshipStats = computeStats(modules, "SCHOLARSHIP")
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">Learning</h1>
-        <p className="mt-1 text-muted-foreground">
-          Build your scholarship and college preparation knowledge.
-        </p>
-      </div>
+      <PageHeader
+        title="Learning Hub"
+        description="Master the college admissions and scholarship process."
+      />
 
       {/* Overall progress */}
-      <Card>
-        <CardContent className="pt-0">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                <BookOpen className="h-5 w-5 text-[#2563EB]" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Overall Progress</p>
-                <p className="text-xs text-muted-foreground">
-                  {completedLessons} of {totalLessons} lessons completed
-                </p>
-              </div>
-            </div>
-            <span className="text-2xl font-bold text-[#1E3A5F]">{overallProgress}%</span>
-          </div>
-          <Progress value={overallProgress} />
-        </CardContent>
-      </Card>
-
-      {/* Category legend */}
-      <div className="flex items-center gap-3">
-        {Object.entries(categoryColors).map(([key, color]) => (
-          <span key={key} className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${color}`}>
-            {categoryLabels[key] ?? key}
-          </span>
-        ))}
+      <div className="flex items-center gap-3 rounded-lg bg-white p-4 ring-1 ring-foreground/5">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E3A5F]/10">
+          <BookOpen className="h-5 w-5 text-[#1E3A5F]" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-foreground">
+            {collegeStats.completedLessons + scholarshipStats.completedLessons} of{" "}
+            {collegeStats.totalLessons + scholarshipStats.totalLessons} lessons completed
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {collegeStats.totalModules + scholarshipStats.totalModules} modules across both subjects
+          </p>
+        </div>
+        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
       </div>
 
-      {/* Module grid */}
-      {modules.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-          <BookOpen className="h-10 w-10 mb-3 opacity-40" />
-          <p className="text-sm">No learning modules available yet.</p>
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {modules.map((mod, modIndex) => {
-            const Icon = getModuleIcon(mod.icon)
-            const completedCount = getCompletedCount(mod)
-            const lessonCount = mod.lessons.length
-            const progress = lessonCount > 0 ? Math.round((completedCount / lessonCount) * 100) : 0
-            const isComplete = completedCount === lessonCount && lessonCount > 0
-            const isStarted = completedCount > 0
-            const category = mod.category ?? "scholarship_prep"
-            const catColor = categoryColors[category] ?? categoryColors.scholarship_prep
-            const catLabel = categoryLabels[category] ?? category
+      {/* Two-pillar split */}
+      <div className="grid gap-6 sm:grid-cols-2">
+        {/* College Prep */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Link href="/student/learning/college" className="block group">
+            <Card className="h-full transition-all hover:shadow-md hover:ring-[#2563EB]/30 group-hover:border-[#2563EB]/30">
+              <CardContent className="flex flex-col items-center py-8 px-6 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 mb-4">
+                  <GraduationCap className="h-7 w-7 text-purple-700" />
+                </div>
+                <h2 className="text-lg font-semibold text-[#1E3A5F] mb-1">College Prep</h2>
+                <p className="text-xs text-muted-foreground mb-6">
+                  Everything about getting into the right school
+                </p>
+                <ProgressRing percentage={collegeStats.percentage} color="#7c3aed" />
+                <div className="mt-4 space-y-1">
+                  <p className="text-sm font-medium text-foreground">
+                    {collegeStats.completedLessons}/{collegeStats.totalLessons} lessons
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {collegeStats.totalModules} modules
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#2563EB] group-hover:gap-2 transition-all">
+                  Explore <ArrowRight className="h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </motion.div>
 
-            return (
-              <motion.div
-                key={mod.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: modIndex * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              >
-              <Card className="flex flex-col justify-between hover:shadow-md transition-shadow">
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-                      <Icon className="h-5 w-5 text-[#1E3A5F]" />
-                    </div>
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${catColor}`}>
-                      {catLabel}
-                    </span>
-                  </div>
-                  <CardTitle className="text-sm mt-2">{mod.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-xs text-muted-foreground line-clamp-2">{mod.description ?? ""}</p>
-
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="h-3 w-3" />
-                      {lessonCount} lessons
-                    </span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">
-                        {completedCount}/{lessonCount} completed
-                      </span>
-                      <span className="font-medium">{progress}%</span>
-                    </div>
-                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${isComplete ? "bg-emerald-500" : "bg-[#2563EB]"}`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <Button
-                    variant={isComplete ? "outline" : "default"}
-                    size="sm"
-                    className={`w-full gap-2 ${!isComplete ? "bg-[#2563EB] hover:bg-[#2563EB]/90" : ""}`}
-                    onClick={() => {
-                      if (isComplete) {
-                        toast.info(`Reviewing "${mod.title}" module`)
-                      } else {
-                        // Mark next incomplete lesson as complete
-                        const nextLesson = mod.lessons.find(l => l.progress.length === 0 || !l.progress[0].isCompleted)
-                        if (nextLesson) {
-                          fetch("/api/learning", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ lessonId: nextLesson.id }),
-                          }).then(res => {
-                            if (res.ok) {
-                              setModules(prev => prev.map(m => m.id === mod.id ? {
-                                ...m, lessons: m.lessons.map(l => l.id === nextLesson.id ? { ...l, progress: [{ id: "temp", isCompleted: true }] } : l)
-                              } : m))
-                              toast.success(`Completed lesson: ${nextLesson.title}`)
-                            }
-                          })
-                        }
-                      }
-                    }}
-                  >
-                    {isComplete ? (
-                      <>
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                        Review Module
-                      </>
-                    ) : isStarted ? (
-                      <>
-                        <Play className="h-3.5 w-3.5" />
-                        Continue
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-3.5 w-3.5" />
-                        Start Module
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-              </motion.div>
-            )
-          })}
-        </div>
-      )}
+        {/* Scholarship Mastery */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <Link href="/student/learning/scholarships" className="block group">
+            <Card className="h-full transition-all hover:shadow-md hover:ring-[#2563EB]/30 group-hover:border-[#2563EB]/30">
+              <CardContent className="flex flex-col items-center py-8 px-6 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 mb-4">
+                  <DollarSign className="h-7 w-7 text-blue-700" />
+                </div>
+                <h2 className="text-lg font-semibold text-[#1E3A5F] mb-1">Scholarship Mastery</h2>
+                <p className="text-xs text-muted-foreground mb-6">
+                  Finding and winning scholarships
+                </p>
+                <ProgressRing percentage={scholarshipStats.percentage} color="#2563eb" />
+                <div className="mt-4 space-y-1">
+                  <p className="text-sm font-medium text-foreground">
+                    {scholarshipStats.completedLessons}/{scholarshipStats.totalLessons} lessons
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {scholarshipStats.totalModules} modules
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#2563EB] group-hover:gap-2 transition-all">
+                  Explore <ArrowRight className="h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </motion.div>
+      </div>
     </div>
   )
 }

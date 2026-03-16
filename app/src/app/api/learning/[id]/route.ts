@@ -2,6 +2,44 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id } = await params
+    const role = (session.user as { role: string }).role
+
+    const module = await db.learningModule.findUnique({
+      where: { id },
+      include: {
+        lessons: {
+          include: {
+            progress: role !== "ADMIN"
+              ? { where: { userId: session.user.id } }
+              : false,
+          },
+          orderBy: { order: "asc" },
+        },
+      },
+    })
+
+    if (!module) {
+      return NextResponse.json({ error: "Module not found" }, { status: 404 })
+    }
+
+    return NextResponse.json(module)
+  } catch (error) {
+    console.error("Error fetching module:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -19,6 +57,9 @@ export async function PATCH(
     if (data.title !== undefined) updateData.title = data.title
     if (data.description !== undefined) updateData.description = data.description
     if (data.category !== undefined) updateData.category = data.category
+    if (data.subject !== undefined) updateData.subject = data.subject
+    if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl
+    if (data.icon !== undefined) updateData.icon = data.icon
     if (data.isPublished !== undefined) updateData.isPublished = data.isPublished
     if (data.order !== undefined) updateData.order = data.order
 

@@ -64,7 +64,7 @@ const sidebarGroups = [
     label: "Resources",
     items: [
       { name: "Documents", href: "/parent/documents", icon: FolderOpen },
-      { name: "Learning Progress", href: "/parent/documents#progress", icon: BookOpen },
+      { name: "Learning", href: "/parent/learning", icon: BookOpen },
     ],
   },
 ];
@@ -77,6 +77,7 @@ const breadcrumbMap: Record<string, string> = {
   "/parent/messages": "Messages",
   "/parent/meetings": "Meetings",
   "/parent/documents": "Documents & Resources",
+  "/parent/learning": "Learning Library",
 };
 
 export default function ParentLayout({
