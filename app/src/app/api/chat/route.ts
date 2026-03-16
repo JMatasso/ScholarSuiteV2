@@ -8,9 +8,6 @@ import { tryRuleBasedResponse } from "@/lib/chat-rules"
 
 export const POST = withAuth(async (session, request: NextRequest) => {
   const { role } = session.user
-  if (role !== "STUDENT" && role !== "PARENT") {
-    return NextResponse.json({ error: "Chat is available for students and parents" }, { status: 403 })
-  }
 
   const { conversationId, message } = await request.json()
 
