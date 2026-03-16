@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { GraduationCap, Eye, EyeOff, Loader2, User, Users, Shield } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, Loader2, User, Users, Shield, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 type RoleOption = "STUDENT" | "PARENT";
@@ -24,6 +24,16 @@ export default function RegisterPage() {
     { value: "PARENT", label: "Parent", description: "Monitor your child's progress", icon: <Users className="w-5 h-5" /> },
   ];
 
+  // Password requirement checks
+  const passwordChecks = [
+    { label: "At least 8 characters", met: password.length >= 8 },
+    { label: "Uppercase letter (A-Z)", met: /[A-Z]/.test(password) },
+    { label: "Lowercase letter (a-z)", met: /[a-z]/.test(password) },
+    { label: "Number (0-9)", met: /[0-9]/.test(password) },
+    { label: "Special character (!@#$%...)", met: /[^A-Za-z0-9]/.test(password) },
+  ];
+  const allPasswordChecksMet = passwordChecks.every((c) => c.met);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -32,8 +42,8 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+    if (!allPasswordChecksMet) {
+      toast.error("Password does not meet all requirements");
       return;
     }
 
@@ -200,6 +210,22 @@ export default function RegisterPage() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {password.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {passwordChecks.map((check) => (
+                      <div key={check.label} className="flex items-center gap-1.5 text-xs">
+                        {check.met ? (
+                          <Check className="w-3 h-3 text-emerald-600" />
+                        ) : (
+                          <X className="w-3 h-3 text-gray-400" />
+                        )}
+                        <span className={check.met ? "text-emerald-600" : "text-gray-400"}>
+                          {check.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -248,6 +274,13 @@ export default function RegisterPage() {
             <Link href="/login" className="text-[#2563EB] font-medium hover:text-blue-700">
               Sign in
             </Link>
+          </p>
+
+          <p className="text-center text-xs text-gray-400 mt-4">
+            By creating an account, you agree to our{" "}
+            <Link href="/terms" className="underline hover:text-gray-600">Terms of Service</Link>
+            {" "}and{" "}
+            <Link href="/privacy" className="underline hover:text-gray-600">Privacy Policy</Link>.
           </p>
         </div>
       </div>

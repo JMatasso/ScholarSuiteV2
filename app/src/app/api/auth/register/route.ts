@@ -1,9 +1,23 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
+import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { validatePassword } from "@/lib/password";
+import { logAudit } from "@/lib/audit";
+import { getClientIp } from "@/lib/api-middleware";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    // Rate limit by IP
+    const ip = getClientIp(req);
+    const rl = rateLimit(`register:${ip}`, RATE_LIMITS.register);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many registration attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(rl.resetMs / 1000)) } }
+      );
+    }
+
     const { name, email, password, role } = await req.json();
 
     if (!email || !password || !name) {
@@ -13,8 +27,19 @@ export async function POST(req: Request) {
       );
     }
 
+    // Validate password policy
+    const pwCheck = validatePassword(password);
+    if (!pwCheck.valid) {
+      return NextResponse.json(
+        { error: pwCheck.errors[0], errors: pwCheck.errors },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
     const existingUser = await db.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -32,8 +57,8 @@ export async function POST(req: Request) {
 
     const user = await db.user.create({
       data: {
-        name,
-        email,
+        name: name.trim(),
+        email: normalizedEmail,
         password: hashedPassword,
         role: userRole,
       },
@@ -48,6 +73,14 @@ export async function POST(req: Request) {
         data: { userId: user.id },
       });
     }
+
+    logAudit({
+      userId: user.id,
+      action: "ACCOUNT_CREATED",
+      resource: "user",
+      resourceId: user.id,
+      details: `Role: ${userRole}`,
+    });
 
     return NextResponse.json(
       { message: "Account created successfully", userId: user.id },

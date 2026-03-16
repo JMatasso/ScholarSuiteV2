@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { Eye, EyeOff, Camera, Loader2, Save } from "lucide-react"
+import { Eye, EyeOff, Camera, Loader2, Save, Download, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { UploadButton } from "@/lib/uploadthing"
@@ -20,6 +20,7 @@ export function ProfileSettings() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (session?.user) {
@@ -74,13 +75,45 @@ export function ProfileSettings() {
     }
   }
 
+  // Password requirement checks
+  const passwordChecks = [
+    { label: "At least 8 characters", met: newPassword.length >= 8 },
+    { label: "Uppercase letter (A-Z)", met: /[A-Z]/.test(newPassword) },
+    { label: "Lowercase letter (a-z)", met: /[a-z]/.test(newPassword) },
+    { label: "Number (0-9)", met: /[0-9]/.test(newPassword) },
+    { label: "Special character (!@#$%...)", met: /[^A-Za-z0-9]/.test(newPassword) },
+  ]
+  const allPasswordChecksMet = passwordChecks.every((c) => c.met)
+
+  const handleExportData = async () => {
+    setExporting(true)
+    try {
+      const res = await fetch("/api/auth/export")
+      if (!res.ok) throw new Error("Export failed")
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `scholarsuite-data-export-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      toast.success("Data exported successfully")
+    } catch {
+      toast.error("Failed to export data")
+    } finally {
+      setExporting(false)
+    }
+  }
+
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match")
       return
     }
-    if (newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters")
+    if (!allPasswordChecksMet) {
+      toast.error("Password does not meet all requirements")
       return
     }
     if (!currentPassword) {
@@ -251,6 +284,22 @@ export function ProfileSettings() {
                 {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {newPassword.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {passwordChecks.map((check) => (
+                  <div key={check.label} className="flex items-center gap-1.5 text-xs">
+                    {check.met ? (
+                      <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                    ) : (
+                      <X className="w-3 h-3 text-gray-400 shrink-0" />
+                    )}
+                    <span className={check.met ? "text-emerald-600" : "text-muted-foreground"}>
+                      {check.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1.5">Confirm New Password</label>
@@ -265,6 +314,24 @@ export function ProfileSettings() {
             {savingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Change Password
           </Button>
+        </div>
+      </section>
+
+      {/* Data & Privacy */}
+      <section className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
+        <h3 className="text-base font-semibold text-foreground mb-4">Data & Privacy</h3>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Download a copy of all your personal data stored in ScholarSuite, including your profile, tasks, essays, documents, and messages.
+          </p>
+          <Button onClick={handleExportData} disabled={exporting} variant="outline" className="rounded-lg gap-2">
+            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Download My Data
+          </Button>
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            <a href="/privacy" className="hover:text-[#2563EB] underline underline-offset-2">Privacy Policy</a>
+            <a href="/terms" className="hover:text-[#2563EB] underline underline-offset-2">Terms of Service</a>
+          </div>
         </div>
       </section>
     </div>

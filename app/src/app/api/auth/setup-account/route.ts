@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { hash } from "bcryptjs";
+import { validatePassword } from "@/lib/password";
+import { logAudit } from "@/lib/audit";
 
 // GET — validate an invite token
 export async function GET(req: NextRequest) {
@@ -68,9 +70,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (password.length < 8) {
+    // Validate password policy
+    const pwCheck = validatePassword(password);
+    if (!pwCheck.valid) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { error: pwCheck.errors[0], errors: pwCheck.errors },
         { status: 400 }
       );
     }
@@ -108,6 +112,13 @@ export async function POST(req: NextRequest) {
     // Delete the used token
     await db.verificationToken.deleteMany({
       where: { identifier: email },
+    });
+
+    logAudit({
+      userId: user.id,
+      action: "ACCOUNT_SETUP_COMPLETED",
+      resource: "user",
+      resourceId: user.id,
     });
 
     return NextResponse.json({ message: "Account set up successfully" });

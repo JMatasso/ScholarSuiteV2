@@ -1,13 +1,31 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
   trustHost: true,
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 60, // 30 minutes — session expires after this idle time
+  },
   pages: {
     signIn: "/login",
+  },
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   providers: [
     Credentials({
@@ -19,20 +37,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
+        const email = (credentials.email as string).toLowerCase().trim();
+
         const user = await db.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email },
         });
 
-        if (!user || !user.password || !user.isActive) return null;
+        if (!user || !user.password || !user.isActive) {
+          logAudit({
+            action: "LOGIN_FAILED",
+            resource: "auth",
+            details: `Failed login attempt for ${email} — ${!user ? "user not found" : !user.isActive ? "account inactive" : "no password set"}`,
+          });
+          return null;
+        }
 
-        // In production, use bcrypt. For demo, simple comparison.
         const { compare } = await import("bcryptjs");
         const isValid = await compare(
           credentials.password as string,
           user.password
         );
 
-        if (!isValid) return null;
+        if (!isValid) {
+          logAudit({
+            userId: user.id,
+            action: "LOGIN_FAILED",
+            resource: "auth",
+            details: "Invalid password",
+          });
+          return null;
+        }
+
+        logAudit({
+          userId: user.id,
+          action: "LOGIN_SUCCESS",
+          resource: "auth",
+        });
 
         return {
           id: user.id,

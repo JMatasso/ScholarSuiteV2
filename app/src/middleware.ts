@@ -13,6 +13,8 @@ export function middleware(req: NextRequest) {
     pathname === "/change-password" ||
     pathname === "/reset-password" ||
     pathname === "/setup-account" ||
+    pathname === "/privacy" ||
+    pathname === "/terms" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/access-requests") ||
     pathname.startsWith("/api/schools/search") ||
@@ -31,7 +33,14 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
-  return NextResponse.next();
+  // Add security headers to all responses
+  const response = NextResponse.next();
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+
+  return response;
 }
 
 export const config = {

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { withAuth } from "@/lib/api-middleware"
 import { db } from "@/lib/db"
 import { hash, compare } from "bcryptjs"
+import { validatePassword } from "@/lib/password"
+import { logAudit } from "@/lib/audit"
 
 export const PATCH = withAuth(async (session, request) => {
   const body = await request.json()
@@ -13,6 +15,17 @@ export const PATCH = withAuth(async (session, request) => {
       { error: "Current password is required to change password or email" },
       { status: 400 }
     )
+  }
+
+  // Validate new password against policy
+  if (password) {
+    const pwCheck = validatePassword(password)
+    if (!pwCheck.valid) {
+      return NextResponse.json(
+        { error: pwCheck.errors[0], errors: pwCheck.errors },
+        { status: 400 }
+      )
+    }
   }
 
   // Validate current password if provided
@@ -39,7 +52,8 @@ export const PATCH = withAuth(async (session, request) => {
 
   // If changing email, check uniqueness
   if (email) {
-    const existing = await db.user.findUnique({ where: { email } })
+    const normalizedEmail = email.toLowerCase().trim()
+    const existing = await db.user.findUnique({ where: { email: normalizedEmail } })
     if (existing && existing.id !== session.user.id) {
       return NextResponse.json(
         { error: "Email is already in use" },
@@ -50,8 +64,8 @@ export const PATCH = withAuth(async (session, request) => {
 
   // Build update data
   const updateData: Record<string, unknown> = {}
-  if (name !== undefined) updateData.name = name
-  if (email !== undefined) updateData.email = email
+  if (name !== undefined) updateData.name = name.trim()
+  if (email !== undefined) updateData.email = email.toLowerCase().trim()
   if (image !== undefined) updateData.image = image
   if (password) {
     updateData.password = await hash(password, 12)
@@ -77,6 +91,15 @@ export const PATCH = withAuth(async (session, request) => {
       createdAt: true,
       updatedAt: true,
     },
+  })
+
+  const changedFields = Object.keys(updateData).filter(k => k !== "password").join(", ")
+  logAudit({
+    userId: session.user.id,
+    action: password ? "ACCOUNT_UPDATED_WITH_PASSWORD" : "ACCOUNT_UPDATED",
+    resource: "user",
+    resourceId: session.user.id,
+    details: changedFields ? `Fields: ${changedFields}` : undefined,
   })
 
   return NextResponse.json(updatedUser)
