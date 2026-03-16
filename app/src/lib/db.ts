@@ -1,3 +1,8 @@
+// Railway uses self-signed certs — disable TLS verification for the adapter
+if (process.env.DATABASE_URL?.includes("railway")) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
+
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
