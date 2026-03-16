@@ -1,12 +1,14 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { FullScreenCalendar, type CalendarData, type CalendarEvent } from "@/components/ui/fullscreen-calendar"
 import { PageHeader } from "@/components/ui/page-header"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 
 export default function StudentCalendarPage() {
+  const router = useRouter()
   const [data, setData] = React.useState<CalendarData[]>([])
   const [loading, setLoading] = React.useState(true)
 
@@ -46,7 +48,12 @@ export default function StudentCalendarPage() {
         description="View your upcoming deadlines, tasks, and meetings."
       />
       <div className="rounded-2xl bg-white ring-1 ring-gray-200/60 shadow-sm overflow-hidden">
-        <FullScreenCalendar data={data} />
+        <FullScreenCalendar
+          data={data}
+          onEventClick={(event) => {
+            if (event.link) router.push(event.link)
+          }}
+        />
       </div>
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 px-1">

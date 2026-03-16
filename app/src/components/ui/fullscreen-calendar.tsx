@@ -33,6 +33,7 @@ export interface CalendarEvent {
   time: string
   datetime: string
   type?: EventType
+  link?: string
 }
 
 export interface CalendarData {

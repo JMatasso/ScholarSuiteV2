@@ -9,6 +9,7 @@ interface CalendarEvent {
   datetime: string
   type: "scholarship" | "task" | "meeting" | "college" | "general"
   day: string
+  link?: string
 }
 
 function formatTime(date: Date): string {
@@ -77,6 +78,7 @@ async function getStudentEvents(studentIds: string[]): Promise<CalendarEvent[]> 
       datetime: formatDatetime(app.scholarship.deadline),
       type: "scholarship",
       day: formatDay(app.scholarship.deadline),
+      link: `/student/applications/${app.id}`,
     })
   }
 

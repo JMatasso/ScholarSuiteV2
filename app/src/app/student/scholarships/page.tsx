@@ -92,7 +92,7 @@ function ScholarshipCard({
           <span className="text-xs text-muted-foreground">Due {formatDeadline(scholarship.deadline)}</span>
         </div>
 
-        {scholarship.tags.length > 0 && (
+        {scholarship.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {scholarship.tags.map((tag) => (
               <span
