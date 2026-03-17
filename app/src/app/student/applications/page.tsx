@@ -19,6 +19,9 @@ import {
   ExternalLink,
   Trash2,
   ArrowUpDown,
+  CheckSquare,
+  Square,
+  Loader2,
 } from "lucide-react"
 
 interface Scholarship {
@@ -68,6 +71,64 @@ export default function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState("ALL")
   const [sortField, setSortField] = useState<"name" | "amount" | "deadline" | "status">("deadline")
   const [sortAsc, setSortAsc] = useState(true)
+
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkUpdating, setBulkUpdating] = useState(false)
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(filtered.map((a) => a.id)))
+    }
+  }
+
+  const handleBulkStatusChange = async (newStatus: string) => {
+    if (selectedIds.size === 0) return
+    setBulkUpdating(true)
+    let success = 0
+    for (const id of selectedIds) {
+      try {
+        const res = await fetch(`/api/applications/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        })
+        if (res.ok) success++
+      } catch {}
+    }
+    toast.success(`Updated ${success} application${success !== 1 ? "s" : ""} to ${statusConfig[newStatus]?.label}`)
+    setSelectedIds(new Set())
+    setBulkUpdating(false)
+    loadApplications()
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return
+    if (!confirm(`Remove ${selectedIds.size} application${selectedIds.size !== 1 ? "s" : ""} from your list?`)) return
+    setBulkUpdating(true)
+    let success = 0
+    for (const id of selectedIds) {
+      try {
+        const res = await fetch(`/api/applications/${id}`, { method: "DELETE" })
+        if (res.ok) success++
+      } catch {}
+    }
+    toast.success(`Removed ${success} application${success !== 1 ? "s" : ""}`)
+    setSelectedIds(new Set())
+    setBulkUpdating(false)
+    loadApplications()
+  }
 
   // Add application dialog
   const [addDialogOpen, setAddDialogOpen] = useState(false)
@@ -291,7 +352,7 @@ export default function ApplicationsPage() {
         })}
       </div>
 
-      {/* Search + Sort */}
+      {/* Search + Bulk actions */}
       <div className="flex items-center gap-3">
         <SearchInput
           value={search}
@@ -299,6 +360,32 @@ export default function ApplicationsPage() {
           placeholder="Search scholarships..."
           className="w-72"
         />
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
+            <select
+              className="h-8 rounded-lg border border-input bg-transparent px-2 text-xs outline-none"
+              defaultValue=""
+              onChange={(e) => { if (e.target.value) handleBulkStatusChange(e.target.value); e.target.value = "" }}
+              disabled={bulkUpdating}
+            >
+              <option value="" disabled>Change status...</option>
+              {statusOrder.map((s) => (
+                <option key={s} value={s}>{statusConfig[s].label}</option>
+              ))}
+            </select>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 gap-1"
+              onClick={handleBulkDelete}
+              disabled={bulkUpdating}
+            >
+              {bulkUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+              Remove
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -315,7 +402,14 @@ export default function ApplicationsPage() {
       ) : (
         <div className="rounded-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_120px_120px_140px_100px] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+          <div className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+            <button type="button" onClick={toggleSelectAll} className="flex items-center justify-center">
+              {selectedIds.size === filtered.length && filtered.length > 0 ? (
+                <CheckSquare className="h-4 w-4 text-[#2563EB]" />
+              ) : (
+                <Square className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
             <SortButton field="name">Scholarship</SortButton>
             <SortButton field="amount">Amount</SortButton>
             <SortButton field="deadline">Deadline</SortButton>
@@ -330,11 +424,20 @@ export default function ApplicationsPage() {
               return (
                 <motion.div
                   key={app.id}
-                  className="grid grid-cols-[1fr_120px_120px_140px_100px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors"
+                  className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2, delay: index * 0.02 }}
                 >
+                  {/* Checkbox */}
+                  <button type="button" onClick={() => toggleSelect(app.id)} className="flex items-center justify-center">
+                    {selectedIds.has(app.id) ? (
+                      <CheckSquare className="h-4 w-4 text-[#2563EB]" />
+                    ) : (
+                      <Square className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </button>
+
                   {/* Name + Provider */}
                   <div className="min-w-0">
                     <Link

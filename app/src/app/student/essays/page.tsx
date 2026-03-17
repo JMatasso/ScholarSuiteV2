@@ -13,6 +13,15 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   PenTool,
   Plus,
@@ -22,6 +31,14 @@ import {
   AlertCircle,
   Edit3,
   Loader2,
+  Sparkles,
+  Brain,
+  CheckCircle,
+  AlertTriangle,
+  Lightbulb,
+  X,
+  ThumbsUp,
+  Target,
 } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
@@ -64,6 +81,30 @@ interface Essay {
   application: EssayApplication | null
 }
 
+interface AIReviewResult {
+  overallScore: number
+  summary: string
+  strengths: string[]
+  improvements: string[]
+  categories: {
+    content: { score: number; feedback: string }
+    structure: { score: number; feedback: string }
+    voice: { score: number; feedback: string }
+    grammar: { score: number; feedback: string }
+    impact: { score: number; feedback: string }
+  }
+  suggestions: string[]
+}
+
+interface WritingTipsResult {
+  angles: { title: string; description: string; profileConnection: string }[]
+  structure: { recommended: string; tips: string[] }
+  dos: string[]
+  donts: string[]
+  openingStrategies: string[]
+  keyThemes: string[]
+}
+
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Edit3 }> = {
   DRAFT: { label: "Draft", color: "bg-gray-100 text-gray-700 border-gray-200", icon: Edit3 },
   UNDER_REVIEW: { label: "Under Review", color: "bg-amber-100 text-amber-700 border-amber-200", icon: AlertCircle },
@@ -73,6 +114,40 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 
 function countWords(text: string): number {
   return text.trim() ? text.trim().split(/\s+/).length : 0
+}
+
+function ScoreCircle({ score }: { score: number }) {
+  const color = score >= 75 ? "text-emerald-600" : score >= 50 ? "text-amber-600" : "text-rose-600"
+  const bgColor = score >= 75 ? "bg-emerald-50 border-emerald-200" : score >= 50 ? "bg-amber-50 border-amber-200" : "bg-rose-50 border-rose-200"
+  const ringColor = score >= 75 ? "stroke-emerald-500" : score >= 50 ? "stroke-amber-500" : "stroke-rose-500"
+  const circumference = 2 * Math.PI * 40
+  const offset = circumference - (score / 100) * circumference
+
+  return (
+    <div className={`relative flex h-24 w-24 items-center justify-center rounded-full border-2 ${bgColor}`}>
+      <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="6" className="text-gray-200" />
+        <circle cx="50" cy="50" r="40" fill="none" strokeWidth="6" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className={ringColor} />
+      </svg>
+      <span className={`text-2xl font-bold ${color}`}>{score}</span>
+    </div>
+  )
+}
+
+function CategoryBar({ label, score, feedback }: { label: string; score: number; feedback: string }) {
+  const color = score >= 75 ? "bg-emerald-500" : score >= 50 ? "bg-amber-500" : "bg-rose-500"
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-medium text-[#1E3A5F]">{label}</span>
+        <span className="text-xs text-muted-foreground">{score}/100</span>
+      </div>
+      <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+        <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${score}%` }} />
+      </div>
+      <p className="text-xs text-muted-foreground">{feedback}</p>
+    </div>
+  )
 }
 
 export default function EssaysPage() {
@@ -85,6 +160,19 @@ export default function EssaysPage() {
   const [newContent, setNewContent] = useState("")
   const [editContent, setEditContent] = useState("")
   const [saving, setSaving] = useState(false)
+
+  // AI Review state
+  const [reviewLoading, setReviewLoading] = useState<string | null>(null)
+  const [reviewResult, setReviewResult] = useState<AIReviewResult | null>(null)
+  const [reviewOpen, setReviewOpen] = useState(false)
+
+  // Writing Tips state
+  const [tipsOpen, setTipsOpen] = useState(false)
+  const [tipsLoading, setTipsLoading] = useState(false)
+  const [tipsResult, setTipsResult] = useState<WritingTipsResult | null>(null)
+  const [tipsPrompt, setTipsPrompt] = useState("")
+  const [tipsScholarship, setTipsScholarship] = useState("")
+  const [tipsEssayType, setTipsEssayType] = useState("")
 
   const handleNewEssay = async () => {
     if (!newTitle.trim()) { toast.error("Title is required"); return }
@@ -124,6 +212,52 @@ export default function EssaysPage() {
       } else { toast.error("Failed to update essay") }
     } catch { toast.error("Something went wrong") }
     finally { setSaving(false) }
+  }
+
+  const handleAIReview = async (essayId: string) => {
+    setReviewLoading(essayId)
+    try {
+      const res = await fetch(`/api/essays/${essayId}/review`, {
+        method: "POST",
+      })
+      if (res.ok) {
+        const data: AIReviewResult = await res.json()
+        setReviewResult(data)
+        setReviewOpen(true)
+      } else {
+        toast.error("Failed to get AI review")
+      }
+    } catch {
+      toast.error("Something went wrong")
+    } finally {
+      setReviewLoading(null)
+    }
+  }
+
+  const handleGetTips = async () => {
+    if (!tipsPrompt.trim()) { toast.error("Please enter an essay prompt"); return }
+    setTipsLoading(true)
+    try {
+      const res = await fetch("/api/essays/tips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: tipsPrompt,
+          scholarshipName: tipsScholarship || undefined,
+          essayType: tipsEssayType || undefined,
+        }),
+      })
+      if (res.ok) {
+        const data: WritingTipsResult = await res.json()
+        setTipsResult(data)
+      } else {
+        toast.error("Failed to generate writing tips")
+      }
+    } catch {
+      toast.error("Something went wrong")
+    } finally {
+      setTipsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -171,11 +305,22 @@ export default function EssaysPage() {
           <h1 className="text-2xl font-semibold text-[#1E3A5F]">Essays</h1>
           <p className="mt-1 text-muted-foreground">Write, review, and manage your scholarship essays.</p>
         </div>
-        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setNewOpen(true)}>
-          <Plus className="h-4 w-4" />
-          New Essay
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => { setTipsResult(null); setTipsPrompt(""); setTipsScholarship(""); setTipsEssayType(""); setTipsOpen(true) }}
+          >
+            <Lightbulb className="h-4 w-4" />
+            Get Writing Tips
+          </Button>
+          <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setNewOpen(true)}>
+            <Plus className="h-4 w-4" />
+            New Essay
+          </Button>
+        </div>
 
+        {/* New Essay Dialog */}
         <Dialog open={newOpen} onOpenChange={setNewOpen}>
           <DialogContent>
             <DialogHeader>
@@ -202,6 +347,7 @@ export default function EssaysPage() {
           </DialogContent>
         </Dialog>
 
+        {/* Edit Essay Dialog */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -220,12 +366,242 @@ export default function EssaysPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* AI Review Results Dialog */}
+        <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-[#1E3A5F]">
+                <Sparkles className="h-5 w-5 text-[#2563EB]" />
+                AI Essay Review
+              </DialogTitle>
+              <DialogDescription>AI-powered analysis of your essay.</DialogDescription>
+            </DialogHeader>
+            {reviewResult && (
+              <div className="space-y-6 py-2">
+                {/* Overall Score + Summary */}
+                <div className="flex items-start gap-5">
+                  <ScoreCircle score={reviewResult.overallScore} />
+                  <div className="flex-1 space-y-1">
+                    <p className="text-sm font-semibold text-[#1E3A5F]">Overall Score</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{reviewResult.summary}</p>
+                  </div>
+                </div>
+
+                {/* Category Scores */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Category Scores</h3>
+                  <div className="space-y-4">
+                    <CategoryBar label="Content" score={reviewResult.categories.content.score} feedback={reviewResult.categories.content.feedback} />
+                    <CategoryBar label="Structure" score={reviewResult.categories.structure.score} feedback={reviewResult.categories.structure.feedback} />
+                    <CategoryBar label="Voice" score={reviewResult.categories.voice.score} feedback={reviewResult.categories.voice.feedback} />
+                    <CategoryBar label="Grammar" score={reviewResult.categories.grammar.score} feedback={reviewResult.categories.grammar.feedback} />
+                    <CategoryBar label="Impact" score={reviewResult.categories.impact.score} feedback={reviewResult.categories.impact.feedback} />
+                  </div>
+                </div>
+
+                {/* Strengths */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Strengths</h3>
+                  <div className="space-y-1.5">
+                    {reviewResult.strengths.map((s, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" />
+                        <span className="text-sm">{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Areas for Improvement */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Areas for Improvement</h3>
+                  <div className="space-y-1.5">
+                    {reviewResult.improvements.map((imp, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                        <span className="text-sm">{imp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actionable Suggestions */}
+                {reviewResult.suggestions.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Suggestions</h3>
+                    <div className="space-y-1.5">
+                      {reviewResult.suggestions.map((sug, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <Target className="h-4 w-4 mt-0.5 shrink-0 text-[#2563EB]" />
+                          <span className="text-sm">{sug}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setReviewOpen(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Writing Tips Dialog */}
+        <Dialog open={tipsOpen} onOpenChange={setTipsOpen}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-[#1E3A5F]">
+                <Lightbulb className="h-5 w-5 text-[#2563EB]" />
+                Writing Tips
+              </DialogTitle>
+              <DialogDescription>Get AI-powered writing guidance for your essay.</DialogDescription>
+            </DialogHeader>
+
+            {!tipsResult ? (
+              <div className="space-y-4 py-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Essay Prompt *</label>
+                  <Textarea
+                    placeholder="Paste or describe the essay prompt..."
+                    rows={3}
+                    value={tipsPrompt}
+                    onChange={(e) => setTipsPrompt(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Scholarship Name (optional)</label>
+                  <Input
+                    placeholder="e.g., Gates Millennium Scholarship"
+                    value={tipsScholarship}
+                    onChange={(e) => setTipsScholarship(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Essay Type</label>
+                  <Select value={tipsEssayType} onValueChange={(v) => v && setTipsEssayType(v)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select essay type..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Personal Statement">Personal Statement</SelectItem>
+                      <SelectItem value="Why This School">Why This School</SelectItem>
+                      <SelectItem value="Financial Need">Financial Need</SelectItem>
+                      <SelectItem value="Community Service">Community Service</SelectItem>
+                      <SelectItem value="Leadership">Leadership</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setTipsOpen(false)}>Cancel</Button>
+                  <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleGetTips} disabled={tipsLoading}>
+                    {tipsLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+                    Generate Tips
+                  </Button>
+                </DialogFooter>
+              </div>
+            ) : (
+              <div className="space-y-6 py-2">
+                {/* Brainstorming Angles */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Brainstorming Angles</h3>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {tipsResult.angles.map((angle, i) => (
+                      <Card key={i} className="hover:shadow-sm transition-shadow">
+                        <CardContent className="p-3 space-y-1.5">
+                          <p className="text-sm font-medium text-[#1E3A5F]">{angle.title}</p>
+                          <p className="text-xs text-muted-foreground">{angle.description}</p>
+                          <div className="flex items-start gap-1.5 mt-1">
+                            <ThumbsUp className="h-3 w-3 mt-0.5 shrink-0 text-[#2563EB]" />
+                            <span className="text-xs text-[#2563EB]">{angle.profileConnection}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Structural Tips */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Structure</h3>
+                  <p className="text-sm text-muted-foreground">{tipsResult.structure.recommended}</p>
+                  <ul className="space-y-1">
+                    {tipsResult.structure.tips.map((tip, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <CheckCircle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-emerald-600" />
+                        {tip}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Do's and Don'ts */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-emerald-700 uppercase tracking-wide">Do</h3>
+                    <div className="space-y-1.5">
+                      {tipsResult.dos.map((d, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <CheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" />
+                          <span className="text-sm">{d}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-rose-700 uppercase tracking-wide">Don&apos;t</h3>
+                    <div className="space-y-1.5">
+                      {tipsResult.donts.map((d, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <X className="h-4 w-4 mt-0.5 shrink-0 text-rose-600" />
+                          <span className="text-sm">{d}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Opening Strategies */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Opening Strategies</h3>
+                  <div className="space-y-1.5">
+                    {tipsResult.openingStrategies.map((s, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <Lightbulb className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                        <span className="text-sm">{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Key Themes */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Key Themes from Your Profile</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {tipsResult.keyThemes.map((theme, i) => (
+                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                        {theme}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setTipsResult(null)}>Back</Button>
+                  <Button variant="outline" onClick={() => setTipsOpen(false)}>Close</Button>
+                </DialogFooter>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Learn more banner */}
       <LearnMoreBanner
         title="Learn: Essay Writing"
-        description="Tips for brainstorming, financial need essays, common prompts, and avoiding clichés."
+        description="Tips for brainstorming, financial need essays, common prompts, and avoiding cliches."
         href="/student/learning/scholarships"
       />
 
@@ -366,6 +742,24 @@ export default function EssaysPage() {
                     <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => { setEditContent(selected.content); setEditOpen(true) }}>
                       <PenTool className="h-4 w-4" />
                       Edit Essay
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => handleAIReview(selected.id)}
+                      disabled={reviewLoading === selected.id || !selected.content}
+                    >
+                      {reviewLoading === selected.id ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          AI Review
+                        </>
+                      )}
                     </Button>
                     {selected.status === "DRAFT" || selected.status === "REVISION_NEEDED" ? (
                       <Button variant="outline" onClick={() => handleSubmitForReview(selected)}>

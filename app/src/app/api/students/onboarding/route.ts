@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { StudentStatus } from "@/generated/prisma/client";
 import { autoMatchStudentToLocalScholarships } from "@/lib/local-scholarship-matcher";
+import { determineCounty } from "@/lib/county-lookup";
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
       phone: data.phone || null,
       address: data.address || null,
       city: data.city || null,
-      county: data.county || null,
+      county: data.county || determineCounty({ zipCode: data.zipCode, city: data.city, state: data.state }) || null,
       state: data.state || null,
       zipCode: data.zipCode || null,
       gpa: data.gpa ? parseFloat(data.gpa) : null,
