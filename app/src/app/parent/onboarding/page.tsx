@@ -17,6 +17,7 @@ import {
   Sparkles,
   TrendingUp,
   MessageSquare,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
@@ -77,6 +78,7 @@ export default function ParentOnboardingPage() {
   const [showTour, setShowTour] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);
   const [linkedStudents, setLinkedStudents] = useState<LinkedStudent[]>([]);
   const [studentsLoading, setStudentsLoading] = useState(true);
 
@@ -127,6 +129,10 @@ export default function ParentOnboardingPage() {
   const canContinueStep1 = formData.firstName.trim() !== "" && formData.lastName.trim() !== "";
 
   const handleSubmit = async () => {
+    if (!privacyAcknowledged) {
+      toast.error("Please acknowledge the privacy statement to continue.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/parents/onboarding", {
@@ -541,6 +547,35 @@ export default function ParentOnboardingPage() {
                         </p>
                       </div>
                     )}
+
+                    {/* Privacy Statement */}
+                    <div className="rounded-xl border border-[#1E3A5F]/20 bg-[#1E3A5F]/5 p-4 space-y-3">
+                      <h3 className="text-sm font-semibold text-[#1E3A5F] flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Your Privacy Matters
+                      </h3>
+                      <div className="text-xs text-muted-foreground space-y-2 leading-relaxed">
+                        <p>ScholarSuite is committed to protecting your family&apos;s personal information:</p>
+                        <ul className="space-y-1.5 pl-1">
+                          <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">&#x2713;</span> Your data is used <strong>only</strong> to support your student&apos;s scholarship and college journey</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">&#x2713;</span> We <strong>never sell</strong> personal information to third parties</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">&#x2713;</span> Your student&apos;s financial, medical, and demographic data is <strong>encrypted</strong> and confidential</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">&#x2713;</span> Only assigned advisors and administrators can view profiles</li>
+                          <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">&#x2713;</span> You can request data deletion at any time from Settings</li>
+                        </ul>
+                      </div>
+                      <label className="flex items-start gap-3 pt-2 cursor-pointer">
+                        <div className="pt-0.5">
+                          <div className={cn("w-5 h-5 rounded border-2 flex items-center justify-center transition-all", privacyAcknowledged ? "bg-[#2563EB] border-[#2563EB]" : "border-foreground/20")}>
+                            {privacyAcknowledged && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                          </div>
+                          <input type="checkbox" checked={privacyAcknowledged} onChange={(e) => setPrivacyAcknowledged(e.target.checked)} className="sr-only" />
+                        </div>
+                        <p className="text-xs text-foreground">
+                          I understand and agree that information will be used as described above and in accordance with ScholarSuite&apos;s <a href="/privacy" className="text-[#2563EB] underline">Privacy Policy</a> and <a href="/terms" className="text-[#2563EB] underline">Terms of Service</a>.
+                        </p>
+                      </label>
+                    </div>
                   </CardContent>
                 </>
               )}
