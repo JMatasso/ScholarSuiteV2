@@ -20,7 +20,8 @@
     "db:enrich": "tsx prisma/enrich-scholarships.ts",
     "db:enrich-apply": "tsx prisma/apply-enrichment.ts",
     "db:schedule": "tsx prisma/backfill-schedules.ts",
-    "db:test-match": "tsx prisma/test-matching.ts"
+    "db:test-match": "tsx prisma/test-matching.ts",
+    "db:seed-colleges": "tsx prisma/seed-colleges.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -38,6 +39,7 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
+    "@react-pdf/renderer": "^4.3.2",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-table": "^8.21.3",
     "@tiptap/extension-placeholder": "^3.20.1",
@@ -52,6 +54,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.35.2",
+    "jspdf": "^4.2.1",
     "livekit-client": "^2.17.3",
     "livekit-server-sdk": "^2.15.0",
     "lucide-react": "^0.577.0",
