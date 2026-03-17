@@ -25,17 +25,23 @@ export async function POST(req: Request) {
       state: data.state || null,
       zipCode: data.zipCode || null,
       gpa: data.gpa ? parseFloat(data.gpa) : null,
+      gpaType: data.gpaType || null,
+      classRank: data.classRank || null,
       gradeLevel: data.gradeLevel ? parseInt(data.gradeLevel) : null,
       highSchool: data.highSchool || null,
       graduationYear: data.graduationYear ? parseInt(data.graduationYear) : null,
       satScore: data.satScore ? parseInt(data.satScore) : null,
       actScore: data.actScore ? parseInt(data.actScore) : null,
       intendedMajor: data.intendedMajor || null,
+      gender: data.gender || null,
       ethnicity: data.ethnicity || null,
       citizenship: data.citizenship || null,
       isFirstGen: data.isFirstGen ?? false,
       isPellEligible: data.isPellEligible ?? false,
       hasFinancialNeed: data.hasFinancialNeed ?? false,
+      militaryAffiliation: data.militaryAffiliation || null,
+      disabilityStatus: data.disabilityStatus || null,
+      medicalConditions: data.medicalConditions || null,
       journeyStage: data.journeyStage || "EARLY_EXPLORATION",
       postSecondaryPath: data.postSecondaryPath || "COLLEGE",
       collegeJourneyStage: data.collegeJourneyStage || null,
@@ -65,13 +71,21 @@ export async function POST(req: Request) {
       },
     });
 
+    // Link to school if schoolId provided
+    if (data.schoolId) {
+      await db.user.update({
+        where: { id: session.user.id },
+        data: { schoolId: data.schoolId },
+      })
+    }
+
     // Update the user's display name if provided
     if (data.firstName || data.lastName) {
       const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
       if (fullName) {
         await db.user.update({
           where: { id: session.user.id },
-          data: { name: fullName },
+          data: { name: fullName, ...(data.schoolId ? { schoolId: data.schoolId } : {}) },
         });
       }
     }

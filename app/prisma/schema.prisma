@@ -164,6 +164,8 @@ model StudentProfile {
   zipCode           String?
 
   gpa               Float?
+  gpaType           String?
+  classRank         String?
   gradeLevel        Int?
   highSchool        String?
   graduationYear    Int?
@@ -171,11 +173,15 @@ model StudentProfile {
   actScore          Int?
   intendedMajor     String?
 
-  ethnicity         String?
-  citizenship       String?
-  isFirstGen        Boolean          @default(false)
-  isPellEligible    Boolean          @default(false)
-  hasFinancialNeed  Boolean          @default(false)
+  gender              String?
+  ethnicity           String?
+  citizenship         String?
+  isFirstGen          Boolean          @default(false)
+  isPellEligible      Boolean          @default(false)
+  hasFinancialNeed    Boolean          @default(false)
+  militaryAffiliation String?
+  disabilityStatus    String?
+  medicalConditions   String?
 
   activities        String?
   communityService  String?

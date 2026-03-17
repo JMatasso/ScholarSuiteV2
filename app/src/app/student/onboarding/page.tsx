@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getCountyFromZip } from "@/lib/county-lookup";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,6 +39,13 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { WelcomeTour } from "@/components/ui/welcome-tour";
 import { CollegeAutocomplete } from "@/components/ui/college-autocomplete";
 import type { CollegeResult } from "@/components/ui/college-autocomplete";
@@ -106,11 +114,33 @@ const slideVariants = {
   }),
 };
 
+interface SchoolResult {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+  ncesId?: string;
+}
+
 export default function OnboardingPage() {
-  const [showTour, setShowTour] = useState(true);
+  const [showTour, setShowTour] = useState(false);
+  const [tourChecked, setTourChecked] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Only show tour on first visit (tourComplete === false)
+  useEffect(() => {
+    fetch("/api/auth/onboarding-status")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.profile?.tourComplete) {
+          setShowTour(true)
+        }
+        setTourChecked(true)
+      })
+      .catch(() => setTourChecked(true))
+  }, [])
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -121,15 +151,23 @@ export default function OnboardingPage() {
     city: "",
     state: "",
     zipCode: "",
+    county: "",
     gpa: "",
+    gpaType: "",
     gradeLevel: "",
     highSchool: "",
+    schoolId: "",
+    classRank: "",
     graduationYear: "",
     satScore: "",
     actScore: "",
     intendedMajor: "",
+    gender: "",
     ethnicity: "",
     citizenship: "",
+    militaryAffiliation: "",
+    disabilityStatus: "",
+    medicalConditions: "",
     isFirstGen: false,
     isPellEligible: false,
     hasFinancialNeed: false,
@@ -156,6 +194,14 @@ export default function OnboardingPage() {
   const update = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Auto-detect county from ZIP code
+  useEffect(() => {
+    if (formData.zipCode?.length >= 5) {
+      const county = getCountyFromZip(formData.zipCode);
+      if (county) update("county", county);
+    }
+  }, [formData.zipCode]);
 
   // Map between display step index and actual step id
   const getActualStep = (displayIndex: number): number => {
@@ -381,6 +427,7 @@ export default function OnboardingPage() {
                   <FormField label="City" value={formData.city} onChange={(v) => update("city", v)} placeholder="Los Angeles" />
                   <FormField label="State" value={formData.state} onChange={(v) => update("state", v)} placeholder="California" />
                   <FormField label="ZIP Code" value={formData.zipCode} onChange={(v) => update("zipCode", v)} placeholder="90001" />
+                  <FormField label="County (auto-detected from ZIP)" value={formData.county} onChange={() => {}} placeholder="Auto-detected from ZIP code" readOnly />
                 </div>
               </StepCard>
             )}
@@ -395,10 +442,46 @@ export default function OnboardingPage() {
                 step={currentStep}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <FormField label="High School" value={formData.highSchool} onChange={(v) => update("highSchool", v)} placeholder="Lincoln High School" className="col-span-full" />
+                  <div className="col-span-full">
+                    <SchoolAutocomplete
+                      value={formData.highSchool}
+                      state={formData.state}
+                      onSelect={(school) => {
+                        update("highSchool", school.name);
+                        update("schoolId", school.id);
+                      }}
+                      onManualChange={(v) => {
+                        update("highSchool", v);
+                        update("schoolId", "");
+                      }}
+                    />
+                  </div>
                   <FormField label="Grade Level" value={formData.gradeLevel} onChange={(v) => update("gradeLevel", v)} placeholder="12" type="number" />
                   <FormField label="Graduation Year" value={formData.graduationYear} onChange={(v) => update("graduationYear", v)} placeholder="2026" type="number" />
-                  <FormField label="GPA (Unweighted)" value={formData.gpa} onChange={(v) => update("gpa", v)} placeholder="3.70" />
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">GPA</label>
+                    <input
+                      type="text"
+                      value={formData.gpa}
+                      onChange={(e) => update("gpa", e.target.value)}
+                      placeholder="3.70"
+                      className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">GPA Type</label>
+                    <Select value={formData.gpaType} onValueChange={(v) => v && update("gpaType", v)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select GPA scale" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="UNWEIGHTED_4">Unweighted (4.0 scale)</SelectItem>
+                        <SelectItem value="WEIGHTED_5">Weighted (5.0 scale)</SelectItem>
+                        <SelectItem value="WEIGHTED_4">Weighted (4.0 scale)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <FormField label="Class Rank" value={formData.classRank} onChange={(v) => update("classRank", v)} placeholder="e.g. 15 out of 350" />
                   <FormField label="SAT Score" value={formData.satScore} onChange={(v) => update("satScore", v)} placeholder="1380" />
                   <FormField label="ACT Score" value={formData.actScore} onChange={(v) => update("actScore", v)} placeholder="31" />
                   <FormField label="Intended Major" value={formData.intendedMajor} onChange={(v) => update("intendedMajor", v)} placeholder="Computer Science" className="col-span-full" />
@@ -416,8 +499,59 @@ export default function OnboardingPage() {
                 step={currentStep}
               >
                 <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Gender</label>
+                    <Select value={formData.gender} onValueChange={(v) => v && update("gender", v)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Non-binary">Non-binary</SelectItem>
+                        <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <FormField label="Ethnicity" value={formData.ethnicity} onChange={(v) => update("ethnicity", v)} placeholder="e.g., Hispanic, African American, Asian" />
                   <FormField label="Citizenship Status" value={formData.citizenship} onChange={(v) => update("citizenship", v)} placeholder="US Citizen" />
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Military Affiliation</label>
+                    <Select value={formData.militaryAffiliation} onValueChange={(v) => v && update("militaryAffiliation", v)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select military affiliation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="None">None</SelectItem>
+                        <SelectItem value="Active Duty">Active Duty</SelectItem>
+                        <SelectItem value="Veteran">Veteran</SelectItem>
+                        <SelectItem value="Military Dependent">Military Dependent</SelectItem>
+                        <SelectItem value="National Guard/Reserve">National Guard/Reserve</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Disability Status</label>
+                    <Select value={formData.disabilityStatus} onValueChange={(v) => v && update("disabilityStatus", v)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select disability status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="Yes — physical">Yes -- physical</SelectItem>
+                        <SelectItem value="Yes — learning">Yes -- learning</SelectItem>
+                        <SelectItem value="Yes — other">Yes -- other</SelectItem>
+                        <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <TextareaField
+                    label="Medical Conditions"
+                    value={formData.medicalConditions}
+                    onChange={(v) => update("medicalConditions", v)}
+                    placeholder="List any medical conditions affecting you or your family that may be relevant for scholarship applications (optional)"
+                  />
                   <div className="space-y-3 pt-2">
                     <CheckboxField label="I am a first-generation college student" checked={formData.isFirstGen} onChange={(v) => update("isFirstGen", v)} />
                     <CheckboxField label="I am Pell Grant eligible" checked={formData.isPellEligible} onChange={(v) => update("isPellEligible", v)} />
@@ -667,20 +801,30 @@ export default function OnboardingPage() {
                 <div className="space-y-6">
                   <ReviewSection title="Personal" items={[
                     ["Name", `${formData.firstName} ${formData.lastName}`],
-                    ["Location", `${formData.city}, ${formData.state}`],
+                    ["Location", [formData.city, formData.state].filter(Boolean).join(", ")],
+                    ["County", formData.county],
                     ["Phone", formData.phone],
                   ]} />
                   <ReviewSection title="Academic" items={[
                     ["School", formData.highSchool],
-                    ["GPA", formData.gpa],
+                    ["GPA", formData.gpa ? `${formData.gpa}${formData.gpaType ? ` (${formData.gpaType === "UNWEIGHTED_4" ? "Unweighted 4.0" : formData.gpaType === "WEIGHTED_5" ? "Weighted 5.0" : "Weighted 4.0"})` : ""}` : ""],
+                    ["Class Rank", formData.classRank],
                     ["Grade", formData.gradeLevel],
+                    ["Graduation Year", formData.graduationYear],
                     ["SAT", formData.satScore],
+                    ["ACT", formData.actScore],
                     ["Major", formData.intendedMajor],
                   ]} />
                   <ReviewSection title="Background" items={[
+                    ["Gender", formData.gender],
+                    ["Ethnicity", formData.ethnicity],
                     ["Citizenship", formData.citizenship],
+                    ["Military Affiliation", formData.militaryAffiliation],
+                    ["Disability Status", formData.disabilityStatus],
+                    ["Medical Conditions", formData.medicalConditions],
                     ["First-Gen", formData.isFirstGen ? "Yes" : "No"],
                     ["Pell Eligible", formData.isPellEligible ? "Yes" : "No"],
+                    ["Financial Need", formData.hasFinancialNeed ? "Yes" : "No"],
                   ]} />
                   {isCollegePath && formData.collegeJourneyStage && (
                     <ReviewSection title="College Journey" items={[
@@ -692,6 +836,7 @@ export default function OnboardingPage() {
                   <ReviewSection title="Goals" items={[
                     ["Journey Stage", formData.journeyStage.replace(/_/g, " ")],
                     ["Pathway", formData.postSecondaryPath.replace(/_/g, " ")],
+                    ["Goals", formData.goals],
                   ]} />
                 </div>
               </StepCard>
@@ -711,6 +856,117 @@ export default function OnboardingPage() {
 }
 
 /* --- Sub-components ------------------------------------------------- */
+
+function SchoolAutocomplete({
+  value,
+  state,
+  onSelect,
+  onManualChange,
+}: {
+  value: string;
+  state: string;
+  onSelect: (school: SchoolResult) => void;
+  onManualChange: (v: string) => void;
+}) {
+  const [query, setQuery] = useState(value);
+  const [results, setResults] = useState<SchoolResult[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync external value changes
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const searchSchools = useCallback(
+    (q: string) => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (q.length < 2) {
+        setResults([]);
+        setIsOpen(false);
+        return;
+      }
+      debounceRef.current = setTimeout(async () => {
+        setIsLoading(true);
+        try {
+          const params = new URLSearchParams({ q });
+          if (state) params.set("state", state);
+          const res = await fetch(`/api/schools/search?${params}`);
+          if (res.ok) {
+            const data = await res.json();
+            setResults(data);
+            setIsOpen(data.length > 0);
+          }
+        } catch {
+          // silently fail — user can still type manually
+        } finally {
+          setIsLoading(false);
+        }
+      }, 300);
+    },
+    [state]
+  );
+
+  return (
+    <div ref={containerRef} className="relative">
+      <label className="block text-sm font-medium text-foreground mb-1.5">High School</label>
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => {
+            const v = e.target.value;
+            setQuery(v);
+            onManualChange(v);
+            searchSchools(v);
+          }}
+          onFocus={() => {
+            if (results.length > 0) setIsOpen(true);
+          }}
+          placeholder="Start typing your school name..."
+          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+        />
+        {isLoading && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+          </div>
+        )}
+      </div>
+      {isOpen && results.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-card shadow-lg max-h-60 overflow-y-auto">
+          {results.map((school) => (
+            <button
+              key={school.id}
+              type="button"
+              onClick={() => {
+                setQuery(school.name);
+                onSelect(school);
+                setIsOpen(false);
+              }}
+              className="w-full px-4 py-2.5 text-left hover:bg-muted/50 transition-colors flex flex-col"
+            >
+              <span className="text-sm font-medium text-foreground">{school.name}</span>
+              <span className="text-xs text-muted-foreground">{school.city}, {school.state}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function StepCard({
   title,
@@ -826,6 +1082,7 @@ function FormField({
   type = "text",
   required,
   className,
+  readOnly,
 }: {
   label: string;
   value: string;
@@ -834,6 +1091,7 @@ function FormField({
   type?: string;
   required?: boolean;
   className?: string;
+  readOnly?: boolean;
 }) {
   return (
     <div className={className}>
@@ -846,7 +1104,11 @@ function FormField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+        readOnly={readOnly}
+        className={cn(
+          "w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary",
+          readOnly && "bg-muted/50 cursor-not-allowed"
+        )}
       />
     </div>
   );
