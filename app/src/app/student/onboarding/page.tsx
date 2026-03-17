@@ -26,6 +26,7 @@ import {
   Sparkles,
   Clock,
   MapPin,
+  Bell,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -59,7 +60,8 @@ const STEPS = [
   { id: 5, label: "College Journey", icon: MapPin },
   { id: 6, label: "Activities", icon: Activity },
   { id: 7, label: "Goals", icon: Target },
-  { id: 8, label: "Review", icon: CheckCircle2 },
+  { id: 8, label: "Notifications", icon: Bell },
+  { id: 9, label: "Review", icon: CheckCircle2 },
 ];
 
 const COLLEGE_JOURNEY_STAGES = [
@@ -183,6 +185,12 @@ export default function OnboardingPage() {
     isFirstGen: false,
     isPellEligible: false,
     hasFinancialNeed: false,
+    notifyTaskReminders: true,
+    notifyScholarshipDeadlines: true,
+    notifyNewMessages: true,
+    notifyMeetingReminders: true,
+    notifyEssayFeedback: true,
+    notifyLocalScholarships: true,
     journeyStage: "EARLY_EXPLORATION",
     postSecondaryPath: "COLLEGE",
     collegeJourneyStage: "",
@@ -274,6 +282,19 @@ export default function OnboardingPage() {
         body: JSON.stringify(submitData),
       });
       if (res.ok) {
+        // Save notification preferences
+        await fetch("/api/preferences", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            notifyTaskReminders: formData.notifyTaskReminders,
+            notifyScholarshipDeadlines: formData.notifyScholarshipDeadlines,
+            notifyNewMessages: formData.notifyNewMessages,
+            notifyMeetingReminders: formData.notifyMeetingReminders,
+            notifyEssayFeedback: formData.notifyEssayFeedback,
+            notifyLocalScholarships: formData.notifyLocalScholarships,
+          }),
+        }).catch(() => {})
         toast.success("Profile completed! Welcome to ScholarSuite.");
         window.location.href = "/student";
       } else {
@@ -1055,6 +1076,29 @@ export default function OnboardingPage() {
             )}
 
             {currentStep === 8 && (
+              <StepCard
+                title="Notification Preferences"
+                description="Choose what you'd like to be notified about"
+                onPrev={prev}
+                onNext={next}
+                onSkip={next}
+                step={currentStep}
+              >
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">You can change these anytime in Settings.</p>
+                  <div className="space-y-3">
+                    <CheckboxField label="Task reminders (upcoming deadlines)" checked={formData.notifyTaskReminders} onChange={(v) => update("notifyTaskReminders", v)} />
+                    <CheckboxField label="Scholarship deadline alerts" checked={formData.notifyScholarshipDeadlines} onChange={(v) => update("notifyScholarshipDeadlines", v)} />
+                    <CheckboxField label="New local scholarship matches in your county" checked={formData.notifyLocalScholarships} onChange={(v) => update("notifyLocalScholarships", v)} />
+                    <CheckboxField label="New messages from your advisor" checked={formData.notifyNewMessages} onChange={(v) => update("notifyNewMessages", v)} />
+                    <CheckboxField label="Meeting reminders" checked={formData.notifyMeetingReminders} onChange={(v) => update("notifyMeetingReminders", v)} />
+                    <CheckboxField label="Essay feedback notifications" checked={formData.notifyEssayFeedback} onChange={(v) => update("notifyEssayFeedback", v)} />
+                  </div>
+                </div>
+              </StepCard>
+            )}
+
+            {currentStep === 9 && (
               <StepCard
                 title="Review Your Profile"
                 description="Make sure everything looks good before submitting"
