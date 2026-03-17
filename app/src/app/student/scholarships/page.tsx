@@ -14,6 +14,8 @@ import {
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle,
   RefreshCw,
   AlertCircle,
@@ -186,22 +188,32 @@ export default function ScholarshipDiscovery() {
   const [stateFilter, setStateFilter] = useState("")
   const [scoreFilter, setScoreFilter] = useState<string>("0")
   const [activeTab, setActiveTab] = useState("matched")
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [allLoading, setAllLoading] = useState(false)
+  const perPage = 20
 
-  const fetchScholarships = useCallback(() => {
+  const fetchScholarships = useCallback((pageNum = 1) => {
     const params = new URLSearchParams()
     if (searchQuery) params.set("search", searchQuery)
     if (stateFilter) params.set("state", stateFilter)
     if (minAmount) params.set("minAmount", minAmount)
     if (maxAmount) params.set("maxAmount", maxAmount)
+    params.set("page", String(pageNum))
+    params.set("limit", String(perPage))
 
+    setAllLoading(true)
     fetch(`/api/scholarships?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
-        setScholarships(Array.isArray(data) ? data : [])
+        setScholarships(data.scholarships || [])
+        setTotalPages(data.pagination?.totalPages || 1)
+        setPage(pageNum)
         setLoading(false)
+        setAllLoading(false)
       })
-      .catch(() => setLoading(false))
-  }, [searchQuery, stateFilter, minAmount, maxAmount])
+      .catch(() => { setLoading(false); setAllLoading(false) })
+  }, [searchQuery, stateFilter, minAmount, maxAmount, perPage])
 
   const fetchMatches = useCallback(async (recompute = false) => {
     setMatchLoading(true)
@@ -240,9 +252,10 @@ export default function ScholarshipDiscovery() {
   }, [scoreFilter])
 
   useEffect(() => {
-    fetchScholarships()
+    fetchScholarships(1)
     fetchMatches(false)
-  }, [fetchScholarships, fetchMatches])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSave = async (scholarship: Scholarship) => {
     if (savedIds.includes(scholarship.id)) {
@@ -265,13 +278,6 @@ export default function ScholarshipDiscovery() {
   const handleDismiss = (id: string) => {
     setDismissedIds((prev) => [...prev, id])
   }
-
-  const filteredScholarships = scholarships.filter(
-    (s) =>
-      !dismissedIds.includes(s.id) &&
-      (s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (s.provider || "").toLowerCase().includes(searchQuery.toLowerCase()))
-  )
 
   const filteredMatches = matches.filter(
     (m) =>
@@ -341,7 +347,7 @@ export default function ScholarshipDiscovery() {
             className="pl-9"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && fetchScholarships()}
+            onKeyDown={(e) => e.key === "Enter" && fetchScholarships(1)}
           />
         </div>
         <Button
@@ -353,7 +359,7 @@ export default function ScholarshipDiscovery() {
           Filters
           {filtersOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </Button>
-        <Button onClick={fetchScholarships} className="bg-[#2563EB] hover:bg-[#2563EB]/90">
+        <Button onClick={() => fetchScholarships(1)} className="bg-[#2563EB] hover:bg-[#2563EB]/90">
           Search
         </Button>
       </div>
@@ -405,7 +411,7 @@ export default function ScholarshipDiscovery() {
           <div className="flex gap-1 border-b border-border pb-px mb-4">
             {[
               { value: "matched", label: `Matched for You (${filteredMatches.length})`, icon: Sparkles },
-              { value: "all", label: `All Scholarships (${filteredScholarships.length})` },
+              { value: "all", label: "All Scholarships" },
               { value: "saved", label: `Saved (${savedIds.length})` },
               { value: "dismissed", label: "Dismissed" },
             ].map((tab) => (
@@ -460,26 +466,65 @@ export default function ScholarshipDiscovery() {
 
           {/* All tab */}
           {activeTab === "all" && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredScholarships.map((s, i) => (
-                <motion.div
-                  key={s.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <ScholarshipCard
-                    scholarship={s}
-                    onSave={() => handleSave(s)}
-                    onDismiss={() => handleDismiss(s.id)}
-                  />
-                </motion.div>
-              ))}
-              {filteredScholarships.length === 0 && (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <Search className="h-10 w-10 mb-3 opacity-40" />
-                  <p className="text-sm">No scholarships found.</p>
+            <div className="space-y-4">
+              {allLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
+              ) : (
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {scholarships.map((s, i) => (
+                      <motion.div
+                        key={s.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        <ScholarshipCard
+                          scholarship={s}
+                          onSave={() => handleSave(s)}
+                          onDismiss={() => handleDismiss(s.id)}
+                        />
+                      </motion.div>
+                    ))}
+                    {scholarships.length === 0 && (
+                      <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+                        <Search className="h-10 w-10 mb-3 opacity-40" />
+                        <p className="text-sm">No scholarships found.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 pt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page <= 1}
+                        onClick={() => fetchScholarships(page - 1)}
+                        className="gap-1"
+                      >
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                        Previous
+                      </Button>
+                      <span className="text-sm text-muted-foreground px-3">
+                        Page {page} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page >= totalPages}
+                        onClick={() => fetchScholarships(page + 1)}
+                        className="gap-1"
+                      >
+                        Next
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

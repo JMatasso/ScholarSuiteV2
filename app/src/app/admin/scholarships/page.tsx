@@ -62,9 +62,10 @@ export default function ScholarshipsPage() {
     setLoading(true)
     const params = new URLSearchParams()
     if (search) params.set("search", search)
+    params.set("limit", "10000")
     fetch(`/api/scholarships?${params}`)
       .then(res => res.json())
-      .then(d => { setScholarships(Array.isArray(d) ? d : []); setLoading(false) })
+      .then(d => { setScholarships(d.scholarships || (Array.isArray(d) ? d : [])); setLoading(false) })
       .catch(() => { toast.error("Failed to load scholarships"); setLoading(false) })
   }, [search])
 

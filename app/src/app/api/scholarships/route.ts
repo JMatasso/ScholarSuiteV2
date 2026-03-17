@@ -10,6 +10,51 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
+
+    // Enrichment stats endpoint
+    if (searchParams.get("stats") === "enrichment") {
+      const total = await db.scholarship.count();
+      const enriched = await db.scholarship.count({
+        where: {
+          OR: [
+            { description: { not: null } },
+            { minGpa: { not: null } },
+            { NOT: { states: { isEmpty: true } } },
+            { NOT: { fieldsOfStudy: { isEmpty: true } } },
+            { NOT: { ethnicities: { isEmpty: true } } },
+            { NOT: { citizenships: { isEmpty: true } } },
+          ],
+        },
+      });
+      const scraped = await db.scholarship.count({
+        where: { scrapeStatus: "CURRENT" },
+      });
+      const stale = await db.scholarship.count({
+        where: { scrapeStatus: "STALE" },
+      });
+      const failed = await db.scholarship.count({
+        where: { scrapeStatus: "FAILED" },
+      });
+      const noDescription = await db.scholarship.count({
+        where: { OR: [{ description: null }, { description: "" }] },
+      });
+      const noDeadline = await db.scholarship.count({
+        where: { deadline: null },
+      });
+      const noAmount = await db.scholarship.count({
+        where: { amount: null },
+      });
+
+      return NextResponse.json({
+        total,
+        enriched,
+        unenriched: total - enriched,
+        enrichmentRate: total > 0 ? Math.round((enriched / total) * 100) : 0,
+        scrapeStatus: { current: scraped, stale, failed, unscraped: total - scraped - stale - failed },
+        missingFields: { noDescription, noDeadline, noAmount },
+      });
+    }
+
     const search = searchParams.get("search") || "";
     const state = searchParams.get("state") || "";
     const minAmount = searchParams.get("minAmount");
@@ -38,15 +83,33 @@ export async function GET(req: Request) {
       where.amount = { ...((where.amount as object) || {}), lte: parseFloat(maxAmount) };
     }
 
-    const scholarships = await db.scholarship.findMany({
-      where,
-      include: {
-        tags: true,
-      },
-      orderBy: { deadline: "asc" },
-    });
+    // Pagination (admins can fetch larger batches)
+    const role = (session.user as { role: string }).role
+    const maxLimit = role === "ADMIN" ? 10000 : 100
+    const page = parseInt(searchParams.get("page") || "1", 10)
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), maxLimit)
+    const skip = (page - 1) * limit
 
-    return NextResponse.json(scholarships);
+    const [scholarships, total] = await Promise.all([
+      db.scholarship.findMany({
+        where,
+        include: { tags: true },
+        orderBy: { deadline: "asc" },
+        skip,
+        take: limit,
+      }),
+      db.scholarship.count({ where }),
+    ])
+
+    return NextResponse.json({
+      scholarships,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error("Error fetching scholarships:", error);
     return NextResponse.json(
