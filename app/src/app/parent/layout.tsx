@@ -33,6 +33,7 @@ import {
   GraduationCap,
   CheckCircle2,
   Clock,
+  MapPin,
 } from "lucide-react";
 
 const sidebarGroups = [
@@ -56,8 +57,9 @@ const sidebarGroups = [
   {
     label: "Colleges",
     items: [
-      { name: "Applications", href: "/parent/colleges", icon: GraduationCap },
+      { name: "Overview", href: "/parent/colleges", icon: GraduationCap },
       { name: "Decisions", href: "/parent/colleges/decisions", icon: CheckCircle2 },
+      { name: "Visits", href: "/parent/colleges/visits", icon: MapPin },
     ],
   },
   {
@@ -78,6 +80,9 @@ const breadcrumbMap: Record<string, string> = {
   "/parent/meetings": "Meetings",
   "/parent/documents": "Documents & Resources",
   "/parent/learning": "Learning Library",
+  "/parent/colleges": "College Applications",
+  "/parent/colleges/decisions": "College Decisions",
+  "/parent/colleges/visits": "College Visits",
 };
 
 export default function ParentLayout({

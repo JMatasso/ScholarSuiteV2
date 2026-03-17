@@ -2,19 +2,57 @@
 
 import { motion, AnimatePresence } from "motion/react"
 import {
-  Star, Shield, Calendar, GripVertical, DollarSign,
+  Calendar, GripVertical,
   GraduationCap, Send, CheckCircle2, Clock, XCircle, Search,
+  ArrowRightFromLine, MapPin,
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select"
-import { formatDate, formatCurrency } from "@/lib/format"
+import { formatDate } from "@/lib/format"
 
 /* ────── types ────── */
 
-export type AppType = "REGULAR" | "EARLY_DECISION" | "EARLY_ACTION" | "ROLLING"
-export type AppStatus = "RESEARCHING" | "IN_PROGRESS" | "SUBMITTED" | "ACCEPTED" | "DENIED" | "WAITLISTED" | "DEFERRED"
+export type AppType =
+  | "REGULAR"
+  | "EARLY_DECISION"
+  | "EARLY_DECISION_2"
+  | "EARLY_ACTION"
+  | "RESTRICTIVE_EARLY_ACTION"
+  | "ROLLING"
+
+export type AppStatus =
+  | "RESEARCHING"
+  | "IN_PROGRESS"
+  | "SUBMITTED"
+  | "ACCEPTED"
+  | "DENIED"
+  | "WAITLISTED"
+  | "DEFERRED"
+  | "WITHDRAWN"
+
+export type AppClassification = "REACH" | "MATCH" | "SAFETY" | "LIKELY"
+
+export type AppPlatform = "COMMON_APP" | "COALITION" | "UC_APP" | "DIRECT" | "OTHER"
+
+export interface SupplementalEssay {
+  title: string
+  wordCount?: number
+  completed: boolean
+}
+
+export interface Recommender {
+  name: string
+  role?: string
+  status: "REQUESTED" | "SUBMITTED" | "NOT_REQUESTED"
+}
+
+export interface AidPackage {
+  grants?: number
+  loans?: number
+  workStudy?: number
+}
 
 export interface CollegeApp {
   id: string
@@ -28,6 +66,33 @@ export interface CollegeApp {
   notes: string | null
   createdAt: string
   updatedAt: string
+  // Enhanced fields
+  collegeId: string | null
+  college: {
+    id: string
+    name: string
+    city: string | null
+    state: string | null
+    acceptanceRate: number | null
+  } | null
+  classification: AppClassification | null
+  platform: AppPlatform | null
+  applicationFee: number | null
+  feeWaiverUsed: boolean
+  supplementalEssays: SupplementalEssay[] | null
+  recommenders: Recommender[] | null
+  transcriptSent: boolean
+  testScoresSent: boolean
+  financialAidDeadline: string | null
+  fafsaSent: boolean
+  cssProfileSent: boolean
+  aidPackage: AidPackage | null
+  netCostEstimate: number | null
+  depositDeadline: string | null
+  depositPaid: boolean
+  committed: boolean
+  listOrder: number
+  visits: unknown[]
 }
 
 export interface ColumnDef {
@@ -47,33 +112,78 @@ export const COLUMNS: ColumnDef[] = [
   { key: "ACCEPTED", label: "Accepted", color: "text-emerald-600", bg: "bg-emerald-50/60", icon: CheckCircle2 },
   { key: "WAITLISTED", label: "Waitlisted / Deferred", color: "text-amber-600", bg: "bg-amber-50/60", icon: Clock },
   { key: "DENIED", label: "Denied", color: "text-rose-600", bg: "bg-rose-50/60", icon: XCircle },
+  { key: "WITHDRAWN", label: "Withdrawn", color: "text-gray-400", bg: "bg-gray-50/60", icon: ArrowRightFromLine },
 ]
 
 export const APP_TYPE_LABELS: Record<AppType, string> = {
   EARLY_DECISION: "ED",
+  EARLY_DECISION_2: "ED2",
   EARLY_ACTION: "EA",
-  REGULAR: "Regular",
+  RESTRICTIVE_EARLY_ACTION: "REA",
+  REGULAR: "RD",
   ROLLING: "Rolling",
 }
 
 const APP_TYPE_COLORS: Record<AppType, string> = {
   EARLY_DECISION: "bg-purple-100 text-purple-700",
+  EARLY_DECISION_2: "bg-purple-100 text-purple-700",
   EARLY_ACTION: "bg-blue-100 text-blue-700",
+  RESTRICTIVE_EARLY_ACTION: "bg-indigo-100 text-indigo-700",
   REGULAR: "bg-gray-100 text-gray-700",
   ROLLING: "bg-teal-100 text-teal-700",
+}
+
+export const CLASSIFICATION_LABELS: Record<AppClassification, string> = {
+  REACH: "Reach",
+  MATCH: "Match",
+  SAFETY: "Safety",
+  LIKELY: "Likely",
+}
+
+export const CLASSIFICATION_COLORS: Record<AppClassification, string> = {
+  REACH: "bg-rose-100 text-rose-700 border-rose-200",
+  MATCH: "bg-amber-100 text-amber-700 border-amber-200",
+  SAFETY: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  LIKELY: "bg-blue-100 text-blue-700 border-blue-200",
+}
+
+export const PLATFORM_LABELS: Record<AppPlatform, string> = {
+  COMMON_APP: "Common App",
+  COALITION: "Coalition",
+  UC_APP: "UC App",
+  DIRECT: "Direct",
+  OTHER: "Other",
 }
 
 export const FILTER_OPTIONS = [
   { value: "ALL", label: "All Types" },
   { value: "EARLY_DECISION", label: "Early Decision" },
+  { value: "EARLY_DECISION_2", label: "Early Decision 2" },
   { value: "EARLY_ACTION", label: "Early Action" },
-  { value: "REGULAR", label: "Regular" },
+  { value: "RESTRICTIVE_EARLY_ACTION", label: "Restrictive EA" },
+  { value: "REGULAR", label: "Regular Decision" },
   { value: "ROLLING", label: "Rolling" },
 ]
 
-function daysUntil(dateStr: string | null): number | null {
+export function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null
   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000)
+}
+
+/** Compute checklist progress: how many of the 5 items are done */
+export function checklistProgress(app: CollegeApp): { done: number; total: number } {
+  let done = 0
+  const total = 5
+  if (app.transcriptSent) done++
+  if (app.testScoresSent) done++
+  if (app.feeWaiverUsed || (app.applicationFee != null && app.applicationFee === 0)) done++ // fee handled
+  // Count supplemental essays
+  const essays = Array.isArray(app.supplementalEssays) ? app.supplementalEssays : []
+  if (essays.length === 0 || essays.every((e) => e.completed)) done++
+  // Count recommenders
+  const recs = Array.isArray(app.recommenders) ? app.recommenders : []
+  if (recs.length === 0 || recs.every((r) => r.status === "SUBMITTED")) done++
+  return { done, total }
 }
 
 /* ────── column ────── */
@@ -82,10 +192,12 @@ export function KanbanColumn({
   column,
   apps,
   onStatusChange,
+  onCardClick,
 }: {
   column: ColumnDef
   apps: CollegeApp[]
   onStatusChange: (id: string, status: AppStatus) => void
+  onCardClick: (app: CollegeApp) => void
 }) {
   const Icon = column.icon
   return (
@@ -100,7 +212,7 @@ export function KanbanColumn({
       <div className="flex flex-col gap-2.5">
         <AnimatePresence mode="popLayout">
           {apps.map((app) => (
-            <KanbanCard key={app.id} app={app} onStatusChange={onStatusChange} />
+            <KanbanCard key={app.id} app={app} onStatusChange={onStatusChange} onClick={() => onCardClick(app)} />
           ))}
         </AnimatePresence>
         {apps.length === 0 && (
@@ -116,12 +228,16 @@ export function KanbanColumn({
 function KanbanCard({
   app,
   onStatusChange,
+  onClick,
 }: {
   app: CollegeApp
   onStatusChange: (id: string, status: AppStatus) => void
+  onClick: () => void
 }) {
   const days = daysUntil(app.deadline)
   const urgent = days !== null && days >= 0 && days <= 7
+  const { done, total } = checklistProgress(app)
+  const progressPct = Math.round((done / total) * 100)
 
   return (
     <motion.div
@@ -131,20 +247,44 @@ function KanbanCard({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="bg-white shadow-sm ring-1 ring-gray-200/60 p-3 space-y-2 hover:shadow-md transition-shadow cursor-default">
-        {/* top row */}
+      <Card
+        className="bg-white shadow-sm ring-1 ring-gray-200/60 p-3 space-y-2 hover:shadow-md transition-shadow cursor-pointer"
+        onClick={onClick}
+      >
+        {/* top row: name + location */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold text-[#1E3A5F] leading-tight">{app.universityName}</h3>
-          <div className="flex items-center gap-1 shrink-0">
-            {app.isDream && <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />}
-            {app.isSafety && <Shield className="h-3.5 w-3.5 text-blue-500 fill-blue-200" />}
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-[#1E3A5F] leading-tight truncate">{app.universityName}</h3>
+            {app.college && (app.college.city || app.college.state) && (
+              <p className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+                <MapPin className="h-2.5 w-2.5 shrink-0" />
+                {[app.college.city, app.college.state].filter(Boolean).join(", ")}
+              </p>
+            )}
           </div>
+          {app.committed && (
+            <span className="shrink-0 rounded-full bg-emerald-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+              Committed
+            </span>
+          )}
         </div>
 
-        {/* type badge */}
-        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${APP_TYPE_COLORS[app.applicationType]}`}>
-          {APP_TYPE_LABELS[app.applicationType]}
-        </span>
+        {/* badge row: type + classification + platform */}
+        <div className="flex flex-wrap items-center gap-1">
+          <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${APP_TYPE_COLORS[app.applicationType]}`}>
+            {APP_TYPE_LABELS[app.applicationType]}
+          </span>
+          {app.classification && (
+            <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${CLASSIFICATION_COLORS[app.classification]}`}>
+              {CLASSIFICATION_LABELS[app.classification]}
+            </span>
+          )}
+          {app.platform && (
+            <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-600">
+              {PLATFORM_LABELS[app.platform]}
+            </span>
+          )}
+        </div>
 
         {/* deadline */}
         {app.deadline && (
@@ -160,21 +300,25 @@ function KanbanCard({
           </div>
         )}
 
-        {/* cost */}
-        {app.cost != null && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <DollarSign className="h-3 w-3" />
-            {formatCurrency(app.cost)}/yr
+        {/* mini checklist progress bar */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>Checklist</span>
+            <span>{done}/{total}</span>
           </div>
-        )}
-
-        {/* notes */}
-        {app.notes && (
-          <p className="text-xs text-muted-foreground line-clamp-1">{app.notes}</p>
-        )}
+          <div className="h-1.5 w-full rounded-full bg-gray-200">
+            <div
+              className={`h-1.5 rounded-full transition-all ${progressPct === 100 ? "bg-emerald-500" : "bg-[#2563EB]"}`}
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
 
         {/* move menu */}
-        <div className="pt-1 border-t border-gray-100">
+        <div
+          className="pt-1 border-t border-gray-100"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Select value={app.status} onValueChange={(v) => v && onStatusChange(app.id, v as AppStatus)}>
             <SelectTrigger className="w-full h-7 text-xs">
               <GripVertical className="h-3 w-3 text-muted-foreground mr-1" />

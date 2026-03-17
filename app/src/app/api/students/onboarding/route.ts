@@ -37,6 +37,8 @@ export async function POST(req: Request) {
       hasFinancialNeed: data.hasFinancialNeed ?? false,
       journeyStage: data.journeyStage || "EARLY_EXPLORATION",
       postSecondaryPath: data.postSecondaryPath || "COLLEGE",
+      collegeJourneyStage: data.collegeJourneyStage || null,
+      committedCollegeName: data.committedCollegeName || null,
       activities: data.activities || null,
       communityService: data.communityService || null,
       leadershipRoles: data.leadershipRoles || null,
@@ -69,6 +71,37 @@ export async function POST(req: Request) {
         await db.user.update({
           where: { id: session.user.id },
           data: { name: fullName },
+        });
+      }
+    }
+
+    // Auto-create CollegeApplication when student has decided on a college
+    if (data.collegeJourneyStage === "DECIDED" && data.committedCollegeName) {
+      // Check if an application for this college already exists
+      const existing = await db.collegeApplication.findFirst({
+        where: {
+          userId: session.user.id,
+          universityName: data.committedCollegeName,
+        },
+      });
+
+      if (!existing) {
+        await db.collegeApplication.create({
+          data: {
+            userId: session.user.id,
+            universityName: data.committedCollegeName,
+            status: "ACCEPTED",
+            committed: true,
+          },
+        });
+      } else {
+        // Update existing application to mark as committed
+        await db.collegeApplication.update({
+          where: { id: existing.id },
+          data: {
+            status: "ACCEPTED",
+            committed: true,
+          },
         });
       }
     }

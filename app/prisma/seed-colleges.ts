@@ -8,6 +8,7 @@
  *   npx tsx prisma/seed-colleges.ts --limit=100
  */
 
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
@@ -57,8 +58,8 @@ const FIELDS = [
   "latest.cost.tuition.out_of_state",
   "latest.cost.roomboard.oncampus",
   "latest.cost.booksupply",
-  "latest.cost.net_price.public.by_income_level",
-  "latest.cost.net_price.private.by_income_level",
+  "latest.cost.avg_net_price.public",
+  "latest.cost.avg_net_price.private",
   "latest.student.size",
   "latest.student.enrollment.undergrad_12_month",
   "latest.student.demographics.student_faculty_ratio",
@@ -70,8 +71,6 @@ const FIELDS = [
   "latest.aid.median_debt.completers.overall",
   "latest.aid.pell_grant_rate",
   "latest.aid.federal_loan_rate",
-  "latest.programs.cip4_based.credential.level",
-  "latest.programs.cip4_based.credential.title",
 ].join(",");
 
 interface ScorecardSchool {
@@ -80,6 +79,11 @@ interface ScorecardSchool {
 }
 
 function get(obj: unknown, path: string): unknown {
+  if (obj == null || typeof obj !== "object") return null;
+  const record = obj as Record<string, unknown>;
+  // Scorecard API returns flat dot-notation keys like "school.name"
+  if (path in record) return record[path] ?? null;
+  // Fallback: try nested traversal
   const parts = path.split(".");
   let current: unknown = obj;
   for (const part of parts) {
@@ -90,11 +94,11 @@ function get(obj: unknown, path: string): unknown {
 }
 
 function parseNetPrice(school: ScorecardSchool): object | null {
-  const pubIncome = get(school, "latest.cost.net_price.public.by_income_level") as Record<string, number> | null;
-  const privIncome = get(school, "latest.cost.net_price.private.by_income_level") as Record<string, number> | null;
-  const income = pubIncome || privIncome;
-  if (!income) return null;
-  return income;
+  const pubAvg = get(school, "latest.cost.avg_net_price.public") as number | null;
+  const privAvg = get(school, "latest.cost.avg_net_price.private") as number | null;
+  const avg = pubAvg || privAvg;
+  if (!avg) return null;
+  return { average: avg };
 }
 
 function mapSchool(s: ScorecardSchool) {
@@ -159,7 +163,11 @@ function mapSchool(s: ScorecardSchool) {
     pellPct: get(s, "latest.aid.pell_grant_rate") as number | null,
     fedLoanPct: get(s, "latest.aid.federal_loan_rate") as number | null,
 
-    religiousAffiliation: get(s, "school.religious_affiliation") as string | null,
+    religiousAffiliation: (() => {
+      const val = get(s, "school.religious_affiliation");
+      if (val == null || val === -1 || val === -2) return null;
+      return String(val);
+    })(),
     hbcu: !!(get(s, "school.minority_serving.historically_black")),
     menOnly: !!(get(s, "school.men_only")),
     womenOnly: !!(get(s, "school.women_only")),
@@ -239,11 +247,12 @@ async function main() {
       await db.college.upsert({
         where: { scorecardId: mapped.scorecardId },
         create: mapped as Parameters<typeof db.college.create>[0]["data"],
-        update: { ...mapped, scorecardId: undefined } as Parameters<typeof db.college.update>[0]["data"],
+        update: (() => { const { scorecardId: _id, ...rest } = mapped; return rest; })() as Parameters<typeof db.college.update>[0]["data"],
       });
       upserted++;
     } catch (e) {
-      console.error(`  ⚠ Failed to upsert ${mapped.name}: ${(e as Error).message}`);
+      const msg = (e as Error).message;
+      console.error(`  ⚠ Failed to upsert ${mapped.name}: ${msg.slice(0, 500)}`);
     }
     fetched++;
   }
@@ -263,11 +272,12 @@ async function main() {
         await db.college.upsert({
           where: { scorecardId: mapped.scorecardId },
           create: mapped as Parameters<typeof db.college.create>[0]["data"],
-          update: { ...mapped, scorecardId: undefined } as Parameters<typeof db.college.update>[0]["data"],
+          update: (() => { const { scorecardId: _id, ...rest } = mapped; return rest; })() as Parameters<typeof db.college.update>[0]["data"],
         });
         upserted++;
       } catch (e) {
-        console.error(`  ⚠ Failed to upsert ${mapped.name}: ${(e as Error).message}`);
+        const msg = (e as Error).message;
+      console.error(`  ⚠ Failed to upsert ${mapped.name}: ${msg.slice(0, 500)}`);
       }
       fetched++;
     }

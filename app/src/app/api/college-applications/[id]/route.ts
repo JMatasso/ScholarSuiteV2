@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server"
 import { withAuth } from "@/lib/api-middleware"
 import { db } from "@/lib/db"
 import { createActivityEvent, notifyLinkedParents } from "@/lib/activity-events"
+import {
+  generateApplicationStartedTasks,
+  generateAcceptedTasks,
+  generateCommittedTasks,
+} from "@/lib/college-task-generator"
 
 export const GET = withAuth(
   async (session, request: NextRequest) => {
@@ -11,6 +16,8 @@ export const GET = withAuth(
       where: { id },
       include: {
         user: { select: { id: true, name: true, email: true } },
+        college: true,
+        visits: true,
       },
     })
 
@@ -80,8 +87,70 @@ export const PATCH = withAuth(
         ...(data.notes !== undefined && {
           notes: data.notes?.trim() || null,
         }),
+        // College link
+        ...(data.collegeId !== undefined && { collegeId: data.collegeId || null }),
+        // Classification
+        ...(data.classification !== undefined && { classification: data.classification || null }),
+        // Application details
+        ...(data.platform !== undefined && { platform: data.platform || null }),
+        ...(data.applicationFee !== undefined && {
+          applicationFee: data.applicationFee != null ? parseFloat(data.applicationFee) : null,
+        }),
+        ...(data.feeWaiverUsed !== undefined && { feeWaiverUsed: data.feeWaiverUsed }),
+        // Supplemental tracking
+        ...(data.supplementalEssays !== undefined && { supplementalEssays: data.supplementalEssays ?? null }),
+        ...(data.recommenders !== undefined && { recommenders: data.recommenders ?? null }),
+        ...(data.transcriptSent !== undefined && { transcriptSent: data.transcriptSent }),
+        ...(data.testScoresSent !== undefined && { testScoresSent: data.testScoresSent }),
+        // Financial aid
+        ...(data.financialAidDeadline !== undefined && {
+          financialAidDeadline: data.financialAidDeadline ? new Date(data.financialAidDeadline) : null,
+        }),
+        ...(data.fafsaSent !== undefined && { fafsaSent: data.fafsaSent }),
+        ...(data.cssProfileSent !== undefined && { cssProfileSent: data.cssProfileSent }),
+        ...(data.aidPackage !== undefined && { aidPackage: data.aidPackage ?? null }),
+        ...(data.netCostEstimate !== undefined && {
+          netCostEstimate: data.netCostEstimate != null ? parseFloat(data.netCostEstimate) : null,
+        }),
+        // Decision
+        ...(data.depositDeadline !== undefined && {
+          depositDeadline: data.depositDeadline ? new Date(data.depositDeadline) : null,
+        }),
+        ...(data.depositPaid !== undefined && { depositPaid: data.depositPaid }),
+        ...(data.committed !== undefined && { committed: data.committed }),
+        // Sort order
+        ...(data.listOrder !== undefined && { listOrder: parseInt(data.listOrder) }),
       },
     })
+
+    // Auto-generate tasks based on status transitions
+    if (data.status === "IN_PROGRESS" && existing.status !== "IN_PROGRESS") {
+      generateApplicationStartedTasks(
+        existing.userId,
+        updated.universityName,
+        updated.applicationType,
+        updated.deadline
+      ).catch((err) =>
+        console.error("Failed to generate application-started tasks:", err)
+      )
+    }
+
+    if (data.status === "ACCEPTED" && existing.status !== "ACCEPTED") {
+      generateAcceptedTasks(
+        existing.userId,
+        updated.universityName,
+        updated.depositDeadline
+      ).catch((err) =>
+        console.error("Failed to generate accepted tasks:", err)
+      )
+    }
+
+    if (data.committed === true && !existing.committed) {
+      generateCommittedTasks(existing.userId, updated.universityName).catch(
+        (err) =>
+          console.error("Failed to generate committed tasks:", err)
+      )
+    }
 
     // Fire activity event when status changes to SUBMITTED
     if (data.status === "SUBMITTED" && existing.status !== "SUBMITTED") {

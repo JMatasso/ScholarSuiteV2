@@ -74,6 +74,7 @@ const navGroups: NavGroup[] = [
       { label: "Access Requests", href: "/admin/access-requests", icon: UserCheck },
       { label: "Cohorts", href: "/admin/cohorts", icon: Layers },
       { label: "Schools", href: "/admin/schools", icon: School },
+      { label: "Colleges", href: "/admin/colleges", icon: Building2 },
       { label: "Reviews", href: "/admin/reviews", icon: ClipboardCheck },
     ],
   },

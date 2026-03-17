@@ -16,7 +16,6 @@ import {
   ChevronLeft,
   Check,
   Loader2,
-  School,
   Briefcase,
   Shield,
   Compass,
@@ -25,6 +24,8 @@ import {
   PenTool,
   MessageSquare,
   Sparkles,
+  Clock,
+  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -38,15 +39,33 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { WelcomeTour } from "@/components/ui/welcome-tour";
+import { CollegeAutocomplete } from "@/components/ui/college-autocomplete";
+import type { CollegeResult } from "@/components/ui/college-autocomplete";
 
 const STEPS = [
   { id: 1, label: "Personal", icon: User },
   { id: 2, label: "Academic", icon: BookOpen },
   { id: 3, label: "Background", icon: Users },
   { id: 4, label: "Financial", icon: DollarSign },
-  { id: 5, label: "Activities", icon: Activity },
-  { id: 6, label: "Goals", icon: Target },
-  { id: 7, label: "Review", icon: CheckCircle2 },
+  { id: 5, label: "College Journey", icon: MapPin },
+  { id: 6, label: "Activities", icon: Activity },
+  { id: 7, label: "Goals", icon: Target },
+  { id: 8, label: "Review", icon: CheckCircle2 },
+];
+
+const COLLEGE_JOURNEY_STAGES = [
+  { value: "EXPLORING", label: "Exploring", description: "Just starting to explore college options", icon: Compass },
+  { value: "BUILDING_LIST", label: "Building List", description: "Building my college list and researching schools", icon: Search },
+  { value: "APPLYING", label: "Applying", description: "Actively applying to colleges", icon: Target },
+  { value: "WAITING", label: "Waiting", description: "Applications submitted, waiting for decisions", icon: Clock },
+  { value: "DECIDED", label: "Decided", description: "I've committed to a college", icon: CheckCircle2 },
+];
+
+const APPLICATION_ROUNDS = [
+  { value: "EARLY_DECISION", label: "Early Decision" },
+  { value: "EARLY_ACTION", label: "Early Action" },
+  { value: "REGULAR_DECISION", label: "Regular Decision" },
+  { value: "ROLLING", label: "Rolling Admission" },
 ];
 
 const JOURNEY_STAGES = [
@@ -116,43 +135,85 @@ export default function OnboardingPage() {
     hasFinancialNeed: false,
     journeyStage: "EARLY_EXPLORATION",
     postSecondaryPath: "COLLEGE",
+    collegeJourneyStage: "",
+    committedCollegeName: "",
     activities: "",
     communityService: "",
     leadershipRoles: "",
     awards: "",
     goals: "",
     dreamSchools: "",
+    applicationRounds: [] as string[],
     tourComplete: false,
   });
 
-  const update = (field: string, value: string | boolean) => {
+  const isCollegePath = formData.postSecondaryPath === "COLLEGE";
+  const totalSteps = 8;
+
+  // Get visible steps (skip College Journey step for non-college paths)
+  const visibleSteps = isCollegePath ? STEPS : STEPS.filter((s) => s.id !== 5);
+
+  const update = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const goToStep = (step: number) => {
-    if (step < currentStep) {
+  // Map between display step index and actual step id
+  const getActualStep = (displayIndex: number): number => {
+    if (isCollegePath) return displayIndex;
+    // For non-college paths, skip step 5
+    if (displayIndex < 5) return displayIndex;
+    return displayIndex + 1; // shift up by 1 to skip step 5
+  };
+
+  const getDisplayIndex = (actualStep: number): number => {
+    if (isCollegePath) return actualStep;
+    if (actualStep < 5) return actualStep;
+    if (actualStep === 5) return 4; // shouldn't happen, but safety
+    return actualStep - 1;
+  };
+
+  const goToStep = (stepId: number) => {
+    // Only allow going to completed steps
+    if (stepId < currentStep) {
+      // For non-college paths, don't allow navigating to step 5
+      if (!isCollegePath && stepId === 5) return;
       setDirection(-1);
-      setCurrentStep(step);
+      setCurrentStep(stepId);
     }
   };
 
   const next = () => {
     setDirection(1);
-    setCurrentStep((s) => Math.min(s + 1, 7));
+    if (!isCollegePath && currentStep === 4) {
+      // Skip step 5 (College Journey) for non-college paths
+      setCurrentStep(6);
+    } else {
+      setCurrentStep((s) => Math.min(s + 1, totalSteps));
+    }
   };
 
   const prev = () => {
     setDirection(-1);
-    setCurrentStep((s) => Math.max(s - 1, 1));
+    if (!isCollegePath && currentStep === 6) {
+      // Skip back over step 5 for non-college paths
+      setCurrentStep(4);
+    } else {
+      setCurrentStep((s) => Math.max(s - 1, 1));
+    }
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
+      const submitData = {
+        ...formData,
+        tourComplete: true,
+        collegeJourneyStage: isCollegePath ? formData.collegeJourneyStage : "NOT_COLLEGE",
+      };
       const res = await fetch("/api/students/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, tourComplete: true }),
+        body: JSON.stringify(submitData),
       });
       if (res.ok) {
         toast.success("Profile completed! Welcome to ScholarSuite.");
@@ -171,10 +232,15 @@ export default function OnboardingPage() {
   const handleSavePartial = async () => {
     setIsSubmitting(true);
     try {
+      const submitData = {
+        ...formData,
+        tourComplete: true,
+        collegeJourneyStage: isCollegePath ? formData.collegeJourneyStage : "NOT_COLLEGE",
+      };
       const res = await fetch("/api/students/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, tourComplete: true }),
+        body: JSON.stringify(submitData),
       });
       if (res.ok) {
         toast.success("Progress saved! You can finish anytime.");
@@ -191,8 +257,9 @@ export default function OnboardingPage() {
 
   const canProceedStep1 = formData.firstName.trim() !== "" && formData.lastName.trim() !== "";
 
-  const stepInfo = STEPS[currentStep - 1];
-  const progressPercent = ((currentStep - 1) / (STEPS.length - 1)) * 100;
+  // Find the current step info based on actual step number
+  const stepInfo = STEPS.find((s) => s.id === currentStep) || STEPS[0];
+  const progressPercent = ((getDisplayIndex(currentStep) - 1) / (visibleSteps.length - 1)) * 100;
 
   return (
     <div className="min-h-screen bg-background">
@@ -233,7 +300,7 @@ export default function OnboardingPage() {
               transition={{ duration: 0.4, ease: "easeInOut" }}
             />
 
-            {STEPS.map((step) => {
+            {visibleSteps.map((step) => {
               const isCompleted = currentStep > step.id;
               const isCurrent = currentStep === step.id;
               const isFuture = currentStep < step.id;
@@ -396,7 +463,134 @@ export default function OnboardingPage() {
               </StepCard>
             )}
 
-            {currentStep === 5 && (
+            {currentStep === 5 && isCollegePath && (
+              <StepCard
+                title="College Journey"
+                description="Where are you in your college journey?"
+                onPrev={prev}
+                onNext={next}
+                onSkip={next}
+                step={currentStep}
+              >
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    {COLLEGE_JOURNEY_STAGES.map((stage) => (
+                      <button
+                        key={stage.value}
+                        onClick={() => update("collegeJourneyStage", stage.value)}
+                        className={cn(
+                          "w-full p-4 rounded-xl border-2 text-left transition-all duration-300 flex items-start gap-4",
+                          formData.collegeJourneyStage === stage.value
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-muted-foreground/30"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300",
+                          formData.collegeJourneyStage === stage.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                        )}>
+                          <stage.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className={cn("font-medium", formData.collegeJourneyStage === stage.value ? "text-primary" : "text-foreground")}>
+                            {stage.label}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-0.5">{stage.description}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Conditional fields based on college journey stage */}
+                  {formData.collegeJourneyStage === "EXPLORING" && (
+                    <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4">
+                      <p className="text-sm text-emerald-700">
+                        Great! We will help you explore your options. You can update this as your journey progresses.
+                      </p>
+                    </div>
+                  )}
+
+                  {formData.collegeJourneyStage === "BUILDING_LIST" && (
+                    <TextareaField
+                      label="Schools you're interested in"
+                      value={formData.dreamSchools}
+                      onChange={(v) => update("dreamSchools", v)}
+                      placeholder="e.g., Stanford University, UC Berkeley, MIT..."
+                    />
+                  )}
+
+                  {formData.collegeJourneyStage === "APPLYING" && (
+                    <div className="space-y-5">
+                      <TextareaField
+                        label="Schools you're applying to"
+                        value={formData.dreamSchools}
+                        onChange={(v) => update("dreamSchools", v)}
+                        placeholder="e.g., Stanford University, UC Berkeley, MIT..."
+                      />
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-3">Which application rounds?</label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {APPLICATION_ROUNDS.map((round) => {
+                            const isSelected = formData.applicationRounds.includes(round.value);
+                            return (
+                              <button
+                                key={round.value}
+                                onClick={() => {
+                                  const newRounds = isSelected
+                                    ? formData.applicationRounds.filter((r) => r !== round.value)
+                                    : [...formData.applicationRounds, round.value];
+                                  update("applicationRounds", newRounds);
+                                }}
+                                className={cn(
+                                  "p-3 rounded-xl border-2 text-left transition-all duration-300 flex items-center gap-3",
+                                  isSelected
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-muted-foreground/30"
+                                )}
+                              >
+                                <div className={cn(
+                                  "w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300",
+                                  isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"
+                                )}>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                                </div>
+                                <span className={cn("text-sm font-medium", isSelected ? "text-primary" : "text-foreground")}>
+                                  {round.label}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {formData.collegeJourneyStage === "WAITING" && (
+                    <TextareaField
+                      label="Schools you've applied to"
+                      value={formData.dreamSchools}
+                      onChange={(v) => update("dreamSchools", v)}
+                      placeholder="e.g., Stanford University, UC Berkeley, MIT..."
+                    />
+                  )}
+
+                  {formData.collegeJourneyStage === "DECIDED" && (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-foreground">Which college are you attending?</label>
+                      <CollegeAutocomplete
+                        value={formData.committedCollegeName || undefined}
+                        onSelect={(college: CollegeResult) => {
+                          update("committedCollegeName", college.name);
+                        }}
+                        placeholder="Search for your college..."
+                      />
+                    </div>
+                  )}
+                </div>
+              </StepCard>
+            )}
+
+            {currentStep === 6 && (
               <StepCard
                 title="Activities & Interests"
                 description="Tell us about your extracurricular involvement"
@@ -414,7 +608,7 @@ export default function OnboardingPage() {
               </StepCard>
             )}
 
-            {currentStep === 6 && (
+            {currentStep === 7 && (
               <StepCard
                 title="Goals & Preferences"
                 description="What are you working toward?"
@@ -425,7 +619,7 @@ export default function OnboardingPage() {
               >
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-3">Where are you in your journey?</label>
+                    <label className="block text-sm font-medium text-foreground mb-3">Where are you in your scholarship journey?</label>
                     <div className="space-y-3">
                       {JOURNEY_STAGES.map((stage) => (
                         <button
@@ -455,13 +649,12 @@ export default function OnboardingPage() {
                     </div>
                   </div>
 
-                  <TextareaField label="Dream Schools" value={formData.dreamSchools} onChange={(v) => update("dreamSchools", v)} placeholder="e.g., Stanford University, UC Berkeley, MIT..." />
                   <TextareaField label="Personal Goals" value={formData.goals} onChange={(v) => update("goals", v)} placeholder="What do you hope to achieve through scholarships and your education?" />
                 </div>
               </StepCard>
             )}
 
-            {currentStep === 7 && (
+            {currentStep === 8 && (
               <StepCard
                 title="Review Your Profile"
                 description="Make sure everything looks good before submitting"
@@ -489,6 +682,13 @@ export default function OnboardingPage() {
                     ["First-Gen", formData.isFirstGen ? "Yes" : "No"],
                     ["Pell Eligible", formData.isPellEligible ? "Yes" : "No"],
                   ]} />
+                  {isCollegePath && formData.collegeJourneyStage && (
+                    <ReviewSection title="College Journey" items={[
+                      ["Stage", COLLEGE_JOURNEY_STAGES.find((s) => s.value === formData.collegeJourneyStage)?.label || formData.collegeJourneyStage.replace(/_/g, " ")],
+                      ...(formData.committedCollegeName ? [["Committed College", formData.committedCollegeName] as [string, string]] : []),
+                      ...(formData.dreamSchools ? [["Schools", formData.dreamSchools] as [string, string]] : []),
+                    ]} />
+                  )}
                   <ReviewSection title="Goals" items={[
                     ["Journey Stage", formData.journeyStage.replace(/_/g, " ")],
                     ["Pathway", formData.postSecondaryPath.replace(/_/g, " ")],
@@ -502,7 +702,7 @@ export default function OnboardingPage() {
         {/* Step counter */}
         <div className="text-center mt-6">
           <p className="text-sm text-muted-foreground">
-            Step {currentStep} of 7: {stepInfo.label}
+            Step {getDisplayIndex(currentStep)} of {visibleSteps.length}: {stepInfo.label}
           </p>
         </div>
       </div>
