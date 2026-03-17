@@ -37,6 +37,15 @@ enum PostSecondaryPath {
   WORKFORCE
 }
 
+enum CollegeJourneyStage {
+  EXPLORING
+  BUILDING_LIST
+  APPLYING
+  WAITING
+  DECIDED
+  NOT_COLLEGE
+}
+
 enum ServiceTier {
   INTRODUCTORY
   FLAT_RATE
@@ -99,6 +108,7 @@ model User {
 
   prospect  Prospect?
   chatConversations ChatConversation[]
+  recommenders      Recommender[]
 }
 
 model Account {
@@ -174,10 +184,12 @@ model StudentProfile {
   dreamSchools      String?
   goals             String?
 
-  journeyStage      JourneyStage     @default(EARLY_EXPLORATION)
-  postSecondaryPath PostSecondaryPath @default(COLLEGE)
-  status            StudentStatus    @default(NEW)
-  serviceTier       ServiceTier?
+  journeyStage         JourneyStage         @default(EARLY_EXPLORATION)
+  postSecondaryPath    PostSecondaryPath    @default(COLLEGE)
+  collegeJourneyStage  CollegeJourneyStage?
+  committedCollegeName String?
+  status               StudentStatus        @default(NEW)
+  serviceTier          ServiceTier?
 
   personalComplete  Boolean          @default(false)
   academicComplete  Boolean          @default(false)
@@ -408,7 +420,8 @@ model ScholarshipApplication {
   scholarship   Scholarship       @relation(fields: [scholarshipId], references: [id])
   checklists    ChecklistItem[]
   essays        Essay[]
-  disbursements Disbursement[]
+  disbursements    Disbursement[]
+  recommenderLinks RecommenderScholarshipApp[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 }
@@ -435,7 +448,9 @@ model Disbursement {
 enum CollegeAppType {
   REGULAR
   EARLY_DECISION
+  EARLY_DECISION_2
   EARLY_ACTION
+  RESTRICTIVE_EARLY_ACTION
   ROLLING
 }
 
@@ -447,22 +462,195 @@ enum CollegeAppStatus {
   DENIED
   WAITLISTED
   DEFERRED
+  WITHDRAWN
+}
+
+enum CollegeClassification {
+  REACH
+  MATCH
+  SAFETY
+  LIKELY
+}
+
+enum CollegeAppPlatform {
+  COMMON_APP
+  COALITION
+  UC_APP
+  DIRECT
+  OTHER
+}
+
+enum CollegeVisitType {
+  CAMPUS_TOUR
+  INFO_SESSION
+  OPEN_HOUSE
+  OVERNIGHT
+  VIRTUAL
+  INTERVIEW
+}
+
+enum CollegeLocale {
+  CITY_LARGE
+  CITY_MIDSIZE
+  CITY_SMALL
+  SUBURB_LARGE
+  SUBURB_MIDSIZE
+  SUBURB_SMALL
+  TOWN_FRINGE
+  TOWN_DISTANT
+  TOWN_REMOTE
+  RURAL_FRINGE
+  RURAL_DISTANT
+  RURAL_REMOTE
+}
+
+enum CollegeType {
+  PUBLIC
+  PRIVATE_NONPROFIT
+  PRIVATE_FORPROFIT
+}
+
+model College {
+  id                  String        @id @default(cuid())
+  scorecardId         Int           @unique
+  name                String
+  alias               String?
+  city                String?
+  state               String?
+  zip                 String?
+  website             String?
+  logoUrl             String?
+  type                CollegeType?
+  locale              CollegeLocale?
+  latitude            Float?
+  longitude           Float?
+
+  // Admissions
+  acceptanceRate      Float?
+  satAvg              Int?
+  sat25               Int?
+  sat75               Int?
+  actAvg              Int?
+  act25               Int?
+  act75               Int?
+  testOptional        Boolean       @default(false)
+
+  // Cost
+  inStateTuition      Float?
+  outOfStateTuition   Float?
+  roomAndBoard        Float?
+  booksSupplies       Float?
+  netPriceByIncome    Json?
+
+  // Size & Demographics
+  enrollment          Int?
+  undergradPop        Int?
+  studentFacultyRatio Float?
+
+  // Outcomes
+  gradRate4yr         Float?
+  gradRate6yr         Float?
+  retentionRate       Float?
+  medianEarnings6yr   Float?
+  medianEarnings10yr  Float?
+  medianDebt          Float?
+
+  // Financial Aid
+  pellPct             Float?
+  fedLoanPct          Float?
+
+  // Programs
+  topPrograms         Json?
+
+  // Attributes
+  religiousAffiliation String?
+  hbcu                Boolean       @default(false)
+  menOnly             Boolean       @default(false)
+  womenOnly           Boolean       @default(false)
+
+  // Deadlines (populated via enrichment)
+  rdDeadline          DateTime?
+  eaDeadline          DateTime?
+  edDeadline          DateTime?
+  ed2Deadline         DateTime?
+  fafsaDeadline       DateTime?
+  cssProfileRequired  Boolean       @default(false)
+
+  lastSyncedAt        DateTime      @default(now())
+  applications        CollegeApplication[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([name])
+  @@index([state])
+  @@index([type, state])
 }
 
 model CollegeApplication {
-  id              String           @id @default(cuid())
+  id              String              @id @default(cuid())
   userId          String
   universityName  String
-  applicationType CollegeAppType   @default(REGULAR)
-  status          CollegeAppStatus @default(RESEARCHING)
+  applicationType CollegeAppType      @default(REGULAR)
+  status          CollegeAppStatus    @default(RESEARCHING)
   deadline        DateTime?
   cost            Float?
-  isDream         Boolean          @default(false)
-  isSafety        Boolean          @default(false)
+  isDream         Boolean             @default(false)
+  isSafety        Boolean             @default(false)
   notes           String?
-  user            User             @relation(fields: [userId], references: [id])
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+
+  // Link to College data
+  collegeId       String?
+  college         College?            @relation(fields: [collegeId], references: [id])
+
+  // Classification
+  classification  CollegeClassification?
+
+  // Application details
+  platform        CollegeAppPlatform?
+  applicationFee  Float?
+  feeWaiverUsed   Boolean             @default(false)
+
+  // Supplemental tracking
+  supplementalEssays Json?
+  recommenders       Json?
+  transcriptSent     Boolean          @default(false)
+  testScoresSent     Boolean          @default(false)
+
+  // Financial aid
+  financialAidDeadline DateTime?
+  fafsaSent           Boolean          @default(false)
+  cssProfileSent      Boolean          @default(false)
+  aidPackage          Json?
+  netCostEstimate     Float?
+
+  // Decision
+  depositDeadline     DateTime?
+  depositPaid         Boolean          @default(false)
+  committed           Boolean          @default(false)
+
+  // Sort order in My List
+  listOrder           Int              @default(0)
+
+  user            User                @relation(fields: [userId], references: [id])
+  visits          CollegeVisit[]
+  recommenderLinks RecommenderCollegeApp[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model CollegeVisit {
+  id                    String           @id @default(cuid())
+  collegeApplicationId  String
+  userId                String
+  type                  CollegeVisitType @default(CAMPUS_TOUR)
+  scheduledAt           DateTime
+  completed             Boolean          @default(false)
+  notes                 String?
+  rating                Int?
+  calendarEventId       String?
+  collegeApplication    CollegeApplication @relation(fields: [collegeApplicationId], references: [id], onDelete: Cascade)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
 }
 
 // ─── TASKS ───────────────────────────────────────────────────
@@ -478,6 +666,10 @@ enum TaskPhase {
 enum TaskTrack {
   SCHOLARSHIP
   COLLEGE_PREP
+  COLLEGE_APP
+  FINANCIAL
+  ACADEMIC
+  GENERAL
 }
 
 enum TaskStatus {
@@ -1236,4 +1428,69 @@ model ActivityEvent {
   createdAt   DateTime @default(now())
 
   @@index([studentId, createdAt])
+}
+
+// ─── LETTERS OF RECOMMENDATION ─────────────────────────────
+
+enum RecommenderCategory {
+  TEACHER
+  COUNSELOR
+  COACH
+  EMPLOYER
+  MENTOR
+  CLERGY
+  OTHER
+}
+
+enum RecommenderStatus {
+  NOT_ASKED
+  REQUESTED
+  IN_PROGRESS
+  RECEIVED
+}
+
+model Recommender {
+  id              String              @id @default(cuid())
+  userId          String
+  name            String
+  title           String?
+  email           String?
+  phone           String?
+  relationship    String?
+  category        RecommenderCategory @default(TEACHER)
+  status          RecommenderStatus   @default(NOT_ASKED)
+  requestedAt     DateTime?
+  dueDate         DateTime?
+  receivedAt      DateTime?
+  notes           String?
+  thankYouSent    Boolean             @default(false)
+
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collegeApps     RecommenderCollegeApp[]
+  scholarshipApps RecommenderScholarshipApp[]
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([userId])
+}
+
+model RecommenderCollegeApp {
+  id              String             @id @default(cuid())
+  recommenderId   String
+  collegeAppId    String
+  recommender     Recommender        @relation(fields: [recommenderId], references: [id], onDelete: Cascade)
+  collegeApp      CollegeApplication @relation(fields: [collegeAppId], references: [id], onDelete: Cascade)
+
+  @@unique([recommenderId, collegeAppId])
+}
+
+model RecommenderScholarshipApp {
+  id              String                 @id @default(cuid())
+  recommenderId   String
+  scholarshipAppId String
+  recommender     Recommender            @relation(fields: [recommenderId], references: [id], onDelete: Cascade)
+  scholarshipApp  ScholarshipApplication @relation(fields: [scholarshipAppId], references: [id], onDelete: Cascade)
+
+  @@unique([recommenderId, scholarshipAppId])
 }

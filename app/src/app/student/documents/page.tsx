@@ -3,6 +3,22 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
   FolderOpen,
@@ -14,12 +30,15 @@ import {
   Trash2,
   Clock,
   AlertTriangle,
+  Plus,
+  FolderInput,
 } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import { UploadButton } from "@/lib/uploadthing"
 import { DOCUMENT_FOLDERS } from "@/lib/constants"
+import { ApplicationPacketBuilder } from "@/components/application-packet-builder"
 
 interface DocumentRequest {
   id: string
@@ -40,6 +59,18 @@ interface Document {
   createdAt: string
   request: DocumentRequest | null
 }
+
+const TYPE_LABELS = [
+  "Transcript",
+  "Test Score",
+  "Letter of Rec",
+  "Resume",
+  "Award",
+  "Essay",
+  "Financial Doc",
+  "ID/Personal",
+  "Other",
+] as const
 
 function formatFileSize(bytes: number | null): string {
   if (!bytes) return ""
@@ -76,6 +107,16 @@ export default function DocumentsPage() {
   const [loading, setLoading] = useState(true)
   const [activeFolder, setActiveFolder] = useState<string | null>(null)
 
+  // Dialogs
+  const [packetOpen, setPacketOpen] = useState(false)
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<{ url: string; name: string; key: string } | null>(null)
+  const [docName, setDocName] = useState("")
+  const [docFolder, setDocFolder] = useState("")
+  const [docType, setDocType] = useState("")
+  const [docNotes, setDocNotes] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+
   const loadDocuments = () => {
     Promise.all([
       fetch("/api/documents").then((r) => r.json()).catch(() => []),
@@ -96,6 +137,65 @@ export default function DocumentsPage() {
     if (res.ok) {
       setDocuments(prev => prev.filter(d => d.id !== docId))
       toast.success("Document deleted")
+    }
+  }
+
+  const resetDialog = () => {
+    setUploadedFile(null)
+    setDocName("")
+    setDocFolder("")
+    setDocType("")
+    setDocNotes("")
+  }
+
+  const handleAddDocument = async () => {
+    if (!uploadedFile) {
+      toast.error("Please upload a file first")
+      return
+    }
+    setSubmitting(true)
+    try {
+      const res = await fetch(`/api/documents`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileUrl: uploadedFile.url,
+          name: docName || uploadedFile.name,
+          folder: docFolder || null,
+          type: docType || null,
+          notes: docNotes || null,
+        }),
+      })
+      if (res.ok) {
+        toast.success("Document added!")
+        setAddDialogOpen(false)
+        resetDialog()
+        loadDocuments()
+      } else {
+        toast.error("Failed to save document")
+      }
+    } catch {
+      toast.error("Failed to save document")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleMoveToFolder = async (docId: string, folder: string) => {
+    try {
+      const res = await fetch(`/api/documents/${docId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder }),
+      })
+      if (res.ok) {
+        setDocuments(prev => prev.map(d => d.id === docId ? { ...d, folder } : d))
+        toast.success(`Moved to ${folder}`)
+      } else {
+        toast.error("Failed to move document")
+      }
+    } catch {
+      toast.error("Failed to move document")
     }
   }
 
@@ -123,10 +223,144 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">Documents</h1>
-        <p className="mt-1 text-muted-foreground">Organize and upload your application materials.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Documents</h1>
+          <p className="mt-1 text-muted-foreground">Organize and upload your application materials.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => setPacketOpen(true)}
+          >
+            <Download className="h-4 w-4" />
+            Export Packet
+          </Button>
+          <Button
+            className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+            onClick={() => {
+              resetDialog()
+              setAddDialogOpen(true)
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            Add Document
+          </Button>
+        </div>
       </div>
+
+      {/* Add Document Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Document</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {/* Upload area */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Upload File</label>
+              {uploadedFile ? (
+                <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
+                  <FileText className="h-5 w-5 text-emerald-600 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{uploadedFile.name}</p>
+                    <p className="text-xs text-emerald-600">Uploaded successfully</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => setUploadedFile(null)}
+                  >
+                    Replace
+                  </Button>
+                </div>
+              ) : (
+                <div className="rounded-lg border-2 border-dashed border-border p-4 text-center">
+                  <UploadButton
+                    endpoint="folderUploader"
+                    input={{ folder: docFolder || "Uncategorized" }}
+                    onClientUploadComplete={(res) => {
+                      if (res?.[0]) {
+                        const file = res[0]
+                        setUploadedFile({ url: file.ufsUrl, name: file.name, key: file.key })
+                        if (!docName) setDocName(file.name)
+                      }
+                      toast.success("File uploaded!")
+                    }}
+                    onUploadError={(error: Error) => { void toast.error(`Upload failed: ${error.message}`) }}
+                    appearance={{
+                      button: "bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-sm px-4 py-2 rounded-lg",
+                      allowedContent: "text-xs text-muted-foreground mt-1",
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Document name */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Document Name</label>
+              <Input
+                placeholder="e.g., Official Transcript Fall 2025"
+                value={docName}
+                onChange={(e) => setDocName(e.target.value)}
+              />
+            </div>
+
+            {/* Folder / Category */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Folder / Category</label>
+              <Select value={docFolder} onValueChange={(v) => v && setDocFolder(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a folder..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {DOCUMENT_FOLDERS.map((folder) => (
+                    <SelectItem key={folder} value={folder}>{folder}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Type label */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Type Label</label>
+              <Select value={docType} onValueChange={(v) => v && setDocType(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {TYPE_LABELS.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Notes (optional)</label>
+              <Textarea
+                placeholder="Any additional notes about this document..."
+                value={docNotes}
+                onChange={(e) => setDocNotes(e.target.value)}
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              className="bg-[#2563EB] hover:bg-[#2563EB]/90"
+              disabled={!uploadedFile || submitting}
+              onClick={handleAddDocument}
+            >
+              {submitting ? "Saving..." : "Add Document"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Learn more banner */}
       <LearnMoreBanner
@@ -290,7 +524,7 @@ export default function DocumentsPage() {
                 </h3>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {uncategorized.map((doc) => (
-                    <div key={doc.id} className="flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-foreground/10">
+                    <div key={doc.id} className="group flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-foreground/10">
                       <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border", getFileIcon(doc.mimeType))}>
                         <File className="h-4 w-4" />
                       </div>
@@ -299,6 +533,17 @@ export default function DocumentsPage() {
                         <p className="text-xs text-muted-foreground">{formatFileSize(doc.fileSize)}</p>
                       </div>
                       <div className="flex items-center gap-1">
+                        {/* Move to folder dropdown */}
+                        <Select onValueChange={(folder) => folder && handleMoveToFolder(doc.id, String(folder))}>
+                          <SelectTrigger className="h-7 w-7 border-0 bg-transparent p-0 opacity-0 group-hover:opacity-100 transition-opacity [&>svg]:hidden">
+                            <FolderInput className="h-3.5 w-3.5 text-muted-foreground" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DOCUMENT_FOLDERS.map((folder) => (
+                              <SelectItem key={folder} value={folder}>{folder}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <Button variant="ghost" size="icon-xs" onClick={() => window.open(doc.fileUrl, "_blank")}>
                           <Download className="h-3.5 w-3.5" />
                         </Button>
@@ -314,6 +559,9 @@ export default function DocumentsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Application Packet Builder */}
+      <ApplicationPacketBuilder open={packetOpen} onOpenChange={setPacketOpen} />
     </div>
   )
 }

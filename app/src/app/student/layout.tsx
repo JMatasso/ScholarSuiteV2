@@ -38,6 +38,8 @@ import {
   GraduationCap,
   Building2,
   CheckCircle2,
+  Star,
+  Mail,
 } from "lucide-react"
 
 const navGroups = [
@@ -45,6 +47,7 @@ const navGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/student", icon: LayoutDashboard },
+      { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
       { name: "Timeline", href: "/student/timeline", icon: Clock },
       { name: "Learning", href: "/student/learning", icon: BookOpen },
@@ -61,17 +64,19 @@ const navGroups = [
   {
     label: "Colleges",
     items: [
-      { name: "Search", href: "/student/colleges", icon: Building2 },
+      { name: "Search & Compare", href: "/student/colleges", icon: Building2 },
+      { name: "My List", href: "/student/colleges/list", icon: Star },
       { name: "Applications", href: "/student/colleges/applications", icon: GraduationCap },
       { name: "Decisions", href: "/student/colleges/decisions", icon: CheckCircle2 },
+      { name: "Visits", href: "/student/colleges/visits", icon: CalendarDays },
       { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
     ],
   },
   {
     label: "Academics",
     items: [
-      { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Essays", href: "/student/essays", icon: PenTool },
+      { name: "Letters of Rec", href: "/student/letters", icon: Mail },
       { name: "Resume", href: "/student/resume", icon: FileText },
       { name: "Documents", href: "/student/documents", icon: FolderOpen },
       { name: "Activities", href: "/student/activities", icon: Activity },

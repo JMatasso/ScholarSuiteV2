@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { toast } from "sonner"
-import { Plus, Star, Shield, GraduationCap, Send, CheckCircle2, Clock } from "lucide-react"
+import { Plus, GraduationCap, Send, CheckCircle2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -16,8 +16,11 @@ import {
 } from "@/components/ui/select"
 import {
   KanbanColumn, COLUMNS, FILTER_OPTIONS,
-  type CollegeApp, type AppType, type AppStatus,
+  APP_TYPE_LABELS, CLASSIFICATION_LABELS, PLATFORM_LABELS,
+  type CollegeApp, type AppType, type AppStatus, type AppClassification, type AppPlatform,
 } from "@/components/college-kanban"
+import { CollegeAppDetail } from "@/components/college-app-detail"
+import { CollegeAutocomplete, type CollegeResult } from "@/components/ui/college-autocomplete"
 
 export default function CollegeApplicationsPage() {
   const [apps, setApps] = useState<CollegeApp[]>([])
@@ -25,14 +28,16 @@ export default function CollegeApplicationsPage() {
   const [filter, setFilter] = useState("ALL")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [selectedApp, setSelectedApp] = useState<CollegeApp | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
 
   const [form, setForm] = useState({
     universityName: "",
+    collegeId: null as string | null,
     applicationType: "REGULAR" as AppType,
+    classification: "" as string,
+    platform: "" as string,
     deadline: "",
-    cost: "",
-    isDream: false,
-    isSafety: false,
     notes: "",
   })
 
@@ -50,7 +55,23 @@ export default function CollegeApplicationsPage() {
 
   useEffect(() => { fetchApps() }, [fetchApps])
 
+  // Keep selectedApp in sync with fetched data
+  useEffect(() => {
+    if (selectedApp) {
+      const updated = apps.find((a) => a.id === selectedApp.id)
+      if (updated) setSelectedApp(updated)
+    }
+  }, [apps, selectedApp])
+
   const filtered = filter === "ALL" ? apps : apps.filter((a) => a.applicationType === filter)
+
+  const handleCollegeSelect = (college: CollegeResult) => {
+    if (!college.id) {
+      setForm((f) => ({ ...f, universityName: "", collegeId: null }))
+      return
+    }
+    setForm((f) => ({ ...f, universityName: college.name, collegeId: college.id }))
+  }
 
   const handleCreate = async () => {
     if (!form.universityName.trim()) {
@@ -63,15 +84,19 @@ export default function CollegeApplicationsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...form,
-          cost: form.cost ? parseFloat(form.cost) : null,
+          universityName: form.universityName,
+          collegeId: form.collegeId,
+          applicationType: form.applicationType,
+          classification: form.classification || null,
+          platform: form.platform || null,
           deadline: form.deadline || null,
+          notes: form.notes || null,
         }),
       })
       if (!res.ok) throw new Error()
       toast.success("College added!")
       setDialogOpen(false)
-      setForm({ universityName: "", applicationType: "REGULAR", deadline: "", cost: "", isDream: false, isSafety: false, notes: "" })
+      setForm({ universityName: "", collegeId: null, applicationType: "REGULAR", classification: "", platform: "", deadline: "", notes: "" })
       fetchApps()
     } catch {
       toast.error("Failed to add college")
@@ -93,6 +118,37 @@ export default function CollegeApplicationsPage() {
       toast.error("Failed to update status")
       fetchApps()
     }
+  }
+
+  const handleUpdate = async (id: string, data: Partial<CollegeApp>) => {
+    try {
+      const res = await fetch(`/api/college-applications/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error()
+      await fetchApps()
+    } catch {
+      toast.error("Failed to update application")
+      throw new Error()
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/college-applications/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      toast.success("Application deleted")
+      fetchApps()
+    } catch {
+      toast.error("Failed to delete application")
+    }
+  }
+
+  const handleCardClick = (app: CollegeApp) => {
+    setSelectedApp(app)
+    setDetailOpen(true)
   }
 
   const total = apps.length
@@ -163,10 +219,23 @@ export default function CollegeApplicationsPage() {
                 column={col}
                 apps={colApps}
                 onStatusChange={handleStatusChange}
+                onCardClick={handleCardClick}
               />
             )
           })}
         </div>
+      )}
+
+      {/* detail panel */}
+      {selectedApp && (
+        <CollegeAppDetail
+          app={selectedApp}
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
+          onRefresh={fetchApps}
+        />
       )}
 
       {/* add dialog */}
@@ -177,11 +246,11 @@ export default function CollegeApplicationsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">University Name *</label>
-              <Input
-                placeholder="e.g. Stanford University"
-                value={form.universityName}
-                onChange={(e) => setForm((f) => ({ ...f, universityName: e.target.value }))}
+              <label className="text-xs font-medium text-muted-foreground">College *</label>
+              <CollegeAutocomplete
+                value={form.universityName || undefined}
+                onSelect={handleCollegeSelect}
+                placeholder="Search for a college..."
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -190,10 +259,9 @@ export default function CollegeApplicationsPage() {
                 <Select value={form.applicationType} onValueChange={(v) => v && setForm((f) => ({ ...f, applicationType: v as AppType }))}>
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="REGULAR">Regular</SelectItem>
-                    <SelectItem value="EARLY_DECISION">Early Decision</SelectItem>
-                    <SelectItem value="EARLY_ACTION">Early Action</SelectItem>
-                    <SelectItem value="ROLLING">Rolling</SelectItem>
+                    {(Object.keys(APP_TYPE_LABELS) as AppType[]).map((t) => (
+                      <SelectItem key={t} value={t}>{APP_TYPE_LABELS[t]}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -204,18 +272,28 @@ export default function CollegeApplicationsPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Estimated Cost</label>
-                <Input type="number" placeholder="e.g. 55000" value={form.cost} onChange={(e) => setForm((f) => ({ ...f, cost: e.target.value }))} />
+                <label className="text-xs font-medium text-muted-foreground">Classification</label>
+                <Select value={form.classification || "NONE"} onValueChange={(v) => setForm((f) => ({ ...f, classification: v === "NONE" ? "" : (v ?? "") }))}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">Not set</SelectItem>
+                    {(Object.keys(CLASSIFICATION_LABELS) as AppClassification[]).map((c) => (
+                      <SelectItem key={c} value={c}>{CLASSIFICATION_LABELS[c]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="flex items-end gap-4 pb-1">
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={form.isDream} onChange={(e) => setForm((f) => ({ ...f, isDream: e.target.checked, isSafety: e.target.checked ? false : f.isSafety }))} className="rounded border-gray-300" />
-                  <Star className="h-4 w-4 text-amber-500" /> Dream
-                </label>
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={form.isSafety} onChange={(e) => setForm((f) => ({ ...f, isSafety: e.target.checked, isDream: e.target.checked ? false : f.isDream }))} className="rounded border-gray-300" />
-                  <Shield className="h-4 w-4 text-blue-500" /> Safety
-                </label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Platform</label>
+                <Select value={form.platform || "NONE"} onValueChange={(v) => setForm((f) => ({ ...f, platform: v === "NONE" ? "" : (v ?? "") }))}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">Not set</SelectItem>
+                    {(Object.keys(PLATFORM_LABELS) as AppPlatform[]).map((p) => (
+                      <SelectItem key={p} value={p}>{PLATFORM_LABELS[p]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-1.5">
