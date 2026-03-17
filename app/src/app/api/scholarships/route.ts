@@ -29,11 +29,14 @@ export async function GET(req: Request) {
       const scraped = await db.scholarship.count({
         where: { scrapeStatus: "CURRENT" },
       });
-      const stale = await db.scholarship.count({
-        where: { scrapeStatus: "STALE" },
+      const needsReview = await db.scholarship.count({
+        where: { scrapeStatus: "NEEDS_REVIEW" },
       });
-      const failed = await db.scholarship.count({
-        where: { scrapeStatus: "FAILED" },
+      const expired = await db.scholarship.count({
+        where: { scrapeStatus: "EXPIRED" },
+      });
+      const error = await db.scholarship.count({
+        where: { scrapeStatus: "ERROR" },
       });
       const noDescription = await db.scholarship.count({
         where: { OR: [{ description: null }, { description: "" }] },
@@ -50,7 +53,7 @@ export async function GET(req: Request) {
         enriched,
         unenriched: total - enriched,
         enrichmentRate: total > 0 ? Math.round((enriched / total) * 100) : 0,
-        scrapeStatus: { current: scraped, stale, failed, unscraped: total - scraped - stale - failed },
+        scrapeStatus: { current: scraped, needsReview, expired, error, unscraped: total - scraped - needsReview - expired - error },
         missingFields: { noDescription, noDeadline, noAmount },
       });
     }
