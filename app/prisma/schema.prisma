@@ -191,8 +191,11 @@ model StudentProfile {
   financialSituation    String?
   parent1Education      String?
   parent1Profession     String?
+  parent1College        String?
   parent2Education      String?
   parent2Profession     String?
+  parent2College        String?
+  interestedInLgbtScholarships Boolean @default(false)
 
   activities        String?
   communityService  String?

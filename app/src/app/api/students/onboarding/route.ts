@@ -50,8 +50,11 @@ export async function POST(req: Request) {
       financialSituation: data.financialSituation || null,
       parent1Education: data.parent1Education || null,
       parent1Profession: data.parent1Profession || null,
+      parent1College: data.parent1College || null,
       parent2Education: data.parent2Education || null,
       parent2Profession: data.parent2Profession || null,
+      parent2College: data.parent2College || null,
+      interestedInLgbtScholarships: data.interestedInLgbtScholarships ?? false,
       // Auto-determine Pell eligibility from household income
       isPellEligible: data.isPellEligible ?? autoPellEligible(data.householdIncome),
       journeyStage: data.journeyStage || "EARLY_EXPLORATION",

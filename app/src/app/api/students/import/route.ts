@@ -11,6 +11,12 @@ export async function POST(req: Request) {
 
     const rows: Record<string, string>[] = await req.json();
 
+    // Pre-fetch default template for auto-assignment
+    const template = await db.taskTemplate.findFirst({
+      where: { isDefault: true },
+      include: { items: { orderBy: { order: "asc" } } },
+    });
+
     let created = 0;
     const errors: string[] = [];
 
@@ -43,6 +49,27 @@ export async function POST(req: Request) {
             highSchool: row.school || row.highSchool || row.high_school || null,
           },
         });
+
+        // Auto-assign tasks from default template
+        if (template && template.items.length > 0) {
+          try {
+            await db.task.createMany({
+              data: template.items.map((item) => ({
+                userId: user.id,
+                title: item.title,
+                description: item.description,
+                phase: item.phase,
+                track: item.track,
+                priority: item.priority,
+                documentFolder: item.documentFolder,
+                templateId: template.id,
+                templateItemId: item.id,
+              })),
+            });
+          } catch (taskErr) {
+            console.error(`Failed to assign tasks to ${email}:`, taskErr);
+          }
+        }
 
         created++;
       } catch (err) {

@@ -4,6 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Shield } from "lucide-react"
 import { toast } from "sonner"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { ProfileSettings } from "@/components/ui/profile-settings"
@@ -13,6 +14,7 @@ const tabItems = [
   { id: "General", label: "General" },
   { id: "Email", label: "Email" },
   { id: "Security", label: "Security" },
+  { id: "Privacy", label: "Privacy Controls" },
   { id: "API", label: "API" },
 ]
 type Tab = typeof tabItems[number]["id"]
@@ -252,6 +254,106 @@ export default function SettingsPage() {
               className="w-fit"
               disabled={saving}
               onClick={() => handleSave({ minPasswordLength: get("minPasswordLength"), require2faAdmins: get("require2faAdmins"), require2faStudents: get("require2faStudents"), sessionTimeout: get("sessionTimeout"), allowedIpRanges: get("allowedIpRanges") })}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        )}
+
+        {activeTab === "Privacy" && (
+          <div className="flex flex-col gap-6 max-w-lg">
+            <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 mb-4">
+              <Shield className="size-4 shrink-0" />
+              These controls determine which privacy options are available to students and parents in their settings.
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-4">Student Privacy Options</h3>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={get("privacy:allowStudentHideGpa", "true") === "true"}
+                    onChange={e => set("privacy:allowStudentHideGpa", String(e.target.checked))}
+                    className="size-4 rounded border-input mt-0.5"
+                    id="privacy-hide-gpa"
+                  />
+                  <div>
+                    <label htmlFor="privacy-hide-gpa" className="text-sm font-medium text-foreground">Allow students to hide GPA</label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Students can choose whether their GPA is visible to parents</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={get("privacy:allowStudentHideEssays", "true") === "true"}
+                    onChange={e => set("privacy:allowStudentHideEssays", String(e.target.checked))}
+                    className="size-4 rounded border-input mt-0.5"
+                    id="privacy-hide-essays"
+                  />
+                  <div>
+                    <label htmlFor="privacy-hide-essays" className="text-sm font-medium text-foreground">Allow students to hide essays</label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Students can choose whether their essay drafts are visible to parents</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={get("privacy:allowStudentHideCohortProfile", "true") === "true"}
+                    onChange={e => set("privacy:allowStudentHideCohortProfile", String(e.target.checked))}
+                    className="size-4 rounded border-input mt-0.5"
+                    id="privacy-hide-cohort"
+                  />
+                  <div>
+                    <label htmlFor="privacy-hide-cohort" className="text-sm font-medium text-foreground">Allow cohort profile hiding</label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Students can choose whether their profile is visible to other cohort members</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-4">Parent Privacy Options</h3>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={get("privacy:allowParentHideContactFromCounselors", "true") === "true"}
+                    onChange={e => set("privacy:allowParentHideContactFromCounselors", String(e.target.checked))}
+                    className="size-4 rounded border-input mt-0.5"
+                    id="privacy-parent-contact"
+                  />
+                  <div>
+                    <label htmlFor="privacy-parent-contact" className="text-sm font-medium text-foreground">Allow parents to hide contact info</label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Parents can hide their phone/email from counselors</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={get("privacy:allowParentEmailOnlyComms", "true") === "true"}
+                    onChange={e => set("privacy:allowParentEmailOnlyComms", String(e.target.checked))}
+                    className="size-4 rounded border-input mt-0.5"
+                    id="privacy-parent-email-only"
+                  />
+                  <div>
+                    <label htmlFor="privacy-parent-email-only" className="text-sm font-medium text-foreground">Allow email-only mode</label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Parents can opt for email-only communications instead of in-app</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              className="w-fit"
+              disabled={saving}
+              onClick={() => handleSave({
+                "privacy:allowStudentHideGpa": get("privacy:allowStudentHideGpa", "true"),
+                "privacy:allowStudentHideEssays": get("privacy:allowStudentHideEssays", "true"),
+                "privacy:allowStudentHideCohortProfile": get("privacy:allowStudentHideCohortProfile", "true"),
+                "privacy:allowParentHideContactFromCounselors": get("privacy:allowParentHideContactFromCounselors", "true"),
+                "privacy:allowParentEmailOnlyComms": get("privacy:allowParentEmailOnlyComms", "true"),
+              })}
             >
               {saving ? "Saving..." : "Save Changes"}
             </Button>

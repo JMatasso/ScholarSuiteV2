@@ -27,6 +27,10 @@ import {
   Clock,
   MapPin,
   Bell,
+  Trophy,
+  Heart,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -72,12 +76,6 @@ const COLLEGE_JOURNEY_STAGES = [
   { value: "DECIDED", label: "Decided", description: "I've committed to a college", icon: CheckCircle2 },
 ];
 
-const APPLICATION_ROUNDS = [
-  { value: "EARLY_DECISION", label: "Early Decision" },
-  { value: "EARLY_ACTION", label: "Early Action" },
-  { value: "REGULAR_DECISION", label: "Regular Decision" },
-  { value: "ROLLING", label: "Rolling Admission" },
-];
 
 const JOURNEY_STAGES = [
   { value: "EARLY_EXPLORATION", label: "Early Exploration", description: "Just starting to think about college and scholarships", icon: Compass },
@@ -196,18 +194,22 @@ export default function OnboardingPage() {
     postSecondaryPath: "COLLEGE",
     collegeJourneyStage: "",
     committedCollegeName: "",
+    interestedInLgbtScholarships: false,
+    parent1College: "",
+    parent2College: "",
     activities: "",
     communityService: "",
     leadershipRoles: "",
     awards: "",
     goals: "",
     dreamSchools: "",
-    applicationRounds: [] as string[],
+    notificationMethod: "email" as "email" | "phone" | "both",
+    notificationContact: "",
     tourComplete: false,
   });
 
   const isCollegePath = formData.postSecondaryPath === "COLLEGE";
-  const totalSteps = 8;
+  const totalSteps = 9;
 
   // Get visible steps (skip College Journey step for non-college paths)
   const visibleSteps = isCollegePath ? STEPS : STEPS.filter((s) => s.id !== 5);
@@ -298,6 +300,8 @@ export default function OnboardingPage() {
             notifyMeetingReminders: formData.notifyMeetingReminders,
             notifyEssayFeedback: formData.notifyEssayFeedback,
             notifyLocalScholarships: formData.notifyLocalScholarships,
+            notificationMethod: formData.notificationMethod,
+            notificationContact: formData.notificationContact || formData.phone,
           }),
         }).catch(() => {})
         toast.success("Profile completed! Welcome to ScholarSuite.");
@@ -560,9 +564,7 @@ export default function OnboardingPage() {
                       <SelectContent>
                         <SelectItem value="Male">Male</SelectItem>
                         <SelectItem value="Female">Female</SelectItem>
-                        <SelectItem value="Non-binary">Non-binary</SelectItem>
                         <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -664,6 +666,15 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div className="border-t border-border pt-4 mt-2">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Scholarship Matching Preferences</h4>
+                    <CheckboxField
+                      label="I'm interested in being matched with LGBTQ+ scholarships"
+                      checked={formData.interestedInLgbtScholarships}
+                      onChange={(v) => update("interestedInLgbtScholarships", v)}
+                    />
+                  </div>
+
+                  <div className="border-t border-border pt-4 mt-2">
                     <h4 className="text-sm font-semibold text-[#1E3A5F] mb-3">Financial & Family Situation</h4>
                     <div className="space-y-4">
                       <div>
@@ -718,6 +729,16 @@ export default function OnboardingPage() {
                               </Select>
                             </div>
                             <FormField label="Parent 1 Profession" value={formData.parent1Profession} onChange={(v) => update("parent1Profession", v)} placeholder="e.g., Teacher, Nurse, Engineer" />
+                            {["Some College", "Associate's Degree", "Bachelor's Degree", "Master's Degree", "Doctorate/Professional"].includes(formData.parent1Education) && (
+                              <div className="col-span-full">
+                                <label className="block text-sm font-medium text-foreground mb-1.5">Parent 1 College/University</label>
+                                <CollegeAutocomplete
+                                  value={formData.parent1College || undefined}
+                                  onSelect={(college: CollegeResult) => update("parent1College", college.name)}
+                                  placeholder="Search for college..."
+                                />
+                              </div>
+                            )}
                             <div>
                               <label className="block text-sm font-medium text-foreground mb-1.5">Parent 2 Education</label>
                               <Select value={formData.parent2Education} onValueChange={(v) => v && update("parent2Education", v)}>
@@ -735,6 +756,16 @@ export default function OnboardingPage() {
                               </Select>
                             </div>
                             <FormField label="Parent 2 Profession" value={formData.parent2Profession} onChange={(v) => update("parent2Profession", v)} placeholder="e.g., Electrician, Accountant" />
+                            {formData.parent2Education && ["Some College", "Associate's Degree", "Bachelor's Degree", "Master's Degree", "Doctorate/Professional"].includes(formData.parent2Education) && (
+                              <div className="col-span-full">
+                                <label className="block text-sm font-medium text-foreground mb-1.5">Parent 2 College/University</label>
+                                <CollegeAutocomplete
+                                  value={formData.parent2College || undefined}
+                                  onSelect={(college: CollegeResult) => update("parent2College", college.name)}
+                                  placeholder="Search for college..."
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -800,7 +831,15 @@ export default function OnboardingPage() {
                     {COLLEGE_JOURNEY_STAGES.map((stage) => (
                       <button
                         key={stage.value}
-                        onClick={() => update("collegeJourneyStage", stage.value)}
+                        onClick={() => {
+                          update("collegeJourneyStage", stage.value);
+                          // Auto-set scholarship journey stage based on college journey
+                          if (stage.value === "DECIDED") {
+                            update("journeyStage", "POST_ACCEPTANCE");
+                          } else if (stage.value === "WAITING" || stage.value === "APPLYING") {
+                            update("journeyStage", "APPLICATION_PHASE");
+                          }
+                        }}
                         className={cn(
                           "w-full p-4 rounded-xl border-2 text-left transition-all duration-300 flex items-start gap-4",
                           formData.collegeJourneyStage === stage.value
@@ -892,41 +931,6 @@ export default function OnboardingPage() {
                           </div>
                         )}
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-3">Which application rounds?</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {APPLICATION_ROUNDS.map((round) => {
-                            const isSelected = formData.applicationRounds.includes(round.value);
-                            return (
-                              <button
-                                key={round.value}
-                                onClick={() => {
-                                  const newRounds = isSelected
-                                    ? formData.applicationRounds.filter((r) => r !== round.value)
-                                    : [...formData.applicationRounds, round.value];
-                                  update("applicationRounds", newRounds);
-                                }}
-                                className={cn(
-                                  "p-3 rounded-xl border-2 text-left transition-all duration-300 flex items-center gap-3",
-                                  isSelected
-                                    ? "border-primary bg-primary/5"
-                                    : "border-border hover:border-muted-foreground/30"
-                                )}
-                              >
-                                <div className={cn(
-                                  "w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300",
-                                  isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"
-                                )}>
-                                  {isSelected && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
-                                </div>
-                                <span className={cn("text-sm font-medium", isSelected ? "text-primary" : "text-foreground")}>
-                                  {round.label}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
                     </div>
                   )}
 
@@ -957,79 +961,38 @@ export default function OnboardingPage() {
 
             {currentStep === 6 && (
               <StepCard
-                title="Activities & Interests"
-                description="Tell us about your extracurricular involvement"
+                title="Activity Brag Sheet"
+                description="Track your activities, awards, and leadership"
                 onPrev={prev}
                 onNext={next}
-                onSkip={next}
                 step={currentStep}
               >
                 <div className="space-y-5">
-                  <div className="rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-xs text-blue-700">
-                    <span className="font-semibold">Tip:</span> You can add detailed information for each activity later in your <span className="font-semibold">Activity Brag Sheet</span>. Just give us a quick overview here.
+                  <div className="rounded-xl border border-[#2563EB]/20 bg-[#2563EB]/5 p-6 text-center space-y-4">
+                    <div className="w-14 h-14 bg-[#2563EB]/10 rounded-2xl flex items-center justify-center mx-auto">
+                      <Activity className="w-7 h-7 text-[#2563EB]" />
+                    </div>
+                    <h3 className="text-base font-semibold text-foreground">Your Brag Sheet is waiting!</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      Once you complete onboarding, you&apos;ll have access to your full <strong>Activity Brag Sheet</strong> — a detailed tracker for every club, sport, volunteer experience, job, award, and leadership role.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto pt-2">
+                      {[
+                        { icon: Trophy, label: "Awards & Honors" },
+                        { icon: Users, label: "Clubs & Orgs" },
+                        { icon: Heart, label: "Community Service" },
+                        { icon: Briefcase, label: "Work Experience" },
+                      ].map((item) => (
+                        <div key={item.label} className="flex items-center gap-2 text-left rounded-lg bg-white/60 border border-[#2563EB]/10 px-3 py-2">
+                          <item.icon className="w-4 h-4 text-[#2563EB] shrink-0" />
+                          <span className="text-xs font-medium text-foreground">{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground pt-1">
+                      Your brag sheet powers scholarship matching, recommendation letters, and application essays.
+                    </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-1.5">Activities & Clubs</label>
-                    <MultiSelect
-                      options={[
-                        { id: "Debate/Speech", label: "Debate / Speech" },
-                        { id: "Robotics Club", label: "Robotics Club" },
-                        { id: "Student Government", label: "Student Government" },
-                        { id: "National Honor Society", label: "National Honor Society" },
-                        { id: "Key Club", label: "Key Club" },
-                        { id: "DECA", label: "DECA" },
-                        { id: "FBLA", label: "FBLA" },
-                        { id: "Model UN", label: "Model UN" },
-                        { id: "Math Team", label: "Math Team" },
-                        { id: "Science Olympiad", label: "Science Olympiad" },
-                        { id: "Band/Orchestra", label: "Band / Orchestra" },
-                        { id: "Choir", label: "Choir" },
-                        { id: "Drama/Theater", label: "Drama / Theater" },
-                        { id: "Art Club", label: "Art Club" },
-                        { id: "Yearbook", label: "Yearbook" },
-                        { id: "School Newspaper", label: "School Newspaper" },
-                        { id: "Varsity Sports", label: "Varsity Sports" },
-                        { id: "JV Sports", label: "JV Sports" },
-                        { id: "Church/Religious Group", label: "Church / Religious Group" },
-                        { id: "Volunteer/Community Service", label: "Volunteer / Community Service" },
-                        { id: "Part-Time Job", label: "Part-Time Job" },
-                        { id: "Internship", label: "Internship" },
-                        { id: "Tutoring", label: "Tutoring" },
-                        { id: "BSU/Cultural Club", label: "BSU / Cultural Club" },
-                        { id: "Environmental Club", label: "Environmental Club" },
-                        { id: "Coding/CS Club", label: "Coding / CS Club" },
-                      ]}
-                      selectedIds={(formData.activities || "").split(", ").filter(Boolean)}
-                      onChange={(ids) => update("activities", ids.join(", "))}
-                      placeholder="Select or search activities..."
-                      searchPlaceholder="Search activities or type your own..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-1.5">Leadership Roles</label>
-                    <MultiSelect
-                      options={[
-                        { id: "President", label: "President" },
-                        { id: "Vice President", label: "Vice President" },
-                        { id: "Secretary", label: "Secretary" },
-                        { id: "Treasurer", label: "Treasurer" },
-                        { id: "Team Captain", label: "Team Captain" },
-                        { id: "Club Founder", label: "Club Founder" },
-                        { id: "Editor-in-Chief", label: "Editor-in-Chief" },
-                        { id: "Section Leader", label: "Section Leader" },
-                        { id: "Peer Mentor", label: "Peer Mentor" },
-                        { id: "Student Ambassador", label: "Student Ambassador" },
-                        { id: "Class Representative", label: "Class Representative" },
-                        { id: "Eagle Scout / Gold Award", label: "Eagle Scout / Gold Award" },
-                      ]}
-                      selectedIds={(formData.leadershipRoles || "").split(", ").filter(Boolean)}
-                      onChange={(ids) => update("leadershipRoles", ids.join(", "))}
-                      placeholder="Select leadership roles..."
-                      searchPlaceholder="Search roles or type your own..."
-                    />
-                  </div>
-                  <TextareaField label="Community Service" value={formData.communityService} onChange={(v) => update("communityService", v)} placeholder="e.g., Local food bank volunteer (120 hours), Hospital volunteer..." />
-                  <TextareaField label="Awards & Achievements" value={formData.awards} onChange={(v) => update("awards", v)} placeholder="e.g., National Merit Semifinalist, AP Scholar with Distinction..." />
                 </div>
               </StepCard>
             )}
@@ -1044,6 +1007,19 @@ export default function OnboardingPage() {
                 step={currentStep}
               >
                 <div className="space-y-6">
+                  {/* Show auto-set notice when college journey determined the stage */}
+                  {isCollegePath && (formData.collegeJourneyStage === "DECIDED" || formData.collegeJourneyStage === "WAITING" || formData.collegeJourneyStage === "APPLYING") && (
+                    <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">
+                      {formData.collegeJourneyStage === "DECIDED" ? (
+                        <>Since you&apos;ve already committed to a college, we&apos;ve set your scholarship journey to <strong>Post-Acceptance</strong>. We&apos;ll focus on scholarships you can still apply for. You can change this below if needed.</>
+                      ) : formData.collegeJourneyStage === "WAITING" ? (
+                        <>Since you&apos;re waiting on decisions, we&apos;ve set your journey to <strong>Application Phase</strong>. You can still adjust this below.</>
+                      ) : (
+                        <>Since you&apos;re actively applying, we&apos;ve set your journey to <strong>Application Phase</strong>. You can adjust this below if needed.</>
+                      )}
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-3">Where are you in your scholarship journey?</label>
                     <div className="space-y-3">
@@ -1083,21 +1059,75 @@ export default function OnboardingPage() {
             {currentStep === 8 && (
               <StepCard
                 title="Notification Preferences"
-                description="Choose what you'd like to be notified about"
+                description="Choose what and how you'd like to be notified"
                 onPrev={prev}
                 onNext={next}
                 onSkip={next}
                 step={currentStep}
               >
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">You can change these anytime in Settings.</p>
-                  <div className="space-y-3">
-                    <CheckboxField label="Task reminders (upcoming deadlines)" checked={formData.notifyTaskReminders} onChange={(v) => update("notifyTaskReminders", v)} />
-                    <CheckboxField label="Scholarship deadline alerts" checked={formData.notifyScholarshipDeadlines} onChange={(v) => update("notifyScholarshipDeadlines", v)} />
-                    <CheckboxField label="New local scholarship matches in your county" checked={formData.notifyLocalScholarships} onChange={(v) => update("notifyLocalScholarships", v)} />
-                    <CheckboxField label="New messages from your advisor" checked={formData.notifyNewMessages} onChange={(v) => update("notifyNewMessages", v)} />
-                    <CheckboxField label="Meeting reminders" checked={formData.notifyMeetingReminders} onChange={(v) => update("notifyMeetingReminders", v)} />
-                    <CheckboxField label="Essay feedback notifications" checked={formData.notifyEssayFeedback} onChange={(v) => update("notifyEssayFeedback", v)} />
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">How would you like to be notified?</h4>
+                    <div className="grid grid-cols-3 gap-3">
+                      {([
+                        { value: "email", label: "Email", icon: Mail },
+                        { value: "phone", label: "Text / SMS", icon: Phone },
+                        { value: "both", label: "Both", icon: Bell },
+                      ] as const).map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => update("notificationMethod", opt.value)}
+                          className={cn(
+                            "p-3 rounded-xl border-2 text-center transition-all duration-300 flex flex-col items-center gap-2",
+                            formData.notificationMethod === opt.value
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-muted-foreground/30"
+                          )}
+                        >
+                          <opt.icon className={cn("w-5 h-5", formData.notificationMethod === opt.value ? "text-primary" : "text-muted-foreground")} />
+                          <span className={cn("text-sm font-medium", formData.notificationMethod === opt.value ? "text-primary" : "text-foreground")}>
+                            {opt.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {(formData.notificationMethod === "phone" || formData.notificationMethod === "both") && (
+                      <div className="mt-3">
+                        <FormField
+                          label="Phone number for text notifications"
+                          value={formData.notificationContact}
+                          onChange={(v) => update("notificationContact", v)}
+                          placeholder={formData.phone || "(555) 123-4567"}
+                        />
+                        {formData.phone && !formData.notificationContact && (
+                          <button
+                            type="button"
+                            onClick={() => update("notificationContact", formData.phone)}
+                            className="text-xs text-[#2563EB] hover:underline mt-1"
+                          >
+                            Use my phone number ({formData.phone})
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {formData.notificationMethod === "email" && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Notifications will be sent to your account email address.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="border-t border-border pt-4">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">What would you like to be notified about?</h4>
+                    <p className="text-xs text-muted-foreground mb-3">You can change these anytime in Settings.</p>
+                    <div className="space-y-3">
+                      <CheckboxField label="Task reminders (upcoming deadlines)" checked={formData.notifyTaskReminders} onChange={(v) => update("notifyTaskReminders", v)} />
+                      <CheckboxField label="Scholarship deadline alerts" checked={formData.notifyScholarshipDeadlines} onChange={(v) => update("notifyScholarshipDeadlines", v)} />
+                      <CheckboxField label="New local scholarship matches in your county" checked={formData.notifyLocalScholarships} onChange={(v) => update("notifyLocalScholarships", v)} />
+                      <CheckboxField label="New messages from your advisor" checked={formData.notifyNewMessages} onChange={(v) => update("notifyNewMessages", v)} />
+                      <CheckboxField label="Meeting reminders" checked={formData.notifyMeetingReminders} onChange={(v) => update("notifyMeetingReminders", v)} />
+                      <CheckboxField label="Essay feedback notifications" checked={formData.notifyEssayFeedback} onChange={(v) => update("notifyEssayFeedback", v)} />
+                    </div>
                   </div>
                 </div>
               </StepCard>
@@ -1139,9 +1169,14 @@ export default function OnboardingPage() {
                     ["Military Affiliation", formData.militaryAffiliation],
                     ["Disability Status", formData.disabilityStatus],
                     ["Medical Conditions", formData.medicalConditions],
+                    ["LGBTQ+ Scholarships", formData.interestedInLgbtScholarships ? "Interested" : ""],
                     ["First-Gen", formData.isFirstGen ? "Yes" : "No"],
                     ["Pell Eligible", formData.isPellEligible ? "Yes" : "No"],
                     ["Financial Need", formData.hasFinancialNeed ? "Yes" : "No"],
+                    ["Parent 1 Education", formData.parent1Education],
+                    ["Parent 1 College", formData.parent1College],
+                    ["Parent 2 Education", formData.parent2Education],
+                    ["Parent 2 College", formData.parent2College],
                   ]} />
                   {isCollegePath && formData.collegeJourneyStage && (
                     <ReviewSection title="College Journey" items={[
@@ -1154,6 +1189,10 @@ export default function OnboardingPage() {
                     ["Journey Stage", formData.journeyStage.replace(/_/g, " ")],
                     ["Pathway", formData.postSecondaryPath.replace(/_/g, " ")],
                     ["Goals", formData.goals],
+                  ]} />
+                  <ReviewSection title="Notifications" items={[
+                    ["Method", formData.notificationMethod === "both" ? "Email & Text" : formData.notificationMethod === "phone" ? "Text / SMS" : "Email"],
+                    ["Contact", formData.notificationMethod !== "email" ? (formData.notificationContact || formData.phone || "") : ""],
                   ]} />
 
                   {/* Privacy Statement */}

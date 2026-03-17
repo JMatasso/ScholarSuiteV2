@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { Eye, EyeOff, Camera, Loader2, Save, Download, Check, X } from "lucide-react"
+import { Eye, EyeOff, Loader2, Save, Download, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { UploadButton } from "@/lib/uploadthing"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 export function ProfileSettings() {
   const { data: session, update: updateSession } = useSession()
@@ -20,6 +19,7 @@ export function ProfileSettings() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
@@ -29,13 +29,6 @@ export function ProfileSettings() {
       setImage(session.user.image || null)
     }
   }, [session])
-
-  const userInitials = (name || "U")
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
 
   const handleSaveProfile = async () => {
     setSavingProfile(true)
@@ -72,6 +65,41 @@ export function ProfileSettings() {
       toast.error(err instanceof Error ? err.message : "Failed to update profile")
     } finally {
       setSavingProfile(false)
+    }
+  }
+
+  const handlePhotoUpload = async (file: File) => {
+    setUploadingPhoto(true)
+    try {
+      // Upload via UploadThing API directly
+      const formData = new FormData()
+      formData.append("file", file)
+      const uploadRes = await fetch("/api/uploadthing", {
+        method: "POST",
+        headers: { "x-uploadthing-endpoint": "profileImage" },
+        body: formData,
+      })
+      if (!uploadRes.ok) throw new Error("Upload failed")
+      const data = await uploadRes.json()
+      const imageUrl = data?.[0]?.url || data?.[0]?.ufsUrl
+      if (imageUrl) {
+        setImage(imageUrl)
+        const saveRes = await fetch("/api/auth/account", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imageUrl }),
+        })
+        if (saveRes.ok) {
+          toast.success("Photo uploaded")
+          await updateSession({ image: imageUrl })
+        } else {
+          toast.error("Photo uploaded but failed to save")
+        }
+      }
+    } catch {
+      toast.error("Failed to upload photo")
+    } finally {
+      setUploadingPhoto(false)
     }
   }
 
@@ -152,52 +180,25 @@ export function ProfileSettings() {
     <div className="space-y-8 max-w-2xl">
       {/* Profile Photo */}
       <section className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
-        <h3 className="text-base font-semibold text-foreground mb-4">Profile Photo</h3>
-        <div className="flex items-center gap-6">
-          <div className="relative">
-            <Avatar className="h-20 w-20 text-lg">
-              {image ? (
-                <img src={image} alt="Profile" className="h-full w-full object-cover rounded-full" />
-              ) : (
-                <AvatarFallback className="text-lg">{userInitials}</AvatarFallback>
-              )}
-            </Avatar>
-            <div className="absolute -bottom-1 -right-1 rounded-full bg-primary p-1.5 text-primary-foreground">
-              <Camera className="h-3 w-3" />
-            </div>
-          </div>
-          <div>
-            <UploadButton
-              endpoint="profileImage"
-              onClientUploadComplete={async (res) => {
-                if (res?.[0]) {
-                  const imageUrl = res[0].ufsUrl
-                  setImage(imageUrl)
-                  // Save image URL to database
-                  const saveRes = await fetch("/api/auth/account", {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ image: imageUrl }),
-                  })
-                  if (saveRes.ok) {
-                    toast.success("Photo uploaded")
-                    await updateSession({ image: imageUrl })
-                  } else {
-                    toast.error("Photo uploaded but failed to save")
-                  }
-                }
-              }}
-              onUploadError={(error) => {
-                toast.error(`Upload failed: ${error.message}`)
-              }}
-              appearance={{
-                button: "bg-primary text-primary-foreground text-sm px-4 py-2 rounded-lg hover:bg-primary/90",
-                allowedContent: "text-muted-foreground text-xs",
-              }}
-            />
-            <p className="text-xs text-muted-foreground mt-1">JPG, PNG up to 4MB</p>
-          </div>
-        </div>
+        <ImageUpload
+          currentImage={image}
+          onFileSelect={handlePhotoUpload}
+          onRemove={async () => {
+            setImage(null)
+            await fetch("/api/auth/account", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ image: null }),
+            })
+            await updateSession({ image: null })
+            toast.success("Photo removed")
+          }}
+          uploading={uploadingPhoto}
+          label="Profile Photo"
+          subtitle="JPG, PNG up to 4MB. Click or drag and drop."
+          accept="image/*"
+          heightClass="h-48"
+        />
       </section>
 
       {/* Name & Email */}

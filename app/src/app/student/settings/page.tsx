@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "motion/react"
+import { toast } from "sonner"
 import { PageHeader } from "@/components/ui/page-header"
 import { ProfileSettings } from "@/components/ui/profile-settings"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,10 +19,15 @@ import {
   DollarSign,
   Video,
   Crown,
+  Loader2,
+  Save,
+  Shield,
 } from "lucide-react"
 
 const tabItems = [
   { id: "Account", label: "Account" },
+  { id: "Notifications", label: "Notifications" },
+  { id: "Privacy", label: "Privacy" },
   { id: "Plan", label: "Plan & Billing" },
 ]
 type Tab = typeof tabItems[number]["id"]
@@ -43,8 +49,113 @@ const premiumFeatures = [
   { icon: Crown, label: "Priority counselor support" },
 ]
 
+const notificationItems = [
+  { key: "notifyTaskReminders", label: "Task Reminders", desc: "Get notified when tasks are due or approaching deadlines" },
+  { key: "notifyScholarshipDeadlines", label: "Scholarship Deadlines", desc: "Alerts for upcoming scholarship application deadlines" },
+  { key: "notifyNewMessages", label: "New Messages", desc: "When you receive a message from counselors or parents" },
+  { key: "notifyMeetingReminders", label: "Meeting Reminders", desc: "Reminders before scheduled meetings" },
+  { key: "notifyEssayFeedback", label: "Essay Feedback", desc: "When an essay review is completed or needs revision" },
+]
+
+const privacyItems = [
+  { key: "privacyHideGpa", adminKey: "allowStudentHideGpa", label: "Hide GPA from parents", desc: "Your GPA won't be visible on your parent's dashboard" },
+  { key: "privacyHideEssays", adminKey: "allowStudentHideEssays", label: "Hide essay drafts from parents", desc: "Your essay drafts won't be visible to parents" },
+  { key: "privacyHideCohortProfile", adminKey: "allowStudentHideCohortProfile", label: "Hide profile from cohort", desc: "Other students in your cohort won't see your details" },
+]
+
+interface Preferences {
+  notifyTaskReminders: boolean
+  notifyScholarshipDeadlines: boolean
+  notifyNewMessages: boolean
+  notifyMeetingReminders: boolean
+  notifyEssayFeedback: boolean
+  privacyHideGpa: boolean
+  privacyHideEssays: boolean
+  privacyHideCohortProfile: boolean
+}
+
+interface AdminControls {
+  allowStudentHideGpa: string
+  allowStudentHideEssays: string
+  allowStudentHideCohortProfile: string
+  [key: string]: string
+}
+
 export default function StudentSettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("Account")
+  const [prefs, setPrefs] = useState<Preferences>({
+    notifyTaskReminders: true,
+    notifyScholarshipDeadlines: true,
+    notifyNewMessages: true,
+    notifyMeetingReminders: true,
+    notifyEssayFeedback: true,
+    privacyHideGpa: false,
+    privacyHideEssays: false,
+    privacyHideCohortProfile: false,
+  })
+  const [adminControls, setAdminControls] = useState<AdminControls>({
+    allowStudentHideGpa: "true",
+    allowStudentHideEssays: "true",
+    allowStudentHideCohortProfile: "true",
+  })
+  const [loading, setLoading] = useState(true)
+  const [savingNotifs, setSavingNotifs] = useState(false)
+  const [savingPrivacy, setSavingPrivacy] = useState(false)
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/preferences").then(r => r.ok ? r.json() : null),
+      fetch("/api/preferences/admin-controls").then(r => r.ok ? r.json() : null),
+    ]).then(([prefsData, controlsData]) => {
+      if (prefsData) setPrefs(p => ({ ...p, ...prefsData }))
+      if (controlsData) setAdminControls(c => ({ ...c, ...controlsData }))
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [])
+
+  const handleSaveNotifications = async () => {
+    setSavingNotifs(true)
+    try {
+      const res = await fetch("/api/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          notifyTaskReminders: prefs.notifyTaskReminders,
+          notifyScholarshipDeadlines: prefs.notifyScholarshipDeadlines,
+          notifyNewMessages: prefs.notifyNewMessages,
+          notifyMeetingReminders: prefs.notifyMeetingReminders,
+          notifyEssayFeedback: prefs.notifyEssayFeedback,
+        }),
+      })
+      if (res.ok) toast.success("Notification preferences saved")
+      else toast.error("Failed to save preferences")
+    } catch {
+      toast.error("Failed to save preferences")
+    } finally {
+      setSavingNotifs(false)
+    }
+  }
+
+  const handleSavePrivacy = async () => {
+    setSavingPrivacy(true)
+    try {
+      const res = await fetch("/api/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          privacyHideGpa: prefs.privacyHideGpa,
+          privacyHideEssays: prefs.privacyHideEssays,
+          privacyHideCohortProfile: prefs.privacyHideCohortProfile,
+        }),
+      })
+      if (res.ok) toast.success("Privacy preferences saved")
+      else toast.error("Failed to save preferences")
+    } catch {
+      toast.error("Failed to save preferences")
+    } finally {
+      setSavingPrivacy(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -66,6 +177,98 @@ export default function StudentSettingsPage() {
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <ProfileSettings />
+        </motion.div>
+      )}
+
+      {activeTab === "Notifications" && (
+        <motion.div
+          className="max-w-2xl"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <section className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">
+            <h3 className="text-base font-semibold text-foreground mb-4">Notification Preferences</h3>
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  {notificationItems.map(item => (
+                    <div key={item.key} className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{item.label}</p>
+                        <p className="text-xs text-muted-foreground">{item.desc}</p>
+                      </div>
+                      <button
+                        onClick={() => setPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof Preferences] }))}
+                        className={`h-6 w-11 rounded-full transition-colors ${prefs[item.key as keyof Preferences] ? "bg-primary" : "bg-muted"}`}
+                      >
+                        <span className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[item.key as keyof Preferences] ? "translate-x-5" : "translate-x-0.5"}`} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <Button onClick={handleSaveNotifications} disabled={savingNotifs} className="rounded-lg gap-2">
+                  {savingNotifs ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save Preferences
+                </Button>
+              </div>
+            )}
+          </section>
+        </motion.div>
+      )}
+
+      {activeTab === "Privacy" && (
+        <motion.div
+          className="max-w-2xl"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <section className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="h-5 w-5 text-[#1E3A5F]" />
+              <h3 className="text-base font-semibold text-foreground">Privacy Settings</h3>
+            </div>
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  {privacyItems.map(item => {
+                    const adminAllows = adminControls[item.adminKey] === "true"
+                    return (
+                      <div key={item.key} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{item.label}</p>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          {!adminAllows && (
+                            <p className="text-xs text-amber-600 mt-0.5">This setting is managed by your administrator</p>
+                          )}
+                        </div>
+                        <button
+                          disabled={!adminAllows}
+                          onClick={() => setPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof Preferences] }))}
+                          className={`h-6 w-11 rounded-full transition-colors ${!adminAllows ? "opacity-40 cursor-not-allowed" : ""} ${prefs[item.key as keyof Preferences] ? "bg-primary" : "bg-muted"}`}
+                        >
+                          <span className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[item.key as keyof Preferences] ? "translate-x-5" : "translate-x-0.5"}`} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+                <Button onClick={handleSavePrivacy} disabled={savingPrivacy} className="rounded-lg gap-2">
+                  {savingPrivacy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save Privacy Settings
+                </Button>
+              </div>
+            )}
+          </section>
         </motion.div>
       )}
 
