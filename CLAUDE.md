@@ -52,6 +52,11 @@ npm run db:push      # npx prisma db push
 npm run db:migrate   # npx prisma migrate dev
 npm run db:seed      # tsx prisma/seed.ts
 npm run db:studio    # Prisma Studio
+npm run db:import    # Bulk import scholarships from harvested-urls.csv
+npm run db:enrich    # AI-enrich scholarships via WebFetch + Claude (--limit=200 --offset=0)
+npm run db:enrich-apply  # Apply enrichment JSON files to database
+npm run db:schedule  # Backfill refresh schedules for all scholarships
+npm run db:test-match # Test matching engine with sample student profiles
 ```
 
 ## Database / Prisma
@@ -117,10 +122,10 @@ export default function Page() {
 | Feature | API Route | Status |
 |---------|-----------|--------|
 | Students (admin) | `/api/students` | MOCK-ONLY |
-| Scholarships (admin+student) | `/api/scholarships` | MOCK-ONLY |
+| Scholarships (admin+student) | `/api/scholarships` | CONNECTED (4,373 in DB, matching engine live) |
 | Messages (all roles) | `/api/messages` | MOCK-ONLY |
 | Tasks (student) | `/api/tasks` | MOCK-ONLY |
-| Applications (student) | `/api/applications` | MOCK-ONLY |
+| Applications (student) | `/api/applications` | CONNECTED |
 | Essays (student) | `/api/essays` | MOCK-ONLY |
 | Documents (student) | `/api/documents` | MOCK-ONLY |
 | Meetings (all roles) | `/api/meetings` | MOCK-ONLY |
@@ -133,7 +138,7 @@ export default function Page() {
 | Support (admin) | `/api/support` | MOCK-ONLY |
 | Audit (admin) | `/api/audit` | MOCK-ONLY |
 | Notifications | `/api/notifications` | MOCK-ONLY |
-| CSV Import | none | NOT BUILT |
+| CSV Import | `/api/scholarships/import` | CONNECTED (admin CSV upload + CLI scripts) |
 | Onboarding | none | FAKES delay, saves nothing |
 
 ### Priority Order for Connecting

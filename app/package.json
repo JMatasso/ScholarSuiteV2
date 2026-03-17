@@ -15,7 +15,12 @@
     "db:migrate": "npx prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "npx prisma studio",
-    "db:reset": "npx prisma migrate reset --force"
+    "db:reset": "npx prisma migrate reset --force",
+    "db:import": "tsx prisma/import-scholarships.ts",
+    "db:enrich": "tsx prisma/enrich-scholarships.ts",
+    "db:enrich-apply": "tsx prisma/apply-enrichment.ts",
+    "db:schedule": "tsx prisma/backfill-schedules.ts",
+    "db:test-match": "tsx prisma/test-matching.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
