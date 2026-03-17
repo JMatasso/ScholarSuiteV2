@@ -1,16 +1,15 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { motion } from "motion/react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion } from "motion/react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 import {
   Search,
-  Bookmark,
   ExternalLink,
-  X,
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
@@ -21,6 +20,13 @@ import {
   AlertCircle,
   Loader2,
   Sparkles,
+  ArrowUpDown,
+  Plus,
+  Heart,
+  ListPlus,
+  Check,
+  Trash2,
+  Eye,
 } from "lucide-react"
 import { toast } from "sonner"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
@@ -39,6 +45,7 @@ interface Scholarship {
   deadline: string | null
   description: string | null
   url: string | null
+  sourceUrl: string | null
   minGpa: number | null
   states: string[]
   tags: ScholarshipTag[]
@@ -52,6 +59,11 @@ interface MatchedScholarship {
   scholarship: Scholarship
 }
 
+interface SavedApplication {
+  id: string
+  scholarshipId: string
+}
+
 function MatchScoreBadge({ score }: { score: number }) {
   const color =
     score >= 80
@@ -60,8 +72,8 @@ function MatchScoreBadge({ score }: { score: number }) {
       ? "bg-amber-100 text-amber-700 border-amber-200"
       : "bg-gray-100 text-gray-600 border-gray-200"
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${color}`}>
-      {score}% match
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${color}`}>
+      {score}%
     </span>
   )
 }
@@ -75,100 +87,219 @@ function formatAmount(scholarship: Scholarship): string {
 }
 
 function formatDeadline(deadline: string | null): string {
-  if (!deadline) return "No deadline"
-  return new Date(deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  if (!deadline) return "—"
+  return new Date(deadline).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
 }
 
-function ScholarshipCard({
+function SortButton({
+  field,
+  currentField,
+  asc,
+  onSort,
+  children,
+}: {
+  field: string
+  currentField: string
+  asc: boolean
+  onSort: (field: string) => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(field)}
+      className={cn(
+        "flex items-center gap-1 text-xs font-medium uppercase tracking-wide",
+        currentField === field ? "text-[#2563EB]" : "text-muted-foreground hover:text-foreground"
+      )}
+    >
+      {children}
+      {currentField === field ? (
+        asc ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+      ) : (
+        <ArrowUpDown className="h-3 w-3" />
+      )}
+    </button>
+  )
+}
+
+function ScholarshipRow({
   scholarship,
   score,
   reasons,
-  onSave,
-  onDismiss,
+  isNew,
+  isSaved,
+  applicationId,
+  expanded,
+  onToggleExpand,
+  onAdd,
+  onRemove,
 }: {
   scholarship: Scholarship
   score?: number
   reasons?: string[]
-  onSave: () => void
-  onDismiss: () => void
+  isNew?: boolean
+  isSaved: boolean
+  applicationId?: string
+  expanded: boolean
+  onToggleExpand: () => void
+  onAdd: () => void
+  onRemove: () => void
 }) {
   return (
-    <Card className="flex flex-col justify-between hover:shadow-md transition-shadow">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="space-y-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <Link href={`/student/scholarships/${scholarship.id}`}>
-                <CardTitle className="text-sm leading-tight hover:text-[#2563EB] hover:underline cursor-pointer">{scholarship.name}</CardTitle>
-              </Link>
-              {score != null && <MatchScoreBadge score={score} />}
-            </div>
-            <p className="text-xs text-muted-foreground">{scholarship.provider}</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <p className="text-xs text-muted-foreground line-clamp-2">{scholarship.description || "No description available."}</p>
-
-        {/* Match reasons */}
-        {reasons && reasons.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {reasons.map((reason, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"
-              >
-                <CheckCircle className="h-2.5 w-2.5 mr-0.5" />
-                {reason}
-              </span>
-            ))}
-          </div>
+    <div className="border-b border-border/30 last:border-b-0">
+      <div
+        className={cn(
+          "grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 items-center transition-colors cursor-pointer",
+          expanded ? "bg-muted/30" : "hover:bg-muted/20"
         )}
+        onClick={onToggleExpand}
+      >
+        {/* Expand chevron */}
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 text-muted-foreground transition-transform shrink-0",
+            expanded && "rotate-180"
+          )}
+        />
 
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-[#1E3A5F]">{formatAmount(scholarship)}</span>
-          <span className="text-xs text-muted-foreground">Due {formatDeadline(scholarship.deadline)}</span>
-        </div>
-
-        {scholarship.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {scholarship.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700"
-              >
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center gap-2 pt-1">
-          <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={onSave}>
-            <Bookmark className="h-3.5 w-3.5" />
-            Save
-          </Button>
-          {scholarship.url ? (
-            <Button
-              size="sm"
-              className="flex-1 gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90"
-              onClick={() => window.open(scholarship.url!, "_blank")}
+        {/* Name + Provider */}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/student/scholarships/${scholarship.id}`}
+              className="text-sm font-semibold text-[#2563EB] hover:underline truncate"
+              onClick={(e) => e.stopPropagation()}
             >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Apply
+              {scholarship.name}
+            </Link>
+            {scholarship.url && (
+              <a
+                href={scholarship.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-[#2563EB] shrink-0"
+                onClick={(e) => e.stopPropagation()}
+                title="Visit scholarship website"
+              >
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
+            {isNew && (
+              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold bg-[#2563EB] text-white uppercase">
+                New
+              </span>
+            )}
+            {score != null && <MatchScoreBadge score={score} />}
+          </div>
+          <p className="text-xs text-muted-foreground truncate mt-0.5">{scholarship.provider}</p>
+        </div>
+
+        {/* Amount */}
+        <span className="text-sm font-medium text-foreground">{formatAmount(scholarship)}</span>
+
+        {/* Deadline */}
+        <span className="text-xs text-muted-foreground">{formatDeadline(scholarship.deadline)}</span>
+
+        {/* Add / In My List */}
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          {isSaved ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-emerald-600 hover:text-rose-600 hover:bg-rose-50 group"
+              onClick={onRemove}
+              title="Remove from My List"
+            >
+              <Check className="h-3.5 w-3.5 group-hover:hidden" />
+              <Trash2 className="h-3.5 w-3.5 hidden group-hover:block" />
+              <span className="group-hover:hidden">In My List</span>
+              <span className="hidden group-hover:inline">Remove</span>
             </Button>
           ) : (
-            <Button size="sm" className="flex-1 gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={onSave}>
-              <CheckCircle className="h-3.5 w-3.5" />
-              Track
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={onAdd}
+            >
+              <ListPlus className="h-3.5 w-3.5" />
+              Add to My List
             </Button>
           )}
-          <Button variant="ghost" size="icon-sm" onClick={onDismiss}>
-            <X className="h-3.5 w-3.5" />
-          </Button>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* View button */}
+        <div onClick={(e) => e.stopPropagation()}>
+          <Link href={`/student/scholarships/${scholarship.id}`}>
+            <Button variant="outline" size="sm">
+              View
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Expanded details */}
+      {expanded && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="px-4 pb-4 pl-12"
+        >
+          <div className="rounded-lg bg-muted/20 border border-border/50 p-4 space-y-3">
+            {scholarship.description && (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {scholarship.description.length > 300
+                  ? scholarship.description.slice(0, 300) + "..."
+                  : scholarship.description}
+              </p>
+            )}
+            {!scholarship.description && (
+              <p className="text-sm text-muted-foreground italic">No description available.</p>
+            )}
+
+            {/* Match reasons */}
+            {reasons && reasons.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {reasons.map((reason, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  >
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    {reason}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Tags */}
+            {scholarship.tags?.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {scholarship.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Quick info row */}
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-1">
+              {scholarship.minGpa && <span>Min GPA: {scholarship.minGpa}</span>}
+              {scholarship.states.length > 0 && (
+                <span>Location: {scholarship.states.slice(0, 3).join(", ")}{scholarship.states.length > 3 ? ` +${scholarship.states.length - 3}` : ""}</span>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </div>
   )
 }
 
@@ -181,7 +312,7 @@ export default function ScholarshipDiscovery() {
   const [matchLoading, setMatchLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [savedIds, setSavedIds] = useState<string[]>([])
+  const [savedApps, setSavedApps] = useState<SavedApplication[]>([])
   const [dismissedIds, setDismissedIds] = useState<string[]>([])
   const [minAmount, setMinAmount] = useState("")
   const [maxAmount, setMaxAmount] = useState("")
@@ -190,8 +321,37 @@ export default function ScholarshipDiscovery() {
   const [activeTab, setActiveTab] = useState("matched")
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const [allLoading, setAllLoading] = useState(false)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [sortField, setSortField] = useState("deadline")
+  const [sortAsc, setSortAsc] = useState(true)
   const perPage = 20
+
+  // Build a lookup map for saved scholarship IDs → application IDs
+  const savedMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const app of savedApps) {
+      map.set(app.scholarshipId, app.id)
+    }
+    return map
+  }, [savedApps])
+
+  // Fetch student's existing applications on load
+  const fetchSavedApps = useCallback(async () => {
+    try {
+      const res = await fetch("/api/applications")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setSavedApps(data.map((a: { id: string; scholarshipId: string }) => ({
+          id: a.id,
+          scholarshipId: a.scholarshipId,
+        })))
+      }
+    } catch {
+      // Silently fail — non-critical
+    }
+  }, [])
 
   const fetchScholarships = useCallback((pageNum = 1) => {
     const params = new URLSearchParams()
@@ -208,6 +368,7 @@ export default function ScholarshipDiscovery() {
       .then((data) => {
         setScholarships(data.scholarships || [])
         setTotalPages(data.pagination?.totalPages || 1)
+        setTotalCount(data.pagination?.total || 0)
         setPage(pageNum)
         setLoading(false)
         setAllLoading(false)
@@ -219,7 +380,6 @@ export default function ScholarshipDiscovery() {
     setMatchLoading(true)
     try {
       if (recompute) {
-        // Recompute matches
         const res = await fetch("/api/scholarships/match", { method: "POST" })
         const data = await res.json()
         setMatches(data.matches || [])
@@ -229,7 +389,6 @@ export default function ScholarshipDiscovery() {
           toast.success(`Found ${data.matches.length} matching scholarships`)
         }
       } else {
-        // Fetch cached matches
         const params = new URLSearchParams()
         if (scoreFilter !== "0") params.set("minScore", scoreFilter)
         const res = await fetch(`/api/scholarships/match?${params.toString()}`)
@@ -238,7 +397,6 @@ export default function ScholarshipDiscovery() {
         setProfileIncomplete(data.profileIncomplete || false)
         setMissingFields(data.missingFields || [])
 
-        // Auto-compute if no cached matches
         if (data.matches?.length === 0 && !data.profileIncomplete) {
           await fetchMatches(true)
           return
@@ -252,26 +410,43 @@ export default function ScholarshipDiscovery() {
   }, [scoreFilter])
 
   useEffect(() => {
+    fetchSavedApps()
     fetchScholarships(1)
     fetchMatches(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSave = async (scholarship: Scholarship) => {
-    if (savedIds.includes(scholarship.id)) {
-      setSavedIds((prev) => prev.filter((x) => x !== scholarship.id))
-      return
-    }
+  const handleAdd = async (scholarship: Scholarship) => {
     const res = await fetch("/api/applications", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ scholarshipId: scholarship.id }),
     })
+    if (res.status === 409) {
+      toast.info(`"${scholarship.name}" is already in your list`)
+      // Refresh saved apps to sync state
+      fetchSavedApps()
+      return
+    }
     if (res.ok) {
-      setSavedIds((prev) => [...prev, scholarship.id])
-      toast.success(`"${scholarship.name}" added to applications`)
+      const data = await res.json()
+      setSavedApps((prev) => [...prev, { id: data.id, scholarshipId: scholarship.id }])
+      toast.success(`"${scholarship.name}" added to your list`)
     } else {
-      toast.error("Failed to save scholarship")
+      toast.error("Failed to add scholarship")
+    }
+  }
+
+  const handleRemove = async (scholarship: Scholarship) => {
+    const applicationId = savedMap.get(scholarship.id)
+    if (!applicationId) return
+
+    const res = await fetch(`/api/applications/${applicationId}`, { method: "DELETE" })
+    if (res.ok) {
+      setSavedApps((prev) => prev.filter((a) => a.scholarshipId !== scholarship.id))
+      toast.success(`"${scholarship.name}" removed from your list`)
+    } else {
+      toast.error("Failed to remove scholarship")
     }
   }
 
@@ -279,12 +454,57 @@ export default function ScholarshipDiscovery() {
     setDismissedIds((prev) => [...prev, id])
   }
 
-  const filteredMatches = matches.filter(
-    (m) =>
-      !dismissedIds.includes(m.scholarship.id) &&
-      (m.scholarship.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.scholarship.provider || "").toLowerCase().includes(searchQuery.toLowerCase()))
-  )
+  const handleSort = (field: string) => {
+    if (sortField === field) setSortAsc(!sortAsc)
+    else { setSortField(field); setSortAsc(true) }
+  }
+
+  const filteredMatches = useMemo(() => {
+    let list = matches.filter(
+      (m) =>
+        !dismissedIds.includes(m.scholarship.id) &&
+        (m.scholarship.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (m.scholarship.provider || "").toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+
+    // Sort
+    list.sort((a, b) => {
+      let cmp = 0
+      switch (sortField) {
+        case "name":
+          cmp = a.scholarship.name.localeCompare(b.scholarship.name)
+          break
+        case "amount":
+          cmp = (a.scholarship.amount || 0) - (b.scholarship.amount || 0)
+          break
+        case "deadline": {
+          const aDate = a.scholarship.deadline ? new Date(a.scholarship.deadline).getTime() : Infinity
+          const bDate = b.scholarship.deadline ? new Date(b.scholarship.deadline).getTime() : Infinity
+          cmp = aDate - bDate
+          break
+        }
+        case "match":
+          cmp = a.score - b.score
+          break
+      }
+      return sortAsc ? cmp : -cmp
+    })
+
+    return list
+  }, [matches, dismissedIds, searchQuery, sortField, sortAsc])
+
+  // For "My List" tab, show saved scholarships from both matches and all
+  const savedScholarships = useMemo(() => {
+    const savedScholarshipIds = new Set(savedApps.map((a) => a.scholarshipId))
+    // Combine from matches and all scholarships
+    const allKnown = new Map<string, Scholarship>()
+    for (const m of matches) allKnown.set(m.scholarship.id, m.scholarship)
+    for (const s of scholarships) allKnown.set(s.id, s)
+    return Array.from(allKnown.values()).filter((s) => savedScholarshipIds.has(s.id))
+  }, [savedApps, matches, scholarships])
+
+  const displayingFrom = (page - 1) * perPage + 1
+  const displayingTo = Math.min(page * perPage, totalCount)
 
   return (
     <div className="space-y-6">
@@ -315,10 +535,7 @@ export default function ScholarshipDiscovery() {
 
       {/* Profile incomplete banner */}
       {profileIncomplete && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="border-amber-200 bg-amber-50/30">
             <CardContent className="flex items-start gap-3 p-4">
               <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
@@ -338,16 +555,16 @@ export default function ScholarshipDiscovery() {
         </motion.div>
       )}
 
-      {/* Search bar */}
+      {/* Search bar + filters */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search scholarships by name, provider, or field..."
+            placeholder="Search your matches..."
             className="pl-9"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && fetchScholarships(1)}
+            onKeyDown={(e) => e.key === "Enter" && activeTab === "all" && fetchScholarships(1)}
           />
         </div>
         <Button
@@ -359,9 +576,11 @@ export default function ScholarshipDiscovery() {
           Filters
           {filtersOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </Button>
-        <Button onClick={() => fetchScholarships(1)} className="bg-[#2563EB] hover:bg-[#2563EB]/90">
-          Search
-        </Button>
+        {activeTab === "all" && (
+          <Button onClick={() => fetchScholarships(1)} className="bg-[#2563EB] hover:bg-[#2563EB]/90">
+            Search
+          </Button>
+        )}
       </div>
 
       {/* Filters (collapsible) */}
@@ -400,29 +619,30 @@ export default function ScholarshipDiscovery() {
         </Card>
       )}
 
-      {/* Tabs & Grid */}
+      {/* Tabs & Table */}
       {loading ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin mr-2" />
           <p className="text-sm">Loading scholarships...</p>
         </div>
       ) : (
         <div>
-          {/* Custom tab bar */}
-          <div className="flex gap-1 border-b border-border pb-px mb-4">
+          {/* Tab bar */}
+          <div className="flex gap-1 border-b border-border pb-px mb-0">
             {[
               { value: "matched", label: `Matched for You (${filteredMatches.length})`, icon: Sparkles },
               { value: "all", label: "All Scholarships" },
-              { value: "saved", label: `Saved (${savedIds.length})` },
-              { value: "dismissed", label: "Dismissed" },
+              { value: "mylist", label: `My List (${savedApps.length})`, icon: Heart },
             ].map((tab) => (
               <button
                 key={tab.value}
-                onClick={() => setActiveTab(tab.value)}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                onClick={() => { setActiveTab(tab.value); setExpandedId(null) }}
+                className={cn(
+                  "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors",
                   activeTab === tab.value
                     ? "text-[#2563EB] border-b-2 border-[#2563EB] bg-[#2563EB]/5"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                )}
               >
                 {tab.icon && <tab.icon className="h-3.5 w-3.5" />}
                 {tab.label}
@@ -432,30 +652,45 @@ export default function ScholarshipDiscovery() {
 
           {/* Matched tab */}
           {activeTab === "matched" && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
               {matchLoading ? (
-                <div className="col-span-full flex justify-center py-12">
+                <div className="flex justify-center py-12">
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
               ) : filteredMatches.length > 0 ? (
-                filteredMatches.map((m, i) => (
-                  <motion.div
-                    key={m.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <ScholarshipCard
+                <>
+                  {/* Table header */}
+                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                    <span className="w-4" />
+                    <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
+                    <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>
+                    <SortButton field="deadline" currentField={sortField} asc={sortAsc} onSort={handleSort}>Deadline</SortButton>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-[130px]" />
+                    <span className="w-[52px]" />
+                  </div>
+
+                  <div className="text-center text-xs text-muted-foreground py-2 border-b border-border/30">
+                    Displaying {filteredMatches.length} matched scholarships
+                  </div>
+
+                  {/* Rows */}
+                  {filteredMatches.map((m) => (
+                    <ScholarshipRow
+                      key={m.id}
                       scholarship={m.scholarship}
                       score={m.score}
                       reasons={m.reasons}
-                      onSave={() => handleSave(m.scholarship)}
-                      onDismiss={() => handleDismiss(m.scholarship.id)}
+                      isSaved={savedMap.has(m.scholarship.id)}
+                      applicationId={savedMap.get(m.scholarship.id)}
+                      expanded={expandedId === m.scholarship.id}
+                      onToggleExpand={() => setExpandedId(expandedId === m.scholarship.id ? null : m.scholarship.id)}
+                      onAdd={() => handleAdd(m.scholarship)}
+                      onRemove={() => handleRemove(m.scholarship)}
                     />
-                  </motion.div>
-                ))
+                  ))}
+                </>
               ) : (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <Sparkles className="h-10 w-10 mb-3 opacity-40" />
                   <p className="text-sm">No matched scholarships yet.</p>
                   <p className="text-xs mt-1">Complete your profile and click &quot;Refresh Matches&quot; to find scholarships.</p>
@@ -466,39 +701,53 @@ export default function ScholarshipDiscovery() {
 
           {/* All tab */}
           {activeTab === "all" && (
-            <div className="space-y-4">
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
               {allLoading ? (
                 <div className="flex justify-center py-12">
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {scholarships.map((s, i) => (
-                      <motion.div
-                        key={s.id}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                      >
-                        <ScholarshipCard
-                          scholarship={s}
-                          onSave={() => handleSave(s)}
-                          onDismiss={() => handleDismiss(s.id)}
-                        />
-                      </motion.div>
-                    ))}
-                    {scholarships.length === 0 && (
-                      <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                        <Search className="h-10 w-10 mb-3 opacity-40" />
-                        <p className="text-sm">No scholarships found.</p>
-                      </div>
-                    )}
+                  {/* Table header */}
+                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                    <span className="w-4" />
+                    <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
+                    <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>
+                    <SortButton field="deadline" currentField={sortField} asc={sortAsc} onSort={handleSort}>Deadline</SortButton>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-[130px]" />
+                    <span className="w-[52px]" />
                   </div>
+
+                  {totalCount > 0 && (
+                    <div className="text-center text-xs text-muted-foreground py-2 border-b border-border/30">
+                      Displaying {displayingFrom} – {displayingTo} of {totalCount} Scholarships
+                    </div>
+                  )}
+
+                  {/* Rows */}
+                  {scholarships.map((s) => (
+                    <ScholarshipRow
+                      key={s.id}
+                      scholarship={s}
+                      isSaved={savedMap.has(s.id)}
+                      applicationId={savedMap.get(s.id)}
+                      expanded={expandedId === s.id}
+                      onToggleExpand={() => setExpandedId(expandedId === s.id ? null : s.id)}
+                      onAdd={() => handleAdd(s)}
+                      onRemove={() => handleRemove(s)}
+                    />
+                  ))}
+
+                  {scholarships.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                      <Search className="h-10 w-10 mb-3 opacity-40" />
+                      <p className="text-sm">No scholarships found.</p>
+                    </div>
+                  )}
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 pt-4">
+                    <div className="flex items-center justify-center gap-2 py-4 border-t border-border/30">
                       <Button
                         variant="outline"
                         size="sm"
@@ -529,45 +778,51 @@ export default function ScholarshipDiscovery() {
             </div>
           )}
 
-          {/* Saved tab */}
-          {activeTab === "saved" && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {scholarships.filter((s) => savedIds.includes(s.id)).map((s, i) => (
-                <motion.div
-                  key={s.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: i * 0.04 }}
-                >
-                  <ScholarshipCard scholarship={s} onSave={() => handleSave(s)} onDismiss={() => handleDismiss(s.id)} />
-                </motion.div>
-              ))}
-              {savedIds.length === 0 && (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <Bookmark className="h-10 w-10 mb-3 opacity-40" />
-                  <p className="text-sm">No saved scholarships yet.</p>
-                </div>
-              )}
-            </div>
-          )}
+          {/* My List tab */}
+          {activeTab === "mylist" && (
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
+              {savedScholarships.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                    <span className="w-4" />
+                    <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
+                    <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>
+                    <SortButton field="deadline" currentField={sortField} asc={sortAsc} onSort={handleSort}>Deadline</SortButton>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-[130px]" />
+                    <span className="w-[52px]" />
+                  </div>
 
-          {/* Dismissed tab */}
-          {activeTab === "dismissed" && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {scholarships.filter((s) => dismissedIds.includes(s.id)).map((s, i) => (
-                <motion.div
-                  key={s.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: i * 0.04 }}
-                >
-                  <ScholarshipCard scholarship={s} onSave={() => handleSave(s)} onDismiss={() => handleDismiss(s.id)} />
-                </motion.div>
-              ))}
-              {dismissedIds.length === 0 && (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <X className="h-10 w-10 mb-3 opacity-40" />
-                  <p className="text-sm">No dismissed scholarships.</p>
+                  <div className="text-center text-xs text-muted-foreground py-2 border-b border-border/30">
+                    {savedScholarships.length} scholarship{savedScholarships.length !== 1 ? "s" : ""} in your list
+                  </div>
+
+                  {savedScholarships.map((s) => (
+                    <ScholarshipRow
+                      key={s.id}
+                      scholarship={s}
+                      isSaved={true}
+                      applicationId={savedMap.get(s.id)}
+                      expanded={expandedId === s.id}
+                      onToggleExpand={() => setExpandedId(expandedId === s.id ? null : s.id)}
+                      onAdd={() => handleAdd(s)}
+                      onRemove={() => handleRemove(s)}
+                    />
+                  ))}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <Heart className="h-10 w-10 mb-3 opacity-40" />
+                  <p className="text-sm font-medium">No scholarships in your list yet</p>
+                  <p className="text-xs mt-1">Click &quot;Add to My List&quot; on any scholarship to start tracking it.</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4 gap-2"
+                    onClick={() => setActiveTab("matched")}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Browse Matches
+                  </Button>
                 </div>
               )}
             </div>
