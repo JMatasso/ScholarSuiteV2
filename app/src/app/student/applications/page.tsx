@@ -318,12 +318,12 @@ export default function ApplicationsPage() {
       />
 
       {/* Status summary bar */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <button
           type="button"
           onClick={() => setStatusFilter("ALL")}
           className={cn(
-            "rounded-full px-3 py-1 text-xs font-medium transition-all",
+            "rounded-full px-3 py-1 text-xs font-medium transition-all flex-nowrap whitespace-nowrap",
             statusFilter === "ALL"
               ? "bg-[#1E3A5F] text-white"
               : "bg-white text-muted-foreground ring-1 ring-gray-200 hover:bg-gray-50"
@@ -339,7 +339,7 @@ export default function ApplicationsPage() {
               type="button"
               onClick={() => setStatusFilter(statusFilter === status ? "ALL" : status)}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all",
+                "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all flex-nowrap whitespace-nowrap",
                 statusFilter === status
                   ? "bg-[#1E3A5F] text-white"
                   : "bg-white text-muted-foreground ring-1 ring-gray-200 hover:bg-gray-50"
@@ -353,12 +353,12 @@ export default function ApplicationsPage() {
       </div>
 
       {/* Search + Bulk actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <SearchInput
           value={search}
           onValueChange={setSearch}
           placeholder="Search scholarships..."
-          className="w-72"
+          className="w-full sm:w-72"
         />
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-2 ml-auto">
@@ -400,9 +400,10 @@ export default function ApplicationsPage() {
           )}
         </div>
       ) : (
+        <div className="overflow-x-auto">
         <div className="rounded-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+          <div className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30 min-w-[700px]">
             <button type="button" onClick={toggleSelectAll} className="flex items-center justify-center">
               {selectedIds.size === filtered.length && filtered.length > 0 ? (
                 <CheckSquare className="h-4 w-4 text-[#2563EB]" />
@@ -424,7 +425,7 @@ export default function ApplicationsPage() {
               return (
                 <motion.div
                   key={app.id}
-                  className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors"
+                  className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors min-w-[700px]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2, delay: index * 0.02 }}
@@ -506,11 +507,12 @@ export default function ApplicationsPage() {
             })}
           </div>
         </div>
+        </div>
       )}
 
       {/* Add Scholarship Dialog */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Scholarship</DialogTitle>
           </DialogHeader>
@@ -534,7 +536,7 @@ export default function ApplicationsPage() {
                       disabled={alreadyAdded || adding}
                       onClick={() => handleAddScholarship(s.id)}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors",
+                        "flex w-full items-center justify-between rounded-md px-3 py-3 sm:py-2 text-left transition-colors",
                         alreadyAdded
                           ? "opacity-50 cursor-not-allowed bg-muted/30"
                           : "hover:bg-muted/50 cursor-pointer"

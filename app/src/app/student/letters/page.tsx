@@ -183,14 +183,14 @@ export default function LettersPage() {
         title="Letters of Recommendation"
         description="Track your recommendation letters and share your brag sheet."
         actions={
-          <>
+          <div className="flex flex-col sm:flex-row gap-2">
             <Link href="/student/resume">
-              <Button variant="outline">View Brag Sheet</Button>
+              <Button variant="outline" className="w-full sm:w-auto">View Brag Sheet</Button>
             </Link>
             <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={openAdd}>
               <Plus className="h-4 w-4" /> Add Recommender
             </Button>
-          </>
+          </div>
         }
       />
 
@@ -239,14 +239,15 @@ export default function LettersPage() {
           </div>
 
           {/* Table */}
-          <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+          <div className="rounded-lg border border-gray-200 bg-white overflow-x-auto">
+            <div className="min-w-[650px]">
             <div className="hidden sm:grid grid-cols-[1fr_120px_80px_110px_100px_160px] gap-2 px-4 py-2 text-xs font-medium text-muted-foreground border-b bg-gray-50/60">
               <span>Writer</span><span>Category</span><span>For</span><span>Status</span><span>Due Date</span><span>Actions</span>
             </div>
             {recs.map(r => (
               <div key={r.id} className="border-b last:border-b-0">
                 <div
-                  className="grid sm:grid-cols-[1fr_120px_80px_110px_100px_160px] gap-2 px-4 py-3 items-center cursor-pointer hover:bg-gray-50/50 transition-colors"
+                  className="grid sm:grid-cols-[1fr_120px_80px_110px_100px_160px] gap-2 px-4 py-3 items-center cursor-pointer hover:bg-gray-50/50 transition-colors min-w-[650px]"
                   onClick={() => setExpanded(expanded === r.id ? null : r.id)}
                 >
                   <div className="flex items-center gap-2">
@@ -277,7 +278,7 @@ export default function LettersPage() {
                 </div>
 
                 {expanded === r.id && (
-                  <div className="px-4 pb-4 pl-10 space-y-3 text-sm">
+                  <div className="px-4 pb-4 pl-4 sm:pl-10 space-y-3 text-sm w-full">
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                       {r.email && <div className="flex items-center gap-1.5 text-muted-foreground"><Mail className="h-3.5 w-3.5" />{r.email}</div>}
                       {r.phone && <div className="flex items-center gap-1.5 text-muted-foreground"><Phone className="h-3.5 w-3.5" />{r.phone}</div>}
@@ -305,6 +306,7 @@ export default function LettersPage() {
                 )}
               </div>
             ))}
+            </div>
           </div>
         </>
       )}

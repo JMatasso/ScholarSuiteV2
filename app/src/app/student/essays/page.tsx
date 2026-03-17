@@ -305,7 +305,7 @@ export default function EssaysPage() {
           <h1 className="text-2xl font-semibold text-[#1E3A5F]">Essays</h1>
           <p className="mt-1 text-muted-foreground">Write, review, and manage your scholarship essays.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Button
             variant="outline"
             className="gap-2"
@@ -322,7 +322,7 @@ export default function EssaysPage() {
 
         {/* New Essay Dialog */}
         <Dialog open={newOpen} onOpenChange={setNewOpen}>
-          <DialogContent>
+          <DialogContent className="max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>New Essay</DialogTitle>
               <DialogDescription>Start a new scholarship essay.</DialogDescription>
@@ -349,7 +349,7 @@ export default function EssaysPage() {
 
         {/* Edit Essay Dialog */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Essay</DialogTitle>
               <DialogDescription>Edit your essay content below.</DialogDescription>
@@ -369,7 +369,7 @@ export default function EssaysPage() {
 
         {/* AI Review Results Dialog */}
         <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
-          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto sm:max-w-lg md:max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-[#1E3A5F]">
                 <Sparkles className="h-5 w-5 text-[#2563EB]" />
@@ -450,7 +450,7 @@ export default function EssaysPage() {
 
         {/* Writing Tips Dialog */}
         <Dialog open={tipsOpen} onOpenChange={setTipsOpen}>
-          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto sm:max-w-lg md:max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-[#1E3A5F]">
                 <Lightbulb className="h-5 w-5 text-[#2563EB]" />
@@ -507,7 +507,7 @@ export default function EssaysPage() {
                 {/* Brainstorming Angles */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Brainstorming Angles</h3>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     {tipsResult.angles.map((angle, i) => (
                       <Card key={i} className="hover:shadow-sm transition-shadow">
                         <CardContent className="p-3 space-y-1.5">
@@ -538,7 +538,7 @@ export default function EssaysPage() {
                 </div>
 
                 {/* Do's and Don'ts */}
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   <div className="space-y-2">
                     <h3 className="text-sm font-semibold text-emerald-700 uppercase tracking-wide">Do</h3>
                     <div className="space-y-1.5">
@@ -611,7 +611,7 @@ export default function EssaysPage() {
           <p className="text-sm">No essays yet. Start writing your first essay.</p>
         </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-[320px_1fr]">
           {/* Left panel - Essay list */}
           <motion.div
             className="space-y-2"
@@ -628,7 +628,7 @@ export default function EssaysPage() {
                 <button
                   key={essay.id}
                   onClick={() => setSelectedId(essay.id)}
-                  className={`w-full rounded-lg border p-3 text-left transition-colors ${
+                  className={`w-full rounded-lg border p-3 sm:p-3 text-left transition-colors min-h-[44px] ${
                     selectedId === essay.id
                       ? "border-[#2563EB] bg-blue-50/50 ring-1 ring-[#2563EB]/20"
                       : "hover:bg-muted/50"
@@ -738,7 +738,7 @@ export default function EssaysPage() {
                     </div>
                   )}
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => { setEditContent(selected.content); setEditOpen(true) }}>
                       <PenTool className="h-4 w-4" />
                       Edit Essay

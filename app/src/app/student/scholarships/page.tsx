@@ -157,7 +157,7 @@ function ScholarshipRow({
     <div className="border-b border-border/30 last:border-b-0">
       <div
         className={cn(
-          "grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 items-center transition-colors cursor-pointer",
+          "grid min-w-[700px] grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 items-center transition-colors cursor-pointer",
           expanded ? "bg-muted/30" : "hover:bg-muted/20"
         )}
         onClick={onToggleExpand}
@@ -253,7 +253,7 @@ function ScholarshipRow({
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="px-4 pb-4 pl-12"
+          className="px-4 pb-4 pl-4 sm:pl-12"
         >
           <div className="rounded-lg bg-muted/20 border border-border/50 p-4 space-y-3">
             {scholarship.description && (
@@ -613,7 +613,7 @@ export default function ScholarshipDiscovery() {
       )}
 
       {/* Search bar + filters */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -685,7 +685,7 @@ export default function ScholarshipDiscovery() {
       ) : (
         <div>
           {/* Tab bar */}
-          <div className="flex gap-1 border-b border-border pb-px mb-0">
+          <div className="flex gap-1 border-b border-border pb-px mb-0 overflow-x-auto flex-nowrap">
             {[
               { value: "matched", label: `Matched for You (${filteredMatches.length})`, icon: Sparkles },
               { value: "all", label: "All Scholarships" },
@@ -696,7 +696,7 @@ export default function ScholarshipDiscovery() {
                 key={tab.value}
                 onClick={() => { setActiveTab(tab.value); setExpandedId(null) }}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors",
+                  "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap",
                   activeTab === tab.value
                     ? "text-[#2563EB] border-b-2 border-[#2563EB] bg-[#2563EB]/5"
                     : "text-muted-foreground hover:text-foreground"
@@ -710,7 +710,7 @@ export default function ScholarshipDiscovery() {
 
           {/* Matched tab */}
           {activeTab === "matched" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {matchLoading ? (
                 <div className="flex justify-center py-12">
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -718,7 +718,7 @@ export default function ScholarshipDiscovery() {
               ) : filteredMatches.length > 0 ? (
                 <>
                   {/* Table header */}
-                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                  <div className="grid min-w-[700px] grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
                     <span className="w-4" />
                     <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
                     <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>
@@ -759,7 +759,7 @@ export default function ScholarshipDiscovery() {
 
           {/* All tab */}
           {activeTab === "all" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {allLoading ? (
                 <div className="flex justify-center py-12">
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -767,7 +767,7 @@ export default function ScholarshipDiscovery() {
               ) : (
                 <>
                   {/* Table header */}
-                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                  <div className="grid min-w-[700px] grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
                     <span className="w-4" />
                     <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
                     <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>
@@ -838,7 +838,7 @@ export default function ScholarshipDiscovery() {
 
           {/* Local tab */}
           {activeTab === "local" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {!studentCounty ? (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <MapPin className="h-10 w-10 mb-3 opacity-40" />
@@ -855,7 +855,7 @@ export default function ScholarshipDiscovery() {
               ) : localScholarships.length > 0 ? (
                 <>
                   {/* Table header */}
-                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                  <div className="grid min-w-[700px] grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
                     <span className="w-4" />
                     <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
                     <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>
@@ -897,7 +897,7 @@ export default function ScholarshipDiscovery() {
                         .filter((s) => s.cycleStatus !== "CONFIRMED")
                         .map((s) => (
                           <div key={s.id} className="border-b border-border/30 last:border-b-0 opacity-70">
-                            <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 items-center">
+                            <div className="grid min-w-[700px] grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 items-center">
                               <span className="w-4" />
                               <div className="min-w-0">
                                 <p className="text-sm font-medium text-muted-foreground truncate">{s.name}</p>
@@ -955,10 +955,10 @@ export default function ScholarshipDiscovery() {
 
           {/* My List tab */}
           {activeTab === "mylist" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {savedScholarships.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                  <div className="grid min-w-[700px] grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
                     <span className="w-4" />
                     <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
                     <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>

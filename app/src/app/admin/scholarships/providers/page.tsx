@@ -206,8 +206,8 @@ export default function ProvidersPage() {
           <p className="text-sm">No providers found.</p>
         </div>
       ) : (
-        <div className="rounded-xl border bg-white overflow-hidden">
-          <div className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 border-b bg-gray-50/80 px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        <div className="rounded-xl border bg-white overflow-x-auto">
+          <div className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 border-b bg-gray-50/80 px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[700px]">
             <span>Name</span><span>Type</span><span>County / State</span><span>Scholarships</span><span>Status</span><span>Last Contacted</span><span className="text-right">Actions</span>
           </div>
           <AnimatePresence initial={false}>
@@ -220,7 +220,7 @@ export default function ProvidersPage() {
                 transition={{ duration: 0.15 }}
               >
                 <div
-                  className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 items-center border-b px-4 py-3 text-sm hover:bg-gray-50/50 cursor-pointer transition-colors"
+                  className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 items-center border-b px-4 py-3 text-sm hover:bg-gray-50/50 cursor-pointer transition-colors min-w-[700px]"
                   onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
                 >
                   <span className="font-medium text-[#1E3A5F] flex items-center gap-1.5">

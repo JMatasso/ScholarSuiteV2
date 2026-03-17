@@ -266,8 +266,8 @@ export default function LocalScholarshipsPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
-        <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 border-b border-gray-100 bg-gray-50/60 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+      <div className="rounded-lg border border-gray-200 bg-white overflow-x-auto">
+        <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 border-b border-gray-100 bg-gray-50/60 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[800px]">
           <span>Name</span><span>Provider</span><span>County</span><span>Amount</span>
           <span>Deadline</span><span>Cycle Status</span><span className="text-center">Apps</span><span>Actions</span>
         </div>
@@ -280,7 +280,7 @@ export default function LocalScholarshipsPage() {
           </div>
         ) : (
           scholarships.map(s => (
-            <div key={s.id} className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 items-center border-b border-gray-50 px-4 py-2.5 text-sm hover:bg-gray-50/50 transition-colors">
+            <div key={s.id} className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 items-center border-b border-gray-50 px-4 py-2.5 text-sm hover:bg-gray-50/50 transition-colors min-w-[800px]">
               <span className="font-medium text-[#1A1A1A] truncate">{s.name}</span>
               <span className="text-muted-foreground truncate">{s.providerOrg?.name ?? s.provider ?? "--"}</span>
               <span className="text-muted-foreground">{s.county ?? "--"}</span>

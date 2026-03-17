@@ -279,7 +279,7 @@ export default function LandingPage() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-[#1A1A1A]"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-[#1A1A1A]"
           >
             Your scholarship &amp; college journey,{" "}
             <span className="text-[#2563EB]">organized.</span>
