@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import {
   Plus,
   DollarSign,
@@ -246,6 +247,13 @@ export default function ApplicationsPage() {
             <Plus className="h-3.5 w-3.5" /> Add Scholarship
           </Button>
         }
+      />
+
+      {/* Learn more banner */}
+      <LearnMoreBanner
+        title="Learn: Organizing & Tracking Applications"
+        description="Tips for tracking deadlines, submission best practices, and interview prep."
+        href="/student/learning/scholarships"
       />
 
       {/* Status summary bar */}

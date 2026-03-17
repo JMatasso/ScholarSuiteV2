@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
+import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 
 interface EssayVersion {
   id: string
@@ -220,6 +221,13 @@ export default function EssaysPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Learn more banner */}
+      <LearnMoreBanner
+        title="Learn: Essay Writing"
+        description="Tips for brainstorming, financial need essays, common prompts, and avoiding clichés."
+        href="/student/learning/scholarships"
+      />
 
       {essays.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">

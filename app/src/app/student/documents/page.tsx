@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
+import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import { UploadButton } from "@/lib/uploadthing"
 import { DOCUMENT_FOLDERS } from "@/lib/constants"
 
@@ -126,6 +127,13 @@ export default function DocumentsPage() {
         <h1 className="text-2xl font-semibold text-[#1E3A5F]">Documents</h1>
         <p className="mt-1 text-muted-foreground">Organize and upload your application materials.</p>
       </div>
+
+      {/* Learn more banner */}
+      <LearnMoreBanner
+        title="Learn: Preparing Your Application Materials"
+        description="Resume tips, transcripts, recommendation letters, headshots, and test scores."
+        href="/student/learning/scholarships"
+      />
 
       {/* Pending Document Requests */}
       {pendingRequests.length > 0 && (

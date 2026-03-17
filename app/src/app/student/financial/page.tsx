@@ -5,6 +5,7 @@ import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/lib/format"
+import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import {
   DollarSign,
   TrendingDown,
@@ -138,6 +139,13 @@ export default function FinancialPlanPage() {
           Track your college costs, aid, and funding gap across all four years.
         </p>
       </div>
+
+      {/* Learn more banner */}
+      <LearnMoreBanner
+        title="Learn: FAFSA & University Aid"
+        description="FAFSA filing tips, university aid, department scholarships, and financial appeals."
+        href="/student/learning/scholarships"
+      />
 
       {/* Summary cards */}
       <div className="grid gap-4 sm:grid-cols-3">

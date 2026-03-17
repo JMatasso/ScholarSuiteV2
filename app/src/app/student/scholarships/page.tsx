@@ -21,6 +21,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { toast } from "sonner"
+import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 
 interface ScholarshipTag {
   id: string
@@ -95,7 +96,9 @@ function ScholarshipCard({
         <div className="flex items-start justify-between gap-2">
           <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-2">
-              <CardTitle className="text-sm leading-tight">{scholarship.name}</CardTitle>
+              <Link href={`/student/scholarships/${scholarship.id}`}>
+                <CardTitle className="text-sm leading-tight hover:text-[#2563EB] hover:underline cursor-pointer">{scholarship.name}</CardTitle>
+              </Link>
               {score != null && <MatchScoreBadge score={score} />}
             </div>
             <p className="text-xs text-muted-foreground">{scholarship.provider}</p>
@@ -296,6 +299,13 @@ export default function ScholarshipDiscovery() {
           </Button>
         )}
       </div>
+
+      {/* Learn more banner */}
+      <LearnMoreBanner
+        title="Learn: Finding Scholarships"
+        description="Discover where to look, local vs. national strategies, and scholarship types."
+        href="/student/learning/scholarships"
+      />
 
       {/* Profile incomplete banner */}
       {profileIncomplete && (

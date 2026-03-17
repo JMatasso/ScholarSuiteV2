@@ -5,8 +5,10 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { GraduationCap, DollarSign, BookOpen, ArrowRight, CheckCircle2 } from "lucide-react"
+import { GraduationCap, DollarSign, BookOpen, ArrowRight, CheckCircle2, Sparkles } from "lucide-react"
+import { LearningChatWidget } from "@/components/ui/learning-chat-widget"
 
 interface LessonProgress {
   id: string
@@ -105,6 +107,13 @@ export default function LearningDashboard() {
       <PageHeader
         title="Learning Hub"
         description="Master the college admissions and scholarship process."
+        actions={
+          <Link href="/student/learning/ask">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-[#2563EB]" /> Ask Advisor
+            </Button>
+          </Link>
+        }
       />
 
       {/* Overall progress */}
@@ -192,6 +201,8 @@ export default function LearningDashboard() {
           </Link>
         </motion.div>
       </div>
+
+      <LearningChatWidget />
     </div>
   )
 }

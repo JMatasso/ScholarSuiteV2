@@ -18,6 +18,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  Lightbulb,
 } from "lucide-react"
 
 interface LessonProgress {
@@ -303,6 +304,17 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
                         </a>
                       )}
 
+                      {/* Video coming soon placeholder */}
+                      {!lesson.videoUrl && lesson.type === "VIDEO" && (
+                        <div className="aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-[#1E3A5F] to-[#2563EB] flex flex-col items-center justify-center gap-3">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
+                            <Play className="h-7 w-7 text-white/90" />
+                          </div>
+                          <p className="text-sm font-medium text-white/90">Video lesson coming soon</p>
+                          <p className="text-xs text-white/60">Check back later for the video content</p>
+                        </div>
+                      )}
+
                       {/* External link */}
                       {lesson.externalUrl && (
                         <a
@@ -316,12 +328,46 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
                       )}
 
                       {/* Written content */}
-                      {lesson.content && (
-                        <div
-                          className="prose prose-sm max-w-none text-foreground"
-                          dangerouslySetInnerHTML={{ __html: lesson.content }}
-                        />
-                      )}
+                      {lesson.content && (() => {
+                        const marker = "<!-- KEY_TAKEAWAYS -->"
+                        const hasKeyTakeaways = lesson.content.includes(marker)
+                        const mainContent = hasKeyTakeaways
+                          ? lesson.content.split(marker)[0]
+                          : lesson.content
+                        const takeawaysContent = hasKeyTakeaways
+                          ? lesson.content.split(marker)[1]
+                          : null
+
+                        return (
+                          <>
+                            <div
+                              className="prose prose-sm max-w-none text-foreground"
+                              dangerouslySetInnerHTML={{ __html: mainContent }}
+                            />
+
+                            {/* Key Takeaways */}
+                            {takeawaysContent && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: 0.1 }}
+                                className="rounded-lg bg-blue-50/80 border border-blue-200/60 p-4 space-y-3"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#2563EB]/10">
+                                    <Lightbulb className="h-4 w-4 text-[#2563EB]" />
+                                  </div>
+                                  <h4 className="text-sm font-semibold text-[#1E3A5F]">Key Takeaways</h4>
+                                </div>
+                                <div
+                                  className="prose prose-sm max-w-none text-[#1E3A5F]/80"
+                                  dangerouslySetInnerHTML={{ __html: takeawaysContent }}
+                                />
+                              </motion.div>
+                            )}
+                          </>
+                        )
+                      })()}
 
                       {/* Complete button */}
                       <div className="flex items-center justify-between pt-2">

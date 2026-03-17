@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { LearningChatWidget } from "@/components/ui/learning-chat-widget"
 
 export default function CollegePrepPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,6 +45,7 @@ export default function CollegePrepPage() {
       ) : (
         <LearningCategoryGrid modules={modules} basePath="/student/learning" />
       )}
+      <LearningChatWidget />
     </div>
   )
 }
