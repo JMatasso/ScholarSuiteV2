@@ -70,6 +70,25 @@ export function computeMatchScore(
 
   // ── Hard exclusions ──────────────────────────────────────
 
+  // Insufficient data — scholarship has nothing to match on
+  const hasEligibilityData =
+    scholarship.amount != null ||
+    scholarship.deadline != null ||
+    scholarship.minGpa != null ||
+    scholarship.states.length > 0 ||
+    scholarship.citizenships.length > 0 ||
+    scholarship.gradeLevels.length > 0 ||
+    scholarship.fieldsOfStudy.length > 0 ||
+    scholarship.ethnicities.length > 0 ||
+    scholarship.requiresFirstGen ||
+    scholarship.requiresPell ||
+    scholarship.requiresFinancialNeed ||
+    scholarship.minSat != null ||
+    scholarship.minAct != null
+  if (!hasEligibilityData) {
+    return excluded("Insufficient data for matching")
+  }
+
   // Deadline
   if (scholarship.deadline && scholarship.deadline < new Date()) {
     return excluded("Deadline has passed")

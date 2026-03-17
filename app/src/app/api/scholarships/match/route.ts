@@ -28,9 +28,16 @@ export const POST = withAuth(async (session) => {
   const missingFields = getMissingFields(profile)
   const profileIncomplete = missingFields.length > 3
 
-  // Fetch all active scholarships
+  // Fetch active scholarships with future deadlines (or rolling/no deadline + enriched)
+  const now = new Date()
   const scholarships = await db.scholarship.findMany({
-    where: { isActive: true },
+    where: {
+      isActive: true,
+      OR: [
+        { deadline: { gte: now } },
+        { deadline: null, scrapeStatus: "CURRENT" },
+      ],
+    },
     include: { tags: true },
   })
 
@@ -131,6 +138,7 @@ export const GET = withAuth(async (session, request: NextRequest) => {
   const minAmount = parseFloat(searchParams.get("minAmount") || "0")
   const maxAmount = parseFloat(searchParams.get("maxAmount") || "999999999")
 
+  const now = new Date()
   const matches = await db.scholarshipMatch.findMany({
     where: {
       studentId: session.user.id,
@@ -138,6 +146,10 @@ export const GET = withAuth(async (session, request: NextRequest) => {
       score: { gte: minScore },
       scholarship: {
         isActive: true,
+        OR: [
+          { deadline: { gte: now } },
+          { deadline: null, scrapeStatus: "CURRENT" },
+        ],
         ...(minAmount > 0 ? { amount: { gte: minAmount } } : {}),
         ...(maxAmount < 999999999 ? { amount: { lte: maxAmount } } : {}),
       },

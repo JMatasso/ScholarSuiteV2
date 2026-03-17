@@ -63,15 +63,36 @@ export async function GET(req: Request) {
     const minAmount = searchParams.get("minAmount");
     const maxAmount = searchParams.get("maxAmount");
 
+    const role = (session.user as { role: string }).role
     const where: Record<string, unknown> = {
       isActive: true,
     };
 
+    // Students only see scholarships with future deadlines (or rolling/no deadline if enriched)
+    if (role !== "ADMIN") {
+      const now = new Date()
+      where.AND = [
+        {
+          OR: [
+            { deadline: { gte: now } },
+            { deadline: null, scrapeStatus: "CURRENT" },
+          ],
+        },
+      ]
+    }
+
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { provider: { contains: search, mode: "insensitive" } },
-      ];
+      const searchFilter = {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { provider: { contains: search, mode: "insensitive" } },
+        ],
+      }
+      if (where.AND) {
+        ;(where.AND as unknown[]).push(searchFilter)
+      } else {
+        where.AND = [searchFilter]
+      }
     }
 
     if (state) {
@@ -87,7 +108,6 @@ export async function GET(req: Request) {
     }
 
     // Pagination (admins can fetch larger batches)
-    const role = (session.user as { role: string }).role
     const maxLimit = role === "ADMIN" ? 10000 : 100
     const page = parseInt(searchParams.get("page") || "1", 10)
     const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), maxLimit)
