@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json()
-    const { scholarshipId, applyChanges } = data as {
+    const { scholarshipId, applyChanges = true } = data as {
       scholarshipId?: string
       applyChanges?: boolean
     }
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
 
         // Determine status
         let status: "CURRENT" | "NEEDS_REVIEW" | "EXPIRED" | "ERROR" = "CURRENT"
-        if (changes.length > 0) status = "NEEDS_REVIEW"
+        if (changes.length > 0 && !applyChanges) status = "NEEDS_REVIEW"
         const deadline = extracted.deadline ? new Date(extracted.deadline as string) : null
         if (deadline && deadline < new Date()) status = "EXPIRED"
 
