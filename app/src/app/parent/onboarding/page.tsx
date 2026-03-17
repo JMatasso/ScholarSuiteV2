@@ -74,7 +74,7 @@ interface LinkedStudent {
 }
 
 export default function ParentOnboardingPage() {
-  const [showTour, setShowTour] = useState(true);
+  const [showTour, setShowTour] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [linkedStudents, setLinkedStudents] = useState<LinkedStudent[]>([]);
@@ -89,8 +89,23 @@ export default function ParentOnboardingPage() {
     notifyDeadlines: true,
     notifyAwards: true,
     notifyMessages: true,
+    notifyScholarshipSubmissions: true,
+    notifyCollegeAppSubmissions: true,
+    notifyWeeklyDigest: true,
+    reportFrequency: "WEEKLY",
+    reportDay: "Monday",
     tourComplete: false,
   });
+
+  // Only show tour on first visit
+  useEffect(() => {
+    fetch("/api/auth/onboarding-status")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.completionFlags?.tour) setShowTour(true);
+      })
+      .catch(() => setShowTour(true));
+  }, []);
 
   useEffect(() => {
     fetch("/api/parents/students")
@@ -340,59 +355,97 @@ export default function ParentOnboardingPage() {
                       Choose what updates you&apos;d like to receive
                     </p>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    {[
-                      {
-                        field: "notifyTasks",
-                        label: "Task Updates",
-                        description: "When your student's tasks are created or completed",
-                      },
-                      {
-                        field: "notifyDeadlines",
-                        label: "Deadline Reminders",
-                        description: "Upcoming scholarship and application deadlines",
-                      },
-                      {
-                        field: "notifyAwards",
-                        label: "Award Notifications",
-                        description: "When scholarships are awarded or status changes",
-                      },
-                      {
-                        field: "notifyMessages",
-                        label: "New Messages",
-                        description: "When you receive messages from counselors or students",
-                      },
-                    ].map((item) => (
-                      <label
-                        key={item.field}
-                        className="flex items-start gap-3 p-3 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="pt-0.5">
-                          <div
-                            className={cn(
-                              "w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
-                              formData[item.field as keyof typeof formData]
-                                ? "bg-[#2563EB] border-[#2563EB]"
-                                : "border-foreground/20"
-                            )}
-                          >
-                            {formData[item.field as keyof typeof formData] && (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                            )}
+                  <CardContent className="space-y-4">
+                    <p className="text-xs text-muted-foreground">You can change these anytime in Settings.</p>
+
+                    {/* Real-time notifications */}
+                    <div>
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Real-time Alerts</h4>
+                      {[
+                        { field: "notifyTasks", label: "Task Updates", description: "When your student's tasks are created or completed" },
+                        { field: "notifyDeadlines", label: "Deadline Reminders", description: "Upcoming scholarship and application deadlines" },
+                        { field: "notifyAwards", label: "Award Notifications", description: "When scholarships are awarded or status changes" },
+                        { field: "notifyMessages", label: "New Messages", description: "Messages from counselors or students" },
+                        { field: "notifyScholarshipSubmissions", label: "Scholarship Applications", description: "When your student submits a scholarship application" },
+                        { field: "notifyCollegeAppSubmissions", label: "College Applications", description: "When your student submits a college application" },
+                      ].map((item) => (
+                        <label
+                          key={item.field}
+                          className="flex items-start gap-3 p-2.5 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="pt-0.5">
+                            <div
+                              className={cn(
+                                "w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
+                                formData[item.field as keyof typeof formData]
+                                  ? "bg-[#2563EB] border-[#2563EB]"
+                                  : "border-foreground/20"
+                              )}
+                            >
+                              {formData[item.field as keyof typeof formData] && (
+                                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                              )}
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={formData[item.field as keyof typeof formData] as boolean}
+                              onChange={(e) => update(item.field, e.target.checked)}
+                              className="sr-only"
+                            />
                           </div>
-                          <input
-                            type="checkbox"
-                            checked={formData[item.field as keyof typeof formData] as boolean}
-                            onChange={(e) => update(item.field, e.target.checked)}
-                            className="sr-only"
-                          />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground">{item.description}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Progress Reports */}
+                    <div className="border-t border-foreground/5 pt-4">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Progress Reports</h4>
+                      <label className="flex items-start gap-3 p-2.5 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors mb-3">
+                        <div className="pt-0.5">
+                          <div className={cn("w-5 h-5 rounded border-2 flex items-center justify-center transition-all", formData.notifyWeeklyDigest ? "bg-[#2563EB] border-[#2563EB]" : "border-foreground/20")}>
+                            {formData.notifyWeeklyDigest && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                          </div>
+                          <input type="checkbox" checked={formData.notifyWeeklyDigest as boolean} onChange={(e) => update("notifyWeeklyDigest", e.target.checked)} className="sr-only" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground">{item.label}</p>
-                          <p className="text-xs text-muted-foreground">{item.description}</p>
+                          <p className="text-sm font-medium text-foreground">Progress Report Digest</p>
+                          <p className="text-xs text-muted-foreground">Summary of your student&apos;s progress including tasks, applications, and upcoming deadlines</p>
                         </div>
                       </label>
-                    ))}
+                      {formData.notifyWeeklyDigest && (
+                        <div className="grid grid-cols-2 gap-3 pl-8">
+                          <div>
+                            <label className="block text-xs font-medium text-muted-foreground mb-1">Frequency</label>
+                            <select
+                              value={formData.reportFrequency}
+                              onChange={(e) => update("reportFrequency", e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-foreground/10 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                            >
+                              <option value="DAILY">Daily</option>
+                              <option value="WEEKLY">Weekly</option>
+                              <option value="BIWEEKLY">Bi-weekly</option>
+                              <option value="MONTHLY">Monthly</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-muted-foreground mb-1">Preferred Day</label>
+                            <select
+                              value={formData.reportDay}
+                              onChange={(e) => update("reportDay", e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-foreground/10 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                            >
+                              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((d) => (
+                                <option key={d} value={d}>{d}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </>
               )}
@@ -453,6 +506,8 @@ export default function ParentOnboardingPage() {
                           { field: "notifyDeadlines", label: "Deadlines" },
                           { field: "notifyAwards", label: "Awards" },
                           { field: "notifyMessages", label: "Messages" },
+                          { field: "notifyScholarshipSubmissions", label: "Scholarship Apps" },
+                          { field: "notifyCollegeAppSubmissions", label: "College Apps" },
                         ].map((item) => (
                           <span
                             key={item.field}
@@ -467,6 +522,11 @@ export default function ParentOnboardingPage() {
                           </span>
                         ))}
                       </div>
+                      {formData.notifyWeeklyDigest && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Progress reports: <span className="font-medium text-foreground">{formData.reportFrequency.toLowerCase()}</span> on <span className="font-medium text-foreground">{formData.reportDay}s</span>
+                        </p>
+                      )}
                     </div>
 
                     {/* Linked Students Summary */}
