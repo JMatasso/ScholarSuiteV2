@@ -258,6 +258,10 @@ model Scholarship {
   applicationYear   String?
   scrapeStatus      ScrapeStatus?
 
+  // Smart refresh scheduling
+  nextRefreshAt     DateTime?
+  refreshPriority   RefreshPriority @default(MEDIUM)
+
   tags            ScholarshipTag[]
   applications    ScholarshipApplication[]
   matches         ScholarshipMatch[]
@@ -266,6 +270,13 @@ model Scholarship {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+enum RefreshPriority {
+  HIGH
+  MEDIUM
+  LOW
+  ARCHIVED
 }
 
 enum ScrapeStatus {

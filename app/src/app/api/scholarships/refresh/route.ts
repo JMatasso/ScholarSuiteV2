@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { extractScholarshipFromUrl } from "@/lib/chat-ai"
+import { scheduleNextRefresh } from "@/lib/refresh-scheduler"
+import { recomputeMatchesForScholarships } from "@/lib/match-recompute"
 
 // Fetch page text (same as extract-batch)
 async function fetchPageText(url: string): Promise<string> {
@@ -44,7 +46,10 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json()
-    const { scholarshipId } = data as { scholarshipId?: string }
+    const { scholarshipId, applyChanges } = data as {
+      scholarshipId?: string
+      applyChanges?: boolean
+    }
 
     // Find scholarship(s) to refresh
     let scholarships
@@ -71,6 +76,7 @@ export async function POST(req: Request) {
     }
 
     const results = []
+    const changedIds: string[] = []
 
     for (const scholarship of scholarships) {
       const sourceUrl = scholarship.sourceUrl || scholarship.url
@@ -97,6 +103,38 @@ export async function POST(req: Request) {
         const deadline = extracted.deadline ? new Date(extracted.deadline as string) : null
         if (deadline && deadline < new Date()) status = "EXPIRED"
 
+        // Build update data
+        const updateData: Record<string, unknown> = {
+          lastScrapedAt: new Date(),
+          scrapeStatus: status,
+          sourceUrl: scholarship.sourceUrl || sourceUrl,
+        }
+
+        // Apply changes if requested
+        if (applyChanges && changes.length > 0) {
+          for (const change of changes) {
+            if (change.field === "deadline" && change.new) {
+              updateData.deadline = new Date(change.new as string)
+            } else {
+              updateData[change.field] = change.new
+            }
+          }
+          // If deadline renewed (was expired, now future), reactivate
+          if (deadline && deadline > new Date() && scholarship.deadline && scholarship.deadline < new Date()) {
+            updateData.isActive = true
+          }
+          changedIds.push(scholarship.id)
+        }
+
+        await db.scholarship.update({
+          where: { id: scholarship.id },
+          data: updateData,
+        })
+
+        // Schedule next smart refresh
+        const effectiveDeadline = deadline || scholarship.deadline
+        await scheduleNextRefresh(scholarship.id, effectiveDeadline, false)
+
         results.push({
           scholarshipId: scholarship.id,
           name: scholarship.name,
@@ -104,16 +142,7 @@ export async function POST(req: Request) {
           changes,
           status,
           extracted,
-        })
-
-        // Update scrape tracking
-        await db.scholarship.update({
-          where: { id: scholarship.id },
-          data: {
-            lastScrapedAt: new Date(),
-            scrapeStatus: status,
-            sourceUrl: scholarship.sourceUrl || sourceUrl,
-          },
+          applied: applyChanges && changes.length > 0,
         })
       } catch (err) {
         results.push({
@@ -129,6 +158,18 @@ export async function POST(req: Request) {
           where: { id: scholarship.id },
           data: { lastScrapedAt: new Date(), scrapeStatus: "ERROR" },
         })
+        await scheduleNextRefresh(scholarship.id, scholarship.deadline, true)
+      }
+    }
+
+    // Recompute matches for changed scholarships and notify students
+    let matchRecomputation = null
+    if (changedIds.length > 0) {
+      const matchResults = await recomputeMatchesForScholarships(changedIds)
+      matchRecomputation = {
+        scholarshipsRecomputed: matchResults.length,
+        totalNewlyEligible: matchResults.reduce((sum, r) => sum + r.newlyEligible, 0),
+        totalNotifications: matchResults.reduce((sum, r) => sum + r.notificationsCreated, 0),
       }
     }
 
@@ -138,6 +179,7 @@ export async function POST(req: Request) {
       needsReview: results.filter((r) => r.status === "NEEDS_REVIEW").length,
       current: results.filter((r) => r.status === "CURRENT").length,
       errors: results.filter((r) => r.status === "ERROR").length,
+      matchRecomputation,
     })
   } catch (error) {
     console.error("Refresh error:", error)
