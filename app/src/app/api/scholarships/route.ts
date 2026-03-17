@@ -99,6 +99,18 @@ export async function GET(req: Request) {
       where.states = { has: state };
     }
 
+    // Source filter (SCRAPED, LOCAL, MANUAL)
+    const source = searchParams.get("source")
+    if (source) {
+      where.source = source
+    }
+
+    // County filter
+    const county = searchParams.get("county")
+    if (county) {
+      where.county = { contains: county, mode: "insensitive" }
+    }
+
     if (minAmount) {
       where.amount = { ...((where.amount as object) || {}), gte: parseFloat(minAmount) };
     }
@@ -169,6 +181,13 @@ export async function POST(req: Request) {
         requiresFirstGen: data.requiresFirstGen || false,
         requiresPell: data.requiresPell || false,
         requiresFinancialNeed: data.requiresFinancialNeed || false,
+        // Local scholarship fields
+        source: data.source || "SCRAPED",
+        county: data.county || null,
+        providerId: data.providerId || null,
+        cycleStatus: data.cycleStatus || null,
+        cycleYear: data.cycleYear || null,
+        autoMatch: data.autoMatch ?? false,
       },
     });
 

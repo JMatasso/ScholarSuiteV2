@@ -17,6 +17,8 @@ export const GET = withAuth(async (session) => {
         goalsComplete: true,
         tourComplete: true,
         firstName: true,
+        county: true,
+        state: true,
       },
     })
 
@@ -34,7 +36,7 @@ export const GET = withAuth(async (session) => {
     const flags = completionFlags ? Object.values(completionFlags) : []
     const completionPercentage = flags.length ? Math.round(flags.filter(Boolean).length / flags.length * 100) : 0
 
-    return NextResponse.json({ needsOnboarding, role, completionFlags, completionPercentage })
+    return NextResponse.json({ needsOnboarding, role, completionFlags, completionPercentage, profile })
   }
 
   if (role === "PARENT") {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { StudentStatus } from "@/generated/prisma/client";
+import { autoMatchStudentToLocalScholarships } from "@/lib/local-scholarship-matcher";
 
 export async function POST(req: Request) {
   try {
@@ -19,6 +20,7 @@ export async function POST(req: Request) {
       phone: data.phone || null,
       address: data.address || null,
       city: data.city || null,
+      county: data.county || null,
       state: data.state || null,
       zipCode: data.zipCode || null,
       gpa: data.gpa ? parseFloat(data.gpa) : null,
@@ -69,6 +71,13 @@ export async function POST(req: Request) {
           data: { name: fullName },
         });
       }
+    }
+
+    // Auto-match local scholarships if student has county/state (fire-and-forget)
+    if (data.county && data.state) {
+      autoMatchStudentToLocalScholarships(session.user.id, data.county, data.state).catch((e) =>
+        console.error("Local scholarship auto-match failed:", e)
+      )
     }
 
     return NextResponse.json(profile, { status: 201 });

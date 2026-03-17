@@ -21,6 +21,8 @@ interface ScholarshipForMatching {
   requiresFinancialNeed: boolean
   minSat: number | null
   minAct: number | null
+  county?: string | null
+  source?: string
 }
 
 interface StudentProfileForMatching {
@@ -32,6 +34,7 @@ interface StudentProfileForMatching {
   ethnicity: string | null
   citizenship: string | null
   state: string | null
+  county?: string | null
   isFirstGen: boolean
   isPellEligible: boolean
   hasFinancialNeed: boolean
@@ -181,6 +184,14 @@ export function computeMatchScore(
   }
 
   // ── Bonuses ──────────────────────────────────────────────
+
+  // County match bonus (local scholarships)
+  if (scholarship.county && profile.county) {
+    if (lower(scholarship.county) === lower(profile.county)) {
+      score += 5
+      reasons.push("Local to your county")
+    }
+  }
 
   // Approaching deadline
   if (scholarship.deadline) {

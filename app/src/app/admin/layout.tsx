@@ -36,6 +36,8 @@ import {
   CalendarDays,
   Menu,
   User,
+  MapPin,
+  Building2,
   type LucideIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -79,6 +81,8 @@ const navGroups: NavGroup[] = [
     title: "Content",
     items: [
       { label: "Scholarships", href: "/admin/scholarships", icon: Award },
+      { label: "Local Scholarships", href: "/admin/scholarships/local", icon: MapPin },
+      { label: "Providers", href: "/admin/scholarships/providers", icon: Building2 },
       { label: "Task Templates", href: "/admin/templates", icon: ListTodo },
       { label: "Learning", href: "/admin/learning", icon: BookOpen },
       { label: "Essays", href: "/admin/essays", icon: PenTool },

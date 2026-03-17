@@ -162,6 +162,12 @@ export default function LandingPage() {
             >
               Pricing
             </Link>
+            <Link
+              href="/scholarships/submit"
+              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+            >
+              List a Scholarship
+            </Link>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
@@ -196,6 +202,7 @@ export default function LandingPage() {
           <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-3">
             <Link href="#features" className="block text-sm text-gray-600 py-2">Features</Link>
             <Link href="#how-it-works" className="block text-sm text-gray-600 py-2">How It Works</Link>
+            <Link href="/scholarships/submit" className="block text-sm text-gray-600 py-2">List a Scholarship</Link>
             <Link href="/request-access" className="block text-sm text-gray-600 py-2">Request Access</Link>
             <Link href="/login" className="block text-sm font-medium bg-[#1E3A5F] text-white px-5 py-2.5 rounded-lg text-center">Sign In</Link>
           </div>
@@ -773,7 +780,7 @@ export default function LandingPage() {
                 <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">About</button></li>
                 <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Careers</button></li>
                 <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Contact</button></li>
-                <li><button onClick={() => toast.info("Coming soon")} className="hover:text-white/90 transition-colors cursor-pointer">Partners</button></li>
+                <li><Link href="/scholarships/submit" className="hover:text-white/90 transition-colors">List a Scholarship</Link></li>
               </ul>
             </div>
             <div>

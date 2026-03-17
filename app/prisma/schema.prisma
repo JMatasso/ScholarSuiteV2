@@ -149,6 +149,7 @@ model StudentProfile {
   phone             String?
   address           String?
   city              String?
+  county            String?
   state             String?
   zipCode           String?
 
@@ -227,6 +228,58 @@ model ParentStudent {
 
 // ─── SCHOLARSHIPS ────────────────────────────────────────────
 
+enum ScholarshipSource {
+  SCRAPED
+  LOCAL
+  MANUAL
+}
+
+enum CycleStatus {
+  CONFIRMED
+  PENDING_CONFIRMATION
+  NOT_RENEWED
+  UNKNOWN
+}
+
+enum ProviderStatus {
+  PROSPECT
+  ACTIVE
+  INACTIVE
+}
+
+enum ProviderType {
+  FOUNDATION
+  COMMUNITY_ORG
+  BUSINESS
+  GOVERNMENT
+  SCHOOL_DISTRICT
+  FAITH_BASED
+  CIVIC_GROUP
+  MEMORIAL
+  OTHER
+}
+
+model Provider {
+  id             String         @id @default(cuid())
+  name           String
+  type           ProviderType   @default(OTHER)
+  county         String?
+  state          String?
+  contactName    String?
+  contactEmail   String?
+  contactPhone   String?
+  website        String?
+  notes          String?
+  status         ProviderStatus @default(PROSPECT)
+  lastContactedAt DateTime?
+  scholarships   Scholarship[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([county, state])
+  @@index([status])
+}
+
 model Scholarship {
   id              String   @id @default(cuid())
   name            String
@@ -262,14 +315,30 @@ model Scholarship {
   nextRefreshAt     DateTime?
   refreshPriority   RefreshPriority @default(MEDIUM)
 
+  // Local scholarship fields
+  source            ScholarshipSource @default(SCRAPED)
+  county            String?
+  providerId        String?
+  providerOrg       Provider?   @relation(fields: [providerId], references: [id])
+  cycleStatus       CycleStatus?
+  cycleYear         String?
+  confirmedAt       DateTime?
+  confirmedBy       String?
+  previousDeadlines Json?
+  autoMatch         Boolean     @default(false)
+
   tags            ScholarshipTag[]
   applications    ScholarshipApplication[]
   matches         ScholarshipMatch[]
+  notifyRequests  ScholarshipNotifyRequest[]
   schoolId        String?
   school          School?  @relation(fields: [schoolId], references: [id])
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([source, county])
+  @@index([cycleStatus])
 }
 
 enum RefreshPriority {
@@ -303,6 +372,17 @@ model ScholarshipMatch {
   scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
   createdAt     DateTime    @default(now())
   @@unique([scholarshipId, studentId])
+}
+
+model ScholarshipNotifyRequest {
+  id            String      @id @default(cuid())
+  userId        String
+  scholarshipId String
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@unique([userId, scholarshipId])
+  @@index([scholarshipId])
 }
 
 // ─── APPLICATIONS ────────────────────────────────────────────

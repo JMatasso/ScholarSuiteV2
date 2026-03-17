@@ -27,6 +27,9 @@ import {
   Check,
   Trash2,
   Eye,
+  MapPin,
+  Bell,
+  BellOff,
 } from "lucide-react"
 import { toast } from "sonner"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
@@ -49,6 +52,10 @@ interface Scholarship {
   minGpa: number | null
   states: string[]
   tags: ScholarshipTag[]
+  source?: string
+  county?: string | null
+  cycleStatus?: string | null
+  cycleYear?: string | null
 }
 
 interface MatchedScholarship {
@@ -326,6 +333,10 @@ export default function ScholarshipDiscovery() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [sortField, setSortField] = useState("deadline")
   const [sortAsc, setSortAsc] = useState(true)
+  const [localScholarships, setLocalScholarships] = useState<Scholarship[]>([])
+  const [localLoading, setLocalLoading] = useState(false)
+  const [studentCounty, setStudentCounty] = useState<string | null>(null)
+  const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set())
   const perPage = 20
 
   // Build a lookup map for saved scholarship IDs → application IDs
@@ -409,12 +420,58 @@ export default function ScholarshipDiscovery() {
     }
   }, [scoreFilter])
 
+  // Fetch student county from profile
+  const fetchStudentCounty = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/onboarding-status")
+      const data = await res.json()
+      if (data.profile?.county) {
+        setStudentCounty(data.profile.county)
+      }
+    } catch {}
+  }, [])
+
+  // Fetch local scholarships for student's county
+  const fetchLocalScholarships = useCallback(async () => {
+    if (!studentCounty) return
+    setLocalLoading(true)
+    try {
+      const res = await fetch(`/api/scholarships/local?county=${encodeURIComponent(studentCounty)}`)
+      const data = await res.json()
+      setLocalScholarships(Array.isArray(data) ? data : [])
+    } catch {
+      toast.error("Failed to load local scholarships")
+    } finally {
+      setLocalLoading(false)
+    }
+  }, [studentCounty])
+
+  const handleNotifyMe = async (scholarshipId: string) => {
+    const res = await fetch("/api/scholarships/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scholarshipId }),
+    })
+    if (res.ok || res.status === 409) {
+      setNotifiedIds((prev) => new Set([...prev, scholarshipId]))
+      toast.success("You'll be notified when this scholarship is confirmed")
+    } else {
+      toast.error("Failed to subscribe")
+    }
+  }
+
   useEffect(() => {
     fetchSavedApps()
     fetchScholarships(1)
     fetchMatches(false)
+    fetchStudentCounty()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Fetch local scholarships when county is known
+  useEffect(() => {
+    if (studentCounty) fetchLocalScholarships()
+  }, [studentCounty, fetchLocalScholarships])
 
   const handleAdd = async (scholarship: Scholarship) => {
     const res = await fetch("/api/applications", {
@@ -632,6 +689,7 @@ export default function ScholarshipDiscovery() {
             {[
               { value: "matched", label: `Matched for You (${filteredMatches.length})`, icon: Sparkles },
               { value: "all", label: "All Scholarships" },
+              { value: "local", label: studentCounty ? `Local (${studentCounty})` : "Local", icon: MapPin },
               { value: "mylist", label: `My List (${savedApps.length})`, icon: Heart },
             ].map((tab) => (
               <button
@@ -774,6 +832,123 @@ export default function ScholarshipDiscovery() {
                     </div>
                   )}
                 </>
+              )}
+            </div>
+          )}
+
+          {/* Local tab */}
+          {activeTab === "local" && (
+            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
+              {!studentCounty ? (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <MapPin className="h-10 w-10 mb-3 opacity-40" />
+                  <p className="text-sm font-medium">Set your county to see local scholarships</p>
+                  <p className="text-xs mt-1">Update your profile with your county to discover nearby opportunities.</p>
+                  <Link href="/student/settings">
+                    <Button variant="outline" size="sm" className="mt-4">Update Profile</Button>
+                  </Link>
+                </div>
+              ) : localLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : localScholarships.length > 0 ? (
+                <>
+                  {/* Table header */}
+                  <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+                    <span className="w-4" />
+                    <SortButton field="name" currentField={sortField} asc={sortAsc} onSort={handleSort}>Name</SortButton>
+                    <SortButton field="amount" currentField={sortField} asc={sortAsc} onSort={handleSort}>Award</SortButton>
+                    <SortButton field="deadline" currentField={sortField} asc={sortAsc} onSort={handleSort}>Deadline</SortButton>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-[130px]" />
+                    <span className="w-[52px]" />
+                  </div>
+
+                  {/* This Year (Confirmed) */}
+                  {localScholarships.filter((s) => s.cycleStatus === "CONFIRMED").length > 0 && (
+                    <>
+                      <div className="px-4 py-2 bg-emerald-50/50 border-b border-border/30">
+                        <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">This Year — Confirmed</span>
+                      </div>
+                      {localScholarships
+                        .filter((s) => s.cycleStatus === "CONFIRMED")
+                        .map((s) => (
+                          <ScholarshipRow
+                            key={s.id}
+                            scholarship={s}
+                            isSaved={savedMap.has(s.id)}
+                            applicationId={savedMap.get(s.id)}
+                            expanded={expandedId === s.id}
+                            onToggleExpand={() => setExpandedId(expandedId === s.id ? null : s.id)}
+                            onAdd={() => handleAdd(s)}
+                            onRemove={() => handleRemove(s)}
+                          />
+                        ))}
+                    </>
+                  )}
+
+                  {/* Previously Available */}
+                  {localScholarships.filter((s) => s.cycleStatus !== "CONFIRMED").length > 0 && (
+                    <>
+                      <div className="px-4 py-2 bg-gray-50 border-b border-border/30 mt-1">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Previously Available</span>
+                      </div>
+                      {localScholarships
+                        .filter((s) => s.cycleStatus !== "CONFIRMED")
+                        .map((s) => (
+                          <div key={s.id} className="border-b border-border/30 last:border-b-0 opacity-70">
+                            <div className="grid grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 items-center">
+                              <span className="w-4" />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-muted-foreground truncate">{s.name}</p>
+                                <p className="text-xs text-muted-foreground/60 truncate mt-0.5">{s.provider}</p>
+                              </div>
+                              <span className="text-sm text-muted-foreground">{formatAmount(s)}</span>
+                              <span className="text-xs text-muted-foreground">Last: {formatDeadline(s.deadline)}</span>
+                              <div onClick={(e) => e.stopPropagation()}>
+                                {notifiedIds.has(s.id) ? (
+                                  <Button variant="ghost" size="sm" className="gap-1.5 text-emerald-600" disabled>
+                                    <Bell className="h-3.5 w-3.5" />
+                                    Subscribed
+                                  </Button>
+                                ) : (
+                                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => handleNotifyMe(s.id)}>
+                                    <Bell className="h-3.5 w-3.5" />
+                                    Notify Me
+                                  </Button>
+                                )}
+                              </div>
+                              <span className="w-[52px]" />
+                            </div>
+                          </div>
+                        ))}
+                    </>
+                  )}
+
+                  {/* Provider portal CTA */}
+                  <div className="px-4 py-4 border-t border-border/30 bg-muted/10 text-center">
+                    <p className="text-xs text-muted-foreground">
+                      Don&apos;t see a scholarship you know about?{" "}
+                      <Link href="/scholarships/submit" className="text-[#2563EB] hover:underline font-medium">
+                        Tell us about it
+                      </Link>
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <MapPin className="h-10 w-10 mb-3 opacity-40" />
+                  <p className="text-sm font-medium">No local scholarships found in {studentCounty} yet</p>
+                  <p className="text-xs mt-1">We&apos;re building our local database. Check back soon!</p>
+                  <div className="mt-4">
+                    <Link href="/scholarships/submit">
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Plus className="h-3.5 w-3.5" />
+                        Know a local scholarship? Tell us
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               )}
             </div>
           )}
