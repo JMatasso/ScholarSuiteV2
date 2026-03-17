@@ -27,21 +27,33 @@ export async function POST(req: Request) {
       gpa: data.gpa ? parseFloat(data.gpa) : null,
       gpaType: data.gpaType || null,
       classRank: data.classRank || null,
+      classSize: data.classSize || null,
       gradeLevel: data.gradeLevel ? parseInt(data.gradeLevel) : null,
       highSchool: data.highSchool || null,
       graduationYear: data.graduationYear ? parseInt(data.graduationYear) : null,
       satScore: data.satScore ? parseInt(data.satScore) : null,
       actScore: data.actScore ? parseInt(data.actScore) : null,
       intendedMajor: data.intendedMajor || null,
+      major2: data.major2 || null,
+      major3: data.major3 || null,
       gender: data.gender || null,
       ethnicity: data.ethnicity || null,
       citizenship: data.citizenship || null,
       isFirstGen: data.isFirstGen ?? false,
-      isPellEligible: data.isPellEligible ?? false,
       hasFinancialNeed: data.hasFinancialNeed ?? false,
       militaryAffiliation: data.militaryAffiliation || null,
       disabilityStatus: data.disabilityStatus || null,
       medicalConditions: data.medicalConditions || null,
+      parentsDivorced: data.parentsDivorced ?? false,
+      isDependentStudent: data.isDependentStudent ?? true,
+      householdIncome: data.householdIncome || null,
+      financialSituation: data.financialSituation || null,
+      parent1Education: data.parent1Education || null,
+      parent1Profession: data.parent1Profession || null,
+      parent2Education: data.parent2Education || null,
+      parent2Profession: data.parent2Profession || null,
+      // Auto-determine Pell eligibility from household income
+      isPellEligible: data.isPellEligible ?? autoPellEligible(data.householdIncome),
       journeyStage: data.journeyStage || "EARLY_EXPLORATION",
       postSecondaryPath: data.postSecondaryPath || "COLLEGE",
       collegeJourneyStage: data.collegeJourneyStage || null,
@@ -136,4 +148,15 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Auto-determine Pell Grant eligibility from household income.
+ * Pell Grants are generally available to families earning under ~$60K.
+ * Partial eligibility up to ~$75K depending on family size.
+ */
+function autoPellEligible(income: string | null | undefined): boolean {
+  if (!income) return false
+  const pellBrackets = ["Under $30,000", "$30,000 - $48,000", "$48,000 - $75,000"]
+  return pellBrackets.includes(income)
 }

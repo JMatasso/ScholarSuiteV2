@@ -166,12 +166,15 @@ model StudentProfile {
   gpa               Float?
   gpaType           String?
   classRank         String?
+  classSize         String?
   gradeLevel        Int?
   highSchool        String?
   graduationYear    Int?
   satScore          Int?
   actScore          Int?
   intendedMajor     String?
+  major2            String?
+  major3            String?
 
   gender              String?
   ethnicity           String?
@@ -182,6 +185,14 @@ model StudentProfile {
   militaryAffiliation String?
   disabilityStatus    String?
   medicalConditions   String?
+  parentsDivorced       Boolean          @default(false)
+  isDependentStudent    Boolean          @default(true)
+  householdIncome       String?
+  financialSituation    String?
+  parent1Education      String?
+  parent1Profession     String?
+  parent2Education      String?
+  parent2Profession     String?
 
   activities        String?
   communityService  String?

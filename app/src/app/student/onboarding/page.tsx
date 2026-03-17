@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/select";
 import { WelcomeTour } from "@/components/ui/welcome-tour";
 import { CollegeAutocomplete } from "@/components/ui/college-autocomplete";
+import { MultiSelect } from "@/components/ui/multi-select";
 import type { CollegeResult } from "@/components/ui/college-autocomplete";
 
 const STEPS = [
@@ -158,16 +159,27 @@ export default function OnboardingPage() {
     highSchool: "",
     schoolId: "",
     classRank: "",
+    classSize: "",
     graduationYear: "",
     satScore: "",
     actScore: "",
     intendedMajor: "",
+    major2: "",
+    major3: "",
     gender: "",
     ethnicity: "",
     citizenship: "",
     militaryAffiliation: "",
     disabilityStatus: "",
     medicalConditions: "",
+    parentsDivorced: false,
+    isDependentStudent: true,
+    householdIncome: "",
+    financialSituation: "",
+    parent1Education: "",
+    parent1Profession: "",
+    parent2Education: "",
+    parent2Profession: "",
     isFirstGen: false,
     isPellEligible: false,
     hasFinancialNeed: false,
@@ -427,7 +439,11 @@ export default function OnboardingPage() {
                   <FormField label="City" value={formData.city} onChange={(v) => update("city", v)} placeholder="Los Angeles" />
                   <FormField label="State" value={formData.state} onChange={(v) => update("state", v)} placeholder="California" />
                   <FormField label="ZIP Code" value={formData.zipCode} onChange={(v) => update("zipCode", v)} placeholder="90001" />
-                  <FormField label="County (auto-detected from ZIP)" value={formData.county} onChange={() => {}} placeholder="Auto-detected from ZIP code" readOnly />
+                  <CountyAutocomplete
+                    value={formData.county}
+                    state={formData.state}
+                    onChange={(v) => update("county", v)}
+                  />
                 </div>
               </StepCard>
             )}
@@ -481,10 +497,20 @@ export default function OnboardingPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <FormField label="Class Rank" value={formData.classRank} onChange={(v) => update("classRank", v)} placeholder="e.g. 15 out of 350" />
+                  <FormField label="Class Rank" value={formData.classRank} onChange={(v) => update("classRank", v)} placeholder="15" type="number" />
+                  <FormField label="Class Size" value={formData.classSize} onChange={(v) => update("classSize", v)} placeholder="350" type="number" />
+                  {formData.classRank && formData.classSize && Number(formData.classSize) > 0 && (
+                    <div className="col-span-full -mt-2">
+                      <p className="text-xs text-muted-foreground">
+                        Percentile: <span className="font-semibold text-[#1E3A5F]">Top {Math.round((Number(formData.classRank) / Number(formData.classSize)) * 100)}%</span>
+                      </p>
+                    </div>
+                  )}
                   <FormField label="SAT Score" value={formData.satScore} onChange={(v) => update("satScore", v)} placeholder="1380" />
                   <FormField label="ACT Score" value={formData.actScore} onChange={(v) => update("actScore", v)} placeholder="31" />
-                  <FormField label="Intended Major" value={formData.intendedMajor} onChange={(v) => update("intendedMajor", v)} placeholder="Computer Science" className="col-span-full" />
+                  <FormField label="1st Choice Major" value={formData.intendedMajor} onChange={(v) => update("intendedMajor", v)} placeholder="Computer Science" />
+                  <FormField label="2nd Choice Major" value={formData.major2} onChange={(v) => update("major2", v)} placeholder="Data Science (optional)" />
+                  <FormField label="3rd Choice Major" value={formData.major3} onChange={(v) => update("major3", v)} placeholder="Mathematics (optional)" />
                 </div>
               </StepCard>
             )}
@@ -514,8 +540,46 @@ export default function OnboardingPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <FormField label="Ethnicity" value={formData.ethnicity} onChange={(v) => update("ethnicity", v)} placeholder="e.g., Hispanic, African American, Asian" />
-                  <FormField label="Citizenship Status" value={formData.citizenship} onChange={(v) => update("citizenship", v)} placeholder="US Citizen" />
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Ethnicity / Race (select all that apply)</label>
+                    <MultiSelect
+                      options={[
+                        { id: "White", label: "White" },
+                        { id: "Black / African American", label: "Black / African American" },
+                        { id: "Hispanic / Latino", label: "Hispanic / Latino" },
+                        { id: "Asian", label: "Asian" },
+                        { id: "Native American / Alaska Native", label: "Native American / Alaska Native" },
+                        { id: "Native Hawaiian / Pacific Islander", label: "Native Hawaiian / Pacific Islander" },
+                        { id: "Middle Eastern / North African", label: "Middle Eastern / North African" },
+                        { id: "Two or More Races", label: "Two or More Races" },
+                        { id: "Other", label: "Other" },
+                        { id: "Prefer not to say", label: "Prefer not to say" },
+                      ]}
+                      selectedIds={(formData.ethnicity || "").split(", ").filter(Boolean)}
+                      onChange={(ids) => update("ethnicity", ids.join(", "))}
+                      placeholder="Select ethnicity..."
+                      searchPlaceholder="Search ethnicities..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Citizenship (select all that apply for dual citizens)</label>
+                    <MultiSelect
+                      options={[
+                        { id: "US Citizen", label: "US Citizen" },
+                        { id: "Permanent Resident", label: "Permanent Resident (Green Card)" },
+                        { id: "DACA/Dreamer", label: "DACA / Dreamer" },
+                        { id: "International Student", label: "International Student (Visa)" },
+                        { id: "Refugee/Asylee", label: "Refugee / Asylee" },
+                        { id: "Undocumented", label: "Undocumented" },
+                        { id: "Dual Citizen", label: "Dual Citizen" },
+                        { id: "Other", label: "Other" },
+                      ]}
+                      selectedIds={(formData.citizenship || "").split(", ").filter(Boolean)}
+                      onChange={(ids) => update("citizenship", ids.join(", "))}
+                      placeholder="Select citizenship status..."
+                      searchPlaceholder="Search..."
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Military Affiliation</label>
                     <Select value={formData.militaryAffiliation} onValueChange={(v) => v && update("militaryAffiliation", v)}>
@@ -546,16 +610,115 @@ export default function OnboardingPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <TextareaField
-                    label="Medical Conditions"
-                    value={formData.medicalConditions}
-                    onChange={(v) => update("medicalConditions", v)}
-                    placeholder="List any medical conditions affecting you or your family that may be relevant for scholarship applications (optional)"
-                  />
-                  <div className="space-y-3 pt-2">
-                    <CheckboxField label="I am a first-generation college student" checked={formData.isFirstGen} onChange={(v) => update("isFirstGen", v)} />
-                    <CheckboxField label="I am Pell Grant eligible" checked={formData.isPellEligible} onChange={(v) => update("isPellEligible", v)} />
-                    <CheckboxField label="I demonstrate financial need" checked={formData.hasFinancialNeed} onChange={(v) => update("hasFinancialNeed", v)} />
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Medical Conditions (select all that apply, optional)</label>
+                    <MultiSelect
+                      options={[
+                        { id: "Asthma", label: "Asthma" },
+                        { id: "Diabetes", label: "Diabetes" },
+                        { id: "Cancer (self or family)", label: "Cancer (self or family)" },
+                        { id: "Heart Disease", label: "Heart Disease" },
+                        { id: "Sickle Cell Disease", label: "Sickle Cell Disease" },
+                        { id: "Epilepsy/Seizure Disorder", label: "Epilepsy / Seizure Disorder" },
+                        { id: "Mental Health (anxiety, depression, etc.)", label: "Mental Health (anxiety, depression, etc.)" },
+                        { id: "Autoimmune Disorder", label: "Autoimmune Disorder" },
+                        { id: "Chronic Pain", label: "Chronic Pain" },
+                        { id: "Visual Impairment", label: "Visual Impairment" },
+                        { id: "Hearing Impairment", label: "Hearing Impairment" },
+                        { id: "Autism Spectrum", label: "Autism Spectrum" },
+                        { id: "ADHD/ADD", label: "ADHD / ADD" },
+                        { id: "Dyslexia/Learning Disability", label: "Dyslexia / Learning Disability" },
+                        { id: "Kidney Disease", label: "Kidney Disease" },
+                        { id: "Other", label: "Other" },
+                      ]}
+                      selectedIds={(formData.medicalConditions || "").split(", ").filter(Boolean)}
+                      onChange={(ids) => update("medicalConditions", ids.join(", "))}
+                      placeholder="Select conditions..."
+                      searchPlaceholder="Search conditions..."
+                    />
+                  </div>
+                  <div className="border-t border-border pt-4 mt-2">
+                    <h4 className="text-sm font-semibold text-[#1E3A5F] mb-3">Financial & Family Situation</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-1.5">Household Income Range</label>
+                        <Select value={formData.householdIncome} onValueChange={(v) => v && update("householdIncome", v)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select income range" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Under $30,000">Under $30,000</SelectItem>
+                            <SelectItem value="$30,000 - $48,000">$30,000 - $48,000</SelectItem>
+                            <SelectItem value="$48,000 - $75,000">$48,000 - $75,000</SelectItem>
+                            <SelectItem value="$75,000 - $110,000">$75,000 - $110,000</SelectItem>
+                            <SelectItem value="$110,000 - $150,000">$110,000 - $150,000</SelectItem>
+                            <SelectItem value="Over $150,000">Over $150,000</SelectItem>
+                            <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-3">
+                        <CheckboxField label="I am a first-generation college student (neither parent has a bachelor's degree)" checked={formData.isFirstGen} onChange={(v) => update("isFirstGen", v)} />
+                        <CheckboxField label="I demonstrate financial need" checked={formData.hasFinancialNeed} onChange={(v) => update("hasFinancialNeed", v)} />
+                        <CheckboxField label="I am a dependent student (claimed on parent's/guardian's taxes)" checked={formData.isDependentStudent} onChange={(v) => update("isDependentStudent", v)} />
+                        <CheckboxField label="My parents are divorced or separated" checked={formData.parentsDivorced} onChange={(v) => update("parentsDivorced", v)} />
+                      </div>
+
+                      {/* Auto-Pell notice */}
+                      {formData.householdIncome && ["Under $30,000", "$30,000 - $48,000", "$48,000 - $75,000"].includes(formData.householdIncome) && (
+                        <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs text-emerald-700">
+                          Based on your household income, you likely qualify for the <span className="font-semibold">Pell Grant</span>. We&apos;ll flag this on your profile automatically.
+                        </div>
+                      )}
+
+                      {/* Parent education (shows if NOT first-gen) */}
+                      {!formData.isFirstGen && (
+                        <div className="space-y-4 pt-2">
+                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Parent / Guardian Education & Profession</h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1.5">Parent 1 Education</label>
+                              <Select value={formData.parent1Education} onValueChange={(v) => v && update("parent1Education", v)}>
+                                <SelectTrigger className="w-full"><SelectValue placeholder="Select education level" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Some High School">Some High School</SelectItem>
+                                  <SelectItem value="High School Diploma/GED">High School Diploma / GED</SelectItem>
+                                  <SelectItem value="Some College">Some College</SelectItem>
+                                  <SelectItem value="Associate's Degree">Associate&apos;s Degree</SelectItem>
+                                  <SelectItem value="Bachelor's Degree">Bachelor&apos;s Degree</SelectItem>
+                                  <SelectItem value="Master's Degree">Master&apos;s Degree</SelectItem>
+                                  <SelectItem value="Doctorate/Professional">Doctorate / Professional Degree</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <FormField label="Parent 1 Profession" value={formData.parent1Profession} onChange={(v) => update("parent1Profession", v)} placeholder="e.g., Teacher, Nurse, Engineer" />
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1.5">Parent 2 Education</label>
+                              <Select value={formData.parent2Education} onValueChange={(v) => v && update("parent2Education", v)}>
+                                <SelectTrigger className="w-full"><SelectValue placeholder="Select education level" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="N/A">N/A</SelectItem>
+                                  <SelectItem value="Some High School">Some High School</SelectItem>
+                                  <SelectItem value="High School Diploma/GED">High School Diploma / GED</SelectItem>
+                                  <SelectItem value="Some College">Some College</SelectItem>
+                                  <SelectItem value="Associate's Degree">Associate&apos;s Degree</SelectItem>
+                                  <SelectItem value="Bachelor's Degree">Bachelor&apos;s Degree</SelectItem>
+                                  <SelectItem value="Master's Degree">Master&apos;s Degree</SelectItem>
+                                  <SelectItem value="Doctorate/Professional">Doctorate / Professional Degree</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <FormField label="Parent 2 Profession" value={formData.parent2Profession} onChange={(v) => update("parent2Profession", v)} placeholder="e.g., Electrician, Accountant" />
+                          </div>
+                        </div>
+                      )}
+                      <TextareaField
+                        label="Financial Situation (optional)"
+                        value={formData.financialSituation}
+                        onChange={(v) => update("financialSituation", v)}
+                        placeholder="Describe any relevant financial circumstances (e.g., single-income household, supporting siblings, medical expenses, job loss, etc.)"
+                      />
+                    </div>
                   </div>
                 </div>
               </StepCard>
@@ -645,22 +808,64 @@ export default function OnboardingPage() {
                   )}
 
                   {formData.collegeJourneyStage === "BUILDING_LIST" && (
-                    <TextareaField
-                      label="Schools you're interested in"
-                      value={formData.dreamSchools}
-                      onChange={(v) => update("dreamSchools", v)}
-                      placeholder="e.g., Stanford University, UC Berkeley, MIT..."
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1.5">Schools you&apos;re interested in</label>
+                      <CollegeAutocomplete
+                        onSelect={(college) => {
+                          if (college.name) {
+                            const current = formData.dreamSchools ? formData.dreamSchools.split(", ").filter(Boolean) : [];
+                            if (!current.includes(college.name)) {
+                              update("dreamSchools", [...current, college.name].join(", "));
+                            }
+                          }
+                        }}
+                        placeholder="Search and add colleges..."
+                      />
+                      {formData.dreamSchools && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {formData.dreamSchools.split(", ").filter(Boolean).map((school) => (
+                            <span key={school} className="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 px-2.5 py-1 text-xs font-medium">
+                              {school}
+                              <button type="button" onClick={() => {
+                                const updated = formData.dreamSchools.split(", ").filter((s) => s !== school).join(", ");
+                                update("dreamSchools", updated);
+                              }} className="hover:text-blue-900">×</button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   {formData.collegeJourneyStage === "APPLYING" && (
                     <div className="space-y-5">
-                      <TextareaField
-                        label="Schools you're applying to"
-                        value={formData.dreamSchools}
-                        onChange={(v) => update("dreamSchools", v)}
-                        placeholder="e.g., Stanford University, UC Berkeley, MIT..."
-                      />
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-1.5">Schools you&apos;re applying to</label>
+                        <CollegeAutocomplete
+                          onSelect={(college) => {
+                            if (college.name) {
+                              const current = formData.dreamSchools ? formData.dreamSchools.split(", ").filter(Boolean) : [];
+                              if (!current.includes(college.name)) {
+                                update("dreamSchools", [...current, college.name].join(", "));
+                              }
+                            }
+                          }}
+                          placeholder="Search and add colleges..."
+                        />
+                        {formData.dreamSchools && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {formData.dreamSchools.split(", ").filter(Boolean).map((school) => (
+                              <span key={school} className="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 px-2.5 py-1 text-xs font-medium">
+                                {school}
+                                <button type="button" onClick={() => {
+                                  const updated = formData.dreamSchools.split(", ").filter((s) => s !== school).join(", ");
+                                  update("dreamSchools", updated);
+                                }} className="hover:text-blue-900">×</button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-3">Which application rounds?</label>
                         <div className="grid grid-cols-2 gap-3">
@@ -734,9 +939,70 @@ export default function OnboardingPage() {
                 step={currentStep}
               >
                 <div className="space-y-5">
-                  <TextareaField label="Activities & Clubs" value={formData.activities} onChange={(v) => update("activities", v)} placeholder="e.g., Debate Team captain, Robotics Club member, Varsity Soccer..." />
+                  <div className="rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-xs text-blue-700">
+                    <span className="font-semibold">Tip:</span> You can add detailed information for each activity later in your <span className="font-semibold">Activity Brag Sheet</span>. Just give us a quick overview here.
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Activities & Clubs</label>
+                    <MultiSelect
+                      options={[
+                        { id: "Debate/Speech", label: "Debate / Speech" },
+                        { id: "Robotics Club", label: "Robotics Club" },
+                        { id: "Student Government", label: "Student Government" },
+                        { id: "National Honor Society", label: "National Honor Society" },
+                        { id: "Key Club", label: "Key Club" },
+                        { id: "DECA", label: "DECA" },
+                        { id: "FBLA", label: "FBLA" },
+                        { id: "Model UN", label: "Model UN" },
+                        { id: "Math Team", label: "Math Team" },
+                        { id: "Science Olympiad", label: "Science Olympiad" },
+                        { id: "Band/Orchestra", label: "Band / Orchestra" },
+                        { id: "Choir", label: "Choir" },
+                        { id: "Drama/Theater", label: "Drama / Theater" },
+                        { id: "Art Club", label: "Art Club" },
+                        { id: "Yearbook", label: "Yearbook" },
+                        { id: "School Newspaper", label: "School Newspaper" },
+                        { id: "Varsity Sports", label: "Varsity Sports" },
+                        { id: "JV Sports", label: "JV Sports" },
+                        { id: "Church/Religious Group", label: "Church / Religious Group" },
+                        { id: "Volunteer/Community Service", label: "Volunteer / Community Service" },
+                        { id: "Part-Time Job", label: "Part-Time Job" },
+                        { id: "Internship", label: "Internship" },
+                        { id: "Tutoring", label: "Tutoring" },
+                        { id: "BSU/Cultural Club", label: "BSU / Cultural Club" },
+                        { id: "Environmental Club", label: "Environmental Club" },
+                        { id: "Coding/CS Club", label: "Coding / CS Club" },
+                      ]}
+                      selectedIds={(formData.activities || "").split(", ").filter(Boolean)}
+                      onChange={(ids) => update("activities", ids.join(", "))}
+                      placeholder="Select or search activities..."
+                      searchPlaceholder="Search activities or type your own..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Leadership Roles</label>
+                    <MultiSelect
+                      options={[
+                        { id: "President", label: "President" },
+                        { id: "Vice President", label: "Vice President" },
+                        { id: "Secretary", label: "Secretary" },
+                        { id: "Treasurer", label: "Treasurer" },
+                        { id: "Team Captain", label: "Team Captain" },
+                        { id: "Club Founder", label: "Club Founder" },
+                        { id: "Editor-in-Chief", label: "Editor-in-Chief" },
+                        { id: "Section Leader", label: "Section Leader" },
+                        { id: "Peer Mentor", label: "Peer Mentor" },
+                        { id: "Student Ambassador", label: "Student Ambassador" },
+                        { id: "Class Representative", label: "Class Representative" },
+                        { id: "Eagle Scout / Gold Award", label: "Eagle Scout / Gold Award" },
+                      ]}
+                      selectedIds={(formData.leadershipRoles || "").split(", ").filter(Boolean)}
+                      onChange={(ids) => update("leadershipRoles", ids.join(", "))}
+                      placeholder="Select leadership roles..."
+                      searchPlaceholder="Search roles or type your own..."
+                    />
+                  </div>
                   <TextareaField label="Community Service" value={formData.communityService} onChange={(v) => update("communityService", v)} placeholder="e.g., Local food bank volunteer (120 hours), Hospital volunteer..." />
-                  <TextareaField label="Leadership Roles" value={formData.leadershipRoles} onChange={(v) => update("leadershipRoles", v)} placeholder="e.g., Student Body Vice President, Debate Team Captain..." />
                   <TextareaField label="Awards & Achievements" value={formData.awards} onChange={(v) => update("awards", v)} placeholder="e.g., National Merit Semifinalist, AP Scholar with Distinction..." />
                 </div>
               </StepCard>
@@ -808,12 +1074,14 @@ export default function OnboardingPage() {
                   <ReviewSection title="Academic" items={[
                     ["School", formData.highSchool],
                     ["GPA", formData.gpa ? `${formData.gpa}${formData.gpaType ? ` (${formData.gpaType === "UNWEIGHTED_4" ? "Unweighted 4.0" : formData.gpaType === "WEIGHTED_5" ? "Weighted 5.0" : "Weighted 4.0"})` : ""}` : ""],
-                    ["Class Rank", formData.classRank],
+                    ["Class Rank", formData.classRank && formData.classSize ? `${formData.classRank} / ${formData.classSize} (Top ${Math.round((Number(formData.classRank) / Number(formData.classSize)) * 100)}%)` : formData.classRank],
                     ["Grade", formData.gradeLevel],
                     ["Graduation Year", formData.graduationYear],
                     ["SAT", formData.satScore],
                     ["ACT", formData.actScore],
-                    ["Major", formData.intendedMajor],
+                    ["1st Major", formData.intendedMajor],
+                    ["2nd Major", formData.major2],
+                    ["3rd Major", formData.major3],
                   ]} />
                   <ReviewSection title="Background" items={[
                     ["Gender", formData.gender],
@@ -960,6 +1228,78 @@ function SchoolAutocomplete({
             >
               <span className="text-sm font-medium text-foreground">{school.name}</span>
               <span className="text-xs text-muted-foreground">{school.city}, {school.state}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CountyAutocomplete({
+  value,
+  state,
+  onChange,
+}: {
+  value: string;
+  state: string;
+  onChange: (v: string) => void;
+}) {
+  const [query, setQuery] = useState(value);
+  const [results, setResults] = useState<{ county: string; state: string }[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setQuery(value); }, [value]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setIsOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const search = useCallback((q: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (q.length < 2) { setResults([]); setIsOpen(false); return; }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q });
+        if (state) params.set("state", state);
+        const res = await fetch(`/api/counties?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          setResults(data);
+          setIsOpen(data.length > 0);
+        }
+      } catch {}
+    }, 200);
+  }, [state]);
+
+  return (
+    <div ref={containerRef} className="relative">
+      <label className="block text-sm font-medium text-foreground mb-1.5">County</label>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); search(e.target.value); }}
+        onFocus={() => { if (results.length > 0) setIsOpen(true); }}
+        placeholder="Start typing your county..."
+        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+      />
+      {isOpen && results.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-card shadow-lg max-h-48 overflow-y-auto">
+          {results.map((r, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => { setQuery(r.county); onChange(r.county); setIsOpen(false); }}
+              className="w-full px-4 py-2.5 text-left hover:bg-muted/50 transition-colors"
+            >
+              <span className="text-sm font-medium text-foreground">{r.county}</span>
+              <span className="text-xs text-muted-foreground ml-2">{r.state}</span>
             </button>
           ))}
         </div>
