@@ -28,7 +28,7 @@ const ZIP_PREFIX_TO_COUNTY: Record<string, string> = {
   "108": "New Rochelle", "109": "Suffern", "110": "Queens", "111": "Long Island City",
   "112": "Brooklyn", "113": "Flushing", "114": "Jamaica", "115": "Western Nassau",
   "116": "Far Rockaway", "117": "Hicksville", "118": "Hicksville", "119": "Riverhead",
-  "770": "Harris", "771": "Harris", "772": "Harris", "773": "Harris",
+  "770": "Harris", "771": "Harris", "772": "Harris",
   "774": "Harris", "775": "Harris", "776": "Harris", "777": "Harris",
   "750": "Dallas", "751": "Dallas", "752": "Dallas", "753": "Dallas",
   "760": "Tarrant", "761": "Tarrant", "762": "Tarrant",

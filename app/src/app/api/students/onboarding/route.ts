@@ -101,7 +101,8 @@ export async function POST(req: Request) {
       phone: data.phone || null,
       address: data.address || null,
       city: data.city || null,
-      county: data.county || determineCounty({ zipCode: data.zipCode, city: data.city, state: data.state }) || null,
+      // Only auto-detect county if user didn't provide one — never overwrite manual selection
+      county: data.county ? data.county : (determineCounty({ zipCode: data.zipCode, city: data.city, state: data.state }) || null),
       state: data.state || null,
       zipCode: data.zipCode || null,
       gpa: data.gpa ? parseFloat(data.gpa) : null,

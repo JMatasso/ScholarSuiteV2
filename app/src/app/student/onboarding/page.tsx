@@ -148,6 +148,10 @@ export default function OnboardingPage() {
         // Pre-populate form with existing profile data
         if (profileData.profile) {
           setFormData((prev) => ({ ...prev, ...profileData.profile }));
+          // If county was already saved, don't let ZIP auto-detect overwrite it
+          if (profileData.profile.county) {
+            countyManuallySet.current = true;
+          }
         }
 
         // Pre-populate notification preferences
@@ -246,9 +250,11 @@ export default function OnboardingPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Auto-detect county from ZIP code
+  // Auto-suggest county from ZIP code — only when county is empty (don't overwrite manual selection)
+  const countyManuallySet = useRef(false);
   useEffect(() => {
-    if (formData.zipCode?.length >= 5) {
+    if (countyManuallySet.current) return;
+    if (formData.zipCode?.length >= 5 && !formData.county) {
       const county = getCountyFromZip(formData.zipCode);
       if (county) update("county", county);
     }
@@ -511,7 +517,7 @@ export default function OnboardingPage() {
                   <CountyAutocomplete
                     value={formData.county}
                     state={formData.state}
-                    onChange={(v) => update("county", v)}
+                    onChange={(v) => { countyManuallySet.current = true; update("county", v); }}
                   />
                 </div>
               </StepCard>

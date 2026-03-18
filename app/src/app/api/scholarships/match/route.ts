@@ -41,16 +41,17 @@ export const POST = withAuth(async (session) => {
     include: { tags: true },
   })
 
-  // Compute matches
-  const results = scholarships
-    .map((s) => ({
-      ...computeMatchScore(s, profile),
-      scholarship: s,
-    }))
+  // Compute matches (score each scholarship once)
+  const allScored = scholarships.map((s) => ({
+    ...computeMatchScore(s, profile),
+    scholarship: s,
+  }))
+
+  const results = allScored
     .filter((r) => !r.isExcluded && r.score > 0)
     .sort((a, b) => b.score - a.score)
 
-  // Upsert matches into database (fire-and-forget style, don't block response)
+  // Upsert matches into database
   const upsertPromises = results.map((r) =>
     db.scholarshipMatch
       .upsert({
@@ -77,8 +78,7 @@ export const POST = withAuth(async (session) => {
   )
 
   // Also mark excluded scholarships
-  const excludedIds = scholarships
-    .map((s) => computeMatchScore(s, profile))
+  const excludedIds = allScored
     .filter((r) => r.isExcluded)
     .map((r) => r.scholarshipId)
 

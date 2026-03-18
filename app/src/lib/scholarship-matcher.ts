@@ -31,6 +31,8 @@ interface StudentProfileForMatching {
   satScore: number | null
   actScore: number | null
   intendedMajor: string | null
+  major2?: string | null
+  major3?: string | null
   ethnicity: string | null
   citizenship: string | null
   state: string | null
@@ -87,7 +89,9 @@ export function computeMatchScore(
     scholarship.requiresPell ||
     scholarship.requiresFinancialNeed ||
     scholarship.minSat != null ||
-    scholarship.minAct != null
+    scholarship.minAct != null ||
+    !!scholarship.county ||
+    scholarship.source === "LOCAL"
   if (!hasEligibilityData) {
     return excluded("Insufficient data for matching")
   }
@@ -174,11 +178,13 @@ export function computeMatchScore(
 
   // ── Soft deductions ──────────────────────────────────────
 
-  // Field of study
+  // Field of study — check all student majors
   if (scholarship.fieldsOfStudy.length > 0) {
-    if (profile.intendedMajor && !includesIgnoreCase(scholarship.fieldsOfStudy, profile.intendedMajor)) {
+    const studentMajors = [profile.intendedMajor, profile.major2, profile.major3].filter(Boolean) as string[]
+    const majorMatch = studentMajors.some((m) => includesIgnoreCase(scholarship.fieldsOfStudy, m))
+    if (studentMajors.length > 0 && !majorMatch) {
       score -= 15
-    } else if (profile.intendedMajor) {
+    } else if (majorMatch) {
       reasons.push("Matches your intended major")
     }
   }
