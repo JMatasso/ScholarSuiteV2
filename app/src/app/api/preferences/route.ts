@@ -14,6 +14,9 @@ export const GET = withAuth(async (session) => {
     notifyNewMessages: true,
     notifyMeetingReminders: true,
     notifyEssayFeedback: true,
+    notifyLocalScholarships: true,
+    notificationMethod: "email",
+    notificationContact: "",
     // Privacy preferences (student only)
     privacyHideGpa: false,
     privacyHideEssays: false,

@@ -136,7 +136,7 @@ export async function POST(req: Request) {
       parent2College: data.parent2College || null,
       interestedInLgbtScholarships: data.interestedInLgbtScholarships ?? false,
       // Auto-determine Pell eligibility from household income
-      isPellEligible: data.isPellEligible ?? autoPellEligible(data.householdIncome),
+      isPellEligible: data.isPellEligible !== undefined ? data.isPellEligible : autoPellEligible(data.householdIncome),
       journeyStage: data.journeyStage || "EARLY_EXPLORATION",
       postSecondaryPath: data.postSecondaryPath || "COLLEGE",
       collegeJourneyStage: data.collegeJourneyStage || null,
@@ -153,7 +153,7 @@ export async function POST(req: Request) {
       backgroundComplete: !!(data.citizenship),
       financialComplete: !!(data.postSecondaryPath),
       activitiesComplete: true, // Activities step is now a brag sheet preview — always complete
-      goalsComplete: !!(data.goals),
+      goalsComplete: !!(data.journeyStage && data.postSecondaryPath),
       status: StudentStatus.ACTIVE,
     };
 
@@ -191,7 +191,7 @@ export async function POST(req: Request) {
       const existing = await db.collegeApplication.findFirst({
         where: {
           userId: session.user.id,
-          universityName: data.committedCollegeName,
+          universityName: { equals: data.committedCollegeName, mode: "insensitive" },
         },
       });
 

@@ -1090,7 +1090,7 @@ export default function OnboardingPage() {
                     </div>
                   </div>
 
-                  <TextareaField label="Personal Goals" value={formData.goals} onChange={(v) => update("goals", v)} placeholder="What do you hope to achieve through scholarships and your education?" />
+                  <TextareaField label="Personal Goals (optional)" value={formData.goals} onChange={(v) => update("goals", v)} placeholder="What do you hope to achieve through scholarships and your education?" />
                 </div>
               </StepCard>
             )}
@@ -1213,9 +1213,9 @@ export default function OnboardingPage() {
                     ["Pell Eligible", formData.isPellEligible ? "Yes" : "No"],
                     ["Financial Need", formData.hasFinancialNeed ? "Yes" : "No"],
                     ["Parent 1 Education", formData.parent1Education],
-                    ["Parent 1 College", formData.parent1College],
+                    ...(formData.parent1College ? [["Parent 1 College", formData.parent1College] as [string, string]] : []),
                     ["Parent 2 Education", formData.parent2Education],
-                    ["Parent 2 College", formData.parent2College],
+                    ...(formData.parent2College ? [["Parent 2 College", formData.parent2College] as [string, string]] : []),
                   ]} />
                   {isCollegePath && formData.collegeJourneyStage && (
                     <ReviewSection title="College Journey" items={[
@@ -1227,7 +1227,7 @@ export default function OnboardingPage() {
                   <ReviewSection title="Goals" items={[
                     ["Journey Stage", formData.journeyStage.replace(/_/g, " ")],
                     ["Pathway", formData.postSecondaryPath.replace(/_/g, " ")],
-                    ["Goals", formData.goals],
+                    ...(formData.goals ? [["Goals", formData.goals] as [string, string]] : []),
                   ]} />
                   <ReviewSection title="Notifications" items={[
                     ["Method", formData.notificationMethod === "both" ? "Email & Text" : formData.notificationMethod === "phone" ? "Text / SMS" : "Email"],
