@@ -129,20 +129,48 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);
 
-  // Only show tour on first visit (tourComplete === false)
+  // Load existing profile data, tour status, and notification preferences
   useEffect(() => {
-    fetch("/api/auth/onboarding-status")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data.profile?.tourComplete) {
-          setShowTour(true)
+    Promise.all([
+      fetch("/api/auth/onboarding-status").then((r) => r.json()),
+      fetch("/api/students/onboarding").then((r) => r.json()),
+      fetch("/api/preferences").then((r) => r.json()),
+    ])
+      .then(([statusData, profileData, prefsData]) => {
+        if (!statusData.profile?.tourComplete) {
+          setShowTour(true);
         }
-        setTourChecked(true)
+        setTourChecked(true);
+
+        // Pre-populate form with existing profile data
+        if (profileData.profile) {
+          setFormData((prev) => ({ ...prev, ...profileData.profile }));
+        }
+
+        // Pre-populate notification preferences
+        if (prefsData) {
+          setFormData((prev) => ({
+            ...prev,
+            notifyTaskReminders: prefsData.notifyTaskReminders ?? prev.notifyTaskReminders,
+            notifyScholarshipDeadlines: prefsData.notifyScholarshipDeadlines ?? prev.notifyScholarshipDeadlines,
+            notifyNewMessages: prefsData.notifyNewMessages ?? prev.notifyNewMessages,
+            notifyMeetingReminders: prefsData.notifyMeetingReminders ?? prev.notifyMeetingReminders,
+            notifyEssayFeedback: prefsData.notifyEssayFeedback ?? prev.notifyEssayFeedback,
+            notifyLocalScholarships: prefsData.notifyLocalScholarships ?? prev.notifyLocalScholarships,
+            notificationMethod: prefsData.notificationMethod ?? prev.notificationMethod,
+            notificationContact: prefsData.notificationContact ?? prev.notificationContact,
+          }));
+        }
+        setIsLoading(false);
       })
-      .catch(() => setTourChecked(true))
-  }, [])
+      .catch(() => {
+        setTourChecked(true);
+        setIsLoading(false);
+      });
+  }, []);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -348,6 +376,17 @@ export default function OnboardingPage() {
   // Find the current step info based on actual step number
   const stepInfo = STEPS.find((s) => s.id === currentStep) || STEPS[0];
   const progressPercent = ((getDisplayIndex(currentStep) - 1) / (visibleSteps.length - 1)) * 100;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-[#2563EB]" />
+          <p className="text-sm text-muted-foreground">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

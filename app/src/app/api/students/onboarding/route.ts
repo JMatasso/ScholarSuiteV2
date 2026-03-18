@@ -5,6 +5,86 @@ import { StudentStatus } from "@/generated/prisma/client";
 import { autoMatchStudentToLocalScholarships } from "@/lib/local-scholarship-matcher";
 import { determineCounty } from "@/lib/county-lookup";
 
+export async function GET() {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const [profile, user] = await Promise.all([
+      db.studentProfile.findUnique({ where: { userId: session.user.id } }),
+      db.user.findUnique({ where: { id: session.user.id }, select: { schoolId: true } }),
+    ]);
+
+    if (!profile) {
+      return NextResponse.json({ profile: null });
+    }
+
+    // Convert DB types back to form-friendly strings
+    return NextResponse.json({
+      profile: {
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString().split("T")[0] : "",
+        phone: profile.phone || "",
+        address: profile.address || "",
+        city: profile.city || "",
+        state: profile.state || "",
+        zipCode: profile.zipCode || "",
+        county: profile.county || "",
+        gpa: profile.gpa != null ? String(profile.gpa) : "",
+        gpaType: profile.gpaType || "",
+        gradeLevel: profile.gradeLevel != null ? String(profile.gradeLevel) : "",
+        highSchool: profile.highSchool || "",
+        schoolId: user?.schoolId || "",
+        classRank: profile.classRank || "",
+        classSize: profile.classSize || "",
+        graduationYear: profile.graduationYear != null ? String(profile.graduationYear) : "",
+        satScore: profile.satScore != null ? String(profile.satScore) : "",
+        actScore: profile.actScore != null ? String(profile.actScore) : "",
+        intendedMajor: profile.intendedMajor || "",
+        major2: profile.major2 || "",
+        major3: profile.major3 || "",
+        gender: profile.gender || "",
+        ethnicity: profile.ethnicity || "",
+        citizenship: profile.citizenship || "",
+        militaryAffiliation: profile.militaryAffiliation || "",
+        disabilityStatus: profile.disabilityStatus || "",
+        medicalConditions: profile.medicalConditions || "",
+        parentsDivorced: profile.parentsDivorced ?? false,
+        isDependentStudent: profile.isDependentStudent ?? true,
+        householdIncome: profile.householdIncome || "",
+        financialSituation: profile.financialSituation || "",
+        parent1Education: profile.parent1Education || "",
+        parent1Profession: profile.parent1Profession || "",
+        parent1College: profile.parent1College || "",
+        parent2Education: profile.parent2Education || "",
+        parent2Profession: profile.parent2Profession || "",
+        parent2College: profile.parent2College || "",
+        isFirstGen: profile.isFirstGen ?? false,
+        isPellEligible: profile.isPellEligible ?? false,
+        hasFinancialNeed: profile.hasFinancialNeed ?? false,
+        interestedInLgbtScholarships: profile.interestedInLgbtScholarships ?? false,
+        journeyStage: profile.journeyStage || "EARLY_EXPLORATION",
+        postSecondaryPath: profile.postSecondaryPath || "COLLEGE",
+        collegeJourneyStage: profile.collegeJourneyStage || "",
+        committedCollegeName: profile.committedCollegeName || "",
+        activities: profile.activities || "",
+        communityService: profile.communityService || "",
+        leadershipRoles: profile.leadershipRoles || "",
+        awards: profile.awards || "",
+        goals: profile.goals || "",
+        dreamSchools: profile.dreamSchools || "",
+        tourComplete: profile.tourComplete ?? false,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching onboarding profile:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await auth();
@@ -72,7 +152,7 @@ export async function POST(req: Request) {
       academicComplete: !!(data.highSchool && data.gpa),
       backgroundComplete: !!(data.citizenship),
       financialComplete: !!(data.postSecondaryPath),
-      activitiesComplete: !!(data.activities),
+      activitiesComplete: true, // Activities step is now a brag sheet preview — always complete
       goalsComplete: !!(data.goals),
       status: StudentStatus.ACTIVE,
     };
