@@ -1,33 +1,12 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { motion } from "motion/react"
+import { motion, AnimatePresence } from "motion/react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { EmptyState } from "@/components/ui/empty-state"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Plus,
   Clock,
-  Award,
   Users,
   Trophy,
   Palette,
@@ -40,131 +19,152 @@ import {
   Pencil,
   Trash2,
   ShieldCheck,
-  Lightbulb,
-  AlertCircle,
   Briefcase,
   Rocket,
   FlaskConical,
-  Globe,
-  BadgeCheck,
-  HandHeart,
-  Medal,
-  FolderKanban,
-  GraduationCap,
+  Award,
   Activity,
-  X,
-  Hash,
+  ChevronLeft,
+  Lightbulb,
+  Zap,
 } from "lucide-react"
 import { toast } from "sonner"
-import { formatDate } from "@/lib/format"
+import LoaderOne from "@/components/ui/loader-one"
+import { BragSheetFormDialog, type ActivityEntry, type CategoryKey } from "@/components/brag-sheet-form-dialog"
 
-// ─── Types ──────────────────────────────────────────────────
+// ─── Category Groups ────────────────────────────────────────
+// Consolidate the 15 DB categories into 8 student-friendly groups
 
-type CategoryKey =
-  | "ATHLETICS" | "ARTS" | "ACADEMIC" | "VOLUNTEER" | "WORK"
-  | "LEADERSHIP" | "ENTREPRENEURSHIP" | "RESEARCH" | "STUDY_ABROAD"
-  | "CERTIFICATION" | "MENTORING" | "AWARD" | "PROJECT"
-  | "PROFESSIONAL_DEV" | "OTHER"
-
-interface ActivityEntry {
-  id: string
-  title: string
-  organization: string | null
-  role: string | null
-  category: CategoryKey
-  description: string | null
-  impactStatement: string | null
-  skillsGained: string[]
-  startDate: string | null
-  endDate: string | null
-  isOngoing: boolean
-  hoursPerWeek: number | null
-  totalHours: number | null
-  isLeadership: boolean
-  isAward: boolean
-  isVerified: boolean
+interface CategoryGroup {
+  key: string
+  label: string
+  description: string
+  icon: typeof Activity
+  categories: CategoryKey[]
+  color: string
+  bgClass: string
+  iconBg: string
+  tip: string
 }
 
-// ─── Category Config ────────────────────────────────────────
+const GROUPS: CategoryGroup[] = [
+  {
+    key: "activities",
+    label: "Extracurriculars",
+    description: "Sports, arts, clubs, and academic teams",
+    icon: Dumbbell,
+    categories: ["ATHLETICS", "ARTS", "ACADEMIC"],
+    color: "text-blue-600",
+    bgClass: "border-blue-200 bg-blue-50/40 hover:bg-blue-50",
+    iconBg: "bg-blue-100",
+    tip: "Colleges love to see consistent commitment — aim for 2-3 activities you've stuck with over multiple years.",
+  },
+  {
+    key: "volunteer",
+    label: "Volunteer & Service",
+    description: "Community service, mentoring, giving back",
+    icon: Heart,
+    categories: ["VOLUNTEER", "MENTORING"],
+    color: "text-rose-600",
+    bgClass: "border-rose-200 bg-rose-50/40 hover:bg-rose-50",
+    iconBg: "bg-rose-100",
+    tip: "Focus on impact, not just hours. 'Organized a food drive serving 200 families' beats '100 hours volunteering.'",
+  },
+  {
+    key: "work",
+    label: "Work Experience",
+    description: "Jobs, internships, and paid positions",
+    icon: Briefcase,
+    categories: ["WORK"],
+    color: "text-emerald-600",
+    bgClass: "border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50",
+    iconBg: "bg-emerald-100",
+    tip: "Include skills you developed and responsibilities you held. Part-time jobs absolutely count!",
+  },
+  {
+    key: "leadership",
+    label: "Leadership",
+    description: "Positions where you led or organized",
+    icon: Users,
+    categories: ["LEADERSHIP"],
+    color: "text-amber-600",
+    bgClass: "border-amber-200 bg-amber-50/40 hover:bg-amber-50",
+    iconBg: "bg-amber-100",
+    tip: "Leadership doesn't require a formal title — organizing a study group or leading a project counts.",
+  },
+  {
+    key: "awards",
+    label: "Awards & Honors",
+    description: "Recognition, certifications, achievements",
+    icon: Trophy,
+    categories: ["AWARD", "CERTIFICATION"],
+    color: "text-yellow-600",
+    bgClass: "border-yellow-200 bg-yellow-50/40 hover:bg-yellow-50",
+    iconBg: "bg-yellow-100",
+    tip: "Include the level of recognition (school, district, state, national) and how selective it was.",
+  },
+  {
+    key: "projects",
+    label: "Projects",
+    description: "Personal projects, businesses, creative work",
+    icon: Rocket,
+    categories: ["PROJECT", "ENTREPRENEURSHIP"],
+    color: "text-cyan-600",
+    bgClass: "border-cyan-200 bg-cyan-50/40 hover:bg-cyan-50",
+    iconBg: "bg-cyan-100",
+    tip: "Self-started projects show initiative. Include what you built, why, and the outcome.",
+  },
+  {
+    key: "research",
+    label: "Research & Academic",
+    description: "Research, study abroad, professional development",
+    icon: FlaskConical,
+    categories: ["RESEARCH", "STUDY_ABROAD", "PROFESSIONAL_DEV"],
+    color: "text-indigo-600",
+    bgClass: "border-indigo-200 bg-indigo-50/40 hover:bg-indigo-50",
+    iconBg: "bg-indigo-100",
+    tip: "Mention your research topic, methodology, and any findings or presentations.",
+  },
+  {
+    key: "other",
+    label: "Other",
+    description: "Anything else that makes you stand out",
+    icon: Palette,
+    categories: ["OTHER"],
+    color: "text-gray-600",
+    bgClass: "border-gray-200 bg-gray-50/40 hover:bg-gray-50",
+    iconBg: "bg-gray-100",
+    tip: "Hobbies, personal challenges, family responsibilities — anything that shaped who you are.",
+  },
+]
 
-const categoryConfig: Record<CategoryKey, { label: string; icon: typeof Activity; color: string; bg: string; badgeBg: string; badgeText: string }> = {
-  ATHLETICS:        { label: "Athletics",        icon: Dumbbell,      color: "text-orange-600",  bg: "bg-orange-50 border-orange-200",  badgeBg: "bg-orange-100",  badgeText: "text-orange-700" },
-  ARTS:             { label: "Arts",             icon: Palette,       color: "text-purple-600",  bg: "bg-purple-50 border-purple-200",  badgeBg: "bg-purple-100",  badgeText: "text-purple-700" },
-  ACADEMIC:         { label: "Academic",         icon: BookOpen,      color: "text-blue-600",    bg: "bg-blue-50 border-blue-200",      badgeBg: "bg-blue-100",    badgeText: "text-blue-700" },
-  VOLUNTEER:        { label: "Volunteer",        icon: Heart,         color: "text-rose-600",    bg: "bg-rose-50 border-rose-200",      badgeBg: "bg-rose-100",    badgeText: "text-rose-700" },
-  WORK:             { label: "Work",             icon: Briefcase,     color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200",badgeBg: "bg-emerald-100", badgeText: "text-emerald-700" },
-  LEADERSHIP:       { label: "Leadership",       icon: Users,         color: "text-amber-600",   bg: "bg-amber-50 border-amber-200",    badgeBg: "bg-amber-100",   badgeText: "text-amber-700" },
-  ENTREPRENEURSHIP: { label: "Entrepreneurship", icon: Rocket,        color: "text-cyan-600",    bg: "bg-cyan-50 border-cyan-200",      badgeBg: "bg-cyan-100",    badgeText: "text-cyan-700" },
-  RESEARCH:         { label: "Research",         icon: FlaskConical,  color: "text-indigo-600",  bg: "bg-indigo-50 border-indigo-200",  badgeBg: "bg-indigo-100",  badgeText: "text-indigo-700" },
-  STUDY_ABROAD:     { label: "Study Abroad",     icon: Globe,         color: "text-sky-600",     bg: "bg-sky-50 border-sky-200",        badgeBg: "bg-sky-100",     badgeText: "text-sky-700" },
-  CERTIFICATION:    { label: "Certifications",   icon: BadgeCheck,    color: "text-violet-600",  bg: "bg-violet-50 border-violet-200",  badgeBg: "bg-violet-100",  badgeText: "text-violet-700" },
-  MENTORING:        { label: "Mentoring",        icon: HandHeart,     color: "text-pink-600",    bg: "bg-pink-50 border-pink-200",      badgeBg: "bg-pink-100",    badgeText: "text-pink-700" },
-  AWARD:            { label: "Awards",           icon: Medal,         color: "text-yellow-600",  bg: "bg-yellow-50 border-yellow-200",  badgeBg: "bg-yellow-100",  badgeText: "text-yellow-700" },
-  PROJECT:          { label: "Projects",         icon: FolderKanban,  color: "text-green-600",   bg: "bg-green-50 border-green-200",    badgeBg: "bg-green-100",   badgeText: "text-green-700" },
-  PROFESSIONAL_DEV: { label: "Professional Dev", icon: GraduationCap, color: "text-slate-600",   bg: "bg-slate-50 border-slate-200",    badgeBg: "bg-slate-100",   badgeText: "text-slate-700" },
-  OTHER:            { label: "Other",            icon: Activity,      color: "text-gray-600",    bg: "bg-gray-50 border-gray-200",      badgeBg: "bg-gray-100",    badgeText: "text-gray-700" },
+function findGroupForCategory(cat: CategoryKey): CategoryGroup {
+  return GROUPS.find((g) => g.categories.includes(cat)) || GROUPS[GROUPS.length - 1]
 }
-
-const ALL_CATEGORIES: CategoryKey[] = [
-  "ATHLETICS", "ARTS", "ACADEMIC", "VOLUNTEER", "WORK", "LEADERSHIP",
-  "ENTREPRENEURSHIP", "RESEARCH", "STUDY_ABROAD", "CERTIFICATION",
-  "MENTORING", "AWARD", "PROJECT", "PROFESSIONAL_DEV", "OTHER",
-]
-
-const CATEGORY_ORDER: CategoryKey[] = [
-  "ACADEMIC", "LEADERSHIP", "VOLUNTEER", "ATHLETICS", "ARTS", "WORK",
-  "ENTREPRENEURSHIP", "RESEARCH", "STUDY_ABROAD", "CERTIFICATION",
-  "MENTORING", "AWARD", "PROJECT", "PROFESSIONAL_DEV", "OTHER",
-]
 
 // ─── Helpers ────────────────────────────────────────────────
 
 function formatDateRange(start: string | null, end: string | null, ongoing: boolean): string {
-  const fmt = (d: string) =>
-    new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" })
-  if (!start) return "No dates"
-  return `${fmt(start)} - ${ongoing ? "Present" : end ? fmt(end) : "Present"}`
+  const fmt = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+  if (!start) return ""
+  return `${fmt(start)} – ${ongoing ? "Present" : end ? fmt(end) : "Present"}`
 }
 
-const emptyForm = {
-  title: "",
-  organization: "",
-  role: "",
-  category: "OTHER" as CategoryKey,
-  description: "",
-  impactStatement: "",
-  skillsInput: "",
-  skillsGained: [] as string[],
-  startDate: "",
-  endDate: "",
-  isOngoing: false,
-  hoursPerWeek: "",
-  isLeadership: false,
-  isAward: false,
-}
-
-type FormState = typeof emptyForm
-
-// ─── Page Component ─────────────────────────────────────────
+// ─── Page ───────────────────────────────────────────────────
 
 export default function BragSheetPage() {
   const [activities, setActivities] = useState<ActivityEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
+  const [editEntry, setEditEntry] = useState<ActivityEntry | null>(null)
+  const [addCategory, setAddCategory] = useState<CategoryKey | undefined>()
   const [deleting, setDeleting] = useState<string | null>(null)
-  const [filter, setFilter] = useState<CategoryKey | "ALL">("ALL")
-  const [form, setForm] = useState<FormState>({ ...emptyForm })
 
-  // ── Fetch ──
   useEffect(() => {
     fetch("/api/activities")
       .then((res) => res.json())
-      .then((data) => {
-        setActivities(Array.isArray(data) ? data : [])
-        setLoading(false)
-      })
+      .then((data) => { setActivities(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
@@ -174,141 +174,60 @@ export default function BragSheetPage() {
   const leadershipCount = activities.filter((a) => a.isLeadership).length
   const awardCount = activities.filter((a) => a.isAward).length
 
-  // ── Filtered & grouped ──
-  const filtered = useMemo(() => {
-    if (filter === "ALL") return activities
-    return activities.filter((a) => a.category === filter)
-  }, [activities, filter])
+  // ── Strength score ──
+  const strength = useMemo(() => {
+    const groupsWithEntries = GROUPS.filter((g) =>
+      activities.some((a) => g.categories.includes(a.category))
+    ).length
+    const withImpact = activities.filter((a) => a.impactStatement).length
+    const withHours = activities.filter((a) => a.hoursPerWeek !== null || a.totalHours !== null).length
 
-  const grouped = useMemo(() => {
-    return CATEGORY_ORDER
-      .map((cat) => ({ category: cat, items: filtered.filter((a) => a.category === cat) }))
-      .filter((g) => g.items.length > 0)
-  }, [filtered])
+    const categoryScore = Math.min(groupsWithEntries / 4, 1) * 40 // 40 pts for 4+ categories
+    const countScore = Math.min(totalEntries / 8, 1) * 30 // 30 pts for 8+ entries
+    const detailScore = totalEntries > 0
+      ? ((withImpact / totalEntries) * 15 + (withHours / totalEntries) * 15) // 30 pts for detail
+      : 0
 
-  // ── Nudges ──
-  const nudges = useMemo(() => {
-    const msgs: string[] = []
-    const cats = new Set(activities.map((a) => a.category))
-    if (!cats.has("VOLUNTEER") && activities.length > 0)
-      msgs.push("You haven't added any volunteer activities yet.")
-    const missingHours = activities.filter((a) => a.hoursPerWeek === null && a.totalHours === null).length
-    if (missingHours > 0)
-      msgs.push(`${missingHours} ${missingHours === 1 ? "activity is" : "activities are"} missing hours — add them for a more complete brag sheet.`)
-    const noImpact = activities.filter((a) => !a.impactStatement).length
-    if (noImpact > 0 && activities.length >= 2)
-      msgs.push("Add impact statements to your top activities — they help with applications.")
-    return msgs
+    return {
+      score: Math.round(categoryScore + countScore + detailScore),
+      groupsWithEntries,
+      withImpact,
+      withHours,
+    }
+  }, [activities, totalEntries])
+
+  // ── Group data ──
+  const groupEntries = useMemo(() => {
+    const map: Record<string, ActivityEntry[]> = {}
+    for (const g of GROUPS) {
+      map[g.key] = activities.filter((a) => g.categories.includes(a.category))
+    }
+    return map
   }, [activities])
 
-  // ── Form helpers ──
-  const resetForm = () => {
-    setForm({ ...emptyForm })
-    setEditingId(null)
-  }
+  const activeGroup = GROUPS.find((g) => g.key === selectedGroup) || null
 
-  const openAdd = () => {
-    resetForm()
+  // ── Handlers ──
+  const openAddForGroup = (group: CategoryGroup) => {
+    setEditEntry(null)
+    setAddCategory(group.categories[0])
     setDialogOpen(true)
   }
 
-  const openEdit = (a: ActivityEntry) => {
-    setEditingId(a.id)
-    setForm({
-      title: a.title,
-      organization: a.organization || "",
-      role: a.role || "",
-      category: a.category,
-      description: a.description || "",
-      impactStatement: a.impactStatement || "",
-      skillsInput: "",
-      skillsGained: a.skillsGained || [],
-      startDate: a.startDate ? a.startDate.slice(0, 10) : "",
-      endDate: a.endDate ? a.endDate.slice(0, 10) : "",
-      isOngoing: a.isOngoing,
-      hoursPerWeek: a.hoursPerWeek?.toString() || "",
-      isLeadership: a.isLeadership,
-      isAward: a.isAward,
-    })
+  const openEdit = (entry: ActivityEntry) => {
+    setEditEntry(entry)
+    setAddCategory(undefined)
     setDialogOpen(true)
   }
 
-  const handleSkillKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault()
-      const val = form.skillsInput.trim().replace(/,$/g, "")
-      if (val && !form.skillsGained.includes(val)) {
-        setForm((f) => ({ ...f, skillsGained: [...f.skillsGained, val], skillsInput: "" }))
-      }
+  const handleSaved = (entry: ActivityEntry, isEdit: boolean) => {
+    if (isEdit) {
+      setActivities((prev) => prev.map((a) => (a.id === entry.id ? entry : a)))
+    } else {
+      setActivities((prev) => [...prev, entry])
     }
   }
 
-  const removeSkill = (skill: string) => {
-    setForm((f) => ({ ...f, skillsGained: f.skillsGained.filter((s) => s !== skill) }))
-  }
-
-  // ── Save ──
-  const handleSave = async () => {
-    if (!form.title.trim()) {
-      toast.error("Title is required")
-      return
-    }
-    setSaving(true)
-    const payload = {
-      title: form.title,
-      organization: form.organization || null,
-      role: form.role || null,
-      category: form.category,
-      description: form.description || null,
-      impactStatement: form.impactStatement || null,
-      skillsGained: form.skillsGained,
-      startDate: form.startDate || null,
-      endDate: form.isOngoing ? null : form.endDate || null,
-      isOngoing: form.isOngoing,
-      hoursPerWeek: form.hoursPerWeek ? Number(form.hoursPerWeek) : null,
-      totalHours: null,
-      isLeadership: form.isLeadership,
-      isAward: form.isAward,
-    }
-
-    try {
-      if (editingId) {
-        const res = await fetch(`/api/activities/${editingId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-        if (res.ok) {
-          const updated = await res.json()
-          setActivities((prev) => prev.map((a) => (a.id === editingId ? updated : a)))
-          toast.success("Entry updated!")
-        } else {
-          toast.error("Failed to update")
-        }
-      } else {
-        const res = await fetch("/api/activities", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-        if (res.ok) {
-          const created = await res.json()
-          setActivities((prev) => [...prev, created])
-          toast.success("Entry added!")
-        } else {
-          toast.error("Failed to add entry")
-        }
-      }
-      setDialogOpen(false)
-      resetForm()
-    } catch {
-      toast.error("Something went wrong")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  // ── Delete ──
   const handleDelete = async (id: string) => {
     setDeleting(id)
     try {
@@ -329,12 +248,14 @@ export default function BragSheetPage() {
   // ── Loading state ──
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin mr-2" />
-        <p className="text-sm">Loading brag sheet...</p>
+      <div className="flex items-center justify-center py-16">
+        <LoaderOne />
       </div>
     )
   }
+
+  const strengthLabel = strength.score >= 80 ? "Strong" : strength.score >= 50 ? "Getting There" : strength.score >= 20 ? "Just Starting" : "Empty"
+  const strengthColor = strength.score >= 80 ? "bg-emerald-500" : strength.score >= 50 ? "bg-[#2563EB]" : strength.score >= 20 ? "bg-amber-500" : "bg-gray-300"
 
   return (
     <div className="space-y-6">
@@ -342,412 +263,371 @@ export default function BragSheetPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-[#1E3A5F]">Brag Sheet</h1>
-          <p className="mt-1 text-muted-foreground">Your comprehensive activity & achievement record.</p>
+          <p className="mt-1 text-muted-foreground">
+            Everything that makes you stand out — activities, awards, work, and more.
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={() => toast.info("PDF export coming soon")}
-          >
-            <FileDown className="h-4 w-4" />
-            Export PDF
-          </Button>
-          <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Entry
+          <Button variant="outline" className="gap-2" onClick={() => toast.info("PDF export coming soon")}>
+            <FileDown className="h-4 w-4" /> Export PDF
           </Button>
         </div>
       </div>
 
-      {/* ── Stats ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* ── Strength Meter ── */}
+      <Card>
+        <CardContent className="pt-0">
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1E3A5F]/10">
+              <Zap className="h-5 w-5 text-[#1E3A5F]" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-sm font-medium text-foreground">
+                  Brag Sheet Strength: <span className="font-semibold">{strengthLabel}</span>
+                </p>
+                <span className="text-sm font-semibold text-[#1E3A5F]">{strength.score}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                <motion.div
+                  className={`h-full rounded-full ${strengthColor}`}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${strength.score}%` }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                />
+              </div>
+              <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                <span>{strength.groupsWithEntries}/{GROUPS.length} categories</span>
+                <span>{totalEntries} entries</span>
+                <span>{strength.withImpact} with impact</span>
+                <span>{totalHours > 0 ? `${totalHours.toLocaleString()} hours` : "0 hours"}</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Quick Stats ── */}
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         {[
-          { icon: Hash, value: totalEntries, label: "Total Entries", bg: "bg-[#1E3A5F]/10", color: "text-[#1E3A5F]" },
-          { icon: Clock, value: totalHours.toLocaleString(), label: "Total Hours", bg: "bg-blue-50", color: "text-[#2563EB]" },
-          { icon: Users, value: leadershipCount, label: "Leadership Roles", bg: "bg-amber-50", color: "text-amber-600" },
-          { icon: Trophy, value: awardCount, label: "Awards & Honors", bg: "bg-emerald-50", color: "text-emerald-600" },
-        ].map((stat, i) => {
+          { icon: BookOpen, value: totalEntries, label: "Total Entries", color: "text-[#1E3A5F]", bg: "bg-[#1E3A5F]/10" },
+          { icon: Clock, value: totalHours > 0 ? totalHours.toLocaleString() : "0", label: "Total Hours", color: "text-[#2563EB]", bg: "bg-blue-50" },
+          { icon: Users, value: leadershipCount, label: "Leadership", color: "text-amber-600", bg: "bg-amber-50" },
+          { icon: Trophy, value: awardCount, label: "Awards", color: "text-emerald-600", bg: "bg-emerald-50" },
+        ].map((stat) => {
           const Icon = stat.icon
           return (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Card>
-                <CardContent className="pt-0">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bg}`}>
-                      <Icon className={`h-5 w-5 ${stat.color}`} />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-[#1E3A5F]">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+            <div key={stat.label} className="flex items-center gap-3 rounded-lg bg-white p-3 ring-1 ring-foreground/5">
+              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.bg}`}>
+                <Icon className={`h-4 w-4 ${stat.color}`} />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-[#1E3A5F]">{stat.value}</p>
+                <p className="text-[11px] text-muted-foreground">{stat.label}</p>
+              </div>
+            </div>
           )
         })}
       </div>
 
-      {/* ── Category Filter ── */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <button
-          onClick={() => setFilter("ALL")}
-          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-            filter === "ALL"
-              ? "bg-[#1E3A5F] text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          All ({activities.length})
-        </button>
-        {ALL_CATEGORIES.map((cat) => {
-          const count = activities.filter((a) => a.category === cat).length
-          if (count === 0 && filter !== cat) return null
-          const cfg = categoryConfig[cat]
-          return (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                filter === cat
-                  ? "bg-[#1E3A5F] text-white"
-                  : `${cfg.badgeBg} ${cfg.badgeText} hover:opacity-80`
-              }`}
-            >
-              {cfg.label} ({count})
-            </button>
-          )
-        })}
+      {/* ── Category View ── */}
+      <AnimatePresence mode="wait">
+        {selectedGroup === null ? (
+          /* ── Grid of Category Cards ── */
+          <motion.div
+            key="grid"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+              Your Categories
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {GROUPS.map((group, i) => {
+                const Icon = group.icon
+                const entries = groupEntries[group.key] || []
+                const isEmpty = entries.length === 0
+
+                return (
+                  <motion.div
+                    key={group.key}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.04 }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedGroup(group.key)}
+                      className={`w-full text-left rounded-xl border p-4 transition-all ${
+                        isEmpty
+                          ? "border-dashed border-gray-300 bg-gray-50/30 hover:bg-gray-50"
+                          : group.bgClass
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isEmpty ? "bg-gray-100" : group.iconBg}`}>
+                          <Icon className={`h-5 w-5 ${isEmpty ? "text-gray-400" : group.color}`} />
+                        </div>
+                        {isEmpty ? (
+                          <span className="text-[11px] font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+                            Empty
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-medium text-[#1E3A5F] bg-white/80 rounded-full px-2 py-0.5">
+                            {entries.length} {entries.length === 1 ? "entry" : "entries"}
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-sm font-semibold ${isEmpty ? "text-gray-500" : "text-[#1E3A5F]"}`}>
+                        {group.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                        {isEmpty ? `Add your first ${group.label.toLowerCase()} entry` : group.description}
+                      </p>
+                      {/* Preview of top entries */}
+                      {entries.length > 0 && (
+                        <div className="mt-2.5 space-y-1">
+                          {entries.slice(0, 2).map((e) => (
+                            <p key={e.id} className="text-xs text-muted-foreground truncate">
+                              • {e.title}{e.organization ? ` — ${e.organization}` : ""}
+                            </p>
+                          ))}
+                          {entries.length > 2 && (
+                            <p className="text-xs text-muted-foreground/60">
+                              +{entries.length - 2} more
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </button>
+                  </motion.div>
+                )
+              })}
+            </div>
+
+            {/* ── Nudge ── */}
+            {totalEntries > 0 && strength.score < 60 && (
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/50 p-3">
+                <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                <p className="text-xs text-amber-800">
+                  {strength.groupsWithEntries < 3
+                    ? "Try adding entries in more categories — colleges like to see well-rounded students."
+                    : strength.withImpact < totalEntries / 2
+                      ? "Add impact statements to your entries — they make your brag sheet much stronger."
+                      : "Keep going! A few more detailed entries and your brag sheet will really shine."}
+                </p>
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          /* ── Category Detail View ── */
+          <motion.div
+            key={`detail-${selectedGroup}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            {activeGroup && (
+              <CategoryDetailView
+                group={activeGroup}
+                entries={groupEntries[activeGroup.key] || []}
+                onBack={() => setSelectedGroup(null)}
+                onAdd={() => openAddForGroup(activeGroup)}
+                onEdit={openEdit}
+                onDelete={handleDelete}
+                deleting={deleting}
+              />
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Form Dialog ── */}
+      <BragSheetFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        editEntry={editEntry}
+        defaultCategory={addCategory}
+        tip={activeGroup?.tip}
+        onSaved={handleSaved}
+      />
+    </div>
+  )
+}
+
+// ─── Category Detail View Component ─────────────────────────
+
+function CategoryDetailView({
+  group,
+  entries,
+  onBack,
+  onAdd,
+  onEdit,
+  onDelete,
+  deleting,
+}: {
+  group: CategoryGroup
+  entries: ActivityEntry[]
+  onBack: () => void
+  onAdd: () => void
+  onEdit: (entry: ActivityEntry) => void
+  onDelete: (id: string) => void
+  deleting: string | null
+}) {
+  const Icon = group.icon
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onBack}
+            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${group.iconBg}`}>
+            <Icon className={`h-5 w-5 ${group.color}`} />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-[#1E3A5F]">{group.label}</h2>
+            <p className="text-xs text-muted-foreground">{group.description}</p>
+          </div>
+        </div>
+        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={onAdd}>
+          <Plus className="h-4 w-4" /> Add {group.label.split(" ")[0]}
+        </Button>
       </div>
 
-      {/* ── Activity Cards ── */}
-      {filtered.length === 0 ? (
-        <EmptyState
-          icon={Activity}
-          title="No entries yet"
-          description="Add your first activity, award, or achievement to start building your brag sheet."
-          action={
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={openAdd}>
-              <Plus className="h-4 w-4" /> Add Entry
-            </Button>
-          }
-        />
+      {/* Tip */}
+      <div className="rounded-lg bg-blue-50/70 border border-blue-200/50 px-4 py-3 flex items-start gap-2">
+        <Lightbulb className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" />
+        <p className="text-xs text-[#1E3A5F]/80">{group.tip}</p>
+      </div>
+
+      {/* Entries */}
+      {entries.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${group.iconBg} mb-4`}>
+            <Icon className={`h-7 w-7 ${group.color} opacity-60`} />
+          </div>
+          <p className="text-sm font-medium text-muted-foreground mb-1">No {group.label.toLowerCase()} yet</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Add your first entry to start building this section.
+          </p>
+          <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={onAdd}>
+            <Plus className="h-4 w-4" /> Add Your First Entry
+          </Button>
+        </div>
       ) : (
-        <div className="space-y-6">
-          {grouped.map((group, gi) => {
-            const cfg = categoryConfig[group.category]
-            const Icon = cfg.icon
+        <div className="space-y-2.5">
+          {entries.map((entry, i) => {
+            const entryGroup = findGroupForCategory(entry.category)
             return (
               <motion.div
-                key={group.category}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: gi * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                viewport={{ once: true }}
+                key={entry.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.04 }}
               >
-                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#1E3A5F]">
-                  <Icon className={`h-4 w-4 ${cfg.color}`} />
-                  {cfg.label} ({group.items.length})
-                </h2>
-                <div className="space-y-2.5">
-                  {group.items.map((a) => {
-                    const aCfg = categoryConfig[a.category]
-                    return (
-                      <Card key={a.id} className="hover:shadow-sm transition-shadow">
-                        <CardContent className="pt-0">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="space-y-1.5 min-w-0 flex-1">
-                              {/* Title row */}
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-sm font-semibold text-[#1E3A5F]">{a.title}</p>
-                                <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${aCfg.badgeBg} ${aCfg.badgeText}`}>
-                                  {aCfg.label}
-                                </span>
-                                {a.isLeadership && (
-                                  <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                                    <Users className="h-3 w-3" /> Leadership
-                                  </span>
-                                )}
-                                {a.isAward && (
-                                  <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                                    <Award className="h-3 w-3" /> Award
-                                  </span>
-                                )}
-                                {a.isVerified && (
-                                  <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
-                                    <ShieldCheck className="h-3 w-3" /> Verified
-                                  </span>
-                                )}
-                              </div>
-                              {/* Org & role */}
-                              {(a.organization || a.role) && (
-                                <p className="text-xs text-muted-foreground">
-                                  {a.organization}{a.organization && a.role ? " — " : ""}{a.role}
-                                </p>
-                              )}
-                              {/* Date & hours */}
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="h-3 w-3" />
-                                  {formatDateRange(a.startDate, a.endDate, a.isOngoing)}
-                                </span>
-                                {a.hoursPerWeek !== null && (
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" /> {a.hoursPerWeek} hrs/week
-                                  </span>
-                                )}
-                                {a.totalHours !== null && a.totalHours > 0 && (
-                                  <span className="font-medium text-foreground/70">{a.totalHours} total hrs</span>
-                                )}
-                              </div>
-                              {/* Description */}
-                              {a.description && (
-                                <p className="text-xs text-muted-foreground line-clamp-2">{a.description}</p>
-                              )}
-                              {/* Impact statement */}
-                              {a.impactStatement && (
-                                <p className="text-xs italic text-muted-foreground/80 line-clamp-2">
-                                  &ldquo;{a.impactStatement}&rdquo;
-                                </p>
-                              )}
-                              {/* Skills */}
-                              {a.skillsGained && a.skillsGained.length > 0 && (
-                                <div className="flex flex-wrap gap-1 pt-0.5">
-                                  {a.skillsGained.map((skill) => (
-                                    <span
-                                      key={skill}
-                                      className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700"
-                                    >
-                                      {skill}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                            {/* Actions */}
-                            <div className="flex shrink-0 items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(a)}>
-                                <Pencil className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 hover:text-rose-600"
-                                disabled={deleting === a.id}
-                                onClick={() => handleDelete(a.id)}
-                              >
-                                {deleting === a.id ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                            </div>
+                <Card className="hover:shadow-sm transition-shadow">
+                  <CardContent className="pt-0">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1.5 min-w-0 flex-1">
+                        {/* Title row */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-semibold text-[#1E3A5F]">{entry.title}</p>
+                          {entry.isLeadership && (
+                            <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                              <Users className="h-3 w-3" /> Leadership
+                            </span>
+                          )}
+                          {entry.isAward && (
+                            <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                              <Award className="h-3 w-3" /> Award
+                            </span>
+                          )}
+                          {entry.isVerified && (
+                            <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                              <ShieldCheck className="h-3 w-3" /> Verified
+                            </span>
+                          )}
+                        </div>
+                        {/* Org & role */}
+                        {(entry.organization || entry.role) && (
+                          <p className="text-xs text-muted-foreground">
+                            {entry.organization}{entry.organization && entry.role ? " — " : ""}{entry.role}
+                          </p>
+                        )}
+                        {/* Date & hours */}
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                          {entry.startDate && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {formatDateRange(entry.startDate, entry.endDate, entry.isOngoing)}
+                            </span>
+                          )}
+                          {entry.hoursPerWeek !== null && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" /> {entry.hoursPerWeek} hrs/week
+                            </span>
+                          )}
+                          {entry.totalHours !== null && entry.totalHours > 0 && (
+                            <span className="font-medium text-foreground/70">{entry.totalHours} total hrs</span>
+                          )}
+                        </div>
+                        {/* Description */}
+                        {entry.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2">{entry.description}</p>
+                        )}
+                        {/* Impact statement */}
+                        {entry.impactStatement && (
+                          <p className="text-xs italic text-muted-foreground/80 line-clamp-2">
+                            &ldquo;{entry.impactStatement}&rdquo;
+                          </p>
+                        )}
+                        {/* Skills */}
+                        {entry.skillsGained && entry.skillsGained.length > 0 && (
+                          <div className="flex flex-wrap gap-1 pt-0.5">
+                            {entry.skillsGained.map((skill) => (
+                              <span key={skill} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+                                {skill}
+                              </span>
+                            ))}
                           </div>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
-                </div>
+                        )}
+                      </div>
+                      {/* Actions */}
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(entry)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:text-rose-600"
+                          disabled={deleting === entry.id}
+                          onClick={() => onDelete(entry.id)}
+                        >
+                          {deleting === entry.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             )
           })}
         </div>
       )}
-
-      {/* ── Smart Nudges ── */}
-      {nudges.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1E3A5F]">
-            <Lightbulb className="h-4 w-4 text-amber-500" /> Tips to Strengthen Your Brag Sheet
-          </h3>
-          {nudges.map((msg, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/50 p-3"
-            >
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-              <p className="text-xs text-amber-800">{msg}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ── Add / Edit Dialog ── */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm() } else { setDialogOpen(true) } }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Entry" : "Add Entry"}</DialogTitle>
-            <DialogDescription>
-              {editingId ? "Update this activity or achievement." : "Add an activity, award, or achievement to your brag sheet."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            {/* Title */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Title *</label>
-              <Input
-                placeholder="e.g., Debate Team, National Honor Society"
-                value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              />
-            </div>
-
-            {/* Organization + Role */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Organization</label>
-                <Input
-                  placeholder="e.g., Lincoln High School"
-                  value={form.organization}
-                  onChange={(e) => setForm((f) => ({ ...f, organization: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Role / Position</label>
-                <Input
-                  placeholder="e.g., Captain, President"
-                  value={form.role}
-                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            {/* Category */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Category</label>
-              <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v as CategoryKey }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ALL_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{categoryConfig[cat].label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Description */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Description</label>
-              <Textarea
-                placeholder="What did you do? What was your contribution?"
-                rows={2}
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              />
-            </div>
-
-            {/* Impact Statement */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Impact Statement</label>
-              <Textarea
-                placeholder="Describe what you accomplished and the results"
-                rows={2}
-                value={form.impactStatement}
-                onChange={(e) => setForm((f) => ({ ...f, impactStatement: e.target.value }))}
-              />
-            </div>
-
-            {/* Skills */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Skills Gained</label>
-              <div className="flex flex-wrap gap-1.5 mb-1.5">
-                {form.skillsGained.map((skill) => (
-                  <Badge key={skill} variant="secondary" className="gap-1 text-xs">
-                    {skill}
-                    <button onClick={() => removeSkill(skill)} className="ml-0.5 hover:text-rose-600">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <Input
-                placeholder="Type a skill and press Enter"
-                value={form.skillsInput}
-                onChange={(e) => setForm((f) => ({ ...f, skillsInput: e.target.value }))}
-                onKeyDown={handleSkillKeyDown}
-              />
-            </div>
-
-            {/* Dates */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Start Date</label>
-                <Input
-                  type="date"
-                  value={form.startDate}
-                  onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">End Date</label>
-                <Input
-                  type="date"
-                  value={form.endDate}
-                  disabled={form.isOngoing}
-                  onChange={(e) => setForm((f) => ({ ...f, endDate: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            {/* Ongoing + Hours */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-3">
-                <Switch
-                  checked={form.isOngoing}
-                  onCheckedChange={(v) => setForm((f) => ({ ...f, isOngoing: v, endDate: v ? "" : f.endDate }))}
-                />
-                <label className="text-xs font-medium text-muted-foreground">Ongoing</label>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Hours / Week</label>
-                <Input
-                  type="number"
-                  placeholder="e.g., 5"
-                  value={form.hoursPerWeek}
-                  onChange={(e) => setForm((f) => ({ ...f, hoursPerWeek: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            {/* Flags */}
-            <div className="flex gap-6">
-              <div className="flex items-center gap-3">
-                <Switch
-                  checked={form.isLeadership}
-                  onCheckedChange={(v) => setForm((f) => ({ ...f, isLeadership: v }))}
-                />
-                <label className="text-xs font-medium text-muted-foreground">Leadership Role</label>
-              </div>
-              <div className="flex items-center gap-3">
-                <Switch
-                  checked={form.isAward}
-                  onCheckedChange={(v) => setForm((f) => ({ ...f, isAward: v }))}
-                />
-                <label className="text-xs font-medium text-muted-foreground">Award / Honor</label>
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm() }}>
-              Cancel
-            </Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleSave} disabled={saving}>
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {editingId ? "Save Changes" : "Add Entry"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
