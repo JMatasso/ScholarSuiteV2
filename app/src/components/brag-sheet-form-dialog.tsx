@@ -384,8 +384,8 @@ export function BragSheetFormDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleSave} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          <Button onClick={handleSave} disabled={saving}>
+            {saving && <Loader2 className="animate-spin" />}
             {editEntry ? "Save Changes" : "Add Entry"}
           </Button>
         </DialogFooter>

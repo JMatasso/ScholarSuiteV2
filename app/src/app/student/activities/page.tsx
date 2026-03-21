@@ -268,14 +268,14 @@ export default function BragSheetPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => toast.info("PDF export coming soon")}>
-            <FileDown className="h-4 w-4" /> Export PDF
+          <Button variant="outline" onClick={() => toast.info("PDF export coming soon")}>
+            <FileDown /> Export PDF
           </Button>
         </div>
       </div>
 
       {/* ── Strength Meter ── */}
-      <Card>
+      <Card variant="bento">
         <CardContent className="pt-0">
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1E3A5F]/10">
@@ -484,12 +484,9 @@ function CategoryDetailView({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4 text-muted-foreground" />
-          </button>
+          <Button variant="ghost" size="icon" onClick={onBack}>
+            <ChevronLeft />
+          </Button>
           <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${group.iconBg}`}>
             <Icon className={`h-5 w-5 ${group.color}`} />
           </div>
@@ -498,8 +495,8 @@ function CategoryDetailView({
             <p className="text-xs text-muted-foreground">{group.description}</p>
           </div>
         </div>
-        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={onAdd}>
-          <Plus className="h-4 w-4" /> Add {group.label.split(" ")[0]}
+        <Button size="sm" onClick={onAdd}>
+          <Plus /> Add {group.label.split(" ")[0]}
         </Button>
       </div>
 
@@ -519,8 +516,8 @@ function CategoryDetailView({
           <p className="text-xs text-muted-foreground mb-4">
             Add your first entry to start building this section.
           </p>
-          <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={onAdd}>
-            <Plus className="h-4 w-4" /> Add Your First Entry
+          <Button onClick={onAdd}>
+            <Plus /> Add Your First Entry
           </Button>
         </div>
       ) : (
@@ -534,7 +531,7 @@ function CategoryDetailView({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.04 }}
               >
-                <Card className="hover:shadow-sm transition-shadow">
+                <Card variant="bento">
                   <CardContent className="pt-0">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1.5 min-w-0 flex-1">
@@ -603,20 +600,20 @@ function CategoryDetailView({
                       </div>
                       {/* Actions */}
                       <div className="flex shrink-0 items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(entry)}>
-                          <Pencil className="h-3.5 w-3.5" />
+                        <Button variant="ghost" size="icon-sm" onClick={() => onEdit(entry)}>
+                          <Pencil />
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:text-rose-600"
+                          size="icon-sm"
+                          className="hover:text-rose-600"
                           disabled={deleting === entry.id}
                           onClick={() => onDelete(entry.id)}
                         >
                           {deleting === entry.id ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <Loader2 className="animate-spin" />
                           ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 />
                           )}
                         </Button>
                       </div>
