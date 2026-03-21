@@ -17,6 +17,7 @@ import {
   TestTube,
   ExternalLink,
 } from "lucide-react"
+import LoaderOne from "@/components/ui/loader-one"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatCard } from "@/components/ui/stat-card"
@@ -163,8 +164,8 @@ export default function CollegeDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground">
-        <p className="text-sm">Loading...</p>
+      <div className="flex items-center justify-center py-16">
+        <LoaderOne />
       </div>
     )
   }

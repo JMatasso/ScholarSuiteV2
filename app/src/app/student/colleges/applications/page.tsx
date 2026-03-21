@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { Plus, GraduationCap, Send, CheckCircle2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -191,8 +192,8 @@ export default function CollegeApplicationsPage() {
 
       {/* kanban */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          <p className="text-sm">Loading...</p>
+        <div className="flex items-center justify-center py-16">
+          <LoaderOne />
         </div>
       ) : apps.length === 0 ? (
         <EmptyState

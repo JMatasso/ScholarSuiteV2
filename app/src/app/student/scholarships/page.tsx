@@ -6,6 +6,7 @@ import { motion } from "motion/react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import LoaderOne from "@/components/ui/loader-one"
 import { cn } from "@/lib/utils"
 import {
   Search,
@@ -13,8 +14,6 @@ import {
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
-  ChevronLeft,
-  ChevronRight,
   CheckCircle,
   RefreshCw,
   AlertCircle,
@@ -33,6 +32,14 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+} from "@/components/ui/pagination"
+import { usePagination } from "@/components/hooks/use-pagination"
 
 interface ScholarshipTag {
   id: string
@@ -306,6 +313,87 @@ function ScholarshipRow({
           </div>
         </motion.div>
       )}
+    </div>
+  )
+}
+
+function ScholarshipPagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+}) {
+  const { pages, showLeftEllipsis, showRightEllipsis } = usePagination({
+    currentPage,
+    totalPages,
+    paginationItemsToDisplay: 7,
+  })
+
+  return (
+    <div className="py-4 border-t border-border/30">
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              &larr;
+            </Button>
+          </PaginationItem>
+
+          {showLeftEllipsis && (
+            <>
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(1)}>1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            </>
+          )}
+
+          {pages.map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                onClick={() => onPageChange(page)}
+                isActive={currentPage === page}
+              >
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {showRightEllipsis && (
+            <>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(totalPages)}>
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              &rarr;
+            </Button>
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   )
 }
@@ -678,9 +766,8 @@ export default function ScholarshipDiscovery() {
 
       {/* Tabs & Table */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin mr-2" />
-          <p className="text-sm">Loading scholarships...</p>
+        <div className="flex items-center justify-center py-16">
+          <LoaderOne />
         </div>
       ) : (
         <div>
@@ -713,7 +800,7 @@ export default function ScholarshipDiscovery() {
             <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {matchLoading ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  <LoaderOne />
                 </div>
               ) : filteredMatches.length > 0 ? (
                 <>
@@ -762,7 +849,7 @@ export default function ScholarshipDiscovery() {
             <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {allLoading ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  <LoaderOne />
                 </div>
               ) : (
                 <>
@@ -805,31 +892,11 @@ export default function ScholarshipDiscovery() {
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 py-4 border-t border-border/30">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={page <= 1}
-                        onClick={() => fetchScholarships(page - 1)}
-                        className="gap-1"
-                      >
-                        <ChevronLeft className="h-3.5 w-3.5" />
-                        Previous
-                      </Button>
-                      <span className="text-sm text-muted-foreground px-3">
-                        Page {page} of {totalPages}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={page >= totalPages}
-                        onClick={() => fetchScholarships(page + 1)}
-                        className="gap-1"
-                      >
-                        Next
-                        <ChevronRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    <ScholarshipPagination
+                      currentPage={page}
+                      totalPages={totalPages}
+                      onPageChange={(p) => fetchScholarships(p)}
+                    />
                   )}
                 </>
               )}
@@ -850,7 +917,7 @@ export default function ScholarshipDiscovery() {
                 </div>
               ) : localLoading ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  <LoaderOne />
                 </div>
               ) : localScholarships.length > 0 ? (
                 <>

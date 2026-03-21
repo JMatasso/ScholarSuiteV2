@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Sparkles, Download, Loader2, GraduationCap, MapPin, Calendar, Dumbbell, Palette, BookOpen, Heart, Briefcase, Users, Rocket, FlaskConical, Globe, BadgeCheck, HandHeart, Medal, FolderKanban, Activity, Check, ArrowRight, Clock, Trophy, Award } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { jsPDF } from "jspdf"
 
 // ─── Types & Config ──────────────────────────────────────────
@@ -107,7 +108,7 @@ export default function ResumePage() {
   const applyOne = async (e: Enh) => { try { await applyUpdates([{ activityId: e.activityId, impactStatement: e.impactStatement }]); toast.success("Applied!") } catch { toast.error("Failed") } }
   const applyAll = async () => { const p = enhancements.filter(e => !appliedIds.has(e.activityId)); if (!p.length) return; try { await applyUpdates(p.map(e => ({ activityId: e.activityId, impactStatement: e.impactStatement }))); toast.success(`Applied ${p.length} enhancements`) } catch { toast.error("Failed") } }
 
-  if (loading) return <div className="flex items-center justify-center py-16 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /><p className="text-sm">Loading brag sheet...</p></div>
+  if (loading) return <div className="flex items-center justify-center py-16"><LoaderOne /></div>
 
   return (
     <div className="space-y-6">

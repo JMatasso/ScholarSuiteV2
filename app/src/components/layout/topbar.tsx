@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface TopbarProps {
   userName?: string;
@@ -116,6 +117,9 @@ export function Topbar({
               </span>
             )}
           </button>
+
+          {/* Theme toggle */}
+          <ThemeToggle />
 
           {/* User dropdown */}
           <DropdownMenu>

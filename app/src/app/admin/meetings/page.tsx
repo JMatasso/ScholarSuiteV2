@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import Link from "next/link"
 import { Plus, Video, Clock, Calendar, MapPin, Users, X, UserPlus } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 
 interface MeetingParticipant {
   id: string
@@ -335,7 +336,7 @@ export default function MeetingsPage() {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading meetings...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : (
         <>
           {/* Upcoming */}

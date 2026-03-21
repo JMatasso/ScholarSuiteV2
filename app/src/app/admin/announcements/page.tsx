@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Pin, Clock, Users, UserPlus, Shield } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 
 interface Announcement {
   id: string
@@ -204,7 +205,7 @@ export default function AnnouncementsPage() {
 
       <div className="flex flex-col gap-4">
         {loading ? (
-          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading announcements...</div>
+          <div className="flex items-center justify-center h-32"><LoaderOne /></div>
         ) : announcements.length === 0 ? (
           <p className="text-sm text-muted-foreground">No announcements yet.</p>
         ) : announcements.map((ann, index) => {

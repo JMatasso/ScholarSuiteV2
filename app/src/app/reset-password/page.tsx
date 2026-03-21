@@ -3,6 +3,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { useState, Suspense } from "react"
 import Link from "next/link"
 import { GraduationCap, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react"
+import LoaderOne from "@/components/ui/loader-one"
 import { toast } from "sonner"
 
 function ResetPasswordForm() {
@@ -85,7 +86,7 @@ export default function ResetPasswordPage() {
         </Link>
         <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Set new password</h1>
         <p className="text-gray-500 mb-8">Choose a strong password for your account.</p>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="flex justify-center py-8"><LoaderOne /></div>}>
           <ResetPasswordForm />
         </Suspense>
       </div>

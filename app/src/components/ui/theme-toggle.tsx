@@ -1,52 +1,77 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
 import { useTheme } from "next-themes"
-import { Sun, Moon, Monitor } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
-export function ThemeToggle() {
-  const { setTheme, theme } = useTheme()
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+interface ThemeToggleProps {
+  className?: string
+}
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [])
+export function ThemeToggle({ className }: ThemeToggleProps) {
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  // Avoid hydration mismatch — render nothing until mounted
+  if (!mounted) {
+    return <div className={cn("w-16 h-8", className)} />
+  }
+
+  const isDark = resolvedTheme === "dark"
 
   return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-      >
-        <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-        <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-        <span className="sr-only">Toggle theme</span>
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1 w-36 rounded-lg border border-border bg-card py-1 shadow-lg z-50">
-          {[
-            { value: "light", label: "Light", icon: Sun },
-            { value: "dark", label: "Dark", icon: Moon },
-            { value: "system", label: "System", icon: Monitor },
-          ].map(({ value, label, icon: Icon }) => (
-            <button
-              key={value}
-              onClick={() => { setTheme(value); setOpen(false) }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors ${
-                theme === value ? "text-foreground bg-muted" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <Icon className="size-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+    <div
+      className={cn(
+        "flex w-16 h-8 p-1 rounded-full cursor-pointer transition-all duration-300",
+        isDark
+          ? "bg-zinc-950 border border-zinc-800"
+          : "bg-white border border-zinc-200",
+        className
       )}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          setTheme(isDark ? "light" : "dark")
+        }
+      }}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+    >
+      <div className="flex justify-between items-center w-full">
+        <div
+          className={cn(
+            "flex justify-center items-center w-6 h-6 rounded-full transition-transform duration-300",
+            isDark
+              ? "transform translate-x-0 bg-zinc-800"
+              : "transform translate-x-8 bg-gray-200"
+          )}
+        >
+          {isDark ? (
+            <Moon className="w-4 h-4 text-white" strokeWidth={1.5} />
+          ) : (
+            <Sun className="w-4 h-4 text-gray-700" strokeWidth={1.5} />
+          )}
+        </div>
+        <div
+          className={cn(
+            "flex justify-center items-center w-6 h-6 rounded-full transition-transform duration-300",
+            isDark
+              ? "bg-transparent"
+              : "transform -translate-x-8"
+          )}
+        >
+          {isDark ? (
+            <Sun className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+          ) : (
+            <Moon className="w-4 h-4 text-black" strokeWidth={1.5} />
+          )}
+        </div>
+      </div>
     </div>
   )
 }

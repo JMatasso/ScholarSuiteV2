@@ -20,6 +20,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { UploadButton } from "@/lib/uploadthing"
 
 interface Task {
@@ -143,7 +144,7 @@ export default function TasksPage() {
   const progressPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
 
   if (loading) {
-    return <div className="flex items-center justify-center py-16 text-muted-foreground"><p className="text-sm">Loading tasks...</p></div>
+    return <div className="flex items-center justify-center py-16"><LoaderOne /></div>
   }
 
   return (
@@ -353,7 +354,7 @@ export default function TasksPage() {
 
                       {/* Files in this folder */}
                       {docsLoading ? (
-                        <p className="text-xs text-muted-foreground">Loading...</p>
+                        <div className="flex justify-center py-2"><LoaderOne /></div>
                       ) : folderDocs.length > 0 ? (
                         <div className="space-y-1.5">
                           {folderDocs.map((doc) => (

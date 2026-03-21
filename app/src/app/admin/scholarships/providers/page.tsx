@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import {
   Plus, Pencil, Trash2, ChevronDown, ChevronUp, Building2, Users,
   UserPlus, UserMinus, Loader2, Globe, Mail, Phone, User,
@@ -197,8 +198,8 @@ export default function ProvidersPage() {
 
       {/* Table */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading providers...
+        <div className="flex items-center justify-center py-16">
+          <LoaderOne />
         </div>
       ) : providers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">

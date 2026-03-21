@@ -332,7 +332,7 @@ export default function StudentDashboard() {
             const Icon = stat.icon
             return (
               <motion.div key={stat.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}>
-                <Card className="transition-all duration-300 hover:scale-[1.02]">
+                <Card variant="bento" className="transition-all duration-300 hover:scale-[1.02]">
                   <CardContent className="pt-0">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
@@ -358,7 +358,7 @@ export default function StudentDashboard() {
         <div className="lg:col-span-3 space-y-6">
           {/* My Tasks */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-            <Card>
+            <Card variant="bento">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -412,7 +412,7 @@ export default function StudentDashboard() {
 
           {/* College Applications */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
-            <Card>
+            <Card variant="bento">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -463,7 +463,7 @@ export default function StudentDashboard() {
 
           {/* Brag Sheet Snapshot */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}>
-            <Card>
+            <Card variant="bento">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -516,7 +516,7 @@ export default function StudentDashboard() {
           {/* Mini Calendar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.25 }}>
             <Link href="/student/calendar">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card variant="bento" className="cursor-pointer">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -553,7 +553,7 @@ export default function StudentDashboard() {
 
           {/* Top Scholarship Matches */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
-            <Card>
+            <Card variant="bento">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -602,7 +602,7 @@ export default function StudentDashboard() {
 
           {/* Essays */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}>
-            <Card>
+            <Card variant="bento">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -644,7 +644,7 @@ export default function StudentDashboard() {
 
           {/* Recent Messages */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-            <Card>
+            <Card variant="bento">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -690,7 +690,7 @@ export default function StudentDashboard() {
           {/* Next Meeting */}
           {nextMeeting && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-              <Card>
+              <Card variant="bento">
                 <CardContent className="pt-0">
                   <div className="flex items-center gap-3">
                     <div className="flex size-10 items-center justify-center rounded-lg bg-green-50">

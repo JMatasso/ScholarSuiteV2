@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -359,7 +360,7 @@ export default function ParentUpdatesPage() {
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <LoaderOne />
           </div>
         ) : events.length === 0 ? (
           <Card>

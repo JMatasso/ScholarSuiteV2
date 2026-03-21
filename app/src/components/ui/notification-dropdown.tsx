@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { Bell, CheckCircle2, AlertTriangle, Info, XOctagon, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import LoaderOne from "@/components/ui/loader-one"
 import { cn } from "@/lib/utils"
 
 interface Notification {
@@ -186,7 +187,7 @@ export function NotificationDropdown() {
             <div className="max-h-[420px] overflow-y-auto">
               {loading && notifications.length === 0 ? (
                 <div className="flex items-center justify-center py-12">
-                  <p className="text-sm text-muted-foreground">Loading...</p>
+                  <LoaderOne />
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 px-4">

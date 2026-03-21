@@ -14,6 +14,7 @@ import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
 import { Plus, Users, Pencil, Trash2, UserPlus, ListTodo, Megaphone, X } from "lucide-react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -336,7 +337,7 @@ export default function CohortsPage() {
 
       {/* Cohort grid */}
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading cohorts...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : cohorts.length === 0 ? (
         <p className="text-sm text-muted-foreground">No cohorts yet. Create one to get started.</p>
       ) : (

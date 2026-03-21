@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import { toast } from "sonner"
 import { School, Plus, Search, MapPin, Users, Download, Trash2, GraduationCap, Pencil, Loader2, Check } from "lucide-react"
+import LoaderOne from "@/components/ui/loader-one"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { ActionMenu } from "@/components/ui/action-menu"
@@ -159,7 +160,7 @@ export default function AdminSchoolsPage() {
     })
   }
 
-  if (loading) return <div className="flex items-center justify-center py-16 text-muted-foreground"><p className="text-sm">Loading...</p></div>
+  if (loading) return <div className="flex items-center justify-center py-16"><LoaderOne /></div>
 
   return (
     <div className="space-y-6">

@@ -69,7 +69,7 @@ function StatCard({
         ease: [0.16, 1, 0.3, 1],
       }}
       className={cn(
-        "flex flex-col gap-3 rounded-2xl bg-card p-6 shadow-lg shadow-black/[0.04] ring-1 ring-white/60 transition-shadow duration-300 hover:shadow-xl hover:shadow-black/[0.06]",
+        "relative flex flex-col gap-3 rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)] after:pointer-events-none after:absolute after:inset-0 after:rounded-xl after:transition-colors after:duration-300 hover:after:bg-black/[.03]",
         className
       )}
     >

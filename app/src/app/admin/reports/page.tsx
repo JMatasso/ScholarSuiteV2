@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { StatCard } from "@/components/ui/stat-card"
 import { Loader2, FileBarChart, CheckCircle2, PenTool, FileText, MessageSquare } from "lucide-react"
+import LoaderOne from "@/components/ui/loader-one"
 import type { ColumnDef } from "@tanstack/react-table"
 
 interface ReportData {
@@ -147,7 +148,7 @@ export default function AdminReportsPage() {
 
       {loading && !data ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <LoaderOne />
         </div>
       ) : data ? (
         <>

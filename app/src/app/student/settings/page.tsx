@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { ProfileSettings } from "@/components/ui/profile-settings"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import LoaderOne from "@/components/ui/loader-one"
 import { Button } from "@/components/ui/button"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import {
@@ -191,7 +192,7 @@ export default function StudentSettingsPage() {
             <h3 className="text-base font-semibold text-foreground mb-4">Notification Preferences</h3>
             {loading ? (
               <div className="flex justify-center py-4">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <LoaderOne />
               </div>
             ) : (
               <div className="space-y-4">
@@ -235,7 +236,7 @@ export default function StudentSettingsPage() {
             </div>
             {loading ? (
               <div className="flex justify-center py-4">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <LoaderOne />
               </div>
             ) : (
               <div className="space-y-4">

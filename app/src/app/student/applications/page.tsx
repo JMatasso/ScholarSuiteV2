@@ -69,7 +69,7 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("ALL")
-  const [sortField, setSortField] = useState<"name" | "amount" | "deadline" | "status">("deadline")
+  const [sortField, setSortField] = useState<"name" | "provider" | "amount" | "deadline" | "status">("deadline")
   const [sortAsc, setSortAsc] = useState(true)
 
   // Bulk selection
@@ -161,7 +161,8 @@ export default function ApplicationsPage() {
       const q = search.toLowerCase()
       list = list.filter((a) =>
         a.scholarship.name.toLowerCase().includes(q) ||
-        (a.scholarship.provider || "").toLowerCase().includes(q)
+        (a.scholarship.provider || "").toLowerCase().includes(q) ||
+        (a.notes || "").toLowerCase().includes(q)
       )
     }
 
@@ -176,6 +177,9 @@ export default function ApplicationsPage() {
       switch (sortField) {
         case "name":
           cmp = a.scholarship.name.localeCompare(b.scholarship.name)
+          break
+        case "provider":
+          cmp = (a.scholarship.provider || "").localeCompare(b.scholarship.provider || "")
           break
         case "amount":
           cmp = (a.scholarship.amount || 0) - (b.scholarship.amount || 0)
@@ -403,7 +407,7 @@ export default function ApplicationsPage() {
         <div className="overflow-x-auto">
         <div className="rounded-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30 min-w-[700px]">
+          <div className="grid grid-cols-[32px_1fr_140px_110px_110px_140px_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30 min-w-[900px]">
             <button type="button" onClick={toggleSelectAll} className="flex items-center justify-center">
               {selectedIds.size === filtered.length && filtered.length > 0 ? (
                 <CheckSquare className="h-4 w-4 text-[#2563EB]" />
@@ -412,6 +416,7 @@ export default function ApplicationsPage() {
               )}
             </button>
             <SortButton field="name">Scholarship</SortButton>
+            <SortButton field="provider">Provider</SortButton>
             <SortButton field="amount">Amount</SortButton>
             <SortButton field="deadline">Deadline</SortButton>
             <SortButton field="status">Status</SortButton>
@@ -425,7 +430,7 @@ export default function ApplicationsPage() {
               return (
                 <motion.div
                   key={app.id}
-                  className="grid grid-cols-[32px_1fr_120px_120px_140px_100px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors min-w-[700px]"
+                  className="grid grid-cols-[32px_1fr_140px_110px_110px_140px_auto] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors min-w-[900px]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2, delay: index * 0.02 }}
@@ -439,7 +444,7 @@ export default function ApplicationsPage() {
                     )}
                   </button>
 
-                  {/* Name + Provider */}
+                  {/* Scholarship Name */}
                   <div className="min-w-0">
                     <Link
                       href={`/student/applications/${app.id}`}
@@ -447,17 +452,31 @@ export default function ApplicationsPage() {
                     >
                       {app.scholarship.name}
                     </Link>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {app.scholarship.provider || "—"}
-                    </p>
                   </div>
 
-                  {/* Amount */}
-                  <div className="flex items-center gap-1 text-sm font-medium text-foreground">
-                    <DollarSign className="h-3 w-3 text-muted-foreground" />
-                    {app.status === "AWARDED" && app.amountAwarded
-                      ? formatAmount(app.amountAwarded)
-                      : formatAmount(app.scholarship.amount)}
+                  {/* Provider */}
+                  <p className="text-sm text-muted-foreground truncate">
+                    {app.scholarship.provider || "—"}
+                  </p>
+
+                  {/* Amount — show awarded amount in green when applicable */}
+                  <div className="min-w-0">
+                    {app.status === "AWARDED" && app.amountAwarded ? (
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-emerald-600">
+                          {formatAmount(app.amountAwarded)}
+                        </span>
+                        {app.amountAwarded !== app.scholarship.amount && (
+                          <span className="text-[10px] text-muted-foreground line-through">
+                            {formatAmount(app.scholarship.amount)}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-sm font-medium text-foreground">
+                        {formatAmount(app.scholarship.amount)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Deadline */}
@@ -480,17 +499,17 @@ export default function ApplicationsPage() {
                     ))}
                   </select>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1">
+                  {/* Actions — prominent Apply button + delete */}
+                  <div className="flex items-center gap-1.5">
                     {app.scholarship.url && (
                       <a
                         href={app.scholarship.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md p-1.5 text-muted-foreground hover:text-[#2563EB] hover:bg-muted transition-colors"
-                        title="Visit scholarship"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#2563EB] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2563EB]/90 transition-colors"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-3 w-3" />
+                        Apply
                       </a>
                     )}
                     <button

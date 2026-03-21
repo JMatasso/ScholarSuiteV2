@@ -6,6 +6,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Shield } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import type { ColumnDef } from "@tanstack/react-table"
 
 interface AuditEntry {
@@ -144,7 +145,7 @@ export default function AuditPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading audit logs...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : (
         <DataTable
           columns={columns}

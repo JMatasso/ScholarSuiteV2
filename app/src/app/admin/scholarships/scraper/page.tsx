@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Globe, Loader2, CheckCircle2, XCircle, Clock, Plus,
@@ -308,7 +309,7 @@ export default function ScraperPage() {
               </CardHeader>
               <CardContent>
                 {refreshLoading && !scholarships.length ? (
-                  <p className="text-sm text-muted-foreground py-8 text-center">Loading...</p>
+                  <div className="py-8 flex justify-center"><LoaderOne /></div>
                 ) : !scholarships.length ? (
                   <p className="text-sm text-muted-foreground py-8 text-center">No scholarships with source URLs found.</p>
                 ) : (

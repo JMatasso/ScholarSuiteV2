@@ -8,6 +8,7 @@ import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DollarSign, TrendingUp, Users, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import type { ColumnDef } from "@tanstack/react-table"
 
 interface StudentFinancial {
@@ -140,7 +141,7 @@ export default function FinancialPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading financial data...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : (
         <DataTable
           columns={columns}

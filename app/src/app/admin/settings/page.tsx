@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Shield } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { ProfileSettings } from "@/components/ui/profile-settings"
 
@@ -63,7 +64,7 @@ export default function SettingsPage() {
     return (
       <div className="flex flex-col gap-6">
         <PageHeader title="Settings" description="Configure your ScholarSuite workspace." />
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading settings...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       </div>
     )
   }

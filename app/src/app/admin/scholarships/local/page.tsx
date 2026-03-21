@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { cn } from "@/lib/utils"
 import {
   Plus, RefreshCw, Check, X, Pencil, Trash2, Loader2, ChevronDown,
@@ -272,7 +273,7 @@ export default function LocalScholarshipsPage() {
           <span>Deadline</span><span>Cycle Status</span><span className="text-center">Apps</span><span>Actions</span>
         </div>
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading...</div>
+          <div className="flex items-center justify-center py-16"><LoaderOne /></div>
         ) : scholarships.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
             <Building2 className="h-8 w-8 mb-2 opacity-40" />

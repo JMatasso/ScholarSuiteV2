@@ -18,6 +18,7 @@ import {
   Mic,
 } from "lucide-react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -502,8 +503,8 @@ export default function CollegeVisitsPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          <p className="text-sm">Loading...</p>
+        <div className="flex items-center justify-center py-16">
+          <LoaderOne />
         </div>
       ) : visits.length === 0 ? (
         <EmptyState

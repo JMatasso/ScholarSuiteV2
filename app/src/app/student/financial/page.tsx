@@ -265,7 +265,7 @@ export default function FinancialPlanPage() {
             <>
               {/* Bar chart */}
               {semesters.length > 0 && (
-                <Card>
+                <Card variant="bento">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base">
                       <Receipt className="h-4 w-4 text-[#2563EB]" />
@@ -319,7 +319,7 @@ export default function FinancialPlanPage() {
 
               {/* Semester table */}
               {semesters.length > 0 && (
-                <Card>
+                <Card variant="bento">
                   <CardHeader>
                     <CardTitle className="text-base">Semester Breakdown</CardTitle>
                   </CardHeader>
@@ -372,7 +372,7 @@ export default function FinancialPlanPage() {
 
               {/* Income Sources */}
               {uniqueSources.length > 0 && (
-                <Card>
+                <Card variant="bento">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base">
                       <DollarSign className="h-4 w-4 text-emerald-600" />
@@ -431,7 +431,7 @@ function SummaryCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
     >
-      <Card>
+      <Card variant="bento">
         <CardContent className="pt-0">
           <div className="flex items-start justify-between">
             <div className="space-y-1">

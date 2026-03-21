@@ -13,6 +13,7 @@ import { SchoolAutocomplete } from "@/components/ui/school-autocomplete"
 import { Plus, Upload, Mail, Eye, Trash2, Pencil } from "lucide-react"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import { useRouter } from "next/navigation"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -421,7 +422,7 @@ export default function StudentsPage() {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading students...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : (
         <DataTable
           columns={columns}

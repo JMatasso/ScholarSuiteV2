@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Plus, CheckSquare, Pencil, Trash2, FolderOpen, Users, Loader2 } from "lucide-react"
+import LoaderOne from "@/components/ui/loader-one"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 import { DOCUMENT_FOLDERS } from "@/lib/constants"
@@ -197,7 +198,7 @@ export default function TemplatesPage() {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading template...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : !template ? (
         <div className="text-sm text-muted-foreground">No template found. Click &quot;Add Task&quot; to start building one.</div>
       ) : (

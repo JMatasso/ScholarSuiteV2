@@ -11,6 +11,7 @@ import Link from "next/link"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { ScholarshipUrlImportDialog } from "@/components/scholarship-url-import-dialog"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import type { ColumnDef } from "@tanstack/react-table"
 
 interface ScholarshipTag {
@@ -360,7 +361,7 @@ export default function ScholarshipsPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading scholarships...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : (
         <DataTable
           columns={columns}

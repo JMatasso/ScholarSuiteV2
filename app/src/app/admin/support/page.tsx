@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import type { ColumnDef } from "@tanstack/react-table"
 
 interface Ticket {
@@ -241,7 +242,7 @@ export default function SupportPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading tickets...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : (
         <DataTable
           columns={columns}

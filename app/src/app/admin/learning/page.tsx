@@ -8,6 +8,7 @@ import { Plus, GripVertical, BookOpen, Pencil, Trash2, ChevronDown, ChevronRight
 import { ActionMenu } from "@/components/ui/action-menu"
 import { motion, AnimatePresence } from "motion/react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 
 interface Lesson {
   id: string
@@ -297,7 +298,7 @@ export default function LearningPage() {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading modules...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : filteredModules.length === 0 ? (
         <p className="text-sm text-muted-foreground">No modules yet.</p>
       ) : (

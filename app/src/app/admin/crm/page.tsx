@@ -9,6 +9,7 @@ import { Plus, Mail, Phone, Pencil, Trash2 } from "lucide-react"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { motion } from "motion/react"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 
 interface Prospect {
   id: string
@@ -178,7 +179,7 @@ export default function CRMPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading prospects...</div>
+        <div className="flex items-center justify-center h-32"><LoaderOne /></div>
       ) : (
         /* Kanban Board */
         <div className="grid grid-cols-5 gap-4">

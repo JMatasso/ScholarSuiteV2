@@ -129,8 +129,9 @@ export default function MeetingsPage() {
 
     return (
       <Card
+        variant="bento"
         key={meeting.id}
-        className={`${isUpcomingMeeting ? "hover:shadow-sm" : "opacity-70 hover:opacity-100"} transition-all`}
+        className={`${isUpcomingMeeting ? "" : "opacity-70 hover:opacity-100"} transition-all`}
       >
         <CardContent className="pt-0">
           <div className="flex items-start gap-4">

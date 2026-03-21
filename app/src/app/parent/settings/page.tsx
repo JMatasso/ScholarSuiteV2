@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
 import { Loader2, Save, Shield, Check, Sparkles, Crown, TrendingUp, Bell, MessageSquare, FileText, Mail, Phone, Smartphone } from "lucide-react"
+import LoaderOne from "@/components/ui/loader-one"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/ui/page-header"
 import { ProfileSettings } from "@/components/ui/profile-settings"
@@ -162,7 +163,7 @@ export default function ParentSettingsPage() {
           <section className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
             <h3 className="text-base font-semibold text-foreground mb-4">Notification Preferences</h3>
             {loading ? (
-              <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+              <div className="flex justify-center py-4"><LoaderOne /></div>
             ) : (
               <div className="space-y-4">
                 <div className="space-y-3">
@@ -283,7 +284,7 @@ export default function ParentSettingsPage() {
             </div>
             {loading ? (
               <div className="flex justify-center py-4">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <LoaderOne />
               </div>
             ) : (
               <div className="space-y-4">

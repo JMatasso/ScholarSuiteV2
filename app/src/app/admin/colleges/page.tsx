@@ -3,11 +3,11 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import LoaderOne from "@/components/ui/loader-one"
 import {
   Building2,
   Search,
   Users,
-  Loader2,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -249,9 +249,8 @@ export default function AdminCollegesPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="flex items-center justify-center py-16 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              <p className="text-sm">Loading colleges...</p>
+            <div className="flex items-center justify-center py-16">
+              <LoaderOne />
             </div>
           ) : sortedColleges.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">

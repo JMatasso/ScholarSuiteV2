@@ -64,7 +64,7 @@ export default function AwardsPage() {
 
       {/* Summary stats */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="border-emerald-200 bg-emerald-50/30">
+        <Card variant="bento" className="border-emerald-200 bg-emerald-50/30">
           <CardContent className="pt-0">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
@@ -79,7 +79,7 @@ export default function AwardsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="bento">
           <CardContent className="pt-0">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E3A5F]/10">
@@ -112,7 +112,7 @@ export default function AwardsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.06 }}
             >
-              <Card className="border-emerald-200/50 hover:shadow-sm transition-shadow">
+              <Card variant="bento" className="border-emerald-200/50">
                 <CardContent className="pt-0">
                   <div className="flex items-center gap-4">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50">
