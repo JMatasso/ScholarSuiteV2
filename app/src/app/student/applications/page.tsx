@@ -308,7 +308,7 @@ export default function ApplicationsPage() {
         title="My Scholarships"
         description="Track your scholarship applications from start to finish."
         actions={
-          <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={openAddDialog}>
+          <Button size="sm" className="gap-2" onClick={openAddDialog}>
             <Plus className="h-3.5 w-3.5" /> Add Scholarship
           </Button>
         }

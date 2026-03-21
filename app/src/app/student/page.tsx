@@ -433,7 +433,7 @@ export default function StudentDashboard() {
                   <div className="text-center py-4">
                     <p className="text-sm text-muted-foreground mb-2">No colleges tracked yet</p>
                     <Link href="/student/colleges">
-                      <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1 text-xs">
+                      <Button size="sm" className="gap-1 text-xs">
                         <Building2 className="h-3 w-3" /> Search Colleges
                       </Button>
                     </Link>
@@ -484,7 +484,7 @@ export default function StudentDashboard() {
                   <div className="text-center py-4">
                     <p className="text-sm text-muted-foreground mb-2">Start building your brag sheet</p>
                     <Link href="/student/activities">
-                      <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1 text-xs">
+                      <Button size="sm" className="gap-1 text-xs">
                         <Activity className="h-3 w-3" /> Add Activities
                       </Button>
                     </Link>
@@ -702,7 +702,7 @@ export default function StudentDashboard() {
                     </div>
                     {nextMeeting.meetingUrl && (
                       <a href={nextMeeting.meetingUrl} target="_blank" rel="noreferrer">
-                        <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-xs">Join</Button>
+                        <Button size="sm" className="text-xs">Join</Button>
                       </a>
                     )}
                   </div>

@@ -344,7 +344,7 @@ export default function MeetingsPage() {
                       </span>
                       {meeting.isVideoCall && (
                         <Link href={`/call/${meeting.id}`}>
-                          <Button size="xs" className="gap-1 bg-[#2563EB] hover:bg-[#2563EB]/90">
+                          <Button size="xs" className="gap-1">
                             <Video className="size-3" />
                             Join Call
                           </Button>

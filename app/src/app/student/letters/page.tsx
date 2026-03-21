@@ -187,7 +187,7 @@ export default function LettersPage() {
             <Link href="/student/resume">
               <Button variant="outline" className="w-full sm:w-auto">View Brag Sheet</Button>
             </Link>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={openAdd}>
+            <Button className="gap-2" onClick={openAdd}>
               <Plus className="h-4 w-4" /> Add Recommender
             </Button>
           </div>
@@ -226,7 +226,7 @@ export default function LettersPage() {
           icon={FileText}
           title="No recommenders yet"
           description="Add your first recommender to start tracking letters."
-          action={<Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={openAdd}><Plus className="h-4 w-4" /> Add Recommender</Button>}
+          action={<Button className="gap-2" onClick={openAdd}><Plus className="h-4 w-4" /> Add Recommender</Button>}
         />
       ) : (
         <>
@@ -392,7 +392,7 @@ export default function LettersPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={save} disabled={saving}>
+            <Button onClick={save} disabled={saving}>
               {saving ? "Saving..." : editId ? "Save Changes" : "Add Recommender"}
             </Button>
           </DialogFooter>

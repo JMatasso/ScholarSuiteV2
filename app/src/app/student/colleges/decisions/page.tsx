@@ -310,7 +310,7 @@ export default function DecisionsPage() {
                       {!isCommitted && (
                         <Button
                           size="sm"
-                          className="w-full bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+                          className="w-full gap-2"
                           onClick={() => handleCommit(app.id)}
                           disabled={committingId !== null}
                         >

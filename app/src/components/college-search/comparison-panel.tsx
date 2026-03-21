@@ -89,7 +89,7 @@ export function ComparisonPanel({ colleges, onRemove, onAddToList, onClearAll }:
                   <td key={c.id} className="py-3 px-3">
                     <Button
                       size="sm"
-                      className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1 text-xs h-7"
+                      className="gap-1 text-xs h-7"
                       onClick={() => onAddToList(c)}
                     >
                       <Plus className="h-3 w-3" />

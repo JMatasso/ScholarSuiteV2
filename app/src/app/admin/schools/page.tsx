@@ -185,7 +185,7 @@ export default function AdminSchoolsPage() {
           />
           {searching && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />}
         </div>
-        <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={() => setAddOpen(true)}>
+        <Button className="gap-2" onClick={() => setAddOpen(true)}>
           <Plus className="h-4 w-4" /> Add School
         </Button>
         <Button variant="outline" className="gap-2" onClick={() => setNcesOpen(true)}>
@@ -310,7 +310,7 @@ export default function AdminSchoolsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleAddSchool} disabled={addLoading}>
+            <Button onClick={handleAddSchool} disabled={addLoading}>
               {addLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create School"}
             </Button>
           </DialogFooter>
@@ -328,7 +328,7 @@ export default function AdminSchoolsPage() {
                 <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
               <Input placeholder="School name (optional)" className="flex-1" value={ncesSearch} onChange={e => setNcesSearch(e.target.value)} />
-              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleNcesSearch} disabled={ncesLoading}>
+              <Button onClick={handleNcesSearch} disabled={ncesLoading}>
                 {ncesLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Search className="h-4 w-4 mr-1" /> Search</>}
               </Button>
             </div>
@@ -356,7 +356,7 @@ export default function AdminSchoolsPage() {
           {ncesResults.length > 0 && (
             <DialogFooter>
               <Button variant="outline" onClick={() => setNcesOpen(false)}>Cancel</Button>
-              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={handleNcesImport} disabled={ncesImporting || ncesSelected.size === 0}>
+              <Button className="gap-2" onClick={handleNcesImport} disabled={ncesImporting || ncesSelected.size === 0}>
                 {ncesImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Check className="h-4 w-4" /> Import {ncesSelected.size} Selected</>}
               </Button>
             </DialogFooter>

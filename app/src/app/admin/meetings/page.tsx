@@ -228,7 +228,7 @@ export default function MeetingsPage() {
         title="Meetings"
         description="Schedule and manage consultation meetings."
         actions={
-          <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={handleShowForm}>
+          <Button size="sm" className="gap-2" onClick={handleShowForm}>
             <Plus className="size-3.5" /> Schedule Meeting
           </Button>
         }
@@ -307,7 +307,7 @@ export default function MeetingsPage() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button type="submit" size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90">Schedule Meeting</Button>
+            <Button type="submit" size="sm">Schedule Meeting</Button>
             <Button type="button" variant="outline" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
           </div>
         </form>
@@ -329,7 +329,7 @@ export default function MeetingsPage() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button type="submit" size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90">Confirm Reschedule</Button>
+            <Button type="submit" size="sm">Confirm Reschedule</Button>
             <Button type="button" variant="outline" size="sm" onClick={() => setRescheduleId(null)}>Cancel</Button>
           </div>
         </form>
@@ -415,11 +415,11 @@ export default function MeetingsPage() {
                           }}>Reschedule</Button>
                           {meeting.isVideoCall ? (
                             <Link href={`/call/${meeting.id}`}>
-                              <Button size="xs" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1"><Video className="size-3" /> Join</Button>
+                              <Button size="xs" className="gap-1"><Video className="size-3" /> Join</Button>
                             </Link>
                           ) : meeting.meetingUrl ? (
                             <a href={meeting.meetingUrl} target="_blank" rel="noopener noreferrer">
-                              <Button size="xs" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1"><Video className="size-3" /> Join</Button>
+                              <Button size="xs" className="gap-1"><Video className="size-3" /> Join</Button>
                             </a>
                           ) : null}
                         </div>
@@ -514,7 +514,7 @@ export default function MeetingsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddParticipantsDialogOpen(false)}>Cancel</Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={handleAddParticipants}
               disabled={addingParticipants || addParticipantsSelected.length === 0}
             >

@@ -153,7 +153,7 @@ export function CollegeDetailDialog({
               </SelectContent>
             </Select>
             <Button
-              className="flex-1 bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1"
+              className="flex-1 gap-1"
               onClick={() => onAddToList(college, classification)}
             >
               <Plus className="h-4 w-4" />

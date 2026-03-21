@@ -722,7 +722,7 @@ export default function ScholarshipDiscovery() {
           {filtersOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </Button>
         {activeTab === "all" && (
-          <Button onClick={() => fetchScholarships(1)} className="bg-[#2563EB] hover:bg-[#2563EB]/90">
+          <Button onClick={() => fetchScholarships(1)}>
             Search
           </Button>
         )}

@@ -360,7 +360,7 @@ export default function CollegeListPage() {
           </p>
         </div>
         <Button
-          className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+          className="gap-2"
           onClick={() => {
             resetForm()
             setAddOpen(true)
@@ -413,7 +413,7 @@ export default function CollegeListPage() {
           description="Start building your college list by adding schools you're interested in. We'll help you organize them by classification."
           action={
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={() => {
                 resetForm()
                 setAddOpen(true)
@@ -556,7 +556,6 @@ export default function CollegeListPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90"
               onClick={handleAdd}
               disabled={saving || !selectedCollege?.name}
             >

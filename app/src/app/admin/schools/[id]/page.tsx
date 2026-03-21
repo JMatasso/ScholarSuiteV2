@@ -358,7 +358,7 @@ export default function SchoolDetailPage() {
               </div>
 
               <Button
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2 shrink-0"
+                className="gap-2 shrink-0"
                 onClick={openEdit}
               >
                 <Pencil className="h-4 w-4" />
@@ -612,7 +612,6 @@ export default function SchoolDetailPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90"
               onClick={handleSave}
               disabled={saving}
             >

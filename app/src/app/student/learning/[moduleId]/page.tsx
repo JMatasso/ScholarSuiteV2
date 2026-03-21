@@ -375,8 +375,7 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
                           size="sm"
                           variant={isCompleted ? "outline" : "default"}
                           className={cn(
-                            "gap-2",
-                            !isCompleted && "bg-[#2563EB] hover:bg-[#2563EB]/90"
+                            "gap-2"
                           )}
                           onClick={() => handleComplete(lesson.id, isCompleted)}
                           disabled={completing === lesson.id}

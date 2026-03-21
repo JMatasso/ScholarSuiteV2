@@ -625,7 +625,7 @@ export default function ParentOnboardingPage() {
                     <Button
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="gap-1.5 bg-[#2563EB] hover:bg-blue-700"
+                      className="gap-1.5"
                     >
                       {isSubmitting ? (
                         <>

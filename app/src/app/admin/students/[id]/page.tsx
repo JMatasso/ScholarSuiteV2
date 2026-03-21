@@ -425,7 +425,7 @@ function StudentDetailContent() {
               <h3 className="text-sm font-medium text-foreground">Tasks ({tasks.length})</h3>
               <Button
                 size="sm"
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+                className="gap-2"
                 disabled={assigningTasks}
                 onClick={handleAssignPhaseTasks}
               >

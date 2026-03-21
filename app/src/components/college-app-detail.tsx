@@ -393,7 +393,7 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
                 </div>
                 {!app.committed && (
                   <Button
-                    className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2 w-full"
+                    className="gap-2 w-full"
                     onClick={handleCommit}
                     disabled={saving}
                   >
@@ -420,7 +420,7 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
               className="text-sm"
             />
             {notesDirty && (
-              <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 mt-2" onClick={handleSaveNotes} disabled={saving}>
+              <Button size="sm" className="mt-2" onClick={handleSaveNotes} disabled={saving}>
                 Save Notes
               </Button>
             )}

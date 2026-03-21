@@ -215,7 +215,7 @@ export default function ScraperPage() {
                 <Textarea rows={8} placeholder="https://example.com/scholarship-1&#10;https://example.com/scholarship-2&#10;..." value={urls} onChange={e => setUrls(e.target.value)} />
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{urlCount} URL{urlCount !== 1 ? "s" : ""} entered</span>
-                  <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={handleExtract} disabled={processing || !urlCount}>
+                  <Button className="gap-2" onClick={handleExtract} disabled={processing || !urlCount}>
                     {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                     Extract All
                   </Button>
@@ -251,7 +251,7 @@ export default function ScraperPage() {
               <Card variant="bento">
                 <CardHeader className="flex-row items-center justify-between">
                   <CardTitle className="text-sm">Extraction Results</CardTitle>
-                  <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1" onClick={handleAddAll}>
+                  <Button size="sm" className="gap-1" onClick={handleAddAll}>
                     <Plus className="h-3.5 w-3.5" /> Add All
                   </Button>
                 </CardHeader>
@@ -302,7 +302,7 @@ export default function ScraperPage() {
             <Card variant="bento">
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle className="text-sm">Tracked Scholarships</CardTitle>
-                <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1" onClick={handleRefreshAllStale} disabled={refreshLoading}>
+                <Button size="sm" className="gap-1" onClick={handleRefreshAllStale} disabled={refreshLoading}>
                   {refreshLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                   Refresh All Stale
                 </Button>
@@ -361,7 +361,7 @@ export default function ScraperPage() {
                                       <span className="text-emerald-600">{d.newValue}</span>
                                     </div>
                                   ))}
-                                  <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1 mt-2" onClick={() => handleApplyChanges(s.id)}>
+                                  <Button size="sm" className="gap-1 mt-2" onClick={() => handleApplyChanges(s.id)}>
                                     <CheckCircle2 className="h-3.5 w-3.5" /> Apply Changes
                                   </Button>
                                 </div>

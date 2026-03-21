@@ -111,7 +111,7 @@ export function CollegeCard({
         <div className="pt-1 border-t border-gray-100">
           <Button
             size="sm"
-            className="w-full bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1 text-xs h-7"
+            className="w-full gap-1 text-xs h-7"
             onClick={(e) => {
               e.stopPropagation()
               onAddToList(college)

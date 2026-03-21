@@ -163,7 +163,7 @@ export function ScholarshipUrlImportDialog({
               <Button
                 onClick={handleExtract}
                 disabled={extracting || !url.trim()}
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2 shrink-0"
+                className="gap-2 shrink-0"
               >
                 {extracting ? (
                   <>
@@ -288,7 +288,7 @@ export function ScholarshipUrlImportDialog({
             <Button
               onClick={handleSave}
               disabled={saving || !data.name}
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save Scholarship

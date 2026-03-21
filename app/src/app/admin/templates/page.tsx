@@ -171,7 +171,7 @@ export default function TemplatesPage() {
               {assigning ? <Loader2 className="size-3.5 animate-spin" /> : <Users className="size-3.5" />}
               Push to All Students
             </Button>
-            <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={() => {
+            <Button size="sm" className="gap-2" onClick={() => {
               setEditingItem(null)
               setForm(emptyForm)
               setShowForm(true)
@@ -311,7 +311,7 @@ export default function TemplatesPage() {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingItem(null) }}>Cancel</Button>
-              <Button type="submit" className="bg-[#2563EB] hover:bg-[#2563EB]/90">
+              <Button type="submit">
                 {editingItem ? "Save Changes" : "Add Task"}
               </Button>
             </DialogFooter>

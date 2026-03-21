@@ -1532,7 +1532,7 @@ function StepCard({
             <Button
               onClick={onNext}
               disabled={nextDisabled}
-              className="rounded-2xl gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90"
+              className="rounded-2xl gap-1.5"
             >
               Next
               <ChevronRight className="w-4 h-4" />
@@ -1554,7 +1554,7 @@ function StepCard({
               <Button
                 onClick={onSubmit}
                 disabled={isSubmitting}
-                className="rounded-2xl gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90"
+                className="rounded-2xl gap-1.5"
               >
                 {isSubmitting ? (
                   <>

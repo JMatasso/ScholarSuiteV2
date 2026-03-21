@@ -382,7 +382,7 @@ export default function ReviewPage() {
           <Button
             onClick={handleSubmit}
             disabled={submitting || overallRating === 0}
-            className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2 px-8 py-3 text-base"
+            className="gap-2 px-8 py-3 text-base"
           >
             {submitting ? (
               "Submitting..."

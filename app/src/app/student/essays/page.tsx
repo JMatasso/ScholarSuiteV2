@@ -314,7 +314,7 @@ export default function EssaysPage() {
             <Lightbulb className="h-4 w-4" />
             Get Writing Tips
           </Button>
-          <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setNewOpen(true)}>
+          <Button className="gap-2" onClick={() => setNewOpen(true)}>
             <Plus className="h-4 w-4" />
             New Essay
           </Button>
@@ -339,7 +339,7 @@ export default function EssaysPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
-              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleNewEssay} disabled={saving}>
+              <Button onClick={handleNewEssay} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 Create Essay
               </Button>
@@ -359,7 +359,7 @@ export default function EssaysPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
-              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleEditEssay} disabled={saving}>
+              <Button onClick={handleEditEssay} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 Save Changes
               </Button>
@@ -496,7 +496,7 @@ export default function EssaysPage() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setTipsOpen(false)}>Cancel</Button>
-                  <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleGetTips} disabled={tipsLoading}>
+                  <Button className="gap-2" onClick={handleGetTips} disabled={tipsLoading}>
                     {tipsLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
                     Generate Tips
                   </Button>
@@ -739,7 +739,7 @@ export default function EssaysPage() {
                   )}
 
                   <div className="flex flex-wrap gap-2">
-                    <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => { setEditContent(selected.content); setEditOpen(true) }}>
+                    <Button className="gap-2" onClick={() => { setEditContent(selected.content); setEditOpen(true) }}>
                       <PenTool className="h-4 w-4" />
                       Edit Essay
                     </Button>

@@ -328,7 +328,7 @@ export default function ScholarshipAdvisorPage() {
               <Button
                 type="submit"
                 disabled={!input.trim() || isStreaming}
-                className="h-11 w-11 rounded-xl bg-[#2563EB] hover:bg-[#2563EB]/90"
+                className="h-11 w-11 rounded-xl"
                 size="icon"
               >
                 <Send className="h-4 w-4" />

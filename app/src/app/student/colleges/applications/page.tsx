@@ -176,7 +176,7 @@ export default function CollegeApplicationsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={() => setDialogOpen(true)}>
+          <Button className="gap-2" onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4" /> Add College
           </Button>
         </div>
@@ -201,7 +201,7 @@ export default function CollegeApplicationsPage() {
           title="No colleges yet"
           description="Start adding colleges you're interested in to track your applications."
           action={
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={() => setDialogOpen(true)}>
+            <Button className="gap-2" onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4" /> Add College
             </Button>
           }
@@ -304,7 +304,7 @@ export default function CollegeApplicationsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleCreate} disabled={saving}>
+            <Button onClick={handleCreate} disabled={saving}>
               {saving ? "Adding..." : "Add College"}
             </Button>
           </DialogFooter>

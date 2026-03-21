@@ -315,7 +315,7 @@ export default function TasksPage() {
                   <Button
                     size="sm"
                     variant={selectedTask.status === "DONE" ? "outline" : "default"}
-                    className={selectedTask.status !== "DONE" ? "bg-[#2563EB] hover:bg-[#2563EB]/90 w-full" : "w-full"}
+                    className="w-full"
                     onClick={() => toggleTask(selectedTask)}
                   >
                     <CheckSquare className="h-4 w-4" />

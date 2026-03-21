@@ -199,7 +199,7 @@ export default function AdminReviewsPage() {
             Export CSV
           </Button>
           <Button
-            className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+            className="gap-2"
             onClick={openNewCampaign}
           >
             <Send className="h-4 w-4" />
@@ -253,7 +253,7 @@ export default function AdminReviewsPage() {
           description="Send your first graduation review to collect feedback from students and parents."
           action={
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={openNewCampaign}
             >
               <Plus className="h-4 w-4" />
@@ -442,7 +442,7 @@ export default function AdminReviewsPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={handleSend}
               disabled={sending}
             >

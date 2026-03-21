@@ -252,7 +252,7 @@ export function ChatWidget({ role = "STUDENT" }: { role?: "STUDENT" | "PARENT" }
                 type="submit"
                 size="sm"
                 disabled={!input.trim() || isLoading}
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5"
+                className="gap-1.5"
               >
                 Send
                 <Send className="h-3.5 w-3.5" />

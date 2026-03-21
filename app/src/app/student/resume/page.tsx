@@ -119,7 +119,7 @@ export default function ResumePage() {
           <p className="mt-1 text-muted-foreground">Your activities, achievements, and experiences — ready for applications.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={() => { setEnhanceOpen(true); setEnhancements([]); setAppliedIds(new Set()) }} disabled={!activities.length}>
+          <Button className="gap-2" onClick={() => { setEnhanceOpen(true); setEnhancements([]); setAppliedIds(new Set()) }} disabled={!activities.length}>
             <Sparkles className="h-4 w-4" /> AI Enhance
           </Button>
           <Button variant="outline" className="gap-2" onClick={() => buildPdf(fullName || "", profile, grouped)} disabled={!activities.length}>
@@ -229,7 +229,7 @@ export default function ResumePage() {
             <div className="space-y-4 py-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-[#1E3A5F]">{enhancements.length} enhancement{enhancements.length !== 1 ? "s" : ""} generated</p>
-                <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5 text-xs" onClick={applyAll} disabled={appliedIds.size === enhancements.length}><Check className="h-3.5 w-3.5" /> Apply All</Button>
+                <Button size="sm" className="gap-1.5 text-xs" onClick={applyAll} disabled={appliedIds.size === enhancements.length}><Check className="h-3.5 w-3.5" /> Apply All</Button>
               </div>
               <div className="space-y-3">{enhancements.map(enh => { const act = activities.find(a => a.id === enh.activityId); const done = appliedIds.has(enh.activityId); return (
                 <Card key={enh.activityId} variant="bento" className={done ? "border-emerald-200 bg-emerald-50/30" : ""}>
@@ -239,7 +239,7 @@ export default function ResumePage() {
                     <div><p className="text-[11px] font-medium text-[#2563EB] mb-0.5 flex items-center gap-1"><ArrowRight className="h-3 w-3" /> After</p><p className="text-xs text-[#1E3A5F] bg-blue-50 rounded px-2 py-1.5">{enh.impactStatement}</p></div>
                     {enh.actionVerbs.length > 0 && <div className="flex flex-wrap gap-1">{enh.actionVerbs.map(v => <span key={v} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">{v}</span>)}</div>}
                     <div className="flex justify-end">
-                      <Button size="sm" variant={done ? "outline" : "default"} className={done ? "gap-1.5 text-xs" : "bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5 text-xs"} disabled={done} onClick={() => applyOne(enh)}>
+                      <Button size="sm" variant={done ? "outline" : "default"} className="gap-1.5 text-xs" disabled={done} onClick={() => applyOne(enh)}>
                         {done ? <><Check className="h-3.5 w-3.5" /> Applied</> : "Apply"}
                       </Button>
                     </div>
@@ -251,7 +251,7 @@ export default function ResumePage() {
           <DialogFooter>
             {enhancements.length === 0 ? (<>
               <Button variant="outline" onClick={() => setEnhanceOpen(false)}>Cancel</Button>
-              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={handleEnhance} disabled={enhancing || !selectedIds.size}>
+              <Button className="gap-2" onClick={handleEnhance} disabled={enhancing || !selectedIds.size}>
                 {enhancing && <Loader2 className="h-4 w-4 animate-spin" />} Enhance Selected
               </Button>
             </>) : (

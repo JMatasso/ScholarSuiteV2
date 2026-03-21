@@ -111,7 +111,7 @@ export default function ChangePasswordPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#2563EB] hover:bg-[#2563EB]/90 py-2.5"
+              className="w-full py-2.5"
             >
               {loading ? "Changing..." : "Set New Password"}
             </Button>

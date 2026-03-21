@@ -395,7 +395,7 @@ export default function ParentDashboard() {
                         <p className="text-sm font-medium truncate">{m.title}</p>
                         <p className="text-xs text-muted-foreground">{formatDate(m.startTime)}</p>
                       </div>
-                      {m.meetingUrl && <a href={m.meetingUrl} target="_blank" rel="noreferrer"><Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-xs">Join</Button></a>}
+                      {m.meetingUrl && <a href={m.meetingUrl} target="_blank" rel="noreferrer"><Button size="sm" className="text-xs">Join</Button></a>}
                     </div>
                   ))}
                 </div>

@@ -369,8 +369,8 @@ export default function CollegeVisitsPage() {
         <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
           <DialogTrigger
             render={
-              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" />
-            }
+              <Button className="gap-2" />
+}
           >
             <Plus className="h-4 w-4" />
             Schedule Visit
@@ -462,7 +462,6 @@ export default function CollegeVisitsPage() {
                 Cancel
               </Button>
               <Button
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90"
                 onClick={handleSchedule}
                 disabled={saving}
               >
@@ -513,7 +512,7 @@ export default function CollegeVisitsPage() {
           description="Schedule campus tours, info sessions, and interviews to explore your college options."
           action={
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={() => setScheduleOpen(true)}
             >
               <Plus className="h-4 w-4" />
@@ -665,7 +664,6 @@ export default function CollegeVisitsPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90"
               onClick={handleComplete}
               disabled={saving}
             >
@@ -753,7 +751,6 @@ export default function CollegeVisitsPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90"
               onClick={handleEdit}
               disabled={saving}
             >
@@ -850,7 +847,7 @@ function VisitCard({
             {!visit.completed && (
               <Button
                 size="sm"
-                className="h-7 text-xs bg-[#2563EB] hover:bg-[#2563EB]/90"
+                className="h-7 text-xs"
                 onClick={() => onMarkComplete(visit)}
               >
                 <CheckCircle2 className="h-3.5 w-3.5 mr-1" />

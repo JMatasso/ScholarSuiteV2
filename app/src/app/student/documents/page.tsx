@@ -238,7 +238,7 @@ export default function DocumentsPage() {
             Export Packet
           </Button>
           <Button
-            className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+            className="gap-2"
             onClick={() => {
               resetDialog()
               setAddDialogOpen(true)
@@ -352,7 +352,6 @@ export default function DocumentsPage() {
           </div>
           <DialogFooter>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90"
               disabled={!uploadedFile || submitting}
               onClick={handleAddDocument}
             >

@@ -161,7 +161,7 @@ export default function MeetingsPage() {
                 </div>
                 {isUpcomingMeeting && meeting.isVideoCall && (
                   <Link href={`/call/${meeting.id}`}>
-                    <Button size="sm" className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0">
+                    <Button size="sm" className="gap-1.5 shrink-0">
                       <Video className="h-3.5 w-3.5" />
                       Join Call
                     </Button>
@@ -170,7 +170,7 @@ export default function MeetingsPage() {
                 {isUpcomingMeeting && !meeting.isVideoCall && meeting.meetingUrl && (
                   <Button
                     size="sm"
-                    className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0"
+                    className="gap-1.5 shrink-0"
                     onClick={() => window.open(meeting.meetingUrl!, "_blank")}
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -178,7 +178,7 @@ export default function MeetingsPage() {
                   </Button>
                 )}
                 {isUpcomingMeeting && !meeting.isVideoCall && !meeting.meetingUrl && (
-                  <Button size="sm" className="gap-1.5 bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0" onClick={() => setViewMeeting(meeting)}>
+                  <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setViewMeeting(meeting)}>
                     <MapPin className="h-3.5 w-3.5" />
                     View
                   </Button>
@@ -227,7 +227,7 @@ export default function MeetingsPage() {
             Schedule and manage meetings with your counselors and consultants.
           </p>
         </div>
-        <Button className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={() => setRequestOpen(true)}>
+        <Button className="gap-2" onClick={() => setRequestOpen(true)}>
           <Plus className="h-4 w-4" />
           Request Meeting
         </Button>
@@ -260,7 +260,7 @@ export default function MeetingsPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setRequestOpen(false)}>Cancel</Button>
-              <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleRequestMeeting} disabled={saving}>
+              <Button onClick={handleRequestMeeting} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 Request Meeting
               </Button>

@@ -479,7 +479,7 @@ export default function MessagesPage() {
                   className="h-10 rounded-xl bg-gray-50 border-gray-200 pr-12 focus:bg-white"
                 />
               </div>
-              <Button size="icon" className="shrink-0 rounded-xl bg-[#2563EB] hover:bg-[#2563EB]/90 h-10 w-10" onClick={() => sendMessage()} disabled={(!messageInput.trim() && !pendingAttachment) || sending}><Send className="size-4" /></Button>
+              <Button size="icon" className="shrink-0 rounded-xl h-10 w-10" onClick={() => sendMessage()} disabled={(!messageInput.trim() && !pendingAttachment) || sending}><Send className="size-4" /></Button>
             </div>
           </div>
         </div>

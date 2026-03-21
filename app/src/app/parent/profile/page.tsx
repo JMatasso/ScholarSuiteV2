@@ -418,7 +418,7 @@ export default function ParentProfilePage() {
             </Button>
             <Button
               size="sm"
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5"
+              className="gap-1.5"
               onClick={handleSaveProfile}
               disabled={savingProfile}
             >
@@ -497,7 +497,7 @@ export default function ParentProfilePage() {
         <div className="mt-4 flex justify-end">
           <Button
             size="sm"
-            className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5"
+            className="gap-1.5"
             onClick={handleSaveNotifications}
             disabled={savingNotifs}
           >

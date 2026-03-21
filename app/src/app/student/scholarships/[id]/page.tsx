@@ -253,7 +253,7 @@ export default function ScholarshipDetailPage() {
             </Button>
             {scholarship.url && (
               <Button
-                className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90"
+                className="gap-2"
                 onClick={() => window.open(scholarship.url!, "_blank")}
               >
                 <ExternalLink className="h-4 w-4" />
@@ -439,7 +439,7 @@ export default function ScholarshipDetailPage() {
               <CardTitle className="text-sm text-[#1E3A5F]">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleSave} disabled={saving}>
+              <Button className="w-full gap-2" onClick={handleSave} disabled={saving}>
                 <Bookmark className="h-4 w-4" />
                 Save to My Applications
               </Button>

@@ -329,7 +329,7 @@ export default function CohortsPage() {
         title="Cohorts"
         description="Organize students into groups for targeted communication and task assignment."
         actions={
-          <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" size="sm" onClick={openCreateDialog}>
+          <Button className="gap-2" size="sm" onClick={openCreateDialog}>
             <Plus className="h-4 w-4" /> Create Cohort
           </Button>
         }
@@ -504,7 +504,7 @@ export default function CohortsPage() {
             <Button variant="outline" onClick={() => setCohortDialogOpen(false)}>
               Cancel
             </Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleCohortSubmit} disabled={saving}>
+            <Button onClick={handleCohortSubmit} disabled={saving}>
               {saving ? "Saving..." : editingCohort ? "Save Changes" : "Create Cohort"}
             </Button>
           </DialogFooter>
@@ -554,7 +554,7 @@ export default function CohortsPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={handleAddMembers}
               disabled={addingMembers || selectedUserIds.length === 0}
             >
@@ -626,7 +626,7 @@ export default function CohortsPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={handleAssignTask}
               disabled={assigningTask}
             >
@@ -674,7 +674,7 @@ export default function CohortsPage() {
               Cancel
             </Button>
             <Button
-              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+              className="gap-2"
               onClick={handleSendAnnouncement}
               disabled={sending}
             >

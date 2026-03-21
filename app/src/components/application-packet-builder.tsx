@@ -822,7 +822,7 @@ export function ApplicationPacketBuilder({
             Cancel
           </Button>
           <Button
-            className="gap-2 bg-[#2563EB] hover:bg-[#2563EB]/90"
+            className="gap-2"
             onClick={handleGenerate}
             disabled={generating || loading || selectedCount === 0}
           >

@@ -280,7 +280,6 @@ export function LearningChatWidget({ className }: LearningChatWidgetProps) {
               <Button
                 type="submit"
                 disabled={!input.trim() || isStreaming}
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90"
                 size="icon"
               >
                 <Send className="h-4 w-4" />

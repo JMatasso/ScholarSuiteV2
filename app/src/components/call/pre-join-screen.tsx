@@ -148,7 +148,7 @@ export function PreJoinScreen({
           <Button
             onClick={onJoin}
             disabled={joining}
-            className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-white px-8 py-3 text-base rounded-xl gap-2 h-auto"
+            className="text-white px-8 py-3 text-base rounded-xl gap-2 h-auto"
           >
             {joining ? (
               <>

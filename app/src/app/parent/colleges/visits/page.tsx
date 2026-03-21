@@ -322,7 +322,7 @@ function VisitCard({
               </Button>
               <Button
                 size="sm"
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1"
+                className="gap-1"
                 onClick={() => onSave(visit.id)}
                 disabled={saving}
               >

@@ -153,7 +153,7 @@ export default function ProvidersPage() {
         title="Providers"
         description="Manage local scholarship provider organizations."
         actions={
-          <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={openAdd}>
+          <Button className="gap-2" onClick={openAdd}>
             <Plus className="h-4 w-4" /> Add Provider
           </Button>
         }
@@ -323,7 +323,7 @@ export default function ProvidersPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
               {editingId ? "Save Changes" : "Create Provider"}
             </Button>

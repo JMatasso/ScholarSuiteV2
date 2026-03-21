@@ -162,7 +162,7 @@ export default function ParentUpdatesPage() {
                 </div>
               </div>
               <Button
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90 shrink-0"
+                className="shrink-0"
                 onClick={() => setShowPrefs(true)}
               >
                 Set up alerts
@@ -333,7 +333,7 @@ export default function ParentUpdatesPage() {
               <Button
                 onClick={handleSavePrefs}
                 disabled={saving}
-                className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2"
+                className="gap-2"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

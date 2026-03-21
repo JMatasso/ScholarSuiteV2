@@ -202,7 +202,7 @@ export default function LocalScholarshipsPage() {
             <Button variant="outline" className="gap-2" onClick={() => setCycleOpen(true)}>
               <RefreshCw className="h-4 w-4" /> Start New Cycle
             </Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-2" onClick={() => { setEditId(null); setForm(emptyForm); setAddOpen(true) }}>
+            <Button className="gap-2" onClick={() => { setEditId(null); setForm(emptyForm); setAddOpen(true) }}>
               <Plus className="h-4 w-4" /> Add Local Scholarship
             </Button>
           </>
@@ -405,7 +405,7 @@ export default function LocalScholarshipsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setAddOpen(false); setEditId(null) }}>Cancel</Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
               {editId ? "Save Changes" : "Create Scholarship"}
             </Button>
@@ -431,7 +431,7 @@ export default function LocalScholarshipsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCycleOpen(false)}>Cancel</Button>
-            <Button className="bg-[#2563EB] hover:bg-[#2563EB]/90" onClick={handleRollover} disabled={saving}>
+            <Button onClick={handleRollover} disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
               Start Cycle
             </Button>
