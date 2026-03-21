@@ -590,7 +590,7 @@ function CollegeCard({
     : null
 
   return (
-    <Card className="hover:shadow-sm transition-shadow">
+    <Card variant="bento">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">

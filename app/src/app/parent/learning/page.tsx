@@ -206,7 +206,7 @@ export default function ParentLearningPage() {
       {/* Progress Overview Cards */}
       <div className="grid gap-4 sm:grid-cols-2">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <Card className="hover:shadow-sm transition-shadow">
+          <Card variant="bento">
             <CardContent className="flex items-center gap-5 py-5">
               <ProgressRing percentage={collegePrepProgress.percentage} color="#1E3A5F" />
               <div className="flex-1">
@@ -228,7 +228,7 @@ export default function ParentLearningPage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}>
-          <Card className="hover:shadow-sm transition-shadow">
+          <Card variant="bento">
             <CardContent className="flex items-center gap-5 py-5">
               <ProgressRing percentage={scholarshipProgress.percentage} color="#2563EB" />
               <div className="flex-1">

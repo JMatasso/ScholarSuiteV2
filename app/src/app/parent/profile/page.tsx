@@ -139,7 +139,7 @@ function ProfileSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 shadow-sm">
+    <div className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
       <div className="flex items-center gap-2 mb-4">
         <div className="flex size-8 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
           <Icon className="size-4 text-[#1E3A5F]" />
@@ -324,7 +324,7 @@ export default function ParentProfilePage() {
 
       {/* ─── Parent Profile Card ─── */}
       <motion.div
-        className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 shadow-sm"
+        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -431,7 +431,7 @@ export default function ParentProfilePage() {
 
       {/* ─── Notification Preferences Card ─── */}
       <motion.div
-        className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 shadow-sm"
+        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
@@ -527,7 +527,7 @@ export default function ParentProfilePage() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             {/* Student card */}
             <motion.div
-              className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 shadow-sm"
+              className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -558,7 +558,7 @@ export default function ParentProfilePage() {
 
             {/* Journey stage */}
             <motion.div
-              className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 shadow-sm flex flex-col justify-center"
+              className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex flex-col justify-center"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -597,7 +597,7 @@ export default function ParentProfilePage() {
 
             {/* Profile completion ring */}
             <motion.div
-              className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 shadow-sm flex flex-col items-center justify-center"
+              className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex flex-col items-center justify-center"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{

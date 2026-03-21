@@ -193,7 +193,7 @@ export default function CollegeComparePage() {
       </div>
 
       {selected.length < 2 ? (
-        <Card>
+        <Card variant="bento">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F] mb-3">
               <GraduationCap className="h-6 w-6" />

@@ -191,7 +191,7 @@ export default function AdminReportsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            <Card>
+            <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
                   Per-Student Breakdown ({data.students.length} students)

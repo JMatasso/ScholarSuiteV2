@@ -165,7 +165,7 @@ export default function TasksPage() {
       </div>
 
       {/* Filter bar */}
-      <Card>
+      <Card variant="bento">
         <CardContent className="pt-0">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5">
@@ -209,7 +209,7 @@ export default function TasksPage() {
                   <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">{phaseLabels[phase]}</h2>
                   <span className="text-xs text-muted-foreground">{phaseCompleted}/{phaseTasks.length}</span>
                 </div>
-                <Card>
+                <Card variant="bento">
                   <CardContent className="pt-0 divide-y">
                     {phaseTasks.map((task) => (
                       <div

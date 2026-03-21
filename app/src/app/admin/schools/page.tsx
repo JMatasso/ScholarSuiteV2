@@ -220,7 +220,8 @@ export default function AdminSchoolsPage() {
           {displayedSchools.map((school, index) => (
             <motion.div key={school.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }}>
               <Card
-                className="cursor-pointer ring-1 ring-foreground/10 rounded-xl hover:shadow-md transition-shadow"
+                variant="bento"
+                className="cursor-pointer"
                 onClick={() => router.push(`/admin/schools/${school.id}`)}
               >
                 <CardContent className="p-5 space-y-3">

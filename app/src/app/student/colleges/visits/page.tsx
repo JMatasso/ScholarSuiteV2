@@ -529,7 +529,7 @@ export default function CollegeVisitsPage() {
               Upcoming Visits ({upcoming.length})
             </h2>
             {upcoming.length === 0 ? (
-              <Card>
+              <Card variant="bento">
                 <CardContent className="py-8 text-center text-sm text-muted-foreground">
                   No upcoming visits scheduled.
                 </CardContent>
@@ -576,7 +576,7 @@ export default function CollegeVisitsPage() {
               Past Visits ({past.length})
             </h2>
             {past.length === 0 ? (
-              <Card>
+              <Card variant="bento">
                 <CardContent className="py-8 text-center text-sm text-muted-foreground">
                   No past visits yet.
                 </CardContent>
@@ -797,7 +797,7 @@ function VisitCard({
       : "Missed"
 
   return (
-    <Card className="hover:shadow-sm transition-shadow">
+    <Card variant="bento">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3 min-w-0">

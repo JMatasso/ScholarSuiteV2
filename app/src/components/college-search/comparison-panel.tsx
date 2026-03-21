@@ -42,7 +42,7 @@ export function ComparisonPanel({ colleges, onRemove, onAddToList, onClearAll }:
   if (colleges.length < 2) return null
 
   return (
-    <Card>
+    <Card variant="bento">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold text-[#1E3A5F]">

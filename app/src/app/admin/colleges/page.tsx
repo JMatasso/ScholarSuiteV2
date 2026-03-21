@@ -246,7 +246,7 @@ export default function AdminCollegesPage() {
       </div>
 
       {/* College Table */}
-      <Card>
+      <Card variant="bento">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-16">
@@ -394,7 +394,7 @@ export default function AdminCollegesPage() {
       )}
 
       {/* Sync Section */}
-      <Card>
+      <Card variant="bento">
         <CardHeader>
           <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />

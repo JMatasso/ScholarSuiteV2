@@ -178,6 +178,7 @@ export default function ParentDecisionsPage() {
                       transition={{ delay: i * 0.05 }}
                     >
                       <Card
+                        variant="bento"
                         className={
                           committedApp?.id === app.id
                             ? "ring-2 ring-emerald-400 bg-emerald-50/50"
@@ -273,7 +274,7 @@ export default function ParentDecisionsPage() {
 
           {/* Cost Comparison Table */}
           {costCompareSchools.length >= 2 && (
-            <Card>
+            <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
                   <TrendingDown className="h-4 w-4 text-[#1E3A5F]" />
@@ -348,7 +349,7 @@ export default function ParentDecisionsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
                   >
-                    <Card className="border-amber-200 bg-amber-50/30">
+                    <Card variant="bento" className="border-amber-200 bg-amber-50/30">
                       <CardContent className="pt-0">
                         <div className="flex items-center justify-between">
                           <h3 className="text-sm font-semibold text-[#1E3A5F]">
@@ -382,7 +383,7 @@ export default function ParentDecisionsPage() {
               </h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {denied.map(app => (
-                  <Card key={app.id} className="border-rose-200 bg-rose-50/30 opacity-70">
+                  <Card key={app.id} variant="bento" className="border-rose-200 bg-rose-50/30 opacity-70">
                     <CardContent className="pt-0">
                       <h3 className="text-sm font-medium text-gray-600">{app.universityName}</h3>
                     </CardContent>

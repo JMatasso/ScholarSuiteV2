@@ -247,7 +247,7 @@ function VisitCard({
   const isEditing = editingNotes === visit.id
 
   return (
-    <Card className={`hover:shadow-sm transition-shadow ${isPast ? "opacity-80" : ""}`}>
+    <Card variant="bento" className={isPast ? "opacity-80" : ""}>
       <CardContent className="pt-0">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">

@@ -203,7 +203,7 @@ export default function DecisionsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <Card className="ring-2 ring-emerald-400 bg-emerald-50 border-emerald-200">
+            <Card variant="bento" className="ring-2 ring-emerald-400 bg-emerald-50 border-emerald-200">
               <CardContent className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
@@ -347,7 +347,7 @@ export default function DecisionsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Card className="border-amber-200 bg-amber-50/30 hover:shadow-sm transition-shadow">
+                <Card variant="bento" className="border-amber-200 bg-amber-50/30">
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-sm">
@@ -426,7 +426,7 @@ export default function DecisionsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                     >
-                      <Card className="border-rose-200 bg-rose-50/30">
+                      <Card variant="bento" className="border-rose-200 bg-rose-50/30">
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
                             <CardTitle className="text-sm text-muted-foreground">

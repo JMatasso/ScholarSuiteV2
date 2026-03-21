@@ -208,7 +208,7 @@ export default function ScholarshipAdvisorPage() {
       </div>
 
       {/* Chat Container */}
-      <Card className="flex flex-1 flex-col overflow-hidden">
+      <Card variant="bento" className="flex flex-1 flex-col overflow-hidden">
         <CardContent className="flex flex-1 flex-col overflow-hidden p-0">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-6">

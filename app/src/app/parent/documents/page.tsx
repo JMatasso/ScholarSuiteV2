@@ -81,7 +81,7 @@ export default function DocumentsPage() {
 
       {/* Documents section */}
       <motion.div
-        className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm"
+        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -151,7 +151,7 @@ export default function DocumentsPage() {
 
       {/* Learning Progress placeholder */}
       <motion.div
-        className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm"
+        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         id="progress"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

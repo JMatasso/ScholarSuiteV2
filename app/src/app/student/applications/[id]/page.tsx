@@ -178,7 +178,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
         {/* Left column — details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Status + Amount header */}
-          <Card>
+          <Card variant="bento">
             <CardContent className="pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -207,7 +207,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
 
           {/* Description */}
           {s.description && (
-            <Card>
+            <Card variant="bento">
               <CardHeader><CardTitle className="text-sm">Description</CardTitle></CardHeader>
               <CardContent className="text-sm text-muted-foreground leading-relaxed">
                 {s.description}
@@ -216,7 +216,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
           )}
 
           {/* Eligibility */}
-          <Card>
+          <Card variant="bento">
             <CardHeader><CardTitle className="text-sm">Eligibility Requirements</CardTitle></CardHeader>
             <CardContent>
               <div className="grid gap-3 sm:grid-cols-2 text-sm">
@@ -279,7 +279,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
 
           {/* Linked essays */}
           {app.essays.length > 0 && (
-            <Card>
+            <Card variant="bento">
               <CardHeader><CardTitle className="text-sm">Linked Essays</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {app.essays.map((essay) => (
@@ -309,7 +309,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
         <div className="space-y-6">
           {/* Amount Awarded (when status is AWARDED) */}
           {app.status === "AWARDED" && (
-            <Card className="border-emerald-200 bg-emerald-50/30">
+            <Card variant="bento" className="border-emerald-200 bg-emerald-50/30">
               <CardHeader><CardTitle className="text-sm text-emerald-700">Amount Awarded</CardTitle></CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
@@ -327,7 +327,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
           )}
 
           {/* Notes */}
-          <Card>
+          <Card variant="bento">
             <CardHeader><CardTitle className="text-sm">Notes</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <Textarea
@@ -350,7 +350,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
           </Card>
 
           {/* Quick info */}
-          <Card>
+          <Card variant="bento">
             <CardHeader><CardTitle className="text-sm">Info</CardTitle></CardHeader>
             <CardContent className="text-xs text-muted-foreground space-y-2">
               <div className="flex justify-between">

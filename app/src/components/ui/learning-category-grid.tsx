@@ -91,7 +91,7 @@ export function LearningCategoryGrid({ modules, basePath, className }: LearningC
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
                   <Link href={`${basePath}/${mod.id}`} className="block group">
-                    <Card className="h-full transition-all hover:shadow-md group-hover:border-[#2563EB]/30 overflow-hidden">
+                    <Card variant="bento" className="h-full overflow-hidden">
                       {/* Image header */}
                       {mod.imageUrl && (
                         <div className="h-32 w-full overflow-hidden bg-muted">

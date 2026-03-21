@@ -37,7 +37,7 @@ export function ScholarshipOffset({ awards }: ScholarshipOffsetProps) {
   const fourYearProjected = recurringTotal * 4 + oneTimeTotal
 
   return (
-    <Card>
+    <Card variant="bento">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Award className="h-4 w-4 text-emerald-600" />

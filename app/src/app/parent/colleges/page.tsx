@@ -248,9 +248,10 @@ export default function ParentCollegesPage() {
                         transition={{ delay: i * 0.04 }}
                       >
                         <Card
-                          className={`hover:shadow-sm transition-shadow ${
+                          variant="bento"
+                          className={
                             app.committed ? "ring-2 ring-emerald-400 bg-emerald-50/50" : ""
-                          }`}
+                          }
                         >
                           <CardContent className="pt-0">
                             <div className="flex items-start justify-between gap-2">
@@ -331,7 +332,7 @@ export default function ParentCollegesPage() {
           {/* Sidebar: Upcoming Events & Deadlines */}
           <div className="space-y-6">
             {/* Upcoming Visits */}
-            <Card>
+            <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-[#1E3A5F]" />
@@ -365,7 +366,7 @@ export default function ParentCollegesPage() {
             </Card>
 
             {/* Upcoming Deadlines */}
-            <Card>
+            <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Clock className="h-4 w-4 text-[#1E3A5F]" />

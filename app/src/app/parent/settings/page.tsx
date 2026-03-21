@@ -329,7 +329,7 @@ export default function ParentSettingsPage() {
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Current Plan */}
-          <Card className="ring-1 ring-foreground/10">
+          <Card variant="bento">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold text-[#1E3A5F]">Current Plan</CardTitle>
@@ -360,7 +360,7 @@ export default function ParentSettingsPage() {
           </Card>
 
           {/* Upgrade Preview */}
-          <Card className="ring-1 ring-[#2563EB]/20 bg-gradient-to-br from-[#2563EB]/[0.03] to-transparent">
+          <Card variant="bento" className="bg-gradient-to-br from-[#2563EB]/[0.03] to-transparent">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Crown className="h-5 w-5 text-[#2563EB]" />

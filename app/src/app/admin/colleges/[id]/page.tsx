@@ -214,7 +214,7 @@ export default function CollegeDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card>
+        <Card variant="bento">
           <CardContent className="p-6">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-3">
@@ -321,7 +321,7 @@ export default function CollegeDetailPage() {
       {/* Detail sections grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Admissions */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
               <TestTube className="h-4 w-4" />
@@ -356,7 +356,7 @@ export default function CollegeDetailPage() {
         </Card>
 
         {/* Cost */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
@@ -376,7 +376,7 @@ export default function CollegeDetailPage() {
         </Card>
 
         {/* Outcomes */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
@@ -400,7 +400,7 @@ export default function CollegeDetailPage() {
         </Card>
 
         {/* Financial Aid */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
               <Percent className="h-4 w-4" />
@@ -414,7 +414,7 @@ export default function CollegeDetailPage() {
         </Card>
 
         {/* Size & Demographics */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -447,7 +447,7 @@ export default function CollegeDetailPage() {
           college.edDeadline ||
           college.ed2Deadline ||
           college.fafsaDeadline) && (
-          <Card>
+          <Card variant="bento">
             <CardHeader>
               <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
                 Deadlines
@@ -476,7 +476,7 @@ export default function CollegeDetailPage() {
 
       {/* Top Programs */}
       {programs.length > 0 && (
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
@@ -499,7 +499,7 @@ export default function CollegeDetailPage() {
       )}
 
       {/* Student Interest */}
-      <Card>
+      <Card variant="bento">
         <CardHeader>
           <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />

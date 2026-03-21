@@ -152,7 +152,7 @@ export default function AnalyticsPage() {
       {/* Two-column charts */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Scholarship Application Pipeline */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
               Scholarship Application Pipeline
@@ -180,7 +180,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* College Application Status */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
               College Application Status
@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Applications Over Time */}
-      <Card>
+      <Card variant="bento">
         <CardHeader>
           <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
             Applications Over Time
@@ -254,7 +254,7 @@ export default function AnalyticsPage() {
       {/* Bottom two-column grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Students by Journey Stage */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
               Students by Journey Stage
@@ -282,7 +282,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Cohort Overview */}
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
               Cohort Overview

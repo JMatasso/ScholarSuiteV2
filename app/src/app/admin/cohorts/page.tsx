@@ -353,7 +353,8 @@ export default function CohortsPage() {
                 className="flex flex-col"
               >
                 <Card
-                  className="cursor-pointer hover:shadow-sm transition-shadow"
+                  variant="bento"
+                  className="cursor-pointer"
                   onClick={() => setExpandedId(isExpanded ? null : cohort.id)}
                 >
                   <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
@@ -407,7 +408,7 @@ export default function CohortsPage() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     transition={{ duration: 0.25 }}
-                    className="mt-2 rounded-xl bg-white ring-1 ring-foreground/10 p-4 overflow-hidden"
+                    className="mt-2 rounded-xl bg-white p-4 overflow-hidden transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
                   >
                     <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
                       Members ({cohort.members.length})

@@ -509,7 +509,7 @@ export default function EssaysPage() {
                   <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Brainstorming Angles</h3>
                   <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     {tipsResult.angles.map((angle, i) => (
-                      <Card key={i} className="hover:shadow-sm transition-shadow">
+                      <Card key={i} variant="bento">
                         <CardContent className="p-3 space-y-1.5">
                           <p className="text-sm font-medium text-[#1E3A5F]">{angle.title}</p>
                           <p className="text-xs text-muted-foreground">{angle.description}</p>
@@ -666,7 +666,7 @@ export default function EssaysPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
-              <Card>
+              <Card variant="bento">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">

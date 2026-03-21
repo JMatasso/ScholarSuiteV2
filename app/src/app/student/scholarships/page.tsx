@@ -681,7 +681,7 @@ export default function ScholarshipDiscovery() {
       {/* Profile incomplete banner */}
       {profileIncomplete && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="border-amber-200 bg-amber-50/30">
+          <Card variant="bento" className="border-amber-200 bg-amber-50/30">
             <CardContent className="flex items-start gap-3 p-4">
               <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
@@ -730,7 +730,7 @@ export default function ScholarshipDiscovery() {
 
       {/* Filters (collapsible) */}
       {filtersOpen && (
-        <Card>
+        <Card variant="bento">
           <CardContent className="pt-0">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-1.5">

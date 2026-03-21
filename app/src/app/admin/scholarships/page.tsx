@@ -266,7 +266,7 @@ export default function ScholarshipsPage() {
       />
 
       {showAddForm && (
-        <form onSubmit={handleAddScholarship} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <form onSubmit={handleAddScholarship} className="rounded-xl bg-white p-5 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Add New Scholarship</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>

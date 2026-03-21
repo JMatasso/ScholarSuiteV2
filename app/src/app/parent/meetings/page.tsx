@@ -240,7 +240,7 @@ export default function MeetingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm flex items-center gap-3"
+              className="rounded-xl bg-white p-4 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex items-center gap-3"
             >
               <div className={`flex size-10 items-center justify-center rounded-lg ${card.bg}`}>
                 <Icon className={`size-5 ${card.iconColor}`} />
@@ -270,7 +270,7 @@ export default function MeetingsPage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-xl bg-white p-5 ring-1 ring-gray-200/60 shadow-sm"
+                className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1 min-w-0">
@@ -365,7 +365,7 @@ export default function MeetingsPage() {
           })}
 
           {upcomingMeetings.length === 0 && (
-            <div className="rounded-xl bg-white p-12 text-center ring-1 ring-gray-200/60">
+            <div className="rounded-xl bg-white p-12 text-center [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
               <p className="text-sm text-gray-500">
                 No upcoming meetings scheduled.
               </p>
@@ -384,7 +384,7 @@ export default function MeetingsPage() {
             {pastMeetings.map((meeting) => (
               <div
                 key={meeting.id}
-                className="rounded-xl bg-white px-5 py-3.5 ring-1 ring-gray-200/60 shadow-sm"
+                className="rounded-xl bg-white px-5 py-3.5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">

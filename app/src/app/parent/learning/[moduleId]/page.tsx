@@ -129,8 +129,8 @@ export default function ParentModuleViewerPage({ params }: { params: Promise<{ m
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.04 }}
             >
-              <Card className={cn(
-                "transition-all overflow-hidden",
+              <Card variant="bento" className={cn(
+                "overflow-hidden",
                 isExpanded && "ring-1 ring-[#2563EB]/20",
               )}>
                 <button

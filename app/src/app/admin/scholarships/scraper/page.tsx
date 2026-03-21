@@ -209,7 +209,7 @@ export default function ScraperPage() {
         {tab === "extract" ? (
           <motion.div key="extract" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="space-y-4">
             {/* URL Input */}
-            <Card>
+            <Card variant="bento">
               <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Globe className="h-4 w-4" />Paste Scholarship URLs</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 <Textarea rows={8} placeholder="https://example.com/scholarship-1&#10;https://example.com/scholarship-2&#10;..." value={urls} onChange={e => setUrls(e.target.value)} />
@@ -225,7 +225,7 @@ export default function ScraperPage() {
 
             {/* Processing status */}
             {processing && (
-              <Card className="border-blue-200 bg-blue-50/30">
+              <Card variant="bento" className="border-blue-200 bg-blue-50/30">
                 <CardContent className="py-4">
                   <div className="flex items-center gap-2 text-sm text-blue-700">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -248,7 +248,7 @@ export default function ScraperPage() {
 
             {/* Results */}
             {!processing && results.length > 0 && (
-              <Card>
+              <Card variant="bento">
                 <CardHeader className="flex-row items-center justify-between">
                   <CardTitle className="text-sm">Extraction Results</CardTitle>
                   <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1" onClick={handleAddAll}>
@@ -299,7 +299,7 @@ export default function ScraperPage() {
           </motion.div>
         ) : (
           <motion.div key="refresh" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="space-y-4">
-            <Card>
+            <Card variant="bento">
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle className="text-sm">Tracked Scholarships</CardTitle>
                 <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1" onClick={handleRefreshAllStale} disabled={refreshLoading}>

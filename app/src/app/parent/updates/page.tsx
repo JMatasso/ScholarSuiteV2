@@ -146,7 +146,7 @@ export default function ParentUpdatesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="border-[#2563EB]/20 bg-gradient-to-r from-[#2563EB]/[0.04] to-transparent">
+          <Card variant="bento" className="border-[#2563EB]/20 bg-gradient-to-r from-[#2563EB]/[0.04] to-transparent">
             <CardContent className="flex items-center justify-between gap-4 p-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2563EB]/10">
@@ -178,7 +178,7 @@ export default function ParentUpdatesPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
               This Week&apos;s Summary
@@ -213,7 +213,7 @@ export default function ParentUpdatesPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.15 }}
       >
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <button
               onClick={() => setShowPrefs(!showPrefs)}
@@ -363,7 +363,7 @@ export default function ParentUpdatesPage() {
             <LoaderOne />
           </div>
         ) : events.length === 0 ? (
-          <Card>
+          <Card variant="bento">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Bell className="h-8 w-8 text-muted-foreground/40 mb-3" />
               <p className="text-sm text-muted-foreground">
@@ -378,7 +378,7 @@ export default function ParentUpdatesPage() {
               const colorClass = EVENT_COLORS[event.type] || "text-gray-600 bg-gray-50"
 
               return (
-                <Card key={event.id} className="hover:shadow-sm transition-shadow">
+                <Card key={event.id} variant="bento">
                   <CardContent className="flex items-start gap-3 p-4">
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${colorClass}`}

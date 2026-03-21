@@ -307,7 +307,7 @@ export default function ScholarshipDetailPage() {
           transition={{ delay: 0.1 }}
         >
           {/* Description */}
-          <Card>
+          <Card variant="bento">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <FileText className="h-4 w-4 text-[#1E3A5F]" />
@@ -322,7 +322,7 @@ export default function ScholarshipDetailPage() {
           </Card>
 
           {/* Eligibility */}
-          <Card>
+          <Card variant="bento">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Shield className="h-4 w-4 text-[#1E3A5F]" />
@@ -406,7 +406,7 @@ export default function ScholarshipDetailPage() {
 
           {/* Tags */}
           {scholarship.tags.length > 0 && (
-            <Card>
+            <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm">Categories & Tags</CardTitle>
               </CardHeader>
@@ -434,7 +434,7 @@ export default function ScholarshipDetailPage() {
           transition={{ delay: 0.15 }}
         >
           {/* Quick actions card */}
-          <Card className="border-[#2563EB]/20 bg-blue-50/30">
+          <Card variant="bento" className="border-[#2563EB]/20 bg-blue-50/30">
             <CardHeader>
               <CardTitle className="text-sm text-[#1E3A5F]">Quick Actions</CardTitle>
             </CardHeader>
@@ -457,7 +457,7 @@ export default function ScholarshipDetailPage() {
           </Card>
 
           {/* Quick facts card */}
-          <Card>
+          <Card variant="bento">
             <CardHeader>
               <CardTitle className="text-sm">Quick Facts</CardTitle>
             </CardHeader>
@@ -493,7 +493,7 @@ export default function ScholarshipDetailPage() {
 
           {/* Source info */}
           {scholarship.sourceUrl && (
-            <Card>
+            <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm">Source</CardTitle>
               </CardHeader>

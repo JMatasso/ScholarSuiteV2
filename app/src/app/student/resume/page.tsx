@@ -130,7 +130,7 @@ export default function ResumePage() {
 
       {/* Profile Summary */}
       {profile && (
-        <Card><CardContent className="pt-0">
+        <Card variant="bento"><CardContent className="pt-0">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             {fullName && <h2 className="text-lg font-semibold text-[#1E3A5F]">{fullName}</h2>}
             {profile.highSchool && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><GraduationCap className="h-4 w-4" /> {profile.highSchool}</span>}
@@ -150,7 +150,7 @@ export default function ResumePage() {
           { icon: Users, v: activities.filter(a => a.isLeadership).length, l: "Leadership Roles", bg: "bg-amber-50", c: "text-amber-600" },
           { icon: Award, v: activities.filter(a => a.isAward).length, l: "Awards", bg: "bg-emerald-50", c: "text-emerald-600" },
         ].map(s => { const I = s.icon; return (
-          <Card key={s.l}><CardContent className="pt-0"><div className="flex items-center gap-3">
+          <Card key={s.l} variant="bento"><CardContent className="pt-0"><div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${s.bg}`}><I className={`h-5 w-5 ${s.c}`} /></div>
             <div><p className="text-2xl font-bold text-[#1E3A5F]">{s.v}</p><p className="text-xs text-muted-foreground">{s.l}</p></div>
           </div></CardContent></Card>
@@ -167,7 +167,7 @@ export default function ResumePage() {
               <I className={`h-4 w-4 ${cfg.color}`} /> {cfg.label} ({g.items.length})
             </h2>
             <div className="space-y-2.5">{g.items.map(a => (
-              <Card key={a.id} className="hover:shadow-sm transition-shadow"><CardContent className="pt-0 space-y-1.5">
+              <Card key={a.id} variant="bento"><CardContent className="pt-0 space-y-1.5">
                 <div className="flex items-start justify-between gap-4"><div className="min-w-0 flex-1 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-[#1E3A5F]">{a.title}</p>
@@ -232,7 +232,7 @@ export default function ResumePage() {
                 <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5 text-xs" onClick={applyAll} disabled={appliedIds.size === enhancements.length}><Check className="h-3.5 w-3.5" /> Apply All</Button>
               </div>
               <div className="space-y-3">{enhancements.map(enh => { const act = activities.find(a => a.id === enh.activityId); const done = appliedIds.has(enh.activityId); return (
-                <Card key={enh.activityId} className={done ? "border-emerald-200 bg-emerald-50/30" : ""}>
+                <Card key={enh.activityId} variant="bento" className={done ? "border-emerald-200 bg-emerald-50/30" : ""}>
                   <CardHeader className="pb-2"><CardTitle className="text-sm">{act?.title || "Activity"}</CardTitle></CardHeader>
                   <CardContent className="space-y-2">
                     {act?.impactStatement && <div><p className="text-[11px] font-medium text-muted-foreground mb-0.5">Before</p><p className="text-xs text-muted-foreground bg-gray-50 rounded px-2 py-1.5">{act.impactStatement}</p></div>}

@@ -93,7 +93,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
 
   if (appsWithCosts.length === 0) {
     return (
-      <Card>
+      <Card variant="bento">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Building2 className="h-4 w-4 text-[#2563EB]" />
@@ -163,7 +163,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
             >
-              <Card className={`relative hover:shadow-sm transition-shadow ${isCheapest ? "ring-2 ring-emerald-400" : ""}`}>
+              <Card variant="bento" className={`relative ${isCheapest ? "ring-2 ring-emerald-400" : ""}`}>
                 {isCheapest && (
                   <div className="absolute -top-2.5 left-3">
                     <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-[11px] font-medium">
@@ -303,7 +303,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
 
       {/* Side-by-Side Comparison Table */}
       {appsWithCosts.length >= 2 && (
-        <Card>
+        <Card variant="bento">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <ArrowRight className="h-4 w-4 text-[#2563EB]" />

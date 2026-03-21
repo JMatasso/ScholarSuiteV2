@@ -95,7 +95,7 @@ export default function ApplicationsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm flex items-center gap-3"
+              className="rounded-xl bg-white p-4 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex items-center gap-3"
             >
               <div className={`flex size-10 items-center justify-center rounded-lg ${card.bg}`}>
                 <Icon className={`size-5 ${card.iconColor}`} />
@@ -112,7 +112,7 @@ export default function ApplicationsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="rounded-xl bg-white ring-1 ring-gray-200/60 shadow-sm">
+      <div className="rounded-xl bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
         <VercelTabs
           tabs={tabItems}
           onTabChange={(tabId) => setActiveTab(tabId as Tab)}

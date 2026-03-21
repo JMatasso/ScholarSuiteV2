@@ -173,7 +173,7 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
       />
 
       {/* Progress bar */}
-      <Card>
+      <Card variant="bento">
         <CardContent className="pt-0">
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1E3A5F]/10">
@@ -221,7 +221,7 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.04 }}
             >
-              <Card className={cn(
+              <Card variant="bento" className={cn(
                 "transition-all overflow-hidden",
                 isExpanded && "ring-1 ring-[#2563EB]/20",
                 isCompleted && !isExpanded && "opacity-70"

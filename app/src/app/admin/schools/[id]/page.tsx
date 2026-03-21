@@ -268,7 +268,7 @@ export default function SchoolDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card>
+        <Card variant="bento">
           <CardContent className="p-6">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-3">
@@ -399,7 +399,7 @@ export default function SchoolDetailPage() {
         />
 
         {groupedStudents.length === 0 && (
-          <Card>
+          <Card variant="bento">
             <CardContent className="flex items-center justify-center py-12 text-muted-foreground">
               <p className="text-sm">No students enrolled at this school yet.</p>
             </CardContent>
@@ -420,7 +420,7 @@ export default function SchoolDetailPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Card>
+              <Card variant="bento">
                 <CardHeader
                   className="cursor-pointer select-none"
                   onClick={() => toggleYear(yearKey)}

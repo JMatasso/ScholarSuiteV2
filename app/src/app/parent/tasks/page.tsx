@@ -195,7 +195,7 @@ export default function TasksPage() {
 
       {/* Progress summary */}
       {tasks.length > 0 && (
-        <div className="rounded-xl bg-white p-4 ring-1 ring-gray-200/60 shadow-sm">
+        <div className="rounded-xl bg-white p-4 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-gray-700">
               Overall Progress
@@ -256,10 +256,8 @@ export default function TasksPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
               className={cn(
-                "flex items-start gap-3 rounded-xl bg-white px-5 py-4 ring-1 shadow-sm transition-colors",
-                task.status === "overdue"
-                  ? "ring-red-200/60"
-                  : "ring-gray-200/60"
+                "flex items-start gap-3 rounded-xl bg-white px-5 py-4 transition-colors [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
+                task.status === "overdue" && "ring-1 ring-red-200/60"
               )}
             >
               <StatusIcon
@@ -319,7 +317,7 @@ export default function TasksPage() {
         })}
 
         {filteredTasks.length === 0 && (
-          <div className="rounded-xl bg-white p-12 text-center ring-1 ring-gray-200/60">
+          <div className="rounded-xl bg-white p-12 text-center [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
             <p className="text-sm text-gray-500">
               No tasks matching this filter.
             </p>

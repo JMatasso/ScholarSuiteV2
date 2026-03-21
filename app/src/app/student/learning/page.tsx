@@ -142,7 +142,7 @@ export default function LearningDashboard() {
           transition={{ duration: 0.5 }}
         >
           <Link href="/student/learning/college" className="block group">
-            <Card className="h-full transition-all hover:shadow-md hover:ring-[#2563EB]/30 group-hover:border-[#2563EB]/30">
+            <Card variant="bento" className="h-full">
               <CardContent className="flex flex-col items-center py-8 px-6 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 mb-4">
                   <GraduationCap className="h-7 w-7 text-purple-700" />
@@ -175,7 +175,7 @@ export default function LearningDashboard() {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <Link href="/student/learning/scholarships" className="block group">
-            <Card className="h-full transition-all hover:shadow-md hover:ring-[#2563EB]/30 group-hover:border-[#2563EB]/30">
+            <Card variant="bento" className="h-full">
               <CardContent className="flex flex-col items-center py-8 px-6 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 mb-4">
                   <DollarSign className="h-7 w-7 text-blue-700" />
