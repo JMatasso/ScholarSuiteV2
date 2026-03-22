@@ -17,6 +17,7 @@ import {
   Plus, Trash2, Edit, BookOpen, GraduationCap, Award, Settings,
 } from "@/lib/icons"
 import { TranscriptUploadSection } from "@/components/transcript-upload"
+import { GpaSimulator } from "@/components/gpa-simulator"
 import {
   GRADE_OPTIONS, COURSE_TYPE_LABELS, SUBJECT_OPTIONS,
   type CourseType, type CourseStatus, type WeightedScale,
@@ -649,6 +650,11 @@ export default function AcademicsPage() {
           onSave={handleSaveCourse}
           saving={saving}
         />
+      )}
+
+      {/* GPA What-If Calculator */}
+      {!loading && displayYears.length > 0 && (
+        <GpaSimulator years={displayYears} weightedScale={scale} />
       )}
 
       {/* Transcript Upload Section */}

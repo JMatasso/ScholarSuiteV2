@@ -166,3 +166,8 @@ export function calculateSemesterGpa(courses: CourseInput[], weightedScale: Weig
 export function calculateProjectedGpa(courses: CourseInput[], weightedScale: WeightedScale = "5.0"): GpaResult {
   return computeGpa(courses, weightedScale, new Set(["COMPLETED", "IN_PROGRESS"]))
 }
+
+/** What-if GPA including ALL courses (COMPLETED + IN_PROGRESS + PLANNED) that have a grade assigned. */
+export function calculateWhatIfGpa(courses: CourseInput[], weightedScale: WeightedScale = "5.0"): GpaResult {
+  return computeGpa(courses, weightedScale, new Set(["COMPLETED", "IN_PROGRESS", "PLANNED"]))
+}
