@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
 
 export default function CompareRedirect() {
-  redirect("/student/colleges/list")
+  redirect("/student/colleges")
 }

@@ -48,8 +48,7 @@ const navGroups = [
   {
     label: "Colleges",
     items: [
-      { name: "My Colleges", href: "/student/colleges/list", icon3d: "Star" },
-      { name: "Applications", href: "/student/colleges/applications", icon3d: "GraduationCap" },
+      { name: "Colleges", href: "/student/colleges", icon3d: "GraduationCap" },
       { name: "Visits", href: "/student/colleges/visits", icon3d: "CalendarDays" },
       { name: "Financial Plan", href: "/student/financial", icon3d: "DollarSign" },
     ],

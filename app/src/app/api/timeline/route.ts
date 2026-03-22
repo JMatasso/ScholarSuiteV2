@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { TASK_PHASE_TO_JOURNEY_STAGE } from "@/lib/constants"
+import { computeJourneyStage } from "@/lib/journey"
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,8 +47,22 @@ export async function GET(request: NextRequest) {
         serviceTier: true,
         gradeLevel: true,
         graduationYear: true,
+        graduationMonth: true,
       },
     })
+
+    // Recalculate journey stage from graduation date so it stays current
+    let journeyStage = profile?.journeyStage || "EARLY_EXPLORATION"
+    if (profile?.graduationYear) {
+      const computed = computeJourneyStage(profile.graduationYear, profile.graduationMonth)
+      if (computed !== journeyStage) {
+        journeyStage = computed
+        await db.studentProfile.update({
+          where: { userId: studentId },
+          data: { journeyStage: computed },
+        })
+      }
+    }
 
     // Fetch tasks
     const tasks = await db.task.findMany({
@@ -85,7 +100,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({
-      journeyStage: profile?.journeyStage || "EARLY_EXPLORATION",
+      journeyStage,
       serviceTier: profile?.serviceTier || null,
       gradeLevel: profile?.gradeLevel || null,
       graduationYear: profile?.graduationYear || null,

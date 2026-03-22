@@ -5,8 +5,11 @@
  * Timeline (months until graduation):
  *   > 24 months  → EARLY_EXPLORATION  (freshman/sophomore)
  *   13–24 months → ACTIVE_PREP        (junior year)
- *   1–12 months  → APPLICATION_PHASE  (senior fall/winter)
- *   ≤ 0 months   → POST_ACCEPTANCE    (senior spring / graduated)
+ *   6–12 months  → APPLICATION_PHASE  (senior summer & fall)
+ *   ≤ 5 months   → POST_ACCEPTANCE    (senior spring)
+ *
+ * The 5-month boundary aligns with the start of spring semester
+ * (January for a June graduation).
  */
 export function computeJourneyStage(
   graduationYear: number | null | undefined,
@@ -22,7 +25,7 @@ export function computeJourneyStage(
   const diffMs = gradDate.getTime() - now.getTime()
   const monthsUntilGrad = diffMs / (1000 * 60 * 60 * 24 * 30.44) // average month length
 
-  if (monthsUntilGrad <= 0) return "POST_ACCEPTANCE"
+  if (monthsUntilGrad <= 5) return "POST_ACCEPTANCE"
   if (monthsUntilGrad <= 12) return "APPLICATION_PHASE"
   if (monthsUntilGrad <= 24) return "ACTIVE_PREP"
   return "EARLY_EXPLORATION"

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { withAuth } from "@/lib/api-middleware"
 import { db } from "@/lib/db"
 import { calculateGpa, type CourseInput, type WeightedScale } from "@/lib/gpa"
+import { computeJourneyStage } from "@/lib/journey"
 
 export const GET = withAuth(async (session) => {
   const userId = session.user.id
@@ -125,7 +126,9 @@ export const GET = withAuth(async (session) => {
     gradeLevel: profile?.gradeLevel ?? null,
     graduationYear: profile?.graduationYear ?? null,
     graduationMonth: profile?.graduationMonth ?? null,
-    journeyStage: profile?.journeyStage ?? null,
+    journeyStage: profile?.graduationYear
+      ? computeJourneyStage(profile.graduationYear, profile.graduationMonth)
+      : (profile?.journeyStage ?? null),
     semester,
     gpa: {
       unweighted: gpaResult.unweighted,

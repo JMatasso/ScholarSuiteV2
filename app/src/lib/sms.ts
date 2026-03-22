@@ -1,13 +1,33 @@
+import twilio from "twilio"
+
+const getClient = () => {
+  const sid = process.env.TWILIO_ACCOUNT_SID
+  const token = process.env.TWILIO_AUTH_TOKEN
+  if (!sid || !token) return null
+  return twilio(sid, token)
+}
+
 /**
- * SMS sending stub. Logs to console for now.
- * Wire up Twilio when ready by replacing the body of this function.
- *
- * Environment variables needed for Twilio:
- *   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+ * Send an SMS via Twilio. Silently no-ops if Twilio credentials are not configured.
  */
-export async function sendSms(to: string, body: string): Promise<void> {
-  console.log(`[SMS STUB] To: ${to}, Body: ${body}`)
-  // TODO: Uncomment when Twilio is set up
-  // const twilio = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-  // await twilio.messages.create({ to, from: process.env.TWILIO_PHONE_NUMBER, body })
+export async function sendSms(to: string, body: string): Promise<boolean> {
+  const client = getClient()
+  if (!client) {
+    console.log(`[SMS] Twilio not configured — skipping SMS to ${to}`)
+    return false
+  }
+
+  const from = process.env.TWILIO_PHONE_NUMBER
+  if (!from) {
+    console.log("[SMS] TWILIO_PHONE_NUMBER not set — skipping")
+    return false
+  }
+
+  try {
+    await client.messages.create({ to, from, body })
+    return true
+  } catch (err) {
+    console.error("[SMS] Failed to send:", err)
+    return false
+  }
 }
