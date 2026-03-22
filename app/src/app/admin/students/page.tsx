@@ -38,6 +38,7 @@ interface Student {
 
 import { parseCSV } from "@/lib/csv-parser"
 import { SERVICE_TIER_LABELS, JOURNEY_STAGE_LABELS } from "@/lib/constants"
+import { CSVImportDialog } from "@/components/admin/csv-import-dialog"
 
 export default function StudentsPage() {
   const [students, setStudents] = React.useState<Student[]>([])
@@ -50,6 +51,7 @@ export default function StudentsPage() {
   const [showAddForm, setShowAddForm] = React.useState(false)
   const [newStudent, setNewStudent] = React.useState({ name: "", email: "", school: "", phone: "", tempPassword: "" })
   const csvInputRef = React.useRef<HTMLInputElement>(null)
+  const [showImportDialog, setShowImportDialog] = React.useState(false)
   const router = useRouter()
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
 
@@ -266,14 +268,7 @@ export default function StudentsPage() {
         description="Manage your student roster and track progress."
         actions={
           <>
-            <input
-              ref={csvInputRef}
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleCSVImport}
-            />
-            <Button variant="outline" size="sm" onClick={() => csvInputRef.current?.click()}>
+            <Button variant="outline" size="sm" onClick={() => setShowImportDialog(true)}>
               <Upload className="size-3.5" /> Import CSV
             </Button>
             <Button size="sm" onClick={() => setShowAddForm(true)}>
@@ -430,6 +425,12 @@ export default function StudentsPage() {
           searchValue={search}
         />
       )}
+
+      <CSVImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImportComplete={loadStudents}
+      />
     </div>
   )
 }
