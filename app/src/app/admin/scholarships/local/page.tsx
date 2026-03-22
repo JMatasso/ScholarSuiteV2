@@ -34,7 +34,7 @@ const CYCLE_COLORS: Record<string, { dot: string; badge: string; label: string }
   CONFIRMED: { dot: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700 border-emerald-200", label: "Confirmed" },
   PENDING_CONFIRMATION: { dot: "bg-amber-500", badge: "bg-amber-100 text-amber-700 border-amber-200", label: "Pending" },
   NOT_RENEWED: { dot: "bg-rose-500", badge: "bg-rose-100 text-rose-700 border-rose-200", label: "Not Renewed" },
-  UNKNOWN: { dot: "bg-gray-400", badge: "bg-muted text-muted-foreground border-border", label: "Unknown" },
+  UNKNOWN: { dot: "bg-muted-foreground", badge: "bg-muted text-muted-foreground border-border", label: "Unknown" },
 }
 
 const COUNTIES = [
@@ -253,7 +253,7 @@ export default function LocalScholarshipsPage() {
       <div className="flex items-center gap-6 rounded-lg border border-border bg-card px-4 py-2.5 text-sm">
         {Object.entries(counts).map(([key, val]) => (
           <span key={key} className="flex items-center gap-1.5">
-            <span className={cn("h-2 w-2 rounded-full", CYCLE_COLORS[key]?.dot ?? "bg-gray-400")} />
+            <span className={cn("h-2 w-2 rounded-full", CYCLE_COLORS[key]?.dot ?? "bg-muted-foreground")} />
             <span className="font-medium">{val}</span>
             <span className="text-muted-foreground">{CYCLE_COLORS[key]?.label ?? key}</span>
           </span>

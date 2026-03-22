@@ -222,7 +222,7 @@ export default function StudentLayout({
                       className={cn(
                         "group flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-all",
                         active
-                          ? "bg-[#1E3A5F]/5 text-[#1E3A5F]"
+                          ? "bg-accent text-secondary-foreground"
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                         collapsed && !isMobile && "justify-center px-2"
                       )}
