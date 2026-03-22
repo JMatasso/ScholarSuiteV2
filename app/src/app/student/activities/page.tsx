@@ -30,6 +30,8 @@ import {
 } from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
+import { AllEntriesTab } from "@/components/activities/all-entries-tab"
 import { BragSheetFormDialog, type ActivityEntry, type CategoryKey } from "@/components/brag-sheet-form-dialog"
 
 // ─── Category Groups ────────────────────────────────────────
@@ -155,11 +157,17 @@ function formatDateRange(start: string | null, end: string | null, ongoing: bool
 export default function BragSheetPage() {
   const [activities, setActivities] = useState<ActivityEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("overview")
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editEntry, setEditEntry] = useState<ActivityEntry | null>(null)
   const [addCategory, setAddCategory] = useState<CategoryKey | undefined>()
   const [deleting, setDeleting] = useState<string | null>(null)
+
+  const tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "all-entries", label: "All Entries" },
+  ]
 
   useEffect(() => {
     fetch("/api/activities")
@@ -375,6 +383,23 @@ export default function BragSheetPage() {
         </div>
       </div>
 
+      {/* ── Tab Bar ── */}
+      <VercelTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(id) => setActiveTab(id)}
+      />
+
+      {activeTab === "all-entries" ? (
+        <AllEntriesTab
+          activities={activities}
+          onEdit={openEdit}
+          onDelete={handleDelete}
+          onAdd={() => { setEditEntry(null); setAddCategory(undefined); setDialogOpen(true) }}
+          deleting={deleting}
+        />
+      ) : (
+      <>
       {/* ── Strength Meter ── */}
       <Card variant="bento">
         <CardContent className="pt-0">
@@ -545,6 +570,8 @@ export default function BragSheetPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      </>
+      )}
 
       {/* ── Form Dialog ── */}
       <BragSheetFormDialog
