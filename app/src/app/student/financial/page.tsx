@@ -10,15 +10,15 @@ import { formatTuition } from "@/lib/college-utils"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import { CollegeCostComparison } from "@/components/ui/college-cost-comparison"
 import { ScholarshipOffset } from "@/components/ui/scholarship-offset"
+import { SemesterBudget } from "@/components/ui/semester-budget"
 import { toast } from "sonner"
 import {
   DollarSign,
   TrendingUp,
   AlertTriangle,
   GraduationCap,
-  Receipt,
-  Building2,
   Award,
+  Receipt,
 } from "@/lib/icons"
 
 interface IncomeSource {
@@ -27,11 +27,15 @@ interface IncomeSource {
   amount: number
   type: string
   status: string
+  isRecurring: boolean
 }
 
 interface Semester {
   id: string
   name: string
+  type: string
+  order: number
+  isCustom: boolean
   tuition: number
   housing: number
   food: number
@@ -140,9 +144,6 @@ export default function FinancialPlanPage() {
 
   // Determine if we have data for each tab
   const hasFinancialPlan = plan !== null
-  const hasCollegeCosts = collegeApps.some(
-    (a) => a.college && (a.college.inStateTuition != null || a.college.outOfStateTuition != null)
-  )
   const hasAwards = awardItems.length > 0
 
   // Compute plan stats if available
@@ -150,12 +151,10 @@ export default function FinancialPlanPage() {
   const totalCost = semesters.reduce((a, s) => a + getSemesterTotal(s), 0)
   const totalAid = semesters.reduce((a, s) => a + getSemesterAid(s), 0)
   const remainingGap = totalCost - totalAid - totalScholarships
-  const maxTotal = semesters.length > 0 ? Math.max(...semesters.map(getSemesterTotal)) : 1
 
-  const allIncomeSources = semesters.flatMap((s) => s.incomeSources)
-  const uniqueSources = allIncomeSources.filter(
-    (src, idx, arr) => arr.findIndex((s) => s.id === src.id) === idx
-  )
+  const uniqueSources = semesters
+    .flatMap((s) => s.incomeSources)
+    .filter((src, idx, arr) => arr.findIndex((s) => s.id === src.id) === idx)
 
 
   return (
@@ -251,7 +250,7 @@ export default function FinancialPlanPage() {
         </div>
       )}
 
-      {/* Semester Budget Tab (existing content) */}
+      {/* Semester Budget Tab */}
       {activeTab === "budget" && (
         <div className="space-y-6 mt-4">
           {!hasFinancialPlan ? (
@@ -263,145 +262,7 @@ export default function FinancialPlanPage() {
               </p>
             </div>
           ) : (
-            <>
-              {/* Bar chart */}
-              {semesters.length > 0 && (
-                <Card variant="bento">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <Receipt className="h-4 w-4 text-[#2563EB]" />
-                      Cost vs. Aid by Semester
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {semesters.map((sem) => {
-                        const total = getSemesterTotal(sem)
-                        const aid = getSemesterAid(sem)
-                        return (
-                          <div key={sem.id} className="space-y-1">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="font-medium w-28">{sem.name}</span>
-                              <div className="flex items-center gap-4">
-                                <span className="text-muted-foreground">Cost: {formatCurrency(total)}</span>
-                                <span className="text-emerald-600 font-medium">Aid: {formatCurrency(aid)}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1 h-6">
-                              <div
-                                className="h-5 rounded bg-accent relative"
-                                style={{ width: `${(total / maxTotal) * 100}%` }}
-                              >
-                                {aid > 0 && (
-                                  <div
-                                    className="absolute inset-y-0 left-0 rounded bg-emerald-500/60"
-                                    style={{ width: `${Math.min((aid / total) * 100, 100)}%` }}
-                                  />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                      <div className="flex items-center gap-4 pt-2 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-3 w-3 rounded bg-accent" />
-                          <span>Total Cost</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-3 w-3 rounded bg-emerald-500/60" />
-                          <span>Aid Covered</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Semester table */}
-              {semesters.length > 0 && (
-                <Card variant="bento">
-                  <CardHeader>
-                    <CardTitle className="text-base">Semester Breakdown</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b text-left">
-                            <th className="pb-2 pr-4 font-medium text-muted-foreground">Semester</th>
-                            <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Tuition</th>
-                            <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Housing</th>
-                            <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Food</th>
-                            <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Books</th>
-                            <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Other</th>
-                            <th className="pb-2 font-medium text-secondary-foreground text-right">Total</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                          {semesters.map((sem) => {
-                            const total = getSemesterTotal(sem)
-                            return (
-                              <tr key={sem.id}>
-                                <td className="py-2.5 pr-4 font-medium">{sem.name}</td>
-                                <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.tuition)}</td>
-                                <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.housing)}</td>
-                                <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.food)}</td>
-                                <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.books)}</td>
-                                <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.other + sem.transportation + sem.personal)}</td>
-                                <td className="py-2.5 text-right font-semibold text-secondary-foreground">{formatCurrency(total)}</td>
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                        <tfoot>
-                          <tr className="border-t-2 font-semibold">
-                            <td className="pt-3">Total</td>
-                            <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.tuition, 0))}</td>
-                            <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.housing, 0))}</td>
-                            <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.food, 0))}</td>
-                            <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.books, 0))}</td>
-                            <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.other + s.transportation + s.personal, 0))}</td>
-                            <td className="pt-3 text-right text-secondary-foreground">{formatCurrency(totalCost)}</td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Income Sources */}
-              {uniqueSources.length > 0 && (
-                <Card variant="bento">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <DollarSign className="h-4 w-4 text-emerald-600" />
-                      Income Sources
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2.5">
-                      {uniqueSources.map((source) => (
-                        <div key={source.id} className="flex items-center justify-between rounded-lg border p-3">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">{source.name}</p>
-                              <p className="text-xs text-muted-foreground">{source.type}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm font-semibold text-secondary-foreground w-24 text-right">
-                              {formatCurrency(source.amount)}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </>
+            <SemesterBudget plan={plan} onPlanUpdate={setPlan} totalScholarships={totalScholarships} />
           )}
         </div>
       )}

@@ -1,8 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk"
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-})
+function getClient() {
+  const key = process.env.ANTHROPIC_API_KEY
+  if (!key) {
+    throw new Error("ANTHROPIC_API_KEY is not set — check your environment variables")
+  }
+  return new Anthropic({ apiKey: key })
+}
 
 const model = process.env.CHAT_AI_MODEL || "claude-haiku-4-5-20241022"
 
@@ -26,6 +30,7 @@ export async function generateChatResponse(
     ? `${SYSTEM_PROMPT}\n\nStudent context from database:\n${context}`
     : SYSTEM_PROMPT
 
+  const client = getClient()
   const response = await client.messages.create({
     model,
     max_tokens: 1024,
@@ -95,6 +100,7 @@ Rules:
 - If a field is not mentioned on the page, use null for numbers/strings, [] for arrays, false for booleans.
 - Be conservative — only fill in what's clearly stated on the page.`
 
+  const client = getClient()
   const response = await client.messages.create({
     model,
     max_tokens: 1024,

@@ -13,70 +13,55 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
+import { Icon3D } from "@/components/ui/icon-3d"
 import {
-  LayoutDashboard,
-  Search,
-  FileText,
-  Trophy,
-  CheckSquare,
-  PenTool,
-  FolderOpen,
-  BookOpen,
-  DollarSign,
-  Activity,
   MessageSquare,
   Video,
-  Bot,
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
-  Bell,
   Settings,
   LogOut,
   User,
   Menu,
-  CalendarDays,
-  GraduationCap,
-  Star,
-  Mail,
 } from "@/lib/icons"
 
 const navGroups = [
   {
     label: "Overview",
     items: [
-      { name: "Dashboard", href: "/student", icon: LayoutDashboard },
-      { name: "ScholarSuite AI", href: "/student/assistant", icon: Bot, beta: true },
-      { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
-      { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
-      { name: "Learning", href: "/student/learning", icon: BookOpen },
+      { name: "Dashboard", href: "/student", icon3d: "LayoutDashboard" },
+      { name: "ScholarSuite AI", href: "/student/assistant", icon3d: "Bot", beta: true },
+      { name: "Tasks", href: "/student/tasks", icon3d: "CheckSquare" },
+      { name: "Calendar", href: "/student/calendar", icon3d: "CalendarDays" },
+      { name: "Learning", href: "/student/learning", icon3d: "BookOpen" },
     ],
   },
   {
     label: "Scholarships",
     items: [
-      { name: "Overview", href: "/student/overview", icon: Trophy },
-      { name: "Discovery", href: "/student/scholarships", icon: Search },
-      { name: "Applications", href: "/student/applications", icon: FileText },
+      { name: "Overview", href: "/student/overview", icon3d: "Trophy" },
+      { name: "Discovery", href: "/student/scholarships", icon3d: "Search" },
+      { name: "Applications", href: "/student/applications", icon3d: "FileText" },
     ],
   },
   {
     label: "Colleges",
     items: [
-      { name: "My Colleges", href: "/student/colleges/list", icon: Star },
-      { name: "Applications", href: "/student/colleges/applications", icon: GraduationCap },
-      { name: "Visits", href: "/student/colleges/visits", icon: CalendarDays },
-      { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
+      { name: "My Colleges", href: "/student/colleges/list", icon3d: "Star" },
+      { name: "Applications", href: "/student/colleges/applications", icon3d: "GraduationCap" },
+      { name: "Visits", href: "/student/colleges/visits", icon3d: "CalendarDays" },
+      { name: "Financial Plan", href: "/student/financial", icon3d: "DollarSign" },
     ],
   },
   {
     label: "Academics",
     items: [
-      { name: "Essays", href: "/student/essays", icon: PenTool, beta: true },
-      { name: "Letters of Rec", href: "/student/letters", icon: Mail, beta: true },
-      { name: "Resume", href: "/student/resume", icon: FileText, beta: true },
-      { name: "Documents", href: "/student/documents", icon: FolderOpen },
-      { name: "Activities", href: "/student/activities", icon: Activity },
+      { name: "Essays", href: "/student/essays", icon3d: "PenTool", beta: true },
+      { name: "Letters of Rec", href: "/student/letters", icon3d: "Mail", beta: true },
+      { name: "Resume", href: "/student/resume", icon3d: "FileText", beta: true },
+      { name: "Documents", href: "/student/documents", icon3d: "FolderOpen" },
+      { name: "Activities", href: "/student/activities", icon3d: "Activity" },
     ],
   },
 ]
@@ -216,7 +201,6 @@ export default function StudentLayout({
             )}
             <div className="space-y-0.5">
               {group.items.map((item) => {
-                const Icon = item.icon
                 const active = isActive(item.href)
                 const idx = globalIndex++
                 return (
@@ -242,14 +226,9 @@ export default function StudentLayout({
                       <motion.div
                         whileHover={{ scale: 1.12, rotate: 6 }}
                         whileTap={{ scale: 0.95 }}
-                        className={cn(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200",
-                          active
-                            ? "bg-[#2563EB] text-white shadow-sm"
-                            : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm"
-                        )}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center"
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon3D name={item.icon3d} size={28} />
                       </motion.div>
                       {(!collapsed || isMobile) && (
                         <span className="flex items-center gap-1.5">

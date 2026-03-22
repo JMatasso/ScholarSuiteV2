@@ -32,6 +32,9 @@ interface College {
   outOfStateTuition?: number | null
   roomAndBoard?: number | null
   booksSupplies?: number | null
+  gradInStateTuition?: number | null
+  gradOutOfStateTuition?: number | null
+  highestDegree?: number | null
 }
 
 interface AidPackage {
@@ -114,11 +117,28 @@ function classificationBadge(classification: string | null | undefined) {
   )
 }
 
-function getCOA(college: College | null | undefined, useOutOfState = false): number | null {
+function getCOA(college: College | null | undefined, useOutOfState = false, graduate = false): number | null {
   if (!college) return null
-  const tuition = useOutOfState ? college.outOfStateTuition : college.inStateTuition
+  const tuition = getTuition(college, useOutOfState, graduate)
   if (tuition == null) return null
+  if (graduate) {
+    // Graduate COA typically doesn't include room/board from Scorecard
+    return tuition + (college.booksSupplies ?? 0)
+  }
   return tuition + (college.roomAndBoard ?? 0) + (college.booksSupplies ?? 0)
+}
+
+function getTuition(college: College, useOutOfState: boolean, graduate: boolean): number | null {
+  if (graduate) {
+    const gradOOS = college.gradOutOfStateTuition ?? null
+    const gradIS = college.gradInStateTuition ?? null
+    return useOutOfState ? (gradOOS ?? gradIS) : gradIS
+  }
+  return (useOutOfState ? college.outOfStateTuition : college.inStateTuition) ?? null
+}
+
+function hasGradData(entries: Array<{ college?: College | null }>): boolean {
+  return entries.some((e) => e.college?.gradInStateTuition != null || e.college?.gradOutOfStateTuition != null)
 }
 
 function getAidTotal(aidPackage: AidPackage | null | undefined): number {
@@ -233,6 +253,7 @@ function CollegeSearchPicker({
 export function CollegeCostComparison({ collegeApps, totalScholarships }: CollegeCostComparisonProps) {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
   const [useOutOfState, setUseOutOfState] = useState(false)
+  const [showGraduate, setShowGraduate] = useState(false)
   const [comparisonSchools, setComparisonSchools] = useState<ComparisonSchool[]>([])
   const [showPicker, setShowPicker] = useState(false)
 
@@ -301,7 +322,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
 
   // Find cheapest net cost
   const netCosts = allEntries.map((entry) => {
-    const coa = getCOA(entry.college, useOutOfState) ?? 0
+    const coa = getCOA(entry.college, useOutOfState, showGraduate) ?? 0
     const aid = entry.isComparisonOnly ? 0 : getAidTotal((entry as CollegeApp).aidPackage)
     const key = entry.isComparisonOnly ? `cmp-${entry.id}` : entry.id
     return { key, netCost: coa - aid }
@@ -330,14 +351,26 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
             Compare School
           </Button>
           {!isEmpty && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setUseOutOfState(!useOutOfState)}
-              className="text-xs"
-            >
-              {useOutOfState ? "Showing Out-of-State" : "Showing In-State"}
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setUseOutOfState(!useOutOfState)}
+                className="text-xs"
+              >
+                {useOutOfState ? "Out-of-State" : "In-State"}
+              </Button>
+              {hasGradData(allEntries) && (
+                <Button
+                  variant={showGraduate ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowGraduate(!showGraduate)}
+                  className={`text-xs ${showGraduate ? "bg-[#2563EB] hover:bg-[#2563EB]/90" : ""}`}
+                >
+                  {showGraduate ? "Graduate" : "Undergrad"}
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -360,6 +393,17 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
         </Card>
       )}
 
+      {/* Graduate mode notice */}
+      {showGraduate && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 px-4 py-3">
+          <p className="text-xs text-amber-700">
+            <strong>Graduate/Professional Costs</strong> — Data from College Scorecard. Coverage is limited and
+            may not reflect specific program costs (MBA, JD, MD, etc.). Verify with university websites. Room &
+            board not included in graduate estimates.
+          </p>
+        </div>
+      )}
+
       {/* Per-School Cost Cards */}
       {allEntries.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
@@ -368,7 +412,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
             const isComparison = entry.isComparisonOnly
             const aidPackage = isComparison ? null : (entry as CollegeApp).aidPackage
             const classification = isComparison ? null : (entry as CollegeApp).classification
-            const coa = getCOA(college, useOutOfState)
+            const coa = getCOA(college, useOutOfState, showGraduate)
             const aid = getAidTotal(aidPackage)
             const netCost = coa != null ? coa - aid : null
             const fourYearTotal = netCost != null ? netCost * 4 : null
@@ -437,7 +481,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                           Tuition
                         </span>
                         <span className="font-medium">
-                          {formatTuition(useOutOfState ? college.outOfStateTuition : college.inStateTuition)}
+                          {formatTuition(getTuition(college, useOutOfState, showGraduate))}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -573,8 +617,8 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                 <tbody className="divide-y">
                   <ComparisonRow
                     label="Tuition"
-                    values={allEntries.map((e) => formatTuition(useOutOfState ? e.college!.outOfStateTuition : e.college!.inStateTuition))}
-                    rawValues={allEntries.map((e) => (useOutOfState ? e.college!.outOfStateTuition : e.college!.inStateTuition) ?? Infinity)}
+                    values={allEntries.map((e) => formatTuition(getTuition(e.college!, useOutOfState, showGraduate)))}
+                    rawValues={allEntries.map((e) => getTuition(e.college!, useOutOfState, showGraduate) ?? Infinity)}
                     highlightLowest
                   />
                   <ComparisonRow
@@ -591,8 +635,8 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                   />
                   <ComparisonRow
                     label="Total COA"
-                    values={allEntries.map((e) => formatTuition(getCOA(e.college, useOutOfState)))}
-                    rawValues={allEntries.map((e) => getCOA(e.college, useOutOfState) ?? Infinity)}
+                    values={allEntries.map((e) => formatTuition(getCOA(e.college, useOutOfState, showGraduate)))}
+                    rawValues={allEntries.map((e) => getCOA(e.college, useOutOfState, showGraduate) ?? Infinity)}
                     highlightLowest
                     bold
                   />
@@ -621,12 +665,12 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                   <ComparisonRow
                     label="Net Annual Cost"
                     values={allEntries.map((e) => {
-                      const coa = getCOA(e.college, useOutOfState)
+                      const coa = getCOA(e.college, useOutOfState, showGraduate)
                       const aid = e.isComparisonOnly ? 0 : getAidTotal((e as CollegeApp).aidPackage)
                       return coa != null ? formatTuition(coa - aid) : "N/A"
                     })}
                     rawValues={allEntries.map((e) => {
-                      const coa = getCOA(e.college, useOutOfState)
+                      const coa = getCOA(e.college, useOutOfState, showGraduate)
                       const aid = e.isComparisonOnly ? 0 : getAidTotal((e as CollegeApp).aidPackage)
                       return coa != null ? coa - aid : Infinity
                     })}
@@ -636,12 +680,12 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                   <ComparisonRow
                     label="4-Year Total"
                     values={allEntries.map((e) => {
-                      const coa = getCOA(e.college, useOutOfState)
+                      const coa = getCOA(e.college, useOutOfState, showGraduate)
                       const aid = e.isComparisonOnly ? 0 : getAidTotal((e as CollegeApp).aidPackage)
                       return coa != null ? formatTuition((coa - aid) * 4) : "N/A"
                     })}
                     rawValues={allEntries.map((e) => {
-                      const coa = getCOA(e.college, useOutOfState)
+                      const coa = getCOA(e.college, useOutOfState, showGraduate)
                       const aid = e.isComparisonOnly ? 0 : getAidTotal((e as CollegeApp).aidPackage)
                       return coa != null ? (coa - aid) * 4 : Infinity
                     })}

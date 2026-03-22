@@ -56,10 +56,12 @@ const FIELDS = [
   "latest.admissions.test_requirements",
   "latest.cost.tuition.in_state",
   "latest.cost.tuition.out_of_state",
+  "latest.cost.tuition.program_year",
   "latest.cost.roomboard.oncampus",
   "latest.cost.booksupply",
   "latest.cost.avg_net_price.public",
   "latest.cost.avg_net_price.private",
+  "school.degrees_awarded.highest",
   "latest.student.size",
   "latest.student.enrollment.undergrad_12_month",
   "latest.student.demographics.student_faculty_ratio",
@@ -147,6 +149,9 @@ function mapSchool(s: ScorecardSchool) {
     roomAndBoard: get(s, "latest.cost.roomboard.oncampus") as number | null,
     booksSupplies: get(s, "latest.cost.booksupply") as number | null,
     netPriceByIncome: parseNetPrice(s),
+    gradInStateTuition: get(s, "latest.cost.tuition.program_year") as number | null,
+    gradOutOfStateTuition: null as number | null, // Scorecard doesn't split grad by residency
+    highestDegree: get(s, "school.degrees_awarded.highest") as number | null,
 
     enrollment: get(s, "latest.student.size") as number | null,
     undergradPop: get(s, "latest.student.enrollment.undergrad_12_month") as number | null,

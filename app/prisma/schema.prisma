@@ -563,12 +563,17 @@ model College {
   act75               Int?
   testOptional        Boolean       @default(false)
 
-  // Cost
+  // Cost (Undergraduate)
   inStateTuition      Float?
   outOfStateTuition   Float?
   roomAndBoard        Float?
   booksSupplies       Float?
   netPriceByIncome    Json?
+
+  // Cost (Graduate) — from College Scorecard program-year data
+  gradInStateTuition    Float?
+  gradOutOfStateTuition Float?
+  highestDegree         Int?          // 0=non-degree, 1=cert, 2=assoc, 3=bachelor, 4=graduate
 
   // Size & Demographics
   enrollment          Int?

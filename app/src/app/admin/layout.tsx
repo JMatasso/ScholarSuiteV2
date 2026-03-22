@@ -8,39 +8,18 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   ArrowLeft,
-  LayoutDashboard,
-  Users,
-  UserPlus,
-  UserCheck,
-  Layers,
-  School,
-  Award,
-  ListTodo,
-  BookOpen,
-  PenTool,
   MessageSquare,
-  Megaphone,
   Video,
-  Briefcase,
-  ClipboardCheck,
-  BarChart3,
-  FileBarChart,
-  DollarSign,
-  LifeBuoy,
-  Settings,
-  Shield,
   PanelLeftClose,
   PanelLeft,
-  Bell,
   Search,
+  Settings,
+  Shield,
   LogOut,
-  CalendarDays,
   Menu,
   User,
-  MapPin,
-  Building2,
-  type LucideIcon,
 } from "@/lib/icons"
+import { Icon3D } from "@/components/ui/icon-3d"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UserProfileSidebar } from "@/components/ui/menu"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
@@ -51,7 +30,7 @@ import { AnimatedLogo } from "@/components/ui/animated-logo"
 interface NavItem {
   label: string
   href: string
-  icon: LucideIcon
+  icon3d: string
 }
 
 interface NavGroup {
@@ -63,57 +42,57 @@ const navGroups: NavGroup[] = [
   {
     title: "Overview",
     items: [
-      { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-      { label: "Calendar", href: "/admin/calendar", icon: CalendarDays },
+      { label: "Dashboard", href: "/admin", icon3d: "LayoutDashboard" },
+      { label: "Calendar", href: "/admin/calendar", icon3d: "CalendarDays" },
     ],
   },
   {
     title: "Communication",
     items: [
-      { label: "Messages", href: "/admin/messages", icon: MessageSquare },
-      { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
-      { label: "Meetings", href: "/admin/meetings", icon: Video },
-      { label: "Essays", href: "/admin/essays", icon: PenTool },
+      { label: "Messages", href: "/admin/messages", icon3d: "MessageSquare" },
+      { label: "Announcements", href: "/admin/announcements", icon3d: "Megaphone" },
+      { label: "Meetings", href: "/admin/meetings", icon3d: "Video" },
+      { label: "Essays", href: "/admin/essays", icon3d: "PenTool" },
     ],
   },
   {
     title: "People",
     items: [
-      { label: "Students", href: "/admin/students", icon: Users },
-      { label: "Parents", href: "/admin/parents", icon: UserPlus },
-      { label: "Access Requests", href: "/admin/access-requests", icon: UserCheck },
-      { label: "Cohorts", href: "/admin/cohorts", icon: Layers },
-      { label: "Schools", href: "/admin/schools", icon: School },
-      { label: "Colleges", href: "/admin/colleges", icon: Building2 },
+      { label: "Students", href: "/admin/students", icon3d: "Users" },
+      { label: "Parents", href: "/admin/parents", icon3d: "UserPlus" },
+      { label: "Access Requests", href: "/admin/access-requests", icon3d: "UserCheck" },
+      { label: "Cohorts", href: "/admin/cohorts", icon3d: "Layers" },
+      { label: "Schools", href: "/admin/schools", icon3d: "School" },
+      { label: "Colleges", href: "/admin/colleges", icon3d: "Building2" },
     ],
   },
   {
     title: "Content",
     items: [
-      { label: "Scholarships", href: "/admin/scholarships", icon: Award },
-      { label: "Local Scholarships", href: "/admin/scholarships/local", icon: MapPin },
-      { label: "Providers", href: "/admin/scholarships/providers", icon: Building2 },
-      { label: "Task Templates", href: "/admin/templates", icon: ListTodo },
-      { label: "Learning", href: "/admin/learning", icon: BookOpen },
+      { label: "Scholarships", href: "/admin/scholarships", icon3d: "Award" },
+      { label: "Local Scholarships", href: "/admin/scholarships/local", icon3d: "MapPin" },
+      { label: "Providers", href: "/admin/scholarships/providers", icon3d: "Building2" },
+      { label: "Task Templates", href: "/admin/templates", icon3d: "ListTodo" },
+      { label: "Learning", href: "/admin/learning", icon3d: "BookOpen" },
     ],
   },
   {
     title: "Business",
     items: [
-      { label: "CRM", href: "/admin/crm", icon: Briefcase },
-      { label: "Reviews", href: "/admin/reviews", icon: ClipboardCheck },
-      { label: "Reports", href: "/admin/reports", icon: FileBarChart },
-      { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-      { label: "Financial", href: "/admin/financial", icon: DollarSign },
+      { label: "CRM", href: "/admin/crm", icon3d: "Briefcase" },
+      { label: "Reviews", href: "/admin/reviews", icon3d: "ClipboardCheck" },
+      { label: "Reports", href: "/admin/reports", icon3d: "FileText" },
+      { label: "Analytics", href: "/admin/analytics", icon3d: "BarChart3" },
+      { label: "Financial", href: "/admin/financial", icon3d: "DollarSign" },
     ],
   },
   {
     title: "System",
     items: [
-      { label: "Team", href: "/admin/team", icon: Users },
-      { label: "Support", href: "/admin/support", icon: LifeBuoy },
-      { label: "Settings", href: "/admin/settings", icon: Settings },
-      { label: "Audit Log", href: "/admin/audit", icon: Shield },
+      { label: "Team", href: "/admin/team", icon3d: "Users" },
+      { label: "Support", href: "/admin/support", icon3d: "LifeBuoy" },
+      { label: "Settings", href: "/admin/settings", icon3d: "Settings" },
+      { label: "Audit Log", href: "/admin/audit", icon3d: "Shield" },
     ],
   },
 ]
@@ -215,8 +194,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     return (
                       <motion.div key={item.href} initial={{ x: -40, opacity: 0 }} animate={mobileOpen ? { x: 0, opacity: 1, transition: { delay: 0.05 + idx * 0.03, type: "spring", stiffness: 260, damping: 24 } } : { x: -40, opacity: 0 }}>
                         <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", active ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
-                          <motion.div whileHover={{ scale: 1.12, rotate: 6 }} whileTap={{ scale: 0.95 }} className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200", active ? "bg-[#2563EB] text-white shadow-sm" : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm")}>
-                            <item.icon className="size-4" />
+                          <motion.div whileHover={{ scale: 1.12, rotate: 6 }} whileTap={{ scale: 0.95 }} className="flex h-8 w-8 shrink-0 items-center justify-center">
+                            <Icon3D name={item.icon3d} size={28} />
                           </motion.div>
                           <span>{item.label}</span>
                         </Link>
@@ -251,8 +230,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   return (
                     <motion.div key={item.href} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.02 } }}>
                       <Link href={item.href} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", active ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground", collapsed && "justify-center px-1")}>
-                        <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200", active ? "bg-[#2563EB] text-white shadow-sm" : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm")}>
-                          <item.icon className="size-4" />
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                          <Icon3D name={item.icon3d} size={28} />
                         </div>
                         {!collapsed && <span>{item.label}</span>}
                       </Link>

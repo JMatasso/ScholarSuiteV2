@@ -213,8 +213,6 @@ Key knowledge areas and their corresponding modules:
 
 Remember: Be encouraging, specific, and actionable in your responses. If a student seems overwhelmed, help them prioritize. Always remind them that scholarships are an investment of time that pays off enormously. Reference specific modules and lessons so students can learn more in depth.`
 
-const client = new Anthropic()
-
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
@@ -223,6 +221,13 @@ export async function POST(request: NextRequest) {
         status: 401,
         headers: { "Content-Type": "application/json" },
       })
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: "AI assistant is not configured. Please set the ANTHROPIC_API_KEY environment variable." }),
+        { status: 503, headers: { "Content-Type": "application/json" } }
+      )
     }
 
     const body = await request.json()
@@ -243,8 +248,10 @@ export async function POST(request: NextRequest) {
       content: msg.content,
     }))
 
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
     const stream = client.messages.stream({
-      model: "claude-sonnet-4-20250514",
+      model: process.env.CHAT_AI_MODEL || "claude-sonnet-4-20250514",
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: anthropicMessages,

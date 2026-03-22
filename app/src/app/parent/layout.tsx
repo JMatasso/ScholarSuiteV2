@@ -16,58 +16,48 @@ import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
 import {
   ArrowLeft,
-  LayoutDashboard,
-  User,
-  FileText,
-  CheckSquare,
   MessageSquare,
   Video,
-  FolderOpen,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   LogOut,
   Settings,
-  Bell,
-  CalendarDays,
   Menu,
-  GraduationCap,
-  CheckCircle2,
-  Clock,
-  MapPin,
+  User,
 } from "@/lib/icons";
+import { Icon3D } from "@/components/ui/icon-3d";
 
 const sidebarGroups = [
   {
     label: "Overview",
     items: [
-      { name: "Dashboard", href: "/parent", icon: LayoutDashboard },
-      { name: "Updates", href: "/parent/updates", icon: Bell },
-      { name: "Calendar", href: "/parent/calendar", icon: CalendarDays },
-      { name: "Timeline", href: "/parent/timeline", icon: Clock },
+      { name: "Dashboard", href: "/parent", icon3d: "LayoutDashboard" },
+      { name: "Updates", href: "/parent/updates", icon3d: "Bell" },
+      { name: "Calendar", href: "/parent/calendar", icon3d: "CalendarDays" },
+      { name: "Timeline", href: "/parent/timeline", icon3d: "Clock" },
     ],
   },
   {
     label: "My Student",
     items: [
-      { name: "Profile", href: "/parent/profile", icon: User },
-      { name: "Applications", href: "/parent/applications", icon: FileText },
-      { name: "Tasks", href: "/parent/tasks", icon: CheckSquare },
+      { name: "Profile", href: "/parent/profile", icon3d: "User" },
+      { name: "Applications", href: "/parent/applications", icon3d: "FileText" },
+      { name: "Tasks", href: "/parent/tasks", icon3d: "CheckSquare" },
     ],
   },
   {
     label: "Colleges",
     items: [
-      { name: "Overview", href: "/parent/colleges", icon: GraduationCap },
-      { name: "Decisions", href: "/parent/colleges/decisions", icon: CheckCircle2 },
-      { name: "Visits", href: "/parent/colleges/visits", icon: MapPin },
+      { name: "Overview", href: "/parent/colleges", icon3d: "GraduationCap" },
+      { name: "Decisions", href: "/parent/colleges/decisions", icon3d: "CheckCircle" },
+      { name: "Visits", href: "/parent/colleges/visits", icon3d: "MapPin" },
     ],
   },
   {
     label: "Resources",
     items: [
-      { name: "Documents", href: "/parent/documents", icon: FolderOpen },
-      { name: "Learning", href: "/parent/learning", icon: BookOpen },
+      { name: "Documents", href: "/parent/documents", icon3d: "FolderOpen" },
+      { name: "Learning", href: "/parent/learning", icon3d: "BookOpen" },
     ],
   },
 ];
@@ -217,8 +207,8 @@ export default function ParentLayout({
                     return (
                       <motion.div key={item.href} initial={{ x: -40, opacity: 0 }} animate={mobileOpen ? { x: 0, opacity: 1, transition: { delay: 0.05 + idx * 0.04, type: "spring", stiffness: 260, damping: 24 } } : { x: -40, opacity: 0 }}>
                         <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", isActive ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
-                          <motion.div whileHover={{ scale: 1.12, rotate: 6 }} whileTap={{ scale: 0.95 }} className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200", isActive ? "bg-[#2563EB] text-white shadow-sm" : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm")}>
-                            <item.icon className="size-[16px]" />
+                          <motion.div whileHover={{ scale: 1.12, rotate: 6 }} whileTap={{ scale: 0.95 }} className="flex h-8 w-8 shrink-0 items-center justify-center">
+                            <Icon3D name={item.icon3d} size={28} />
                           </motion.div>
                           <span>{item.name}</span>
                         </Link>
@@ -253,8 +243,8 @@ export default function ParentLayout({
                   return (
                     <motion.div key={item.href} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.03 } }}>
                       <Link href={item.href} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", isActive ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
-                        <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200", isActive ? "bg-[#2563EB] text-white shadow-sm" : "bg-muted/60 text-muted-foreground group-hover:bg-[#2563EB] group-hover:text-white group-hover:shadow-sm")}>
-                          <item.icon className="size-[16px]" />
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                          <Icon3D name={item.icon3d} size={28} />
                         </div>
                         {!collapsed && <span>{item.name}</span>}
                       </Link>
