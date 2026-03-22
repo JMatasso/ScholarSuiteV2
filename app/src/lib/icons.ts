@@ -201,7 +201,14 @@ export {
   FilterHorizontalIcon as FilterHorizontal,
 } from "hugeicons-react"
 
-// Type alias for icon components
-import type { FC, SVGProps } from "react"
-export type LucideIcon = FC<SVGProps<SVGSVGElement> & { size?: number | string }>
-export type LucideProps = SVGProps<SVGSVGElement> & { size?: number | string }
+// Re-export HugeiconsProps for direct usage
+export type { HugeiconsProps } from "@hugeicons/react"
+
+// Type alias for icon components — matches Hugeicons component signature
+import type { HugeiconsIconProps } from "@hugeicons/react"
+export type LucideProps = Omit<HugeiconsIconProps, "icon">
+export type LucideIcon = {
+  (props: Omit<HugeiconsIconProps, "icon">): React.JSX.Element
+  displayName: string
+}
+import type React from "react"
