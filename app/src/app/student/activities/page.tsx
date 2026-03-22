@@ -228,6 +228,107 @@ export default function BragSheetPage() {
     }
   }
 
+  const handleExportPDF = () => {
+    const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+
+    const groupSections = GROUPS
+      .map((group) => {
+        const entries = activities.filter((a) => group.categories.includes(a.category))
+        if (entries.length === 0) return ""
+
+        const entryRows = entries.map((e) => {
+          const dateRange = formatDateRange(e.startDate, e.endDate, e.isOngoing)
+          const tags = [
+            e.isLeadership ? "Leadership" : "",
+            e.isAward ? "Award" : "",
+          ].filter(Boolean).join(", ")
+          const hours = [
+            e.hoursPerWeek !== null ? `${e.hoursPerWeek} hrs/week` : "",
+            e.totalHours !== null && e.totalHours > 0 ? `${e.totalHours} total hrs` : "",
+          ].filter(Boolean).join(" | ")
+
+          return `
+            <div class="entry">
+              <div class="entry-header">
+                <strong>${e.title}</strong>
+                ${tags ? `<span class="tag">${tags}</span>` : ""}
+              </div>
+              ${e.organization || e.role ? `<div class="meta">${[e.organization, e.role].filter(Boolean).join(" — ")}</div>` : ""}
+              ${dateRange || hours ? `<div class="meta">${[dateRange, hours].filter(Boolean).join(" | ")}</div>` : ""}
+              ${e.description ? `<div class="description">${e.description}</div>` : ""}
+              ${e.impactStatement ? `<div class="impact">"${e.impactStatement}"</div>` : ""}
+              ${e.skillsGained && e.skillsGained.length > 0 ? `<div class="skills">${e.skillsGained.map((s) => `<span class="skill">${s}</span>`).join(" ")}</div>` : ""}
+            </div>`
+        }).join("")
+
+        return `
+          <div class="group">
+            <h2>${group.label}</h2>
+            <p class="group-desc">${group.description}</p>
+            ${entryRows}
+          </div>`
+      })
+      .filter(Boolean)
+      .join("")
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Brag Sheet</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 24px; color: #1E3A5F; margin-bottom: 4px; }
+    .date { font-size: 13px; color: #666; margin-bottom: 24px; }
+    .stats { display: flex; gap: 24px; margin-bottom: 32px; padding: 16px; background: #f8f9fa; border-radius: 8px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 20px; font-weight: 700; color: #1E3A5F; }
+    .stat-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .group { margin-bottom: 28px; }
+    .group h2 { font-size: 16px; color: #1E3A5F; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 4px; }
+    .group-desc { font-size: 12px; color: #888; margin-bottom: 12px; }
+    .entry { margin-bottom: 16px; padding-left: 12px; border-left: 3px solid #2563EB; }
+    .entry-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .entry-header strong { font-size: 14px; }
+    .tag { font-size: 11px; background: #fef3c7; color: #92400e; padding: 1px 8px; border-radius: 4px; }
+    .meta { font-size: 12px; color: #666; margin-top: 2px; }
+    .description { font-size: 13px; margin-top: 4px; line-height: 1.5; }
+    .impact { font-size: 12px; font-style: italic; color: #555; margin-top: 4px; }
+    .skills { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .skill { font-size: 11px; background: #eff6ff; color: #1d4ed8; padding: 2px 8px; border-radius: 4px; }
+    @media print {
+      body { padding: 20px; }
+      .stats { background: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .entry { border-left-color: #2563EB !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Brag Sheet</h1>
+  <p class="date">${today}</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-value">${totalEntries}</div><div class="stat-label">Activities</div></div>
+    <div class="stat"><div class="stat-value">${totalHours > 0 ? totalHours.toLocaleString() : "0"}</div><div class="stat-label">Total Hours</div></div>
+    <div class="stat"><div class="stat-value">${leadershipCount}</div><div class="stat-label">Leadership</div></div>
+    <div class="stat"><div class="stat-value">${awardCount}</div><div class="stat-label">Awards</div></div>
+  </div>
+  ${groupSections}
+</body>
+</html>`
+
+    const printWindow = window.open("", "_blank")
+    if (printWindow) {
+      printWindow.document.write(html)
+      printWindow.document.close()
+      printWindow.onload = () => {
+        printWindow.print()
+      }
+    } else {
+      toast.error("Could not open print window. Please allow popups for this site.")
+    }
+  }
+
   const handleDelete = async (id: string) => {
     setDeleting(id)
     try {
@@ -268,7 +369,7 @@ export default function BragSheetPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => toast.info("PDF export coming soon")}>
+          <Button variant="outline" onClick={handleExportPDF}>
             <FileDown /> Export PDF
           </Button>
         </div>

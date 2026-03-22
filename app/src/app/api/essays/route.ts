@@ -50,6 +50,8 @@ export async function POST(req: Request) {
         content: data.content || "",
         applicationId: data.applicationId,
         promptId: data.promptId,
+        externalUrl: data.externalUrl || null,
+        attachmentName: data.attachmentName || null,
       },
     });
 

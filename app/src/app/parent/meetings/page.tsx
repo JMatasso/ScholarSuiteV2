@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -137,6 +138,8 @@ function toUIMeeting(m: Meeting, currentUserId?: string): UIMeeting {
 }
 
 export default function MeetingsPage() {
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
   const [rawMeetings, setRawMeetings] = useState<Meeting[]>([]);
   const [meetings, setMeetings] = useState<UIMeeting[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,11 +150,11 @@ export default function MeetingsPage() {
       .then((d: Meeting[]) => {
         const list = Array.isArray(d) ? d : [];
         setRawMeetings(list);
-        setMeetings(list.map((m) => toUIMeeting(m)));
+        setMeetings(list.map((m) => toUIMeeting(m, currentUserId)));
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [currentUserId]);
 
   const handleAccept = async (id: string) => {
     const res = await fetch(`/api/meetings/${id}`, {

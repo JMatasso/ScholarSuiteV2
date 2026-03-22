@@ -40,10 +40,11 @@ export default function AdminSchoolsPage() {
   const [search, setSearch] = useState("")
   const [searching, setSearching] = useState(false)
 
-  // Add School dialog
+  // Add/Edit School dialog
   const [addOpen, setAddOpen] = useState(false)
   const [addForm, setAddForm] = useState({ name: "", address: "", city: "", state: "", zipCode: "", phone: "", email: "", website: "" })
   const [addLoading, setAddLoading] = useState(false)
+  const [editingSchool, setEditingSchool] = useState<SchoolRecord | null>(null)
 
   // NCES Import dialog
   const [ncesOpen, setNcesOpen] = useState(false)
@@ -89,17 +90,40 @@ export default function AdminSchoolsPage() {
   const totalStudents = useMemo(() => mySchools.reduce((sum, s) => sum + (s._count?.students ?? 0), 0), [mySchools])
   const uniqueStates = useMemo(() => new Set(mySchools.map(s => s.state).filter(Boolean)).size, [mySchools])
 
-  const handleAddSchool = async () => {
+  const handleOpenEdit = (school: SchoolRecord) => {
+    setEditingSchool(school)
+    setAddForm({
+      name: school.name || "",
+      address: school.address || "",
+      city: school.city || "",
+      state: school.state || "",
+      zipCode: school.zipCode || "",
+      phone: school.phone || "",
+      email: school.email || "",
+      website: school.website || "",
+    })
+    setAddOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setAddOpen(false)
+    setEditingSchool(null)
+    setAddForm({ name: "", address: "", city: "", state: "", zipCode: "", phone: "", email: "", website: "" })
+  }
+
+  const handleSaveSchool = async () => {
     if (!addForm.name.trim()) { toast.error("School name is required"); return }
     setAddLoading(true)
     try {
-      const res = await fetch("/api/schools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(addForm) })
+      const isEditing = !!editingSchool
+      const url = isEditing ? `/api/schools/${editingSchool!.id}` : "/api/schools"
+      const method = isEditing ? "PUT" : "POST"
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(addForm) })
       if (!res.ok) throw new Error()
-      toast.success("School created")
-      setAddOpen(false)
-      setAddForm({ name: "", address: "", city: "", state: "", zipCode: "", phone: "", email: "", website: "" })
+      toast.success(isEditing ? "School updated" : "School created")
+      handleCloseDialog()
       fetchMySchools()
-    } catch { toast.error("Failed to create school") }
+    } catch { toast.error(editingSchool ? "Failed to update school" : "Failed to create school") }
     setAddLoading(false)
   }
 
@@ -241,7 +265,7 @@ export default function AdminSchoolsPage() {
                     </div>
                     <div onClick={e => e.stopPropagation()}>
                       <ActionMenu items={[
-                        { label: "Edit", icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => toast.info("Edit coming soon") },
+                        { label: "Edit", icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => handleOpenEdit(school) },
                         { label: "Delete", icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => handleDelete(school.id, school.name), destructive: true },
                       ]} />
                     </div>
@@ -262,9 +286,9 @@ export default function AdminSchoolsPage() {
       )}
 
       {/* Add School Dialog */}
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+      <Dialog open={addOpen} onOpenChange={v => { if (!v) handleCloseDialog() }}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Add School</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingSchool ? "Edit School" : "Add School"}</DialogTitle></DialogHeader>
           <div className="grid gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Name *</label>
@@ -309,9 +333,9 @@ export default function AdminSchoolsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddSchool} disabled={addLoading}>
-              {addLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create School"}
+            <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={handleSaveSchool} disabled={addLoading}>
+              {addLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : editingSchool ? "Save Changes" : "Create School"}
             </Button>
           </DialogFooter>
         </DialogContent>

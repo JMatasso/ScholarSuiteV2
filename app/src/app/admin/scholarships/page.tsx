@@ -6,10 +6,18 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
-import { Plus, Upload, ExternalLink, Pencil, Trash2, Globe } from "lucide-react"
+import { Plus, Upload, ExternalLink, Pencil, Trash2, Globe, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { ScholarshipUrlImportDialog } from "@/components/scholarship-url-import-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -47,6 +55,10 @@ export default function ScholarshipsPage() {
     name: "", provider: "", amount: "", deadline: "", description: "", url: ""
   })
   const csvInputRef = React.useRef<HTMLInputElement>(null)
+  const [editOpen, setEditOpen] = React.useState(false)
+  const [editingScholarship, setEditingScholarship] = React.useState<Scholarship | null>(null)
+  const [editForm, setEditForm] = React.useState({ name: "", provider: "", amount: "", deadline: "", url: "", isActive: true, tags: "" })
+  const [editSaving, setEditSaving] = React.useState(false)
 
   const handleDeleteScholarship = async (id: string) => {
     try {
@@ -56,6 +68,47 @@ export default function ScholarshipsPage() {
       loadScholarships()
     } catch {
       toast.error("Failed to delete scholarship")
+    }
+  }
+
+  const openEditDialog = (scholarship: Scholarship) => {
+    setEditingScholarship(scholarship)
+    setEditForm({
+      name: scholarship.name,
+      provider: scholarship.provider || "",
+      amount: scholarship.amount != null ? String(scholarship.amount) : "",
+      deadline: scholarship.deadline ? scholarship.deadline.slice(0, 10) : "",
+      url: scholarship.url || "",
+      isActive: scholarship.isActive,
+      tags: scholarship.tags.map(t => t.name).join(", "),
+    })
+    setEditOpen(true)
+  }
+
+  const handleEditSave = async () => {
+    if (!editingScholarship) return
+    setEditSaving(true)
+    try {
+      const res = await fetch(`/api/scholarships/${editingScholarship.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editForm.name,
+          provider: editForm.provider || null,
+          amount: editForm.amount ? parseFloat(editForm.amount) : null,
+          deadline: editForm.deadline || null,
+          url: editForm.url || null,
+          isActive: editForm.isActive,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Scholarship updated")
+      setEditOpen(false)
+      loadScholarships()
+    } catch {
+      toast.error("Failed to update scholarship")
+    } finally {
+      setEditSaving(false)
     }
   }
 
@@ -227,7 +280,7 @@ export default function ScholarshipsPage() {
             <Button variant="ghost" size="icon-xs" disabled><ExternalLink className="size-3.5" /></Button>
           )}
           <ActionMenu items={[
-            { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => toast.info("Edit scholarship coming soon") },
+            { label: "Edit", icon: <Pencil className="size-3.5" />, onClick: () => openEditDialog(row.original) },
             { label: "Delete", icon: <Trash2 className="size-3.5" />, destructive: true, onClick: () => handleDeleteScholarship(row.original.id) },
           ]} />
         </div>
@@ -370,6 +423,94 @@ export default function ScholarshipsPage() {
           searchValue={search}
         />
       )}
+
+      <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) setEditingScholarship(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Scholarship</DialogTitle>
+            <DialogDescription>Update scholarship details below.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Name *</label>
+              <Input
+                value={editForm.name}
+                onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
+                className="h-9"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Provider</label>
+                <Input
+                  value={editForm.provider}
+                  onChange={e => setEditForm(p => ({ ...p, provider: e.target.value }))}
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Amount ($)</label>
+                <Input
+                  type="number"
+                  value={editForm.amount}
+                  onChange={e => setEditForm(p => ({ ...p, amount: e.target.value }))}
+                  className="h-9"
+                  placeholder="e.g. 5000"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Deadline</label>
+                <Input
+                  type="date"
+                  value={editForm.deadline}
+                  onChange={e => setEditForm(p => ({ ...p, deadline: e.target.value }))}
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                <select
+                  value={editForm.isActive ? "active" : "inactive"}
+                  onChange={e => setEditForm(p => ({ ...p, isActive: e.target.value === "active" }))}
+                  className="h-9 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">URL</label>
+              <Input
+                type="url"
+                value={editForm.url}
+                onChange={e => setEditForm(p => ({ ...p, url: e.target.value }))}
+                className="h-9"
+                placeholder="https://..."
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
+              <Input
+                value={editForm.tags}
+                disabled
+                className="h-9 bg-muted"
+                placeholder="Tags are read-only"
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">Tags cannot be edited here.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleEditSave} disabled={editSaving || !editForm.name.trim()}>
+              {editSaving && <Loader2 className="size-3.5 animate-spin mr-1" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

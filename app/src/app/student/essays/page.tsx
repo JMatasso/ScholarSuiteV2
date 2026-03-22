@@ -39,6 +39,9 @@ import {
   X,
   ThumbsUp,
   Target,
+  Upload,
+  Link,
+  ExternalLink,
 } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
@@ -79,6 +82,8 @@ interface Essay {
   reviews: EssayReview[]
   prompt: EssayPrompt | null
   application: EssayApplication | null
+  externalUrl: string | null
+  attachmentName: string | null
 }
 
 interface AIReviewResult {
@@ -160,6 +165,7 @@ export default function EssaysPage() {
   const [newContent, setNewContent] = useState("")
   const [editContent, setEditContent] = useState("")
   const [saving, setSaving] = useState(false)
+  const [newExternalUrl, setNewExternalUrl] = useState("")
 
   // AI Review state
   const [reviewLoading, setReviewLoading] = useState<string | null>(null)
@@ -178,19 +184,26 @@ export default function EssaysPage() {
     if (!newTitle.trim()) { toast.error("Title is required"); return }
     setSaving(true)
     try {
+      const externalUrl = newExternalUrl.trim() || null
+
       const res = await fetch("/api/essays", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newTitle, content: newContent }),
+        body: JSON.stringify({
+          title: newTitle,
+          content: newContent,
+          externalUrl,
+        }),
       })
       if (res.ok) {
         const essay = await res.json()
-        setEssays((prev) => [...prev, essay])
+        setEssays((prev) => [...prev, { ...essay, versions: [], reviews: [], prompt: null, application: null }])
         setSelectedId(essay.id)
         toast.success("Essay created!")
         setNewOpen(false)
         setNewTitle("")
         setNewContent("")
+        setNewExternalUrl("")
       } else { toast.error("Failed to create essay") }
     } catch { toast.error("Something went wrong") }
     finally { setSaving(false) }
@@ -314,7 +327,7 @@ export default function EssaysPage() {
             <Lightbulb className="h-4 w-4" />
             Get Writing Tips
           </Button>
-          <Button className="gap-2" onClick={() => setNewOpen(true)}>
+          <Button className="gap-2" onClick={() => { setNewExternalUrl(""); setNewOpen(true) }}>
             <Plus className="h-4 w-4" />
             New Essay
           </Button>
@@ -330,11 +343,28 @@ export default function EssaysPage() {
             <div className="space-y-4 py-2">
               <div>
                 <label className="text-sm font-medium">Title *</label>
-                <input className="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="e.g., Personal Statement" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+                <Input className="mt-1" placeholder="e.g., Personal Statement" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
               </div>
               <div>
                 <label className="text-sm font-medium">Content</label>
-                <textarea className="mt-1 w-full rounded-md border px-3 py-2 text-sm resize-none" rows={6} placeholder="Start writing your essay..." value={newContent} onChange={(e) => setNewContent(e.target.value)} />
+                <Textarea className="mt-1" rows={6} placeholder="Start writing your essay..." value={newContent} onChange={(e) => setNewContent(e.target.value)} />
+              </div>
+
+              {/* External source section */}
+              <div className="space-y-3 rounded-lg border border-dashed border-gray-300 p-3">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Or import from external source</p>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                    <Link className="h-3.5 w-3.5" />
+                    Google Doc URL
+                  </label>
+                  <Input
+                    type="url"
+                    placeholder="Paste Google Doc URL..."
+                    value={newExternalUrl}
+                    onChange={(e) => setNewExternalUrl(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -646,9 +676,17 @@ export default function EssaysPage() {
                     <span>{wordCount}/{targetWords} words</span>
                     <span>Edited {formatDate(essay.updatedAt)}</span>
                   </div>
-                  <span className={`mt-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${config.color}`}>
-                    {config.label}
-                  </span>
+                  <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${config.color}`}>
+                      {config.label}
+                    </span>
+                    {(essay.externalUrl || essay.attachmentName) && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+                        <ExternalLink className="h-3 w-3" />
+                        {essay.attachmentName ? "File" : "External"}
+                      </span>
+                    )}
+                  </div>
                 </button>
               )
             })}
@@ -702,6 +740,29 @@ export default function EssaysPage() {
                       style={{ width: `${Math.min((wordCount / targetWords) * 100, 100)}%` }}
                     />
                   </div>
+
+                  {/* External source indicator */}
+                  {(selected.externalUrl || selected.attachmentName) && (
+                    <div className="flex flex-wrap gap-2 items-center">
+                      {selected.externalUrl && (
+                        <a
+                          href={selected.externalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          Open Google Doc
+                        </a>
+                      )}
+                      {selected.attachmentName && (
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700">
+                          <Upload className="h-3.5 w-3.5" />
+                          {selected.attachmentName}
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Linked scholarship */}
                   {selected.application && (
