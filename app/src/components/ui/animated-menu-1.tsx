@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'motion/react';
-import { Menu, X, Home, User, Briefcase, Mail, Sun, Moon, ChevronLeft } from 'lucide-react';
+import { Menu, X, Home, User, Briefcase, Mail, Sun, Moon, ChevronLeft } from '@/lib/icons';
 
 export default function AnimatedMenuComponent() {
   const [isOpen, setIsOpen] = useState(false);

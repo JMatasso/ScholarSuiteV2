@@ -35,7 +35,7 @@ import {
   CheckCircle2,
   Clock,
   MapPin,
-} from "lucide-react";
+} from "@/lib/icons";
 
 const sidebarGroups = [
   {

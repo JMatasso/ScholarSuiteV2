@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react"
 import { AnimatePresence, motion, MotionConfig } from "framer-motion"
-import { ChevronDownIcon, X, Sun, Moon, Monitor } from "lucide-react"
+import { ChevronDownIcon, X, Sun, Moon, Monitor } from "@/lib/icons"
 import { useTheme } from "next-themes"
 
 type TSelectData = {

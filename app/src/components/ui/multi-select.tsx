@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronDown, Search, X } from "lucide-react"
+import { Check, ChevronDown, Search, X } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
 export interface MultiSelectOption {

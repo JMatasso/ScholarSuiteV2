@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Loader2, X } from "lucide-react"
+import { Loader2, X } from "@/lib/icons"
 import { toast } from "sonner"
 
 // ─── Types ──────────────────────────────────────────────────

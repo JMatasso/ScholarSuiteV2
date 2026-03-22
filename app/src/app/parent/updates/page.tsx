@@ -21,7 +21,7 @@ import {
   Smartphone,
   ChevronDown,
   ChevronUp,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface ActivityEvent {
   id: string

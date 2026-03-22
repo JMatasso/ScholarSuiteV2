@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { Download, CalendarPlus, Copy, Check, RefreshCw, ExternalLink } from "lucide-react"
+import { Download, CalendarPlus, Copy, Check, RefreshCw, ExternalLink } from "@/lib/icons"
 
 const EVENT_TYPE_FILTERS: { type: EventType; label: string; dot: string }[] = [
   { type: "scholarship", label: "Scholarships", dot: "bg-accent0" },

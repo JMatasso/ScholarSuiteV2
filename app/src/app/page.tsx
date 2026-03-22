@@ -17,7 +17,7 @@ import {
   Building2,
   FileText,
   Activity,
-} from "lucide-react";
+} from "@/lib/icons";
 import { motion, useInView, useScroll } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";

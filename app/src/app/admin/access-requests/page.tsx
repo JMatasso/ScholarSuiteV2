@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
-import { CheckCircle2, XCircle, Clock, Mail, School } from "lucide-react"
+import { CheckCircle2, XCircle, Clock, Mail, School } from "@/lib/icons"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 

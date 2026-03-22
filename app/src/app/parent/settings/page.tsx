@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
-import { Loader2, Save, Shield, Check, Sparkles, Crown, TrendingUp, Bell, MessageSquare, FileText, Mail, Phone, Smartphone } from "lucide-react"
+import { Loader2, Save, Shield, Check, Sparkles, Crown, TrendingUp, Bell, MessageSquare, FileText, Mail, Phone, Smartphone } from "@/lib/icons"
 import LoaderOne from "@/components/ui/loader-one"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/ui/page-header"

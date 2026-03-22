@@ -19,7 +19,7 @@ import {
   User,
   CheckCircle2,
   XCircle,
-} from "lucide-react";
+} from "@/lib/icons";
 
 type MeetingStatus = "pending" | "accepted" | "declined" | "completed";
 

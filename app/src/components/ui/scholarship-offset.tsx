@@ -7,7 +7,7 @@ import {
   Award,
   RefreshCw,
   DollarSign,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface AwardedScholarship {
   id: string

@@ -17,7 +17,7 @@ import {
   School,
   ChevronDown,
   ChevronRight,
-} from "lucide-react"
+} from "@/lib/icons"
 import LoaderOne from "@/components/ui/loader-one"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"

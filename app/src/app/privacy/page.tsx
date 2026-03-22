@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { GraduationCap, ArrowLeft } from "lucide-react"
+import { GraduationCap, ArrowLeft } from "@/lib/icons"
 
 export default function PrivacyPolicyPage() {
   return (

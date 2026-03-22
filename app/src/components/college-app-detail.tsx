@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import {
   Calendar, FileText, Users, DollarSign, Flag, StickyNote,
   ChevronDown, ChevronRight, Trash2, Loader2,
-} from "lucide-react"
+} from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"

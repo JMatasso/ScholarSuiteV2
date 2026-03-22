@@ -3,7 +3,7 @@
 import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
 import { ScholarshipCalendar } from "@/components/ui/scholarship-calendar"
-import { Circle, CheckCircle2, CalendarRange, ClipboardList, Info } from "lucide-react"
+import { Circle, CheckCircle2, CalendarRange, ClipboardList, Info } from "@/lib/icons"
 import type { PhaseDetailContent } from "@/lib/constants"
 
 interface JourneyPhaseDetailProps {

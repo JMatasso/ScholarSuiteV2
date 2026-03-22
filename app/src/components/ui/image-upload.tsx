@@ -4,7 +4,7 @@ import { useCallback, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useImageUpload } from "@/hooks/use-image-upload"
-import { ImagePlus, X, Upload, Trash2, Loader2 } from "lucide-react"
+import { ImagePlus, X, Upload, Trash2, Loader2 } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
 interface ImageUploadProps {

@@ -1,6 +1,6 @@
 "use client"
 
-import { GraduationCap, MapPin, Users, Plus } from "lucide-react"
+import { GraduationCap, MapPin, Users, Plus } from "@/lib/icons"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"

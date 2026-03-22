@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { X } from "lucide-react"
+import { X } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 

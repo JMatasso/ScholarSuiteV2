@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { Check, Clock, ChevronDown } from "lucide-react"
+import { Check, Clock, ChevronDown } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 import { JOURNEY_STAGE_LABELS, JOURNEY_STAGES_ORDERED, JOURNEY_PHASE_CONTENT } from "@/lib/constants"
 import { JourneyPhaseDetail } from "@/components/ui/journey-phase-detail"

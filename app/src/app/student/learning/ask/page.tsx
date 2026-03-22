@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, type FormEvent } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { ArrowLeft, Send, Sparkles, User } from "lucide-react"
+import { ArrowLeft, Send, Sparkles, User } from "@/lib/icons"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/ui/page-header"

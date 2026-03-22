@@ -29,7 +29,7 @@ import {
   PanelLeftClose,
   PanelLeft,
   Paperclip,
-} from "lucide-react"
+} from "@/lib/icons"
 
 const SOURCE_ROUTES: Record<string, string> = {
   scholarship: "/student/scholarships",

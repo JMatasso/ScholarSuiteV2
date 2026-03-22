@@ -19,7 +19,7 @@ import {
   ChevronDown,
   ChevronUp,
   Lightbulb,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface LessonProgress {
   id: string

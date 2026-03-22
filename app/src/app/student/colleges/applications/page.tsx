@@ -7,7 +7,7 @@ import LoaderOne from "@/components/ui/loader-one"
 import {
   Plus, GraduationCap, Send, CheckCircle2, Clock,
   XCircle, Star, Shield, ChevronDown, ChevronUp, Loader2,
-} from "lucide-react"
+} from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"

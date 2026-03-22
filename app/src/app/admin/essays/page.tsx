@@ -9,7 +9,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { FileText } from "lucide-react"
+import { FileText } from "@/lib/icons"
 
 interface Essay {
   id: string

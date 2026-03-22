@@ -14,7 +14,7 @@ import {
   Globe,
   Lock,
   Terminal,
-} from "lucide-react"
+} from "@/lib/icons"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"

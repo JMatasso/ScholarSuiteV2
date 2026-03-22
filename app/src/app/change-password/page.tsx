@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Lock } from "lucide-react"
+import { Lock } from "@/lib/icons"
 
 export default function ChangePasswordPage() {
   const router = useRouter()

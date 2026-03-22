@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { GraduationCap, Loader2, CheckCircle2, ArrowLeft } from "lucide-react";
+import { GraduationCap, Loader2, CheckCircle2, ArrowLeft } from "@/lib/icons";
 import { toast } from "sonner";
 
 export default function RequestAccessPage() {

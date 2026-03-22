@@ -15,7 +15,7 @@ import {
   Clock,
   Send,
   AlertTriangle,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface Scholarship {
   name: string

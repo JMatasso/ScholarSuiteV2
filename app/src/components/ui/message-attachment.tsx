@@ -1,6 +1,6 @@
 "use client"
 
-import { FileText, X, Loader2 } from "lucide-react"
+import { FileText, X, Loader2 } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
 function isImageUrl(url: string) {

@@ -16,7 +16,7 @@ import LoaderOne from "@/components/ui/loader-one"
 import {
   Plus, Pencil, Trash2, ChevronDown, ChevronUp, Building2, Users,
   UserPlus, UserMinus, Loader2, Globe, Mail, Phone, User,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface Provider {
   id: string

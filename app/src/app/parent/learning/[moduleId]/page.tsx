@@ -16,7 +16,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface Lesson {
   id: string

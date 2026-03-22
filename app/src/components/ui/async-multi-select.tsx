@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react"
-import { Check, ChevronsUpDown, Search, Loader2, X } from "lucide-react"
+import { Check, ChevronsUpDown, Search, Loader2, X } from "@/lib/icons"
 import { useDebounce } from "@/hooks/use-debounce"
 import { cn } from "@/lib/utils"
 

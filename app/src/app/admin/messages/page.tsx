@@ -11,7 +11,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { AsyncSelect } from "@/components/ui/async-select"
-import { Plus, Megaphone, Send, Paperclip } from "lucide-react"
+import { Plus, Megaphone, Send, Paperclip } from "@/lib/icons"
 import { toast } from "sonner"
 import { useMessaging } from "@/hooks/use-messaging"
 import { AttachmentPreview, UploadingIndicator, MessageAttachmentDisplay } from "@/components/ui/message-attachment"
@@ -445,14 +445,14 @@ export default function MessagesPage() {
                         </Avatar>
                       )}
                       {!isOwn && sameSender && <div className="w-8 shrink-0" />}
-                      <div className={cn("flex flex-col", isOwn ? "items-end" : "items-start")}>
+                      <div className={cn("flex flex-col flex-1 min-w-0", isOwn ? "items-end" : "items-start")}>
                         <div className={cn(
-                          "px-4 py-2.5 text-sm leading-relaxed",
+                          "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed break-words",
                           isOwn
                             ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
                             : "bg-muted text-foreground rounded-2xl rounded-bl-md"
                         )}>
-                          {msg.content}
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
                           {msg.imageUrl && (
                             <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isOwn} />
                           )}

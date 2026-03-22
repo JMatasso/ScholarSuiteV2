@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 /**
  * Utility to auto-generate tasks when college-related events happen.
  * All functions check for duplicates before creating (same userId + title, not DONE).
+ * Respects `doneApplying` flag — no new college tasks if student is done applying.
  */
 
 function addDays(date: Date, days: number): Date {
@@ -19,11 +20,18 @@ interface TaskDef {
   dueDate?: Date | null
 }
 
+async function isDoneApplying(userId: string): Promise<boolean> {
+  const profile = await db.studentProfile.findUnique({
+    where: { userId },
+    select: { doneApplying: true },
+  })
+  return profile?.doneApplying ?? false
+}
+
 async function createTasksIfNotExists(userId: string, tasks: TaskDef[]) {
   const results = []
 
   for (const task of tasks) {
-    // Check for duplicate: same user + title that isn't DONE
     const existing = await db.task.findFirst({
       where: {
         userId,
@@ -56,12 +64,15 @@ async function createTasksIfNotExists(userId: string, tasks: TaskDef[]) {
 
 /**
  * Called when a student adds a college to their list.
+ * Skipped if student is done applying.
  */
 export async function generateCollegeAddedTasks(
   userId: string,
   collegeName: string,
   _collegeAppId: string
 ) {
+  if (await isDoneApplying(userId)) return []
+
   return createTasksIfNotExists(userId, [
     {
       title: `Research ${collegeName}`,
@@ -75,6 +86,7 @@ export async function generateCollegeAddedTasks(
 
 /**
  * Called when a student starts an application.
+ * Skipped if student is done applying.
  */
 export async function generateApplicationStartedTasks(
   userId: string,
@@ -82,26 +94,11 @@ export async function generateApplicationStartedTasks(
   _appType: string,
   deadline: Date | null
 ) {
-  const due30 = deadline ? addDays(deadline, -30) : null
+  if (await isDoneApplying(userId)) return []
+
   const due14 = deadline ? addDays(deadline, -14) : null
 
   return createTasksIfNotExists(userId, [
-    {
-      title: `Request official transcript for ${collegeName}`,
-      description:
-        "Contact your school counselor to send your official transcript.",
-      track: "COLLEGE_APP",
-      priority: "HIGH",
-      dueDate: due30,
-    },
-    {
-      title: `Send test scores to ${collegeName}`,
-      description:
-        "Request official SAT/ACT score reports be sent to this school.",
-      track: "COLLEGE_APP",
-      priority: "MEDIUM",
-      dueDate: due30,
-    },
     {
       title: `Complete ${collegeName} supplemental essays`,
       description:
@@ -111,14 +108,6 @@ export async function generateApplicationStartedTasks(
       dueDate: due14,
     },
     {
-      title: `Request letters of recommendation for ${collegeName}`,
-      description:
-        "Ask teachers and counselors for recommendation letters well in advance.",
-      track: "COLLEGE_APP",
-      priority: "HIGH",
-      dueDate: due30,
-    },
-    {
       title: `Submit ${collegeName} application`,
       description:
         "Review all sections and submit the completed application.",
@@ -126,19 +115,12 @@ export async function generateApplicationStartedTasks(
       priority: "HIGH",
       dueDate: deadline,
     },
-    {
-      title: `Pay application fee or submit fee waiver for ${collegeName}`,
-      description:
-        "Ensure the application fee is paid or a fee waiver is submitted.",
-      track: "COLLEGE_APP",
-      priority: "MEDIUM",
-      dueDate: deadline,
-    },
   ])
 }
 
 /**
  * Called when application status changes to ACCEPTED.
+ * Always runs (post-acceptance tasks are still needed even if done applying).
  */
 export async function generateAcceptedTasks(
   userId: string,
@@ -157,14 +139,6 @@ export async function generateAcceptedTasks(
       dueDate: addDays(now, 7),
     },
     {
-      title: `Compare ${collegeName} offer with other acceptances`,
-      description:
-        "Create a side-by-side comparison of costs, aid, and fit across all acceptances.",
-      track: "FINANCIAL",
-      priority: "MEDIUM",
-      dueDate: addDays(now, 14),
-    },
-    {
       title: `Submit enrollment deposit for ${collegeName}`,
       description:
         "Pay the enrollment deposit to secure your spot.",
@@ -177,6 +151,7 @@ export async function generateAcceptedTasks(
 
 /**
  * Called when a student commits to a school.
+ * Always runs.
  */
 export async function generateCommittedTasks(
   userId: string,
@@ -185,6 +160,14 @@ export async function generateCommittedTasks(
   const now = new Date()
 
   return createTasksIfNotExists(userId, [
+    {
+      title: `Submit final transcript to ${collegeName}`,
+      description:
+        "Ensure your school sends your final transcript after graduation.",
+      track: "COLLEGE_APP",
+      priority: "HIGH",
+      dueDate: addDays(now, 90),
+    },
     {
       title: `Complete ${collegeName} housing application`,
       description:
@@ -199,30 +182,6 @@ export async function generateCommittedTasks(
         "Sign up for new student orientation sessions.",
       track: "COLLEGE_PREP",
       priority: "MEDIUM",
-      dueDate: addDays(now, 60),
-    },
-    {
-      title: `Submit final transcript to ${collegeName}`,
-      description:
-        "Ensure your school sends your final transcript after graduation.",
-      track: "COLLEGE_APP",
-      priority: "HIGH",
-      dueDate: addDays(now, 90),
-    },
-    {
-      title: `Set up ${collegeName} student email and portal accounts`,
-      description:
-        "Activate your student email and access the university portal.",
-      track: "COLLEGE_PREP",
-      priority: "LOW",
-      dueDate: addDays(now, 30),
-    },
-    {
-      title: `Research ${collegeName} meal plan options`,
-      description:
-        "Review available meal plans and select one before the deadline.",
-      track: "COLLEGE_PREP",
-      priority: "LOW",
       dueDate: addDays(now, 60),
     },
   ])

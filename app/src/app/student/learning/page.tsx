@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
 import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
-import { GraduationCap, DollarSign, BookOpen, ArrowRight, CheckCircle2, Sparkles, Target } from "lucide-react"
+import { GraduationCap, DollarSign, BookOpen, ArrowRight, CheckCircle2, Sparkles, Target } from "@/lib/icons"
 import { LearningChatWidget } from "@/components/ui/learning-chat-widget"
 
 interface LessonProgress {

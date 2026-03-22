@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { GraduationCap, Eye, EyeOff, Loader2, User, Users, Shield, Check, X } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, Loader2, User, Users, Shield, Check, X } from "@/lib/icons";
 import { toast } from "sonner";
 
 type RoleOption = "STUDENT" | "PARENT";

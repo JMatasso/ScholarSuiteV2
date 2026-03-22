@@ -21,7 +21,7 @@ import {
   Download,
   Trash2,
   ChevronRight,
-} from "lucide-react"
+} from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 import { UploadButton } from "@/lib/uploadthing"
@@ -32,10 +32,11 @@ interface Task {
   description: string | null
   dueDate: string | null
   priority: "HIGH" | "MEDIUM" | "LOW"
-  track: "SCHOLARSHIP" | "COLLEGE_PREP"
+  track: "SCHOLARSHIP" | "COLLEGE_PREP" | "COLLEGE_APP" | "FINANCIAL" | "ACADEMIC" | "GENERAL"
   phase: "INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL"
   status: "NOT_STARTED" | "IN_PROGRESS" | "DONE"
   documentFolder: string | null
+  requiresUpload: boolean
 }
 
 interface Document {
@@ -92,7 +93,7 @@ function formatFileSize(bytes: number | null): string {
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTrack, setActiveTrack] = useState<"COLLEGE_PREP" | "SCHOLARSHIP">("COLLEGE_PREP")
+  const [activeTrack, setActiveTrack] = useState<string>("SCHOLARSHIP")
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "completed">("all")
   const [filterPriority, setFilterPriority] = useState<"all" | "HIGH" | "MEDIUM" | "LOW">("all")
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -122,6 +123,19 @@ export default function TasksPage() {
 
   const toggleTask = async (task: Task) => {
     const newStatus = task.status === "DONE" ? "IN_PROGRESS" : "DONE"
+
+    // If requires upload and trying to mark as done, check if docs uploaded
+    if (newStatus === "DONE" && task.requiresUpload && task.documentFolder) {
+      const docsRes = await fetch("/api/documents")
+      const docs = await docsRes.json()
+      const taskDocs = Array.isArray(docs) ? docs.filter((d: { folder?: string }) => d.folder === task.documentFolder) : []
+      if (taskDocs.length === 0) {
+        toast.error("Upload the required document(s) before marking this task as complete")
+        setSelectedTask(task) // Open detail panel so they can upload
+        return
+      }
+    }
+
     setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: newStatus as Task["status"] } : t))
     if (selectedTask?.id === task.id) setSelectedTask({ ...task, status: newStatus as Task["status"] })
 
@@ -145,10 +159,12 @@ export default function TasksPage() {
     return true
   })
 
-  const collegeTasks = tasks.filter((t) => t.track === "COLLEGE_PREP")
+  const collegeTasks = tasks.filter((t) => t.track === "COLLEGE_PREP" || t.track === "COLLEGE_APP")
   const scholarshipTasks = tasks.filter((t) => t.track === "SCHOLARSHIP")
+  const generalTasks = tasks.filter((t) => t.track === "GENERAL" || t.track === "FINANCIAL" || t.track === "ACADEMIC")
   const collegeCompleted = collegeTasks.filter((t) => t.status === "DONE").length
   const scholarshipCompleted = scholarshipTasks.filter((t) => t.status === "DONE").length
+  const generalCompleted = generalTasks.filter((t) => t.status === "DONE").length
 
   const totalTasks = trackTasks.length
   const completedCount = trackTasks.filter((t) => t.status === "DONE").length

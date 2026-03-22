@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Send, Search, Paperclip, Plus, X, Users, Shield } from "lucide-react"
+import { Send, Search, Paperclip, Plus, X, Users, Shield } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 import { useMessaging } from "@/hooks/use-messaging"
 import { getInitials } from "@/lib/format"
@@ -297,16 +297,16 @@ export default function MessagesPage() {
                           </Avatar>
                         )}
                         {!isMe && sameSender && <div className="w-8 shrink-0" />}
-                        <div className={cn("flex flex-col", isMe ? "items-end" : "items-start")}>
+                        <div className={cn("flex flex-col flex-1 min-w-0", isMe ? "items-end" : "items-start")}>
                           <div
                             className={cn(
-                              "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed",
+                              "max-w-[75%] px-4 py-2.5 text-sm leading-relaxed break-words",
                               isMe
                                 ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
                                 : "bg-muted rounded-2xl rounded-bl-md"
                             )}
                           >
-                            <p>{msg.content}</p>
+                            <p className="whitespace-pre-wrap">{msg.content}</p>
                             {msg.imageUrl && (
                               <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isMe} />
                             )}

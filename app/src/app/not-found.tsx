@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { GraduationCap, ArrowLeft } from "lucide-react"
+import { GraduationCap, ArrowLeft } from "@/lib/icons"
 
 export default function NotFoundPage() {
   const { data: session } = useSession()

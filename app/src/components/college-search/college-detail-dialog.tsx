@@ -1,6 +1,6 @@
 "use client"
 
-import { GraduationCap, ExternalLink, Plus } from "lucide-react"
+import { GraduationCap, ExternalLink, Plus } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

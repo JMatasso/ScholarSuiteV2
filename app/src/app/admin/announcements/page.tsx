@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Pin, Clock, Users, UserPlus, Shield } from "lucide-react"
+import { Plus, Pin, Clock, Users, UserPlus, Shield } from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 

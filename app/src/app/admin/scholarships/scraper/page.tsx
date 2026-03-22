@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Globe, Loader2, CheckCircle2, XCircle, Clock, Plus,
   RefreshCw, ExternalLink, ChevronDown, ChevronUp, ArrowRight,
-} from "lucide-react"
+} from "@/lib/icons"
 
 type Tab = "extract" | "refresh"
 type ExtractStatus = "pending" | "extracting" | "done" | "error"

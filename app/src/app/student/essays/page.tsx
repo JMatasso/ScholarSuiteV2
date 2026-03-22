@@ -42,7 +42,7 @@ import {
   Upload,
   Link,
   ExternalLink,
-} from "lucide-react"
+} from "@/lib/icons"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"

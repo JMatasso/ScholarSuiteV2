@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { AnimatePresence, motion } from "motion/react"
-import { Bell, CheckCircle2, AlertTriangle, Info, XOctagon, Check, X } from "lucide-react"
+import { Bell, CheckCircle2, AlertTriangle, Info, XOctagon, Check, X } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import LoaderOne from "@/components/ui/loader-one"
 import { cn } from "@/lib/utils"

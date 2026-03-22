@@ -25,7 +25,7 @@ import {
   MessageSquare,
   ArrowRight,
   Star,
-} from "lucide-react"
+} from "@/lib/icons"
 import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
 import { CompletionBanner } from "@/components/ui/completion-banner"
 import Link from "next/link"

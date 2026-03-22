@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, PanelLeftClose, PanelLeft, type LucideIcon } from "lucide-react";
+import { GraduationCap, PanelLeftClose, PanelLeft, type LucideIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,

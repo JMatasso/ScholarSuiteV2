@@ -3,7 +3,7 @@
 import * as React from "react"
 import { motion } from "motion/react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Users, FileText, Award, AlertTriangle, TrendingUp, ArrowRight, GraduationCap } from "lucide-react"
+import { Users, FileText, Award, AlertTriangle, TrendingUp, ArrowRight, GraduationCap } from "@/lib/icons"
 import { toast } from "sonner"
 import Link from "next/link"
 import { cn } from "@/lib/utils"

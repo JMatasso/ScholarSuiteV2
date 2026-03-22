@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DollarSign, FileText, GraduationCap, Trophy } from "lucide-react";
+import { DollarSign, FileText, GraduationCap, Trophy } from "@/lib/icons";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs";
 

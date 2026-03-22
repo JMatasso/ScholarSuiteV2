@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParticipants } from "@livekit/components-react"
-import { Users } from "lucide-react"
+import { Users } from "@/lib/icons"
 
 export function CallHeader({ title }: { title: string }) {
   const participants = useParticipants()

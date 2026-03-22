@@ -1,4 +1,4 @@
-import { GraduationCap } from "lucide-react";
+import { GraduationCap } from "@/lib/icons";
 
 export default function Loading() {
   return (

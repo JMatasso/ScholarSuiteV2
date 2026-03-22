@@ -16,7 +16,7 @@ import {
   MapPin,
   Trophy,
   CheckCircle2,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface College {
   id: string

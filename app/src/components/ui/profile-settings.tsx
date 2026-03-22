@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { Eye, EyeOff, Loader2, Save, Download, Check, X } from "lucide-react"
+import { Eye, EyeOff, Loader2, Save, Download, Check, X } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { ImageUpload } from "@/components/ui/image-upload"
 

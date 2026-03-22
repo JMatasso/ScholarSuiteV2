@@ -4,7 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, FileText, DollarSign, GraduationCap } from "lucide-react"
+import { Users, FileText, DollarSign, GraduationCap } from "@/lib/icons"
 import { toast } from "sonner"
 import {
   BarChart,

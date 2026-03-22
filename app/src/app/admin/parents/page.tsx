@@ -16,7 +16,7 @@ import {
   Pencil,
   Trash2,
   Link2,
-} from "lucide-react"
+} from "@/lib/icons"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"

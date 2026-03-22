@@ -8,7 +8,7 @@ import {
   Info,
   XOctagon,
   X,
-} from "lucide-react";
+} from "@/lib/icons";
 
 const alertToastVariants = cva(
   "relative w-full max-w-sm overflow-hidden rounded-lg shadow-lg flex items-start p-4 space-x-4",

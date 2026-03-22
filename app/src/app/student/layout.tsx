@@ -39,7 +39,7 @@ import {
   GraduationCap,
   Star,
   Mail,
-} from "lucide-react"
+} from "@/lib/icons"
 
 const navGroups = [
   {

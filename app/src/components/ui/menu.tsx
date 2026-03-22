@@ -1,7 +1,7 @@
 // 1. Import Dependencies
 import * as React from 'react';
 import { motion } from 'motion/react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 // 2. Define Prop Types

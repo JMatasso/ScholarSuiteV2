@@ -6,7 +6,7 @@ import { LearningCategoryGrid } from "@/components/ui/learning-category-grid"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "@/lib/icons"
 import { LearningChatWidget } from "@/components/ui/learning-chat-widget"
 
 export default function ScholarshipMasteryPage() {

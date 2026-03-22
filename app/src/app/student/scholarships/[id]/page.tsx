@@ -26,7 +26,7 @@ import {
   FileText,
   Award,
   Shield,
-} from "lucide-react"
+} from "@/lib/icons"
 import { toast } from "sonner"
 
 interface ScholarshipTag {

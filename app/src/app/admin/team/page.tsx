@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { Plus, Shield, Eye, EyeOff } from "lucide-react"
+import { Plus, Shield, Eye, EyeOff } from "@/lib/icons"
 import { useSession } from "next-auth/react"
 
 interface AdminUser {

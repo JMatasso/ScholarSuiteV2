@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Loader2, Save, Edit3 } from "lucide-react"
+import { Loader2, Save, Edit3 } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/ui/page-header"
 

@@ -17,7 +17,7 @@ import {
   Star,
   Save,
   MessageSquare,
-} from "lucide-react"
+} from "@/lib/icons"
 import { formatDate } from "@/lib/format"
 import { toast } from "sonner"
 

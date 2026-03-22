@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { GraduationCap, MapPin, Star, Trophy, Briefcase, Heart, Users, Award, BookOpen, Loader2 } from "lucide-react"
+import { GraduationCap, MapPin, Star, Trophy, Briefcase, Heart, Users, Award, BookOpen, Loader2 } from "@/lib/icons"
 
 interface Profile {
   firstName: string | null

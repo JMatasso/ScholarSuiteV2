@@ -5,12 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bell,
+  Calendar,
   ChevronRight,
   LogOut,
+  MessageSquare,
   Search,
   Settings,
   User,
-} from "lucide-react";
+} from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { getInitials } from "@/lib/format";
 import {
@@ -103,8 +105,38 @@ export function Topbar({
           </kbd>
         </button>
 
-        {/* Right: Notifications + Avatar */}
-        <div className="flex items-center gap-3">
+        {/* Right: Navigation + Notifications + Avatar */}
+        <div className="flex items-center gap-1">
+          {/* Messages link */}
+          <Link
+            href={`/${pathname.split("/")[1]}/messages`}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted",
+              pathname.includes("/messages")
+                ? "text-[#2563EB] bg-[#2563EB]/10"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <MessageSquare className="size-4" />
+            <span className="hidden sm:inline">Messages</span>
+          </Link>
+
+          {/* Meetings link */}
+          <Link
+            href={`/${pathname.split("/")[1]}/meetings`}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted",
+              pathname.includes("/meetings")
+                ? "text-[#2563EB] bg-[#2563EB]/10"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Calendar className="size-4" />
+            <span className="hidden sm:inline">Meetings</span>
+          </Link>
+
+          <div className="mx-1 h-5 w-px bg-border" />
+
           {/* Notification bell */}
           <button
             className="relative inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -112,7 +144,7 @@ export function Topbar({
           >
             <Bell className="size-5" />
             {notificationCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-[#1E3A5F] text-[10px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-[#2563EB] text-[10px] font-bold text-white">
                 {notificationCount > 9 ? "9+" : notificationCount}
               </span>
             )}

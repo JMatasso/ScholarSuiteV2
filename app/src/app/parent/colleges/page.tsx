@@ -19,7 +19,7 @@ import {
   ArrowUpCircle,
   TrendingUp,
   MapPin,
-} from "lucide-react"
+} from "@/lib/icons"
 import { formatDate } from "@/lib/format"
 import { formatTuition, formatAcceptanceRate } from "@/lib/college-utils"
 

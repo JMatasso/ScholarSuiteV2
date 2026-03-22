@@ -5,7 +5,7 @@ import {
   Calendar, GripVertical,
   GraduationCap, Send, CheckCircle2, Clock, XCircle, Search,
   ArrowRightFromLine, MapPin,
-} from "lucide-react"
+} from "@/lib/icons"
 import { Card } from "@/components/ui/card"
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,

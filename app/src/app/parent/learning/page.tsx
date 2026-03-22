@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { LearningCategoryGrid } from "@/components/ui/learning-category-grid"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { GraduationCap, DollarSign, BookOpen, ChevronDown } from "lucide-react"
+import { GraduationCap, DollarSign, BookOpen, ChevronDown } from "@/lib/icons"
 import { motion } from "motion/react"
 import { getInitials } from "@/lib/format"
 

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
-import { JOURNEY_STAGE_TO_TASK_PHASES } from "@/lib/constants"
-import type { TaskPhase } from "@/generated/prisma/client"
+import { JOURNEY_STAGE_TO_TASK_PHASES, DEFAULT_TEMPLATE_ITEMS } from "@/lib/constants"
 
 // POST — assign template tasks for a specific journey stage to a single student
 export async function POST(req: Request) {
@@ -35,28 +34,73 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No task phases for this stage" }, { status: 400 })
     }
 
-    // Find the default template
+    // Try to find a DB template first; fall back to constants
     const template = await db.taskTemplate.findFirst({
       where: { isDefault: true },
     })
 
-    if (!template) {
-      return NextResponse.json({
-        success: true,
-        tasksCreated: 0,
-        message: "No default template found",
+    let templateId: string | null = template?.id || null
+
+    if (template) {
+      // Use DB template items
+      const templateItems = await db.taskTemplateItem.findMany({
+        where: {
+          templateId: template.id,
+          phase: { in: taskPhases as ("INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL")[] },
+        },
+        orderBy: { order: "asc" },
       })
+
+      if (templateItems.length > 0) {
+        const existingTasks = await db.task.findMany({
+          where: { userId: studentId, templateId: template.id },
+          select: { templateItemId: true },
+        })
+        const existingItemIds = new Set(
+          existingTasks.map((t) => t.templateItemId).filter(Boolean)
+        )
+
+        const missingItems = templateItems.filter(
+          (item) => !existingItemIds.has(item.id)
+        )
+
+        if (missingItems.length === 0) {
+          return NextResponse.json({
+            success: true,
+            tasksCreated: 0,
+            message: "All phase tasks already assigned",
+          })
+        }
+
+        await db.task.createMany({
+          data: missingItems.map((item) => ({
+            userId: studentId,
+            title: item.title,
+            description: item.description,
+            phase: item.phase,
+            track: item.track,
+            priority: item.priority,
+            documentFolder: item.documentFolder,
+            requiresUpload: item.requiresUpload,
+            templateId: template.id,
+            templateItemId: item.id,
+          })),
+        })
+
+        return NextResponse.json({
+          success: true,
+          tasksCreated: missingItems.length,
+          stage: targetStage,
+        })
+      }
     }
 
-    const templateItems = await db.taskTemplateItem.findMany({
-      where: {
-        templateId: template.id,
-        phase: { in: taskPhases as TaskPhase[] },
-      },
-      orderBy: { order: "asc" },
-    })
+    // Fallback: use DEFAULT_TEMPLATE_ITEMS from constants
+    const phaseItems = DEFAULT_TEMPLATE_ITEMS.filter(
+      (item) => taskPhases.includes(item.phase)
+    )
 
-    if (templateItems.length === 0) {
+    if (phaseItems.length === 0) {
       return NextResponse.json({
         success: true,
         tasksCreated: 0,
@@ -64,17 +108,15 @@ export async function POST(req: Request) {
       })
     }
 
-    // Find which template items the student already has
+    // Deduplicate: check existing tasks by title
     const existingTasks = await db.task.findMany({
-      where: { userId: studentId, templateId: template.id },
-      select: { templateItemId: true },
+      where: { userId: studentId },
+      select: { title: true },
     })
-    const existingItemIds = new Set(
-      existingTasks.map((t) => t.templateItemId).filter(Boolean)
-    )
+    const existingTitles = new Set(existingTasks.map((t) => t.title))
 
-    const missingItems = templateItems.filter(
-      (item) => !existingItemIds.has(item.id)
+    const missingItems = phaseItems.filter(
+      (item) => !existingTitles.has(item.title)
     )
 
     if (missingItems.length === 0) {
@@ -90,12 +132,12 @@ export async function POST(req: Request) {
         userId: studentId,
         title: item.title,
         description: item.description,
-        phase: item.phase,
-        track: item.track,
-        priority: item.priority,
-        documentFolder: item.documentFolder,
-        templateId: template.id,
-        templateItemId: item.id,
+        phase: item.phase as "INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL",
+        track: (item.track || "SCHOLARSHIP") as "SCHOLARSHIP" | "COLLEGE_PREP" | "COLLEGE_APP" | "FINANCIAL" | "ACADEMIC" | "GENERAL",
+        priority: item.priority as "LOW" | "MEDIUM" | "HIGH",
+        documentFolder: item.documentFolder || null,
+        requiresUpload: item.requiresUpload || false,
+        templateId: templateId,
       })),
     })
 

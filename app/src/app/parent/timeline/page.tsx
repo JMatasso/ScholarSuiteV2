@@ -7,7 +7,7 @@ import { ScholarshipPipeline } from "@/components/ui/scholarship-pipeline"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Target } from "lucide-react"
+import { Target } from "@/lib/icons"
 
 interface LinkedStudent {
   id: string

@@ -30,7 +30,7 @@ import {
   Pencil,
   Save,
   Bell,
-} from "lucide-react";
+} from "@/lib/icons";
 
 /* ─── Types ─── */
 

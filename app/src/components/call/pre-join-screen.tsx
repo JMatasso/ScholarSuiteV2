@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Video, VideoOff, Mic, MicOff, PhoneCall, Loader2 } from "lucide-react"
+import { Video, VideoOff, Mic, MicOff, PhoneCall, Loader2 } from "@/lib/icons"
 import { getInitials } from "@/lib/format"
 
 interface Participant {

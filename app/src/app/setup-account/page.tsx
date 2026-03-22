@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { GraduationCap, Loader2, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
+import { GraduationCap, Loader2, Eye, EyeOff, CheckCircle2, XCircle } from "@/lib/icons";
 import { toast } from "sonner";
 
 function SetupAccountForm() {

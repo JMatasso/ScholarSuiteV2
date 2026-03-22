@@ -1,7 +1,7 @@
 "use client"
 
 import { ReactNode } from "react"
-import { ArrowRight, type LucideIcon } from "lucide-react"
+import { ArrowRight, type LucideIcon } from "@/lib/icons"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 

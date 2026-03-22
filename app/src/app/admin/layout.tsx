@@ -40,7 +40,7 @@ import {
   MapPin,
   Building2,
   type LucideIcon,
-} from "lucide-react"
+} from "@/lib/icons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UserProfileSidebar } from "@/components/ui/menu"
 import { ThemeToggle } from "@/components/ui/theme-toggle"

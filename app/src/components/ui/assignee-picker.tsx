@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { Check, CircleUserRound, User } from "lucide-react"
+import { Check, CircleUserRound, User } from "@/lib/icons"
 
 export interface AdminUser {
   id: string

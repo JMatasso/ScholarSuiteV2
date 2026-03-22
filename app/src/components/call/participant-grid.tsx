@@ -9,7 +9,7 @@ import {
   isTrackReference,
 } from "@livekit/components-react"
 import { cn } from "@/lib/utils"
-import { User } from "lucide-react"
+import { User } from "@/lib/icons"
 
 export function ParticipantGrid() {
   const participants = useParticipants()

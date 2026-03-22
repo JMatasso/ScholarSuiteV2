@@ -79,39 +79,41 @@ export type DocumentFolder = (typeof DOCUMENT_FOLDERS)[number]
 
 // Default task template items — auto-assigned to every new student
 export const DEFAULT_TEMPLATE_ITEMS = [
-  // Introduction
-  { title: "Fill Out Intro Form", phase: "INTRODUCTION", priority: "HIGH", order: 1, description: "Complete the student intake form with your personal, academic, and background information." },
-  { title: "Introductory Presentation", phase: "INTRODUCTION", priority: "HIGH", order: 2, description: "Attend the introductory session to learn about the program and your roadmap." },
+  // ── Introduction ──────────────────────────────────────────
+  { title: "Fill Out Intro Form", phase: "INTRODUCTION", track: "GENERAL", priority: "HIGH", order: 1, description: "Complete the student intake form with your personal, academic, and background information.", requiresUpload: false },
+  { title: "Introductory Presentation", phase: "INTRODUCTION", track: "GENERAL", priority: "HIGH", order: 2, description: "Attend the introductory session to learn about the program and your roadmap.", requiresUpload: false },
 
-  // Phase 1
-  { title: "Resume Rough Draft", phase: "PHASE_1", priority: "MEDIUM", order: 3, documentFolder: "Resumes", description: "Create a first draft of your resume. Upload it to your Resumes folder." },
-  { title: "Visit College Counselor (see details)", phase: "PHASE_1", priority: "HIGH", order: 4, description: "Schedule and attend a meeting with your high school college counselor." },
-  { title: "Request 3 Letters of Recommendation", phase: "PHASE_1", priority: "MEDIUM", order: 5, documentFolder: "Letters of Recommendation", description: "Ask 3 teachers, mentors, or supervisors for recommendation letters." },
-  { title: "Obtain GPA Transcripts", phase: "PHASE_1", priority: "MEDIUM", order: 6, documentFolder: "Transcripts", description: "Request official or unofficial transcripts from your school and upload them." },
-  { title: "Finish Activity Brag Sheet", phase: "PHASE_1", priority: "MEDIUM", order: 7, documentFolder: "Activities", description: "Complete your activity/brag sheet with all extracurriculars, volunteer work, and achievements." },
-  { title: "SAT/ACT Scores", phase: "PHASE_1", priority: "MEDIUM", order: 8, documentFolder: "Test Scores & FAFSA", description: "Upload your SAT or ACT score reports." },
-  { title: "Volunteer Lists/Hours", phase: "PHASE_1", priority: "MEDIUM", order: 9, documentFolder: "Activities", description: "Document all volunteer hours with organization names, dates, and hours." },
-  { title: "Obtain Professional Headshot", phase: "PHASE_1", priority: "MEDIUM", order: 10, documentFolder: "Professional Headshots", description: "Get a professional headshot photo for scholarship and college applications." },
-  { title: "Sign-Up for Scholarship Databases", phase: "PHASE_1", priority: "MEDIUM", order: 11, description: "Create accounts on scholarship search platforms (Fastweb, Scholarships.com, etc.)." },
-  { title: "Add Documents to Google Drive", phase: "PHASE_1", priority: "MEDIUM", order: 12, documentFolder: "ScholarShape Resources", description: "Upload all gathered documents to your shared folder." },
+  // ── Phase 1: Scholarship Preparation (Things to Prepare) ─
+  { title: "Professional Resume", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "HIGH", order: 3, documentFolder: "Resumes", description: "Create a polished, professional resume for scholarship applications. Upload here when ready.", requiresUpload: true },
+  { title: "Professional Headshot", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "MEDIUM", order: 4, documentFolder: "Professional Headshots", description: "Get a professional headshot photo for scholarship and college applications.", requiresUpload: true },
+  { title: "IB/AP Test Scores", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "MEDIUM", order: 5, documentFolder: "Test Scores & FAFSA", description: "Upload your IB or AP exam score reports.", requiresUpload: true },
+  { title: "SAT/ACT Test Scores", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "HIGH", order: 6, documentFolder: "Test Scores & FAFSA", description: "Upload your SAT or ACT score reports.", requiresUpload: true },
+  { title: "Obtain 3-4 Letters of Recommendation", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "HIGH", order: 7, documentFolder: "Letters of Recommendation", description: "Ask 3-4 teachers, mentors, or supervisors for recommendation letters and upload them here.", requiresUpload: true },
+  { title: "Unofficial Transcripts", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "MEDIUM", order: 8, documentFolder: "Transcripts", description: "Request unofficial transcripts from your school and upload them.", requiresUpload: true },
+  { title: "Official Transcripts", phase: "PHASE_2", track: "SCHOLARSHIP", priority: "HIGH", order: 9, documentFolder: "Transcripts", description: "Request official sealed transcripts from your school and upload a copy.", requiresUpload: true },
+  { title: "Scholarship Data Sheet", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "MEDIUM", order: 10, documentFolder: "Application Documents", description: "Complete and upload your scholarship data sheet with personal, academic, and financial details.", requiresUpload: true },
+  { title: "Master List of Accomplishments", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "MEDIUM", order: 11, documentFolder: "Awards & Projects", description: "Compile a comprehensive list of all your accomplishments, awards, activities, and leadership roles.", requiresUpload: true },
 
-  // Phase 2
-  { title: "First Progress Check-In", phase: "PHASE_2", priority: "HIGH", order: 13, description: "Attend your first progress review meeting with your consultant." },
-  { title: "Upload Letters of Recommendation", phase: "PHASE_2", priority: "MEDIUM", order: 14, documentFolder: "Letters of Recommendation", description: "Upload the recommendation letters you've received." },
-  { title: "Find 5 Scholarships", phase: "PHASE_2", priority: "MEDIUM", order: 15, documentFolder: "Applications", description: "Research and identify 5 scholarships you qualify for and plan to apply." },
-  { title: "Financial Need Essay Draft", phase: "PHASE_2", priority: "MEDIUM", order: 16, documentFolder: "Essays", description: "Write a first draft of your financial need essay. Post here or in the Drive." },
-  { title: "Save Acceptance Emails", phase: "PHASE_2", priority: "MEDIUM", order: 17, documentFolder: "Acceptance Letters", description: "Save any college acceptance emails or letters you receive." },
+  // ── Phase 1: College Prep ─────────────────────────────────
+  { title: "Visit College Counselor", phase: "PHASE_1", track: "COLLEGE_PREP", priority: "HIGH", order: 12, description: "Schedule and attend a meeting with your high school college counselor.", requiresUpload: false },
+  { title: "Sign Up for Scholarship Databases", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "MEDIUM", order: 13, description: "Create accounts on scholarship search platforms (Fastweb, Scholarships.com, etc.).", requiresUpload: false },
+  { title: "Finish Activity Brag Sheet", phase: "PHASE_1", track: "SCHOLARSHIP", priority: "MEDIUM", order: 14, documentFolder: "Activities", description: "Complete your activity/brag sheet with all extracurriculars, volunteer work, and achievements.", requiresUpload: true },
 
-  // Ongoing
-  { title: "February Check-In", phase: "ONGOING", priority: "HIGH", order: 18, description: "Monthly check-in. Submit at least 1 scholarship application before this meeting." },
-  { title: "March Check-In", phase: "ONGOING", priority: "HIGH", order: 19, description: "Monthly check-in via video/phone call. Review progress and next steps." },
-  { title: "April Check-In", phase: "ONGOING", priority: "HIGH", order: 20, description: "Monthly check-in via video/phone call. Review progress and next steps." },
-  { title: "Senior Awards Night (If Applicable)", phase: "ONGOING", priority: "HIGH", order: 21, description: "Attend your school's senior awards night. Time to celebrate your achievements!" },
+  // ── Phase 2: Deeper Prep ──────────────────────────────────
+  { title: "First Progress Check-In", phase: "PHASE_2", track: "GENERAL", priority: "HIGH", order: 15, description: "Attend your first progress review meeting with your consultant.", requiresUpload: false },
+  { title: "Find 5 Scholarships to Apply To", phase: "PHASE_2", track: "SCHOLARSHIP", priority: "MEDIUM", order: 16, description: "Research and identify 5 scholarships you qualify for and plan to apply.", requiresUpload: false },
+  { title: "Financial Need Essay Draft", phase: "PHASE_2", track: "SCHOLARSHIP", priority: "MEDIUM", order: 17, documentFolder: "Essays", description: "Write a first draft of your financial need essay.", requiresUpload: true },
 
-  // Final Tasks
-  { title: "End of Semester Meeting", phase: "FINAL", priority: "HIGH", order: 22, description: "Final meeting via video/phone call to review the semester and plan ahead." },
-  { title: "Submit Review Form", phase: "FINAL", priority: "HIGH", order: 23, description: "Complete the program review form. Wait until the end of the program." },
-  { title: "Send College Info to Scholarships", phase: "FINAL", priority: "HIGH", order: 24, description: "Notify scholarship providers of your college enrollment decision. Wait until the end." },
+  // ── Ongoing: Application Sprint ───────────────────────────
+  { title: "Monthly Check-In (February)", phase: "ONGOING", track: "GENERAL", priority: "HIGH", order: 18, description: "Monthly check-in. Submit at least 1 scholarship application before this meeting.", requiresUpload: false },
+  { title: "Monthly Check-In (March)", phase: "ONGOING", track: "GENERAL", priority: "HIGH", order: 19, description: "Monthly check-in via video/phone call. Review progress and next steps.", requiresUpload: false },
+  { title: "Monthly Check-In (April)", phase: "ONGOING", track: "GENERAL", priority: "HIGH", order: 20, description: "Monthly check-in via video/phone call. Review progress and next steps.", requiresUpload: false },
+  { title: "Senior Awards Night (If Applicable)", phase: "ONGOING", track: "GENERAL", priority: "HIGH", order: 21, description: "Attend your school's senior awards night. Time to celebrate your achievements!", requiresUpload: false },
+
+  // ── Final Steps ───────────────────────────────────────────
+  { title: "End of Semester Meeting", phase: "FINAL", track: "GENERAL", priority: "HIGH", order: 22, description: "Final meeting via video/phone call to review the semester and plan ahead.", requiresUpload: false },
+  { title: "Submit Review Form", phase: "FINAL", track: "GENERAL", priority: "HIGH", order: 23, description: "Complete the program review form. Wait until the end of the program.", requiresUpload: false },
+  { title: "Send College Info to Scholarships", phase: "FINAL", track: "SCHOLARSHIP", priority: "HIGH", order: 24, description: "Notify scholarship providers of your college enrollment decision.", requiresUpload: false },
 ] as const
 
 // ─── JOURNEY PHASE DETAIL CONTENT ────────────────────────────

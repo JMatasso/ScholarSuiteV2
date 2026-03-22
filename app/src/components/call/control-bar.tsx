@@ -6,7 +6,7 @@ import {
   DisconnectButton,
   useLocalParticipant,
 } from "@livekit/components-react"
-import { Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff } from "lucide-react"
+import { Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
 export function ControlBar({ onLeave }: { onLeave: () => void }) {

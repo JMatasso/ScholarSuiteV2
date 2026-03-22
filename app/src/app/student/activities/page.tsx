@@ -27,7 +27,7 @@ import {
   ChevronLeft,
   Lightbulb,
   Zap,
-} from "lucide-react"
+} from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 import { BragSheetFormDialog, type ActivityEntry, type CategoryKey } from "@/components/brag-sheet-form-dialog"

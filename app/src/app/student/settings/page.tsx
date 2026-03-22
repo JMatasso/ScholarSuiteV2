@@ -23,7 +23,7 @@ import {
   Loader2,
   Save,
   Shield,
-} from "lucide-react"
+} from "@/lib/icons"
 
 const tabItems = [
   { id: "Account", label: "Account" },

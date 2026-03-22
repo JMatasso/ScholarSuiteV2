@@ -142,6 +142,8 @@ export async function POST(req: Request) {
       postSecondaryPath: data.postSecondaryPath || "COLLEGE",
       collegeJourneyStage: data.collegeJourneyStage || null,
       committedCollegeName: data.committedCollegeName || null,
+      // Auto-set doneApplying based on college journey stage
+      doneApplying: data.collegeJourneyStage === "DECIDED" || data.collegeJourneyStage === "WAITING" || data.collegeJourneyStage === "NOT_COLLEGE",
       activities: data.activities || null,
       communityService: data.communityService || null,
       leadershipRoles: data.leadershipRoles || null,

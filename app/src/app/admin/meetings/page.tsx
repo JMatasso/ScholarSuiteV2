@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch"
 import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import Link from "next/link"
-import { Plus, Video, Clock, Calendar, MapPin, Users, X, UserPlus } from "lucide-react"
+import { Plus, Video, Clock, Calendar, MapPin, Users, X, UserPlus } from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 

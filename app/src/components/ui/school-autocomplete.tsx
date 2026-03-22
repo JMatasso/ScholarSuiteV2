@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { MapPin, School, Loader2 } from "lucide-react";
+import { MapPin, School, Loader2 } from "@/lib/icons";
 
 interface SchoolResult {
   id: string;

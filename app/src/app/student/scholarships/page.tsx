@@ -30,7 +30,7 @@ import {
   MapPin,
   Bell,
   BellOff,
-} from "lucide-react"
+} from "@/lib/icons"
 import { toast } from "sonner"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import {

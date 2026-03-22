@@ -5,10 +5,15 @@ import { motion } from "motion/react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { ArrowLeft, Mail, Phone, MapPin, Calendar, GraduationCap, FileText, CheckCircle2, Clock, ListTodo } from "lucide-react"
+import {
+  ArrowLeft, Mail, Phone, MapPin, Calendar, GraduationCap, FileText,
+  CheckCircle2, Clock, ListTodo, Plus, Trash2, Building2, Upload,
+} from "@/lib/icons"
 import { AssigneePicker, type AdminUser } from "@/components/ui/assignee-picker"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
@@ -16,7 +21,8 @@ import { TASK_PHASE_TO_JOURNEY_STAGE, SERVICE_TIER_LABELS, JOURNEY_STAGE_LABELS 
 
 const tabItems = [
   { id: "Profile", label: "Profile" },
-  { id: "Applications", label: "Applications" },
+  { id: "Applications", label: "Scholarships" },
+  { id: "CollegeApps", label: "College Apps" },
   { id: "Tasks", label: "Tasks" },
   { id: "Essays", label: "Essays" },
   { id: "Documents", label: "Documents" },
@@ -24,6 +30,17 @@ const tabItems = [
   { id: "Notes", label: "Notes" },
 ]
 type Tab = typeof tabItems[number]["id"]
+
+interface CollegeApp {
+  id: string
+  universityName: string
+  applicationType: string
+  status: string
+  deadline?: string | null
+  cost?: number | null
+  isDream: boolean
+  isSafety: boolean
+}
 
 interface StudentData {
   id: string
@@ -42,6 +59,7 @@ interface StudentData {
     gradeLevel?: number | null
     status?: string | null
     serviceTier?: string | null
+    doneApplying?: boolean
     assignedAdminId?: string | null
     assignedAdmin?: { id: string; name: string | null; image: string | null } | null
   } | null
@@ -52,12 +70,17 @@ interface StudentData {
     scholarship: { name: string; amount?: number | null; deadline?: string | null }
     createdAt: string
   }>
+  collegeApps?: CollegeApp[]
   tasks?: Array<{
     id: string
     title: string
     status: string
     phase?: string | null
+    track?: string | null
+    priority?: string | null
     dueDate?: string | null
+    requiresUpload?: boolean
+    documentFolder?: string | null
   }>
   essays?: Array<{
     id: string
@@ -79,6 +102,17 @@ interface StudentData {
   linkedParents?: Array<{ parent: { id: string; name?: string | null; email: string } }>
 }
 
+const COLLEGE_APP_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  RESEARCHING: { label: "Researching", color: "bg-gray-100 text-gray-600 ring-gray-300" },
+  APPLYING: { label: "Applying", color: "bg-blue-50 text-blue-700 ring-blue-300" },
+  SUBMITTED: { label: "Submitted", color: "bg-amber-50 text-amber-700 ring-amber-300" },
+  ACCEPTED: { label: "Accepted", color: "bg-green-50 text-green-700 ring-green-300" },
+  DENIED: { label: "Denied", color: "bg-rose-50 text-rose-700 ring-rose-300" },
+  WAITLISTED: { label: "Waitlisted", color: "bg-purple-50 text-purple-700 ring-purple-300" },
+  COMMITTED: { label: "Committed", color: "bg-emerald-50 text-emerald-700 ring-emerald-300" },
+  DEFERRED: { label: "Deferred", color: "bg-orange-50 text-orange-700 ring-orange-300" },
+}
+
 function StudentDetailContent() {
   const params = useParams()
   const router = useRouter()
@@ -89,6 +123,18 @@ function StudentDetailContent() {
   const [noteText, setNoteText] = React.useState("")
   const [assigningTasks, setAssigningTasks] = React.useState(false)
   const [admins, setAdmins] = React.useState<AdminUser[]>([])
+  const [addTaskOpen, setAddTaskOpen] = React.useState(false)
+  const [newTask, setNewTask] = React.useState({
+    title: "",
+    description: "",
+    track: "SCHOLARSHIP",
+    phase: "PHASE_1",
+    priority: "MEDIUM",
+    dueDate: "",
+    requiresUpload: false,
+    documentFolder: "",
+  })
+  const [savingTask, setSavingTask] = React.useState(false)
 
   const handleAssignAdmin = async (adminId: string | null) => {
     try {
@@ -153,13 +199,8 @@ function StudentDetailContent() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to assign tasks")
-      toast.success(data.message || `${data.count || 0} tasks assigned`)
-      // Refresh student data
-      const refreshRes = await fetch(`/api/students/${id}`)
-      if (refreshRes.ok) {
-        const refreshed = await refreshRes.json()
-        setStudent(refreshed)
-      }
+      toast.success(data.message || `${data.tasksCreated || 0} tasks assigned`)
+      refreshStudent()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to assign phase tasks")
     } finally {
@@ -167,12 +208,59 @@ function StudentDetailContent() {
     }
   }
 
+  const handleAddTask = async () => {
+    if (!newTask.title.trim()) { toast.error("Title is required"); return }
+    setSavingTask(true)
+    try {
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: id,
+          title: newTask.title,
+          description: newTask.description || null,
+          track: newTask.track,
+          phase: newTask.phase,
+          priority: newTask.priority,
+          dueDate: newTask.dueDate || null,
+          requiresUpload: newTask.requiresUpload,
+          documentFolder: newTask.documentFolder || null,
+          notifyParent: true,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success("Task added")
+      setAddTaskOpen(false)
+      setNewTask({ title: "", description: "", track: "SCHOLARSHIP", phase: "PHASE_1", priority: "MEDIUM", dueDate: "", requiresUpload: false, documentFolder: "" })
+      refreshStudent()
+    } catch {
+      toast.error("Failed to add task")
+    } finally {
+      setSavingTask(false)
+    }
+  }
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      setStudent(prev => prev ? { ...prev, tasks: prev.tasks?.filter(t => t.id !== taskId) } : prev)
+      toast.success("Task deleted")
+    } catch {
+      toast.error("Failed to delete task")
+    }
+  }
+
+  const refreshStudent = async () => {
+    const res = await fetch(`/api/students/${id}`)
+    if (res.ok) setStudent(await res.json())
+  }
+
   React.useEffect(() => {
     fetch(`/api/students/${id}`)
       .then(res => res.json())
       .then(d => { setStudent(d); setLoading(false) })
       .catch(() => { toast.error("Failed to load student"); setLoading(false) })
-    // Fetch admin users for assignee picker
     fetch("/api/admin/users/all")
       .then(res => res.json())
       .then(users => {
@@ -184,11 +272,7 @@ function StudentDetailContent() {
   }, [id])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-sm text-muted-foreground">
-        Loading student...
-      </div>
-    )
+    return <div className="flex items-center justify-center h-64 text-sm text-muted-foreground">Loading student...</div>
   }
 
   if (!student || (student as { error?: string }).error) {
@@ -204,6 +288,7 @@ function StudentDetailContent() {
 
   const profile = student.studentProfile
   const applications = student.scholarshipApps || []
+  const collegeApps = student.collegeApps || []
   const tasks = student.tasks || []
   const essays = student.essays || []
   const documents = student.documents || []
@@ -218,7 +303,6 @@ function StudentDetailContent() {
   const totalCost = financialPlan?.semesters?.reduce((sum, s) => sum + s.tuition + s.housing + s.food + s.transportation + s.books + s.personal + s.other, 0) || 0
   const totalIncome = financialPlan?.semesters?.reduce((sum, s) => sum + s.incomeSources.reduce((a, src) => a + src.amount, 0), 0) || 0
 
-  // Compute task counts per journey stage
   const tasksByStage: Record<string, { total: number; completed: number }> = {
     EARLY_EXPLORATION: { total: 0, completed: 0 },
     ACTIVE_PREP: { total: 0, completed: 0 },
@@ -235,7 +319,6 @@ function StudentDetailContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Back Link */}
       <Link href="/admin/students" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">
         <ArrowLeft className="size-3.5" /> Back to Students
       </Link>
@@ -302,14 +385,12 @@ function StudentDetailContent() {
         </div>
       </motion.div>
 
-      {/* Tabs */}
       <VercelTabs
         tabs={tabItems}
         onTabChange={(tabId) => setActiveTab(tabId as Tab)}
         className="border-b border-border pb-[6px]"
       />
 
-      {/* Tab Content */}
       <motion.div
         className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
         initial={{ opacity: 0, y: 16 }}
@@ -318,7 +399,6 @@ function StudentDetailContent() {
       >
         {activeTab === "Profile" && (
           <div className="flex flex-col gap-6">
-            {/* Journey Timeline */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-foreground">Journey Progress</h3>
@@ -335,71 +415,53 @@ function StudentDetailContent() {
                   </select>
                 </div>
               </div>
-              <JourneyTimeline
-                currentStage={profile?.journeyStage || "EARLY_EXPLORATION"}
-                taskCounts={tasksByStage}
-              />
+              <JourneyTimeline currentStage={profile?.journeyStage || "EARLY_EXPLORATION"} taskCounts={tasksByStage} />
             </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <h3 className="mb-3 text-sm font-medium text-foreground">Academic Information</h3>
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">GPA</span>
-                  <span className="text-sm font-medium">{profile?.gpa ?? "—"}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">SAT Score</span>
-                  <span className="text-sm font-medium">{profile?.satScore ?? "—"}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Grade Level</span>
-                  <span className="text-sm font-medium">{profile?.gradeLevel ? `Grade ${profile.gradeLevel}` : "—"}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Journey Stage</span>
-                  <span className="text-sm font-medium">{profile?.journeyStage ? (JOURNEY_STAGE_LABELS[profile.journeyStage]?.shortLabel || profile.journeyStage) : "—"}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-sm text-muted-foreground">Joined</span>
-                  <span className="text-sm font-medium">{new Date(student.createdAt).toLocaleDateString()}</span>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <h3 className="mb-3 text-sm font-medium text-foreground">Academic Information</h3>
+                <div className="flex flex-col gap-2">
+                  {[
+                    ["GPA", profile?.gpa ?? "—"],
+                    ["SAT Score", profile?.satScore ?? "—"],
+                    ["Grade Level", profile?.gradeLevel ? `Grade ${profile.gradeLevel}` : "—"],
+                    ["Journey Stage", profile?.journeyStage ? (JOURNEY_STAGE_LABELS[profile.journeyStage]?.shortLabel || profile.journeyStage) : "—"],
+                    ["Joined", new Date(student.createdAt).toLocaleDateString()],
+                  ].map(([label, value], i, arr) => (
+                    <div key={label as string} className={`flex justify-between py-2 ${i < arr.length - 1 ? "border-b border-border/50" : ""}`}>
+                      <span className="text-sm text-muted-foreground">{label}</span>
+                      <span className="text-sm font-medium">{String(value)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-            <div>
-              <h3 className="mb-3 text-sm font-medium text-foreground">Contact Information</h3>
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Email</span>
-                  <span className="text-sm font-medium">{student.email}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Phone</span>
-                  <span className="text-sm font-medium">{profile?.phone ?? "—"}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Location</span>
-                  <span className="text-sm font-medium">{location}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-sm text-muted-foreground">Parent(s)</span>
-                  <span className="text-sm font-medium">
-                    {student.linkedParents && student.linkedParents.length > 0
+              <div>
+                <h3 className="mb-3 text-sm font-medium text-foreground">Contact Information</h3>
+                <div className="flex flex-col gap-2">
+                  {[
+                    ["Email", student.email],
+                    ["Phone", profile?.phone ?? "—"],
+                    ["Location", location],
+                    ["Parent(s)", student.linkedParents && student.linkedParents.length > 0
                       ? student.linkedParents.map(lp => lp.parent.name || lp.parent.email).join(", ")
-                      : "—"}
-                  </span>
+                      : "—"],
+                  ].map(([label, value], i, arr) => (
+                    <div key={label as string} className={`flex justify-between py-2 ${i < arr.length - 1 ? "border-b border-border/50" : ""}`}>
+                      <span className="text-sm text-muted-foreground">{label}</span>
+                      <span className="text-sm font-medium">{String(value)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
           </div>
         )}
 
         {activeTab === "Applications" && (
           <div className="flex flex-col gap-3">
             {applications.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No applications yet.</p>
+              <p className="text-sm text-muted-foreground">No scholarship applications yet.</p>
             ) : applications.map((app) => (
               <div key={app.id} className="flex items-center justify-between rounded-lg border border-border/50 p-4">
                 <div>
@@ -419,24 +481,78 @@ function StudentDetailContent() {
           </div>
         )}
 
+        {activeTab === "CollegeApps" && (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm font-medium text-foreground">College Applications ({collegeApps.length})</h3>
+              {profile?.doneApplying && (
+                <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-medium">
+                  Done Applying
+                </span>
+              )}
+            </div>
+            {collegeApps.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No college applications yet.</p>
+            ) : collegeApps.map((app) => {
+              const statusInfo = COLLEGE_APP_STATUS_LABELS[app.status] || { label: app.status, color: "bg-gray-100 text-gray-600 ring-gray-300" }
+              return (
+                <div key={app.id} className="flex items-center justify-between rounded-lg border border-border/50 p-4">
+                  <div className="flex items-center gap-3">
+                    <Building2 className="size-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{app.universityName}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-xs text-muted-foreground">{app.applicationType}</p>
+                        {app.isDream && <span className="text-[10px] text-amber-600 font-medium">Dream</span>}
+                        {app.isSafety && <span className="text-[10px] text-emerald-600 font-medium">Safety</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {app.deadline && (
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(app.deadline).toLocaleDateString()}
+                      </span>
+                    )}
+                    <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${statusInfo.color}`}>
+                      {statusInfo.label}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
         {activeTab === "Tasks" && (
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-medium text-foreground">Tasks ({tasks.length})</h3>
-              <Button
-                size="sm"
-                className="gap-2"
-                disabled={assigningTasks}
-                onClick={handleAssignPhaseTasks}
-              >
-                <ListTodo className="h-4 w-4" />
-                {assigningTasks ? "Assigning..." : "Assign Phase Tasks"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setAddTaskOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Task
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-2"
+                  disabled={assigningTasks}
+                  onClick={handleAssignPhaseTasks}
+                >
+                  <ListTodo className="h-4 w-4" />
+                  {assigningTasks ? "Assigning..." : "Assign Phase Tasks"}
+                </Button>
+              </div>
             </div>
             {tasks.length === 0 ? (
               <p className="text-sm text-muted-foreground">No tasks yet.</p>
             ) : tasks.map((task) => (
-              <div key={task.id} className="flex items-center justify-between rounded-lg border border-border/50 p-4">
+              <div key={task.id} className="flex items-center justify-between rounded-lg border border-border/50 p-4 group">
                 <div className="flex items-center gap-3">
                   {task.status === "DONE" ? (
                     <CheckCircle2 className="size-4 text-green-500" />
@@ -444,17 +560,35 @@ function StudentDetailContent() {
                     <Clock className="size-4 text-muted-foreground" />
                   )}
                   <div>
-                    <p className="text-sm font-medium text-foreground">{task.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {task.dueDate ? `Due: ${new Date(task.dueDate).toLocaleDateString()}` : "No due date"}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground">{task.title}</p>
+                      {task.requiresUpload && <Upload className="size-3 text-blue-500" />}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-muted-foreground">
+                        {task.dueDate ? `Due: ${new Date(task.dueDate).toLocaleDateString()}` : "No due date"}
+                      </p>
+                      {task.track && (
+                        <span className="text-[10px] text-muted-foreground/70">{task.track.replace(/_/g, " ")}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${
-                  task.status === "DONE" ? "bg-green-50 text-green-700 ring-green-300" :
-                  task.status === "IN_PROGRESS" ? "bg-accent text-blue-700 ring-blue-300" :
-                  "bg-muted text-foreground ring-gray-300"
-                }`}>{task.status === "DONE" ? "Done" : task.status === "IN_PROGRESS" ? "In Progress" : "Not Started"}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${
+                    task.status === "DONE" ? "bg-green-50 text-green-700 ring-green-300" :
+                    task.status === "IN_PROGRESS" ? "bg-blue-50 text-blue-700 ring-blue-300" :
+                    "bg-muted text-foreground ring-gray-300"
+                  }`}>{task.status === "DONE" ? "Done" : task.status === "IN_PROGRESS" ? "In Progress" : "Not Started"}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-rose-600"
+                    onClick={() => handleDeleteTask(task.id)}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -477,7 +611,7 @@ function StudentDetailContent() {
                 </div>
                 <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${
                   essay.status === "APPROVED" ? "bg-green-50 text-green-700 ring-green-300" :
-                  essay.status === "UNDER_REVIEW" ? "bg-accent text-blue-700 ring-blue-300" :
+                  essay.status === "UNDER_REVIEW" ? "bg-blue-50 text-blue-700 ring-blue-300" :
                   essay.status === "REVISION_NEEDED" ? "bg-amber-50 text-amber-700 ring-amber-300" :
                   "bg-muted text-foreground ring-gray-300"
                 }`}>{essay.status === "REVISION_NEEDED" ? "Revision Needed" : essay.status === "UNDER_REVIEW" ? "Under Review" : essay.status === "APPROVED" ? "Approved" : "Draft"}</span>
@@ -515,7 +649,7 @@ function StudentDetailContent() {
                   <p className="text-2xl font-semibold text-green-700">${totalIncome.toLocaleString()}</p>
                   <p className="text-xs text-green-600">Total Income / Aid</p>
                 </div>
-                <div className="rounded-lg bg-accent p-4 text-center">
+                <div className="rounded-lg bg-blue-50 p-4 text-center">
                   <p className="text-2xl font-semibold text-blue-700">${totalCost.toLocaleString()}</p>
                   <p className="text-xs text-blue-600">Total Cost of Attendance</p>
                 </div>
@@ -559,6 +693,109 @@ function StudentDetailContent() {
           </div>
         )}
       </motion.div>
+
+      {/* Add Custom Task Dialog */}
+      <Dialog open={addTaskOpen} onOpenChange={setAddTaskOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Custom Task</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Title *</label>
+              <Input
+                placeholder="Task title"
+                value={newTask.title}
+                onChange={e => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Description</label>
+              <textarea
+                placeholder="Optional description..."
+                className="h-20 w-full rounded-lg border border-input bg-transparent p-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none"
+                value={newTask.description}
+                onChange={e => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Track</label>
+                <select
+                  value={newTask.track}
+                  onChange={e => setNewTask(prev => ({ ...prev, track: e.target.value }))}
+                  className="h-9 w-full rounded-md border border-border bg-card px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="SCHOLARSHIP">Scholarship</option>
+                  <option value="COLLEGE_PREP">College Prep</option>
+                  <option value="COLLEGE_APP">College App</option>
+                  <option value="GENERAL">General</option>
+                  <option value="FINANCIAL">Financial</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Phase</label>
+                <select
+                  value={newTask.phase}
+                  onChange={e => setNewTask(prev => ({ ...prev, phase: e.target.value }))}
+                  className="h-9 w-full rounded-md border border-border bg-card px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="INTRODUCTION">Introduction</option>
+                  <option value="PHASE_1">Phase 1</option>
+                  <option value="PHASE_2">Phase 2</option>
+                  <option value="ONGOING">Ongoing</option>
+                  <option value="FINAL">Final</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Priority</label>
+                <select
+                  value={newTask.priority}
+                  onChange={e => setNewTask(prev => ({ ...prev, priority: e.target.value }))}
+                  className="h-9 w-full rounded-md border border-border bg-card px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Due Date</label>
+                <Input
+                  type="date"
+                  value={newTask.dueDate}
+                  onChange={e => setNewTask(prev => ({ ...prev, dueDate: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Document Folder</label>
+                <Input
+                  placeholder="e.g. Transcripts"
+                  value={newTask.documentFolder}
+                  onChange={e => setNewTask(prev => ({ ...prev, documentFolder: e.target.value }))}
+                />
+              </div>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={newTask.requiresUpload}
+                onChange={e => setNewTask(prev => ({ ...prev, requiresUpload: e.target.checked }))}
+                className="rounded border-border"
+              />
+              Requires document upload to complete
+            </label>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setAddTaskOpen(false)}>Cancel</Button>
+              <Button size="sm" className="bg-[#2563EB] hover:bg-[#2563EB]/90" disabled={savingTask} onClick={handleAddTask}>
+                {savingTask ? "Saving..." : "Add Task"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

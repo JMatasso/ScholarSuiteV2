@@ -16,7 +16,7 @@ import {
   File,
   BookOpen,
   Lock,
-} from "lucide-react";
+} from "@/lib/icons";
 import { EmptyState } from "@/components/ui/empty-state";
 
 interface Document {

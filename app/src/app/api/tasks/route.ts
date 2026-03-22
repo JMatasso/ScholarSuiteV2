@@ -60,6 +60,8 @@ export async function POST(req: Request) {
         track: data.track || "SCHOLARSHIP",
         priority: data.priority || "MEDIUM",
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
+        documentFolder: data.documentFolder || null,
+        requiresUpload: data.requiresUpload || false,
         notifyParent: data.notifyParent || false,
       },
     });

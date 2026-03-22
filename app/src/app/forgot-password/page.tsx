@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { GraduationCap, Loader2, ArrowLeft, Mail } from "lucide-react";
+import { GraduationCap, Loader2, ArrowLeft, Mail } from "@/lib/icons";
 import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {

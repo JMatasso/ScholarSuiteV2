@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import { motion } from "motion/react"
-import { Award, Clock, Send, FileX, FileText, DollarSign, Calendar } from "lucide-react"
+import { Award, Clock, Send, FileX, FileText, DollarSign, Calendar } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 

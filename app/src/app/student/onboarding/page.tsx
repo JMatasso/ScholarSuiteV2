@@ -31,7 +31,7 @@ import {
   Heart,
   Mail,
   Phone,
-} from "lucide-react";
+} from "@/lib/icons";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getCountyFromZip } from "@/lib/county-lookup";

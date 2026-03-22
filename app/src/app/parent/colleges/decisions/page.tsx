@@ -23,7 +23,7 @@ import {
   GraduationCap,
   DollarSign,
   TrendingDown,
-} from "lucide-react"
+} from "@/lib/icons"
 import { formatTuition } from "@/lib/college-utils"
 
 interface AidPackage {

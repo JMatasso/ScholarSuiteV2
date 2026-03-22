@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import Link from "next/link"
 import { motion } from "motion/react"
 import { Card, CardContent } from "@/components/ui/card"
-import { BookOpen, CheckCircle2, ArrowRight } from "lucide-react"
+import { BookOpen, CheckCircle2, ArrowRight } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
 interface LessonProgress {

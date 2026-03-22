@@ -14,7 +14,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
-import { Globe, Loader2, Sparkles, Save, AlertCircle } from "lucide-react"
+import { Globe, Loader2, Sparkles, Save, AlertCircle } from "@/lib/icons"
 import { toast } from "sonner"
 
 interface ExtractedData {

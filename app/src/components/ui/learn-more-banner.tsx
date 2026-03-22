@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Lightbulb, ArrowRight } from "lucide-react"
+import { Lightbulb, ArrowRight } from "@/lib/icons"
 
 interface LearnMoreBannerProps {
   title: string

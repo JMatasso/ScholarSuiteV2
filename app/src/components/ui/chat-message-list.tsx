@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { useAutoScroll } from "@/hooks/use-auto-scroll";
 

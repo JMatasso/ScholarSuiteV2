@@ -2,7 +2,7 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { useState, Suspense } from "react"
 import Link from "next/link"
-import { GraduationCap, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react"
+import { GraduationCap, Loader2, Eye, EyeOff, ArrowLeft } from "@/lib/icons"
 import LoaderOne from "@/components/ui/loader-one"
 import { toast } from "sonner"
 

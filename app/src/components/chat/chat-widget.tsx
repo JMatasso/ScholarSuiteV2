@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect } from "react"
-import { Send, Bot, MessageSquarePlus, History, Trash2, ArrowLeft } from "lucide-react"
+import { Send, Bot, MessageSquarePlus, History, Trash2, ArrowLeft } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import {
   ChatBubble,

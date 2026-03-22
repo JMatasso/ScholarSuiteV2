@@ -16,7 +16,7 @@ import {
   Users,
   Moon,
   Mic,
-} from "lucide-react"
+} from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

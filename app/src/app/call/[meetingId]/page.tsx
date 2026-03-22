@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { PreJoinScreen } from "@/components/call/pre-join-screen"
 import { VideoRoom } from "@/components/call/video-room"
-import { Loader2, AlertCircle, ArrowLeft } from "lucide-react"
+import { Loader2, AlertCircle, ArrowLeft } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 
 interface MeetingData {

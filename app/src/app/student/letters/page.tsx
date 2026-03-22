@@ -20,7 +20,7 @@ import { toast } from "sonner"
 import {
   FileText, Plus, ChevronDown, ChevronUp, ChevronRight,
   Mail, Phone, Pencil, Trash2, ExternalLink,
-} from "lucide-react"
+} from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
 interface Recommender {

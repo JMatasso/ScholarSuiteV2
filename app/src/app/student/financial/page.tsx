@@ -19,7 +19,7 @@ import {
   Receipt,
   Building2,
   Award,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface IncomeSource {
   id: string

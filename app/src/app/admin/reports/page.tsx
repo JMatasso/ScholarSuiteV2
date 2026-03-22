@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { StatCard } from "@/components/ui/stat-card"
-import { Loader2, FileBarChart, CheckCircle2, PenTool, FileText, MessageSquare } from "lucide-react"
+import { Loader2, FileBarChart, CheckCircle2, PenTool, FileText, MessageSquare } from "@/lib/icons"
 import LoaderOne from "@/components/ui/loader-one"
 import type { ColumnDef } from "@tanstack/react-table"
 

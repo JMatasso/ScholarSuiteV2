@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { TrendingUp, TrendingDown, Minus, type LucideIcon } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, type LucideIcon } from "@/lib/icons"
 import { motion, useSpring, useTransform, useInView } from "motion/react"
 
 interface StatCardProps extends React.ComponentProps<"div"> {

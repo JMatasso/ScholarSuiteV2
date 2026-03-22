@@ -30,7 +30,10 @@ export async function GET(
           orderBy: { createdAt: "desc" },
         },
         tasks: {
-          orderBy: { dueDate: "asc" },
+          orderBy: [{ phase: "asc" }, { dueDate: "asc" }],
+        },
+        collegeApps: {
+          orderBy: { createdAt: "desc" },
         },
         essays: {
           orderBy: { updatedAt: "desc" },

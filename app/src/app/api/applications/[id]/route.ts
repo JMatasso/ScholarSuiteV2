@@ -95,6 +95,33 @@ export async function PATCH(
       },
     })
 
+    // Auto-create proof-of-award task when status changes to AWARDED
+    if (data.status === "AWARDED" && application.scholarship) {
+      const scholarshipName = application.scholarship.name
+      const proofTitle = `Upload proof of award: ${scholarshipName}`
+      const existingProofTask = await db.task.findFirst({
+        where: { userId: existing.userId, title: proofTitle },
+      })
+      if (!existingProofTask) {
+        const dueDate = new Date()
+        dueDate.setDate(dueDate.getDate() + 7)
+        await db.task.create({
+          data: {
+            userId: existing.userId,
+            title: proofTitle,
+            description: `Upload a screenshot of the award email or acceptance notification for "${scholarshipName}".`,
+            phase: "ONGOING",
+            track: "SCHOLARSHIP",
+            priority: "HIGH",
+            requiresUpload: true,
+            documentFolder: "Acceptance Letters",
+            dueDate,
+            notifyParent: true,
+          },
+        })
+      }
+    }
+
     return NextResponse.json(application)
   } catch (error) {
     console.error("Error updating application:", error)

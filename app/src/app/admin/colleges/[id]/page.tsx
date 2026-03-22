@@ -16,7 +16,7 @@ import {
   Percent,
   TestTube,
   ExternalLink,
-} from "lucide-react"
+} from "@/lib/icons"
 import LoaderOne from "@/components/ui/loader-one"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

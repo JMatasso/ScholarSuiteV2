@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 import {
   Plus, RefreshCw, Check, X, Pencil, Trash2, Loader2, ChevronDown,
   MapPin, DollarSign, Calendar, Building2, AlertTriangle, CheckCircle, Clock, Users,
-} from "lucide-react"
+} from "@/lib/icons"
 import { StatCard } from "@/components/ui/stat-card"
 
 interface Provider { id: string; name: string; type: string; county: string | null; state: string | null }

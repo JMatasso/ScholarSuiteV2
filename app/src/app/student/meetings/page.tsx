@@ -23,7 +23,7 @@ import {
   CheckCircle2,
   MapPin,
   Loader2,
-} from "lucide-react"
+} from "@/lib/icons"
 import { toast } from "sonner"
 import { getInitials, formatDate, formatTimeOnly } from "@/lib/format"
 

@@ -21,7 +21,7 @@ import {
   MapPin,
   GraduationCap,
   Save,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface ApplicationDetail {
   id: string

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { motion } from "motion/react"
-import { Star, Send, CheckCircle2, AlertCircle } from "lucide-react"
+import { Star, Send, CheckCircle2, AlertCircle } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"

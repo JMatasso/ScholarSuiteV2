@@ -22,7 +22,7 @@ import {
   CheckSquare,
   Square,
   Loader2,
-} from "lucide-react"
+} from "@/lib/icons"
 
 interface Scholarship {
   id: string

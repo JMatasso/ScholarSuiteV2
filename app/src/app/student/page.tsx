@@ -24,7 +24,7 @@ import {
   MessageSquare,
   Target,
   Sparkles,
-} from "lucide-react"
+} from "@/lib/icons"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { formatDate, formatTime, getInitials } from "@/lib/format"

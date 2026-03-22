@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, GraduationCap, Loader2 } from "lucide-react";
+import { Eye, EyeOff, GraduationCap, Loader2 } from "@/lib/icons";
 import { AnimatedLogo } from "@/components/ui/animated-logo";
 
 // --- TYPE DEFINITIONS ---
