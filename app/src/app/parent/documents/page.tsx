@@ -30,8 +30,8 @@ const typeColors: Record<string, string> = {
   TRANSCRIPT: "bg-purple-50 text-purple-700",
   LETTER: "bg-green-50 text-green-700",
   FINANCIAL: "bg-red-50 text-red-700",
-  IDENTIFICATION: "bg-blue-50 text-blue-700",
-  OTHER: "bg-gray-50 text-gray-600",
+  IDENTIFICATION: "bg-accent text-blue-700",
+  OTHER: "bg-muted/50 text-muted-foreground",
 };
 
 function typeLabel(type: string) {
@@ -62,7 +62,7 @@ export default function DocumentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-sm text-gray-400">Loading documents…</p>
+        <p className="text-sm text-muted-foreground">Loading documents…</p>
       </div>
     );
   }
@@ -71,29 +71,29 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Documents &amp; Resources
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           View your child&apos;s documents
         </p>
       </div>
 
       {/* Documents section */}
       <motion.div
-        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
+        className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center gap-2 mb-4">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-            <FileText className="size-4 text-[#1E3A5F]" />
+          <div className="flex size-8 items-center justify-center rounded-lg bg-accent">
+            <FileText className="size-4 text-secondary-foreground" />
           </div>
-          <h3 className="text-sm font-semibold text-gray-700">
+          <h3 className="text-sm font-semibold text-foreground">
             Student Documents
           </h3>
-          <span className="ml-auto flex items-center gap-1 text-xs text-gray-400">
+          <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
             <Lock className="size-3" />
             Read-only
           </span>
@@ -110,7 +110,7 @@ export default function DocumentsPage() {
           <TableBody>
             {documents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center text-gray-400 py-8">
+                <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
                   No documents found.
                 </TableCell>
               </TableRow>
@@ -119,8 +119,8 @@ export default function DocumentsPage() {
                 <TableRow key={doc.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <File className="size-4 text-gray-400" />
-                      <span className="font-medium text-gray-900">
+                      <File className="size-4 text-muted-foreground" />
+                      <span className="font-medium text-foreground">
                         {doc.name}
                       </span>
                     </div>
@@ -129,13 +129,13 @@ export default function DocumentsPage() {
                     <span
                       className={cn(
                         "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
-                        typeColors[doc.type] || "bg-gray-50 text-gray-600"
+                        typeColors[doc.type] || "bg-muted/50 text-muted-foreground"
                       )}
                     >
                       {typeLabel(doc.type)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-gray-500">
+                  <TableCell className="text-muted-foreground">
                     {new Date(doc.createdAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -151,7 +151,7 @@ export default function DocumentsPage() {
 
       {/* Learning Progress placeholder */}
       <motion.div
-        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
+        className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         id="progress"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -163,10 +163,10 @@ export default function DocumentsPage() {
             <BookOpen className="size-4 text-[#2563EB]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-700">
+            <h3 className="text-sm font-semibold text-foreground">
               Learning Progress
             </h3>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               Your child&apos;s module completion
             </p>
           </div>

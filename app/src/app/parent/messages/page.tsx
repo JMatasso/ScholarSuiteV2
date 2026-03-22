@@ -271,13 +271,13 @@ export default function MessagesPage() {
               key={notif.id}
               className={cn(
                 "flex items-start gap-3 rounded-xl bg-card px-5 py-4 ring-1 ring-foreground/10 shadow-sm",
-                !notif.isRead && "bg-blue-50/50 ring-blue-200/60"
+                !notif.isRead && "bg-accent/50 ring-blue-200/60"
               )}
             >
               <div
                 className={cn(
                   "mt-0.5 size-2 shrink-0 rounded-full",
-                  notif.isRead ? "bg-transparent" : "bg-blue-500"
+                  notif.isRead ? "bg-transparent" : "bg-accent0"
                 )}
               />
               <div className="flex-1 min-w-0">

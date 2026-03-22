@@ -292,7 +292,7 @@ export function ProfileSettings() {
                     {check.met ? (
                       <Check className="w-3 h-3 text-emerald-600 shrink-0" />
                     ) : (
-                      <X className="w-3 h-3 text-gray-400 shrink-0" />
+                      <X className="w-3 h-3 text-muted-foreground shrink-0" />
                     )}
                     <span className={check.met ? "text-emerald-600" : "text-muted-foreground"}>
                       {check.label}

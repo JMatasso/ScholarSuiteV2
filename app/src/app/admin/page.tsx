@@ -67,7 +67,7 @@ type KpiTone = "blue" | "indigo" | "emerald" | "amber"
 
 const toneStyles: Record<KpiTone, { card: string; value: string; sparkColor: string; iconBg: string; iconColor: string; trendUp: string; trendDown: string }> = {
   blue: {
-    card: "bg-blue-50/70 ring-1 ring-blue-200/60",
+    card: "bg-accent/70 ring-1 ring-blue-200/60",
     value: "text-blue-700",
     sparkColor: "#2563EB",
     iconBg: "bg-blue-100",
@@ -200,7 +200,7 @@ const actionColors: Record<string, string> = {
   CREATE: "bg-emerald-100 text-emerald-700",
   UPDATE: "bg-blue-100 text-blue-700",
   DELETE: "bg-rose-100 text-rose-700",
-  LOGIN: "bg-gray-100 text-gray-700",
+  LOGIN: "bg-muted text-foreground",
   UPLOAD: "bg-purple-100 text-purple-700",
   SUBMIT: "bg-amber-100 text-amber-700",
 }
@@ -240,7 +240,7 @@ export default function AdminDashboardPage() {
         className="flex items-end justify-between"
       >
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Dashboard</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Dashboard</h1>
           <p className="mt-1 text-muted-foreground">Welcome back. Here is your practice overview.</p>
         </div>
       </motion.div>
@@ -298,14 +298,14 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Engagement Chart - Area gradient */}
         <motion.div
-          className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+          className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           viewport={{ once: true }}
         >
           <div className="mb-5 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#1E3A5F]">Student Engagement</h3>
+            <h3 className="text-sm font-semibold text-secondary-foreground">Student Engagement</h3>
             <span className="text-xs text-muted-foreground">Last 7 months</span>
           </div>
           <div className="h-64">
@@ -358,14 +358,14 @@ export default function AdminDashboardPage() {
 
         {/* Pipeline Chart - Rounded bars with gradient */}
         <motion.div
-          className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+          className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           viewport={{ once: true }}
         >
           <div className="mb-5 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#1E3A5F]">Application Pipeline</h3>
+            <h3 className="text-sm font-semibold text-secondary-foreground">Application Pipeline</h3>
             <span className="text-xs text-muted-foreground">{pipelineData.reduce((s, d) => s + d.count, 0)} total</span>
           </div>
           <div className="h-64">
@@ -400,14 +400,14 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
         <motion.div
-          className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+          className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           viewport={{ once: true }}
         >
           <div className="mb-5 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#1E3A5F]">Recent Activity</h3>
+            <h3 className="text-sm font-semibold text-secondary-foreground">Recent Activity</h3>
             <Link href="/admin/audit" className="flex items-center gap-1 text-xs font-medium text-[#2563EB] hover:underline">
               View all <ArrowRight className="h-3 w-3" />
             </Link>
@@ -425,7 +425,7 @@ export default function AdminDashboardPage() {
               >
                 <span className={cn(
                   "inline-flex h-6 items-center rounded-md px-2 text-[10px] font-semibold uppercase tracking-wide",
-                  actionColors[log.action] || "bg-gray-100 text-gray-600"
+                  actionColors[log.action] || "bg-muted text-muted-foreground"
                 )}>
                   {log.action}
                 </span>
@@ -445,7 +445,7 @@ export default function AdminDashboardPage() {
 
         {/* At-Risk Students */}
         <motion.div
-          className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+          className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
@@ -456,7 +456,7 @@ export default function AdminDashboardPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
               </div>
-              <h3 className="text-sm font-semibold text-[#1E3A5F]">At-Risk Students</h3>
+              <h3 className="text-sm font-semibold text-secondary-foreground">At-Risk Students</h3>
             </div>
             <Link href="/admin/students" className="flex items-center gap-1 text-xs font-medium text-[#2563EB] hover:underline">
               View all <ArrowRight className="h-3 w-3" />

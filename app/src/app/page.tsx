@@ -128,13 +128,13 @@ export default function LandingPage() {
   }, [scrollYProgress]);
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav
         className={cn(
           "fixed top-0 z-50 w-full border-b transition-all duration-300",
           scrolled
-            ? "bg-white/80 backdrop-blur-xl border-gray-200/50 shadow-sm"
+            ? "bg-card/80 backdrop-blur-xl border-border/50 shadow-sm"
             : "bg-transparent border-transparent"
         )}
       >
@@ -146,25 +146,25 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8">
             <Link
               href="#features"
-              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Features
             </Link>
             <Link
               href="#how-it-works"
-              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               How It Works
             </Link>
             <Link
               href="#features"
-              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Pricing
             </Link>
             <Link
               href="/scholarships/submit"
-              className="text-sm text-gray-600 hover:text-[#1A1A1A] transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               List a Scholarship
             </Link>
@@ -173,7 +173,7 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="/request-access"
-              className="text-sm font-medium text-gray-600 hover:text-[#1A1A1A] transition-colors px-4 py-2"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2"
             >
               Request Access
             </Link>
@@ -199,11 +199,11 @@ export default function LandingPage() {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-3">
-            <Link href="#features" className="block text-sm text-gray-600 py-2">Features</Link>
-            <Link href="#how-it-works" className="block text-sm text-gray-600 py-2">How It Works</Link>
-            <Link href="/scholarships/submit" className="block text-sm text-gray-600 py-2">List a Scholarship</Link>
-            <Link href="/request-access" className="block text-sm text-gray-600 py-2">Request Access</Link>
+          <div className="md:hidden bg-card border-t border-border px-6 py-4 space-y-3">
+            <Link href="#features" className="block text-sm text-muted-foreground py-2">Features</Link>
+            <Link href="#how-it-works" className="block text-sm text-muted-foreground py-2">How It Works</Link>
+            <Link href="/scholarships/submit" className="block text-sm text-muted-foreground py-2">List a Scholarship</Link>
+            <Link href="/request-access" className="block text-sm text-muted-foreground py-2">Request Access</Link>
             <Link href="/login" className="block text-sm font-medium bg-[#1E3A5F] text-white px-5 py-2.5 rounded-lg text-center">Sign In</Link>
           </div>
         )}
@@ -266,7 +266,7 @@ export default function LandingPage() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 mb-8"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent border border-blue-100 mb-8"
           >
             <Sparkles className="w-4 h-4 text-[#2563EB]" />
             <span className="text-sm text-[#2563EB] font-medium tracking-wide">
@@ -279,7 +279,7 @@ export default function LandingPage() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-[#1A1A1A]"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-foreground"
           >
             Your scholarship &amp; college journey,{" "}
             <span className="text-[#2563EB]">organized.</span>
@@ -290,7 +290,7 @@ export default function LandingPage() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
             ScholarSuite helps students discover scholarships, track college
             applications, and plan their path to higher education — with expert
@@ -306,14 +306,14 @@ export default function LandingPage() {
           >
             <Link
               href="/request-access"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-xl text-base font-medium hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#1E3A5F]/20"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-xl text-base font-medium hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20"
             >
               Request Access
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-xl text-base font-medium hover:bg-white hover:border-gray-300 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border text-foreground px-8 py-3.5 rounded-xl text-base font-medium hover:bg-card hover:border-border transition-all"
             >
               Sign In
             </Link>
@@ -330,15 +330,15 @@ export default function LandingPage() {
           viewport={{ once: true }}
           className="max-w-6xl mx-auto"
         >
-          <div className="relative rounded-2xl border border-gray-200/80 bg-white shadow-2xl shadow-gray-300/30 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <div className="relative rounded-2xl border border-border/80 bg-card shadow-2xl shadow-gray-300/30 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b border-border">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-400" />
                 <div className="w-3 h-3 rounded-full bg-yellow-400" />
                 <div className="w-3 h-3 rounded-full bg-green-400" />
               </div>
               <div className="flex-1 flex justify-center">
-                <div className="bg-gray-100 rounded-md px-4 py-1 text-xs text-gray-400">
+                <div className="bg-muted rounded-md px-4 py-1 text-xs text-muted-foreground">
                   app.scholarsuite.com
                 </div>
               </div>
@@ -367,21 +367,21 @@ export default function LandingPage() {
 
               <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                 {[
-                  { title: "Not Started", count: 3, color: "bg-gray-100", dotColor: "bg-gray-400" },
-                  { title: "In Progress", count: 5, color: "bg-blue-50", dotColor: "bg-blue-400" },
+                  { title: "Not Started", count: 3, color: "bg-muted", dotColor: "bg-muted-foreground" },
+                  { title: "In Progress", count: 5, color: "bg-accent", dotColor: "bg-blue-400" },
                   { title: "Submitted", count: 2, color: "bg-purple-50", dotColor: "bg-purple-400" },
                   { title: "Awarded", count: 4, color: "bg-emerald-50", dotColor: "bg-emerald-400" },
                 ].map((col) => (
                   <div key={col.title} className={`${col.color} rounded-lg p-4`}>
                     <div className="flex items-center gap-2 mb-3">
                       <div className={`w-2 h-2 rounded-full ${col.dotColor}`} />
-                      <span className="text-sm font-medium text-gray-700">{col.title}</span>
-                      <span className="text-xs text-gray-400 ml-auto">{col.count}</span>
+                      <span className="text-sm font-medium text-foreground">{col.title}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">{col.count}</span>
                     </div>
                     {Array.from({ length: Math.min(col.count, 2) }).map((_, i) => (
-                      <div key={i} className="bg-white rounded-md p-3 mb-2 border border-gray-100 shadow-sm">
-                        <div className="h-2.5 bg-gray-200 rounded w-3/4 mb-2" />
-                        <div className="h-2 bg-gray-100 rounded w-1/2" />
+                      <div key={i} className="bg-card rounded-md p-3 mb-2 border border-border shadow-sm">
+                        <div className="h-2.5 bg-muted rounded w-3/4 mb-2" />
+                        <div className="h-2 bg-muted rounded w-1/2" />
                       </div>
                     ))}
                   </div>
@@ -405,13 +405,13 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
+            <div className="inline-flex items-center gap-2 bg-accent text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
               Features
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Everything you need for scholarships &amp; college
             </h2>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               From scholarship discovery to college acceptance — ScholarSuite
               streamlines the entire journey for students, consultants, and families.
             </p>
@@ -554,15 +554,15 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               viewport={{ once: true }}
-              className="bg-white rounded-2xl shadow-2xl overflow-hidden"
+              className="bg-card rounded-2xl shadow-2xl overflow-hidden"
             >
-              <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center gap-2">
+              <div className="px-4 py-3 bg-muted/50 border-b border-border flex items-center gap-2">
                 <div className="w-8 h-8 bg-[#2563EB] rounded-full flex items-center justify-center">
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">ScholarSuite AI</p>
-                  <p className="text-xs text-gray-400">Always available</p>
+                  <p className="text-sm font-medium text-foreground">ScholarSuite AI</p>
+                  <p className="text-xs text-muted-foreground">Always available</p>
                 </div>
               </div>
               <div className="p-6 space-y-4">
@@ -574,10 +574,10 @@ export default function LandingPage() {
                     { name: "STEM Leaders Fund", amount: "$3,000", match: "91%" },
                     { name: "Community Impact Award", amount: "$2,500", match: "88%" },
                   ].map((s) => (
-                    <div key={s.name} className="bg-blue-50 rounded-lg p-3 flex items-center justify-between">
+                    <div key={s.name} className="bg-accent rounded-lg p-3 flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{s.name}</p>
-                        <p className="text-xs text-gray-500">{s.amount}</p>
+                        <p className="text-sm font-medium text-foreground">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">{s.amount}</p>
                       </div>
                       <span className="text-xs font-semibold text-[#2563EB] bg-blue-100 px-2 py-1 rounded-full">
                         {s.match} match
@@ -587,9 +587,9 @@ export default function LandingPage() {
                 </div>
                 <ChatBubble isUser message="Can you help me start the essay for the California Dream Scholarship?" />
                 <div className="flex gap-2 ml-2">
-                  <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  <div className="w-2 h-2 bg-muted rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-muted rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 bg-muted rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
               </div>
             </motion.div>
@@ -607,13 +607,13 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
+            <div className="inline-flex items-center gap-2 bg-accent text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
               How It Works
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Get started in minutes
             </h2>
-            <p className="text-lg text-gray-500">
+            <p className="text-lg text-muted-foreground">
               Three simple steps to transform your scholarship &amp; college journey
             </p>
           </motion.div>
@@ -654,10 +654,10 @@ export default function LandingPage() {
                 <div className="text-6xl font-bold text-[#2563EB]/10 mb-4 transition-colors group-hover:text-[#2563EB]/20">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {item.title}
                 </h3>
-                <p className="text-gray-500 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   {item.description}
                 </p>
               </motion.div>
@@ -667,7 +667,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 px-6 bg-white relative">
+      <section className="py-24 px-6 bg-card relative">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -676,13 +676,13 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="flex flex-col items-center justify-center max-w-[540px] mx-auto"
           >
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
+            <div className="inline-flex items-center gap-2 bg-accent text-[#2563EB] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
               Testimonials
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] tracking-tight text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight text-center">
               What our users say
             </h2>
-            <p className="text-center mt-4 text-gray-500">
+            <p className="text-center mt-4 text-muted-foreground">
               See how ScholarSuite is helping students, parents, and consultants
               navigate scholarships and college admissions.
             </p>
@@ -726,24 +726,24 @@ export default function LandingPage() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
               Ready to transform your scholarship &amp; college practice?
             </h2>
-            <p className="text-lg text-gray-500 mb-10">
+            <p className="text-lg text-muted-foreground mb-10">
               Join hundreds of consultants and thousands of students already
               using ScholarSuite to win scholarships and get into their dream schools.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/request-access"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-xl text-base font-semibold hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#1E3A5F]/20"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1E3A5F] text-white px-8 py-3.5 rounded-xl text-base font-semibold hover:bg-[#162d4a] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20"
               >
                 Request Access
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/login"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-8 py-3.5 rounded-xl text-base font-medium hover:bg-white hover:border-gray-300 transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border text-foreground px-8 py-3.5 rounded-xl text-base font-medium hover:bg-card hover:border-border transition-all"
               >
                 Sign In
               </Link>
@@ -823,7 +823,7 @@ function StatsSection() {
   ];
 
   return (
-    <section ref={ref} className="py-20 px-6 border-t border-gray-100">
+    <section ref={ref} className="py-20 px-6 border-t border-border">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat) => (
@@ -835,7 +835,7 @@ function StatsSection() {
               viewport={{ once: true }}
               className="text-center"
             >
-              <div className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-2 flex items-center justify-center">
+              <div className="text-3xl md:text-4xl font-bold text-foreground mb-2 flex items-center justify-center">
                 {stat.prefix && <span>{stat.prefix}</span>}
                 {isInView ? (
                   <AnimatedNumber
@@ -848,7 +848,7 @@ function StatsSection() {
                 )}
                 {stat.suffix && <span>{stat.suffix}</span>}
               </div>
-              <p className="text-sm text-gray-500">{stat.label}</p>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
             </motion.div>
           ))}
         </div>
@@ -869,15 +869,15 @@ function DashboardMockCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-100 p-5 shadow-sm">
+    <div className="bg-card rounded-lg border border-border p-5 shadow-sm">
       <div className="flex items-start justify-between mb-3">
-        <p className="text-sm text-gray-500">{title}</p>
-        <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">{title}</p>
+        <div className="w-9 h-9 rounded-lg bg-muted/50 flex items-center justify-center">
           {icon}
         </div>
       </div>
-      <p className="text-2xl font-bold text-[#1A1A1A] mb-1">{value}</p>
-      <p className="text-xs text-gray-400">{subtitle}</p>
+      <p className="text-2xl font-bold text-foreground mb-1">{value}</p>
+      <p className="text-xs text-muted-foreground">{subtitle}</p>
     </div>
   );
 }
@@ -913,7 +913,7 @@ function ChatBubble({
         className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
           isUser
             ? "bg-[#1E3A5F] text-white rounded-br-md"
-            : "bg-gray-100 text-gray-800 rounded-bl-md"
+            : "bg-muted text-foreground rounded-bl-md"
         }`}
       >
         {message}

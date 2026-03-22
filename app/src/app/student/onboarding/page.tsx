@@ -577,7 +577,7 @@ export default function OnboardingPage() {
                   {formData.classRank && formData.classSize && Number(formData.classSize) > 0 && (
                     <div className="col-span-full -mt-2">
                       <p className="text-xs text-muted-foreground">
-                        Percentile: <span className="font-semibold text-[#1E3A5F]">Top {Math.round((Number(formData.classRank) / Number(formData.classSize)) * 100)}%</span>
+                        Percentile: <span className="font-semibold text-secondary-foreground">Top {Math.round((Number(formData.classRank) / Number(formData.classSize)) * 100)}%</span>
                       </p>
                     </div>
                   )}
@@ -720,7 +720,7 @@ export default function OnboardingPage() {
                   </div>
 
                   <div className="border-t border-border pt-4 mt-2">
-                    <h4 className="text-sm font-semibold text-[#1E3A5F] mb-3">Financial & Family Situation</h4>
+                    <h4 className="text-sm font-semibold text-secondary-foreground mb-3">Financial & Family Situation</h4>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-1.5">Household Income Range</label>
@@ -934,7 +934,7 @@ export default function OnboardingPage() {
                       {formData.dreamSchools && (
                         <div className="flex flex-wrap gap-2 mt-2">
                           {formData.dreamSchools.split(", ").filter(Boolean).map((school) => (
-                            <span key={school} className="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 px-2.5 py-1 text-xs font-medium">
+                            <span key={school} className="inline-flex items-center gap-1 rounded-full bg-accent text-blue-700 px-2.5 py-1 text-xs font-medium">
                               {school}
                               <button type="button" onClick={() => {
                                 const updated = formData.dreamSchools.split(", ").filter((s) => s !== school).join(", ");
@@ -965,7 +965,7 @@ export default function OnboardingPage() {
                         {formData.dreamSchools && (
                           <div className="flex flex-wrap gap-2 mt-2">
                             {formData.dreamSchools.split(", ").filter(Boolean).map((school) => (
-                              <span key={school} className="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 px-2.5 py-1 text-xs font-medium">
+                              <span key={school} className="inline-flex items-center gap-1 rounded-full bg-accent text-blue-700 px-2.5 py-1 text-xs font-medium">
                                 {school}
                                 <button type="button" onClick={() => {
                                   const updated = formData.dreamSchools.split(", ").filter((s) => s !== school).join(", ");
@@ -1241,8 +1241,8 @@ export default function OnboardingPage() {
                   ]} />
 
                   {/* Privacy Statement */}
-                  <div className="rounded-xl border border-[#1E3A5F]/20 bg-[#1E3A5F]/5 p-5 space-y-3">
-                    <h3 className="text-sm font-semibold text-[#1E3A5F] flex items-center gap-2">
+                  <div className="rounded-xl border border-border bg-accent p-5 space-y-3">
+                    <h3 className="text-sm font-semibold text-secondary-foreground flex items-center gap-2">
                       <Shield className="h-4 w-4" />
                       Your Privacy Matters
                     </h3>

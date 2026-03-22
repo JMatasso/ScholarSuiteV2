@@ -37,7 +37,7 @@ export function CollegeCard({
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
               <GraduationCap className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -64,7 +64,7 @@ export function CollegeCard({
       <CardContent className="space-y-3">
         <div className="flex flex-wrap gap-1.5">
           {college.type && (
-            <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+            <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">
               {getCollegeTypeLabel(college.type)}
             </span>
           )}
@@ -108,7 +108,7 @@ export function CollegeCard({
           </p>
         )}
 
-        <div className="pt-1 border-t border-gray-100">
+        <div className="pt-1 border-t border-border">
           <Button
             size="sm"
             className="w-full gap-1 text-xs h-7"

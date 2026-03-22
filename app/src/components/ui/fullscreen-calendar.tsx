@@ -59,11 +59,11 @@ const colStartClasses = [
 ]
 
 const eventTypeColors: Record<EventType, { bg: string; text: string; dot: string }> = {
-  scholarship: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
+  scholarship: { bg: "bg-accent", text: "text-blue-700", dot: "bg-accent0" },
   task: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
   meeting: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
   college: { bg: "bg-purple-50", text: "text-purple-700", dot: "bg-purple-500" },
-  general: { bg: "bg-gray-50", text: "text-gray-700", dot: "bg-gray-400" },
+  general: { bg: "bg-muted/50", text: "text-foreground", dot: "bg-muted-foreground" },
 }
 
 export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact = false }: FullScreenCalendarProps) {
@@ -180,7 +180,7 @@ export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact =
                   !isToday(day) &&
                   !isSameMonth(day, firstDayCurrentMonth) &&
                   "bg-muted/30 text-muted-foreground",
-                isEqual(day, selectedDay) && "bg-blue-50/50",
+                isEqual(day, selectedDay) && "bg-accent/50",
                 "relative flex cursor-pointer flex-col border-b border-r transition-colors hover:bg-muted/50",
               )}
             >

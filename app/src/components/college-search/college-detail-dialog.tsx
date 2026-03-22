@@ -35,7 +35,7 @@ interface CollegeDetailDialogProps {
 
 function StatRow({ label, value }: { label: string; value: string | number | null | undefined }) {
   return (
-    <div className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+    <div className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-xs font-medium">{value ?? "N/A"}</span>
     </div>
@@ -62,7 +62,7 @@ export function CollegeDetailDialog({
       <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
               <GraduationCap className="h-5 w-5" />
             </div>
             <div>
@@ -78,7 +78,7 @@ export function CollegeDetailDialog({
         <div className="space-y-4 py-2">
           {/* Overview */}
           <div>
-            <h4 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-2">Overview</h4>
+            <h4 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-2">Overview</h4>
             <StatRow label="Type" value={college.type ? getCollegeTypeLabel(college.type) : null} />
             <StatRow label="Locale" value={college.locale ? getLocaleLabel(college.locale) : null} />
             <StatRow label="Enrollment" value={college.enrollment?.toLocaleString()} />
@@ -90,7 +90,7 @@ export function CollegeDetailDialog({
 
           {/* Admissions */}
           <div>
-            <h4 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-2">Admissions</h4>
+            <h4 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-2">Admissions</h4>
             <StatRow label="Acceptance Rate" value={formatAcceptanceRate(college.acceptanceRate ?? null)} />
             <StatRow label="SAT Range (25th-75th)" value={college.sat25 != null && college.sat75 != null ? `${college.sat25} - ${college.sat75}` : "N/A"} />
             <StatRow label="SAT Average" value={college.satAvg} />
@@ -100,7 +100,7 @@ export function CollegeDetailDialog({
 
           {/* Cost */}
           <div>
-            <h4 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-2">Cost</h4>
+            <h4 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-2">Cost</h4>
             <StatRow label="In-State Tuition" value={formatTuition(college.inStateTuition ?? null)} />
             <StatRow label="Out-of-State Tuition" value={formatTuition(college.outOfStateTuition ?? null)} />
             <StatRow label="Room & Board" value={formatTuition(college.roomAndBoard ?? null)} />
@@ -109,7 +109,7 @@ export function CollegeDetailDialog({
 
           {/* Outcomes */}
           <div>
-            <h4 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-2">Outcomes</h4>
+            <h4 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-2">Outcomes</h4>
             <StatRow label="4-Year Graduation Rate" value={formatPct(college.gradRate4yr)} />
             <StatRow label="6-Year Graduation Rate" value={formatPct(college.gradRate6yr)} />
             <StatRow label="Retention Rate" value={formatPct(college.retentionRate)} />
@@ -120,7 +120,7 @@ export function CollegeDetailDialog({
 
           {/* Financial Aid */}
           <div>
-            <h4 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-2">Financial Aid</h4>
+            <h4 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-2">Financial Aid</h4>
             <StatRow label="Pell Grant Recipients" value={formatPct(college.pellPct)} />
             <StatRow label="Federal Loan Recipients" value={formatPct(college.fedLoanPct)} />
           </div>
@@ -139,7 +139,7 @@ export function CollegeDetailDialog({
           )}
 
           {/* Add to List */}
-          <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+          <div className="flex items-center gap-2 pt-2 border-t border-border">
             <Select value={classification} onValueChange={(v: string | null) => { if (v) setClassification(v) }}>
               <SelectTrigger className="w-36">
                 <SelectValue placeholder="Classification" />

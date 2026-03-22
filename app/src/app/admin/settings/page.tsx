@@ -264,13 +264,13 @@ export default function SettingsPage() {
 
         {activeTab === "Privacy" && (
           <div className="flex flex-col gap-6 max-w-lg">
-            <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 mb-4">
+            <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-accent px-4 py-3 text-sm text-blue-800 mb-4">
               <Shield className="size-4 shrink-0" />
               These controls determine which privacy options are available to students and parents in their settings.
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-4">Student Privacy Options</h3>
+              <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-4">Student Privacy Options</h3>
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3">
                   <input
@@ -315,7 +315,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-4">Parent Privacy Options</h3>
+              <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-4">Parent Privacy Options</h3>
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3">
                   <input
@@ -370,7 +370,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-4">Scholarship Matching</h3>
+              <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-4">Scholarship Matching</h3>
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3">
                   <input

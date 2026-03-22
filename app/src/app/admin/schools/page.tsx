@@ -251,11 +251,11 @@ export default function AdminSchoolsPage() {
                 <CardContent className="p-5 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
                         <GraduationCap className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-sm text-[#1E3A5F] truncate">{school.name}</p>
+                        <p className="font-semibold text-sm text-secondary-foreground truncate">{school.name}</p>
                         {(school.city || school.state) && (
                           <p className="text-xs text-muted-foreground flex items-center gap-1">
                             <MapPin className="h-3 w-3" /> {[school.city, school.state].filter(Boolean).join(", ")}
@@ -271,7 +271,7 @@ export default function AdminSchoolsPage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 font-medium text-blue-700">
+                    <span className="inline-flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 font-medium text-blue-700">
                       <Users className="h-3 w-3" /> {school._count?.students ?? 0} students
                     </span>
                     {school.joinCode && (

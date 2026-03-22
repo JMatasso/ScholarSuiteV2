@@ -36,7 +36,7 @@ interface LearningCategoryGridProps {
 }
 
 const categoryColors: Record<string, { bg: string; text: string; ring: string }> = {
-  default: { bg: "bg-[#1E3A5F]/5", text: "text-[#1E3A5F]", ring: "ring-[#1E3A5F]/10" },
+  default: { bg: "bg-accent", text: "text-secondary-foreground", ring: "ring-ring/10" },
 }
 
 export function LearningCategoryGrid({ modules, basePath, className }: LearningCategoryGridProps) {
@@ -70,7 +70,7 @@ export function LearningCategoryGrid({ modules, basePath, className }: LearningC
     <div className={cn("space-y-8", className)}>
       {categories.map(([categoryName, categoryModules]) => (
         <div key={categoryName}>
-          <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+          <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
             {categoryName}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -133,7 +133,7 @@ export function LearningCategoryGrid({ modules, basePath, className }: LearningC
                               {completedLessons}/{totalLessons}
                             </span>
                           </div>
-                          <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden">
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                             <motion.div
                               className={cn(
                                 "h-full rounded-full",

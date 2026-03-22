@@ -62,7 +62,7 @@ function classificationBadge(classification: string | null | undefined) {
     SAFETY: "bg-emerald-100 text-emerald-700 border-emerald-200",
   }
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium border ${colorMap[classification] || "bg-gray-100 text-gray-600 border-gray-200"}`}>
+    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium border ${colorMap[classification] || "bg-muted text-muted-foreground border-border"}`}>
       {classification}
     </span>
   )
@@ -132,7 +132,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
     <div className="space-y-4">
       {/* Per-School Cost Cards */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
           College Cost Comparison
         </h2>
         <Button
@@ -220,8 +220,8 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                       <span className="font-medium">{formatTuition(college.booksSupplies)}</span>
                     </div>
                     <div className="flex justify-between border-t pt-1.5">
-                      <span className="font-semibold text-[#1E3A5F]">Est. Total COA</span>
-                      <span className="font-semibold text-[#1E3A5F]">{formatTuition(coa)}</span>
+                      <span className="font-semibold text-secondary-foreground">Est. Total COA</span>
+                      <span className="font-semibold text-secondary-foreground">{formatTuition(coa)}</span>
                     </div>
                   </div>
 
@@ -277,17 +277,17 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
 
                   {/* Net cost & 4-year */}
                   {netCost != null && (
-                    <div className="rounded-lg bg-gray-50 p-2.5 space-y-1">
+                    <div className="rounded-lg bg-muted/50 p-2.5 space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="font-medium">Net Annual Cost</span>
-                        <span className={`font-bold ${isCheapest ? "text-emerald-600" : "text-[#1E3A5F]"}`}>
+                        <span className={`font-bold ${isCheapest ? "text-emerald-600" : "text-secondary-foreground"}`}>
                           {formatTuition(netCost)}
                         </span>
                       </div>
                       {fourYearTotal != null && (
                         <div className="flex justify-between text-xs">
                           <span className="text-muted-foreground">4-Year Projected</span>
-                          <span className={`font-semibold ${isCheapest ? "text-emerald-600" : "text-[#1E3A5F]"}`}>
+                          <span className={`font-semibold ${isCheapest ? "text-emerald-600" : "text-secondary-foreground"}`}>
                             {formatTuition(fourYearTotal)}
                           </span>
                         </div>
@@ -317,7 +317,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                   <tr className="border-b text-left">
                     <th className="pb-2 pr-4 font-medium text-muted-foreground min-w-[140px]">Category</th>
                     {appsWithCosts.map((app) => (
-                      <th key={app.id} className="pb-2 px-3 font-medium text-[#1E3A5F] text-right min-w-[120px]">
+                      <th key={app.id} className="pb-2 px-3 font-medium text-secondary-foreground text-right min-w-[120px]">
                         <div className="flex flex-col items-end gap-0.5">
                           <span className="truncate max-w-[140px]">{app.universityName}</span>
                           {app.id === cheapestId && (
@@ -440,7 +440,7 @@ function ComparisonRow({
 
   return (
     <tr>
-      <td className={`py-2.5 pr-4 ${bold ? "font-semibold text-[#1E3A5F]" : "text-muted-foreground"}`}>
+      <td className={`py-2.5 pr-4 ${bold ? "font-semibold text-secondary-foreground" : "text-muted-foreground"}`}>
         {label}
       </td>
       {values.map((value, idx) => {
@@ -452,7 +452,7 @@ function ComparisonRow({
               isHighlighted
                 ? "text-emerald-600 font-semibold"
                 : bold
-                  ? `font-semibold ${colorClass || "text-[#1E3A5F]"}`
+                  ? `font-semibold ${colorClass || "text-secondary-foreground"}`
                   : colorClass || "text-muted-foreground"
             }`}
           >

@@ -63,7 +63,7 @@ const decisionBadge: Record<string, { label: string; className: string }> = {
   ACCEPTED: { label: "Accepted", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   DENIED: { label: "Denied", className: "bg-rose-100 text-rose-700 border-rose-200" },
   WAITLISTED: { label: "Waitlisted", className: "bg-amber-100 text-amber-700 border-amber-200" },
-  DEFERRED: { label: "Deferred", className: "bg-gray-100 text-gray-600 border-gray-200" },
+  DEFERRED: { label: "Deferred", className: "bg-muted text-muted-foreground border-border" },
 }
 
 function getTotalAid(pkg: AidPackage | null): number {
@@ -131,7 +131,7 @@ export default function ParentDecisionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">College Decisions</h1>
+        <h1 className="text-2xl font-semibold text-secondary-foreground">College Decisions</h1>
         <p className="mt-1 text-muted-foreground">
           View your child&apos;s college admission results and compare financial aid offers.
         </p>
@@ -161,7 +161,7 @@ export default function ParentDecisionsPage() {
           {/* Accepted Section */}
           {accepted.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+              <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
                 Accepted
               </h2>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -191,7 +191,7 @@ export default function ParentDecisionsPage() {
                               {app.isDream && (
                                 <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
                               )}
-                              <h3 className="text-sm font-semibold text-[#1E3A5F]">
+                              <h3 className="text-sm font-semibold text-secondary-foreground">
                                 {app.universityName}
                               </h3>
                             </div>
@@ -213,7 +213,7 @@ export default function ParentDecisionsPage() {
                           {(totalAid > 0 || netCost != null) && (
                             <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
                               {totalAid > 0 && (
-                                <div className="rounded-lg bg-white/80 p-2 text-center">
+                                <div className="rounded-lg bg-card/80 p-2 text-center">
                                   <p className="text-muted-foreground">Total Aid</p>
                                   <p className="font-semibold text-emerald-700">
                                     {formatTuition(totalAid)}
@@ -221,7 +221,7 @@ export default function ParentDecisionsPage() {
                                 </div>
                               )}
                               {getGrants(app.aidPackage) > 0 && (
-                                <div className="rounded-lg bg-white/80 p-2 text-center">
+                                <div className="rounded-lg bg-card/80 p-2 text-center">
                                   <p className="text-muted-foreground">Grants</p>
                                   <p className="font-semibold text-emerald-600">
                                     {formatTuition(getGrants(app.aidPackage))}
@@ -229,7 +229,7 @@ export default function ParentDecisionsPage() {
                                 </div>
                               )}
                               {getLoans(app.aidPackage) > 0 && (
-                                <div className="rounded-lg bg-white/80 p-2 text-center">
+                                <div className="rounded-lg bg-card/80 p-2 text-center">
                                   <p className="text-muted-foreground">Loans</p>
                                   <p className="font-semibold text-amber-600">
                                     {formatTuition(getLoans(app.aidPackage))}
@@ -237,9 +237,9 @@ export default function ParentDecisionsPage() {
                                 </div>
                               )}
                               {netCost != null && (
-                                <div className="rounded-lg bg-white/80 p-2 text-center">
+                                <div className="rounded-lg bg-card/80 p-2 text-center">
                                   <p className="text-muted-foreground">Net Cost</p>
-                                  <p className="font-semibold text-[#1E3A5F]">
+                                  <p className="font-semibold text-secondary-foreground">
                                     {formatTuition(netCost)}/yr
                                   </p>
                                 </div>
@@ -277,7 +277,7 @@ export default function ParentDecisionsPage() {
             <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-[#1E3A5F]" />
+                  <TrendingDown className="h-4 w-4 text-secondary-foreground" />
                   Cost Comparison (Accepted Schools)
                 </CardTitle>
               </CardHeader>
@@ -322,7 +322,7 @@ export default function ParentDecisionsPage() {
                             <TableCell className="text-xs text-right font-medium">
                               {formatTuition(netCost)}
                             </TableCell>
-                            <TableCell className="text-xs text-right font-medium text-[#1E3A5F]">
+                            <TableCell className="text-xs text-right font-medium text-secondary-foreground">
                               {formatTuition(fourYear)}
                             </TableCell>
                           </TableRow>
@@ -338,7 +338,7 @@ export default function ParentDecisionsPage() {
           {/* Waitlisted / Deferred */}
           {waitlisted.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+              <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
                 Waitlisted / Deferred
               </h2>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -352,7 +352,7 @@ export default function ParentDecisionsPage() {
                     <Card variant="bento" className="border-amber-200 bg-amber-50/30">
                       <CardContent className="pt-0">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-semibold text-[#1E3A5F]">
+                          <h3 className="text-sm font-semibold text-secondary-foreground">
                             {app.universityName}
                           </h3>
                           <Badge
@@ -378,14 +378,14 @@ export default function ParentDecisionsPage() {
           {/* Denied */}
           {denied.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+              <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
                 Denied
               </h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {denied.map(app => (
                   <Card key={app.id} variant="bento" className="border-rose-200 bg-rose-50/30 opacity-70">
                     <CardContent className="pt-0">
-                      <h3 className="text-sm font-medium text-gray-600">{app.universityName}</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground">{app.universityName}</h3>
                     </CardContent>
                   </Card>
                 ))}

@@ -179,12 +179,12 @@ export default function ScraperPage() {
   }
 
   const statusColor = (s?: string | null) => {
-    if (!s) return "bg-gray-100 text-gray-600"
+    if (!s) return "bg-muted text-muted-foreground"
     const map: Record<string, string> = {
       CURRENT: "bg-emerald-100 text-emerald-700", NEEDS_REVIEW: "bg-amber-100 text-amber-700",
       EXPIRED: "bg-rose-100 text-rose-700", ERROR: "bg-red-100 text-red-700",
     }
-    return map[s] ?? "bg-gray-100 text-gray-600"
+    return map[s] ?? "bg-muted text-muted-foreground"
   }
 
   const tabs: { key: Tab; label: string }[] = [
@@ -200,7 +200,7 @@ export default function ScraperPage() {
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              tab === t.key ? "bg-[#1E3A5F] text-white" : "bg-white text-muted-foreground ring-1 ring-gray-200 hover:bg-gray-50"
+              tab === t.key ? "bg-[#1E3A5F] text-white" : "bg-card text-muted-foreground ring-1 ring-gray-200 hover:bg-muted/50"
             }`}>{t.label}</button>
         ))}
       </div>
@@ -225,7 +225,7 @@ export default function ScraperPage() {
 
             {/* Processing status */}
             {processing && (
-              <Card variant="bento" className="border-blue-200 bg-blue-50/30">
+              <Card variant="bento" className="border-blue-200 bg-accent/30">
                 <CardContent className="py-4">
                   <div className="flex items-center gap-2 text-sm text-blue-700">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -234,7 +234,7 @@ export default function ScraperPage() {
                   <div className="mt-3 space-y-1">
                     {results.map((r, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs">
-                        {r.status === "pending" && <Clock className="h-3 w-3 text-gray-400" />}
+                        {r.status === "pending" && <Clock className="h-3 w-3 text-muted-foreground" />}
                         {r.status === "extracting" && <Loader2 className="h-3 w-3 text-blue-500 animate-spin" />}
                         {r.status === "done" && <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
                         {r.status === "error" && <XCircle className="h-3 w-3 text-rose-500" />}
@@ -350,9 +350,9 @@ export default function ScraperPage() {
                               </td>
                             </tr>
                             {expandedIds.has(s.id) && diffs[s.id] && (
-                              <tr><td colSpan={6} className="bg-gray-50 px-4 py-3">
+                              <tr><td colSpan={6} className="bg-muted/50 px-4 py-3">
                                 <div className="space-y-2">
-                                  <p className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Changes Detected</p>
+                                  <p className="text-xs font-semibold text-secondary-foreground uppercase tracking-wide">Changes Detected</p>
                                   {diffs[s.id].map((d, j) => (
                                     <div key={j} className="flex items-center gap-2 text-xs">
                                       <span className="font-medium w-24">{d.field}:</span>

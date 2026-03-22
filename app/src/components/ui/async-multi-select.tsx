@@ -235,7 +235,7 @@ export function AsyncMultiSelect<T>({
             return (
               <span
                 key={optValue}
-                className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-blue-700"
               >
                 {getDisplayValue(option)}
                 <button

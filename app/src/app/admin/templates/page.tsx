@@ -227,7 +227,7 @@ export default function TemplatesPage() {
                         transition={{ duration: 0.2, delay: idx * 0.03 }}
                         className="flex items-center gap-4 px-5 py-3 hover:bg-muted/20 transition-colors"
                       >
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/5 text-xs font-semibold text-[#1E3A5F]">
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent text-xs font-semibold text-secondary-foreground">
                           {item.order}
                         </span>
                         <div className="flex-1 min-w-0">
@@ -237,7 +237,7 @@ export default function TemplatesPage() {
                               {item.priority}
                             </span>
                             {item.documentFolder && (
-                              <span className="inline-flex items-center gap-1 h-4 rounded-full px-1.5 text-[10px] font-medium bg-blue-50 text-blue-600">
+                              <span className="inline-flex items-center gap-1 h-4 rounded-full px-1.5 text-[10px] font-medium bg-accent text-blue-600">
                                 <FolderOpen className="size-2.5" />
                                 {item.documentFolder}
                               </span>

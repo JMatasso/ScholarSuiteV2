@@ -56,7 +56,7 @@ const phaseOrder = ["INTRODUCTION", "PHASE_1", "PHASE_2", "ONGOING", "FINAL"]
 const priorityColors: Record<string, string> = {
   HIGH: "bg-rose-100 text-rose-700 border-rose-200",
   MEDIUM: "bg-amber-100 text-amber-700 border-amber-200",
-  LOW: "bg-gray-100 text-gray-600 border-gray-200",
+  LOW: "bg-muted text-muted-foreground border-border",
 }
 
 function getDueDateStatus(dueDate: string | null): string {
@@ -151,7 +151,7 @@ export default function TasksPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Tasks</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Tasks</h1>
           <p className="mt-1 text-muted-foreground">{completedCount} of {totalTasks} tasks completed</p>
         </div>
         <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export default function TasksPage() {
             <div className="h-2 w-24 rounded-full bg-muted overflow-hidden">
               <div className="h-full rounded-full bg-[#2563EB] transition-all duration-500" style={{ width: `${progressPct}%` }} />
             </div>
-            <span className="text-sm font-semibold text-[#1E3A5F]">{progressPct}%</span>
+            <span className="text-sm font-semibold text-secondary-foreground">{progressPct}%</span>
           </div>
         </div>
       </div>
@@ -206,7 +206,7 @@ export default function TasksPage() {
                 transition={{ duration: 0.4, delay: phaseOrder.indexOf(phase) * 0.05 }}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">{phaseLabels[phase]}</h2>
+                  <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">{phaseLabels[phase]}</h2>
                   <span className="text-xs text-muted-foreground">{phaseCompleted}/{phaseTasks.length}</span>
                 </div>
                 <Card variant="bento">
@@ -269,11 +269,11 @@ export default function TasksPage() {
               transition={{ duration: 0.2 }}
               className="shrink-0"
             >
-              <div className="sticky top-6 rounded-xl bg-white ring-1 ring-foreground/10 overflow-hidden">
+              <div className="sticky top-6 rounded-xl bg-card ring-1 ring-foreground/10 overflow-hidden">
                 {/* Header */}
                 <div className="flex items-start justify-between p-5 border-b border-border/50">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-[#1E3A5F] pr-2">{selectedTask.title}</h3>
+                    <h3 className="text-base font-semibold text-secondary-foreground pr-2">{selectedTask.title}</h3>
                     <div className="flex items-center gap-2 mt-2">
                       <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium", priorityColors[selectedTask.priority])}>
                         {selectedTask.priority}
@@ -282,7 +282,7 @@ export default function TasksPage() {
                         "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
                         selectedTask.status === "DONE" ? "bg-emerald-100 text-emerald-700" :
                         selectedTask.status === "IN_PROGRESS" ? "bg-blue-100 text-blue-700" :
-                        "bg-gray-100 text-gray-600"
+                        "bg-muted text-muted-foreground"
                       )}>
                         {selectedTask.status === "DONE" ? "Completed" : selectedTask.status === "IN_PROGRESS" ? "In Progress" : "Not Started"}
                       </span>

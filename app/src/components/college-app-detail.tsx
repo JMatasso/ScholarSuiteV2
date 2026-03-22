@@ -86,7 +86,7 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg text-[#1E3A5F]">{app.universityName}</DialogTitle>
+          <DialogTitle className="text-lg text-secondary-foreground">{app.universityName}</DialogTitle>
           {app.college && (app.college.city || app.college.state) && (
             <p className="text-sm text-muted-foreground">
               {[app.college.city, app.college.state].filter(Boolean).join(", ")}
@@ -219,7 +219,7 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
               {/* Supplemental Essays */}
               <button
                 type="button"
-                className="flex w-full items-center gap-1.5 text-xs font-medium text-[#1E3A5F] hover:text-[#2563EB] transition-colors"
+                className="flex w-full items-center gap-1.5 text-xs font-medium text-secondary-foreground hover:text-[#2563EB] transition-colors"
                 onClick={() => setEssaysExpanded(!essaysExpanded)}
               >
                 {essaysExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
@@ -252,7 +252,7 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
               {/* Recommenders */}
               <button
                 type="button"
-                className="flex w-full items-center gap-1.5 text-xs font-medium text-[#1E3A5F] hover:text-[#2563EB] transition-colors"
+                className="flex w-full items-center gap-1.5 text-xs font-medium text-secondary-foreground hover:text-[#2563EB] transition-colors"
                 onClick={() => setRecsExpanded(!recsExpanded)}
               >
                 {recsExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
@@ -279,7 +279,7 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
                       )}
                       <span className={`ml-auto text-[11px] font-medium ${
                         rec.status === "SUBMITTED" ? "text-emerald-600" :
-                        rec.status === "REQUESTED" ? "text-amber-600" : "text-gray-400"
+                        rec.status === "REQUESTED" ? "text-amber-600" : "text-muted-foreground"
                       }`}>
                         {rec.status === "SUBMITTED" ? "Submitted" : rec.status === "REQUESTED" ? "Requested" : "Not Requested"}
                       </span>
@@ -327,7 +327,7 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
               {/* Aid package (only relevant for accepted) */}
               <button
                 type="button"
-                className="flex w-full items-center gap-1.5 text-xs font-medium text-[#1E3A5F] hover:text-[#2563EB] transition-colors"
+                className="flex w-full items-center gap-1.5 text-xs font-medium text-secondary-foreground hover:text-[#2563EB] transition-colors"
                 onClick={() => setAidExpanded(!aidExpanded)}
               >
                 {aidExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
@@ -451,9 +451,9 @@ export function CollegeAppDetail({ app, open, onOpenChange, onUpdate, onDelete, 
 function Section({ icon: Icon, title, children }: { icon: typeof Calendar; title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2.5">
-      <div className="flex items-center gap-2 border-b border-gray-100 pb-1.5">
-        <Icon className="h-4 w-4 text-[#1E3A5F]" />
-        <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">{title}</h3>
+      <div className="flex items-center gap-2 border-b border-border pb-1.5">
+        <Icon className="h-4 w-4 text-secondary-foreground" />
+        <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">{title}</h3>
       </div>
       {children}
     </div>

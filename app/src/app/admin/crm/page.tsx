@@ -32,23 +32,23 @@ const stageLabels: Record<string, string> = {
   LOST: "Lost",
 }
 const stageColors: Record<string, string> = {
-  LEAD: "border-blue-200 bg-blue-50/50",
+  LEAD: "border-blue-200 bg-accent/50",
   CONTACTED: "border-amber-200 bg-amber-50/50",
   QUALIFIED: "border-purple-200 bg-purple-50/50",
   ENROLLED: "border-green-200 bg-green-50/50",
-  LOST: "border-gray-200 bg-gray-50/50",
+  LOST: "border-border bg-muted/50/50",
 }
 const stageHeaderColors: Record<string, string> = {
   LEAD: "text-blue-700",
   CONTACTED: "text-amber-700",
   QUALIFIED: "text-purple-700",
   ENROLLED: "text-green-700",
-  LOST: "text-gray-500",
+  LOST: "text-muted-foreground",
 }
 const tierBadgeColors: Record<string, string> = {
   Premium: "bg-purple-100 text-purple-700",
   Standard: "bg-blue-100 text-blue-700",
-  Basic: "bg-gray-100 text-gray-600",
+  Basic: "bg-muted text-muted-foreground",
 }
 
 export default function CRMPage() {
@@ -116,7 +116,7 @@ export default function CRMPage() {
       />
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <form onSubmit={handleSubmit} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Add Prospect</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -171,7 +171,7 @@ export default function CRMPage() {
       {/* Pipeline Stats */}
       <div className="grid grid-cols-5 gap-3">
         {pipelineStats.map(({ stage, count }) => (
-          <div key={stage} className="rounded-xl bg-white p-4 ring-1 ring-foreground/10 text-center">
+          <div key={stage} className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 text-center">
             <p className={`text-xs font-medium uppercase tracking-wide ${stageHeaderColors[stage]}`}>{stageLabels[stage]}</p>
             <p className="text-2xl font-semibold text-foreground mt-1">{count}</p>
           </div>
@@ -237,7 +237,7 @@ export default function CRMPage() {
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                           {prospect.serviceTier && (
-                            <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ${tierBadgeColors[prospect.serviceTier] || "bg-gray-100 text-gray-600"}`}>
+                            <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ${tierBadgeColors[prospect.serviceTier] || "bg-muted text-muted-foreground"}`}>
                               {prospect.serviceTier}
                             </span>
                           )}

@@ -193,7 +193,7 @@ export default function AdminReportsPage() {
           >
             <Card variant="bento">
               <CardHeader>
-                <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+                <CardTitle className="text-sm font-semibold text-secondary-foreground">
                   Per-Student Breakdown ({data.students.length} students)
                 </CardTitle>
               </CardHeader>

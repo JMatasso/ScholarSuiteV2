@@ -55,7 +55,7 @@ const GROUPS: CategoryGroup[] = [
     icon: Dumbbell,
     categories: ["ATHLETICS", "ARTS", "ACADEMIC"],
     color: "text-blue-600",
-    bgClass: "border-blue-200 bg-blue-50/40 hover:bg-blue-50",
+    bgClass: "border-blue-200 bg-accent/40 hover:bg-accent",
     iconBg: "bg-blue-100",
     tip: "Colleges love to see consistent commitment — aim for 2-3 activities you've stuck with over multiple years.",
   },
@@ -131,9 +131,9 @@ const GROUPS: CategoryGroup[] = [
     description: "Anything else that makes you stand out",
     icon: Palette,
     categories: ["OTHER"],
-    color: "text-gray-600",
-    bgClass: "border-gray-200 bg-gray-50/40 hover:bg-gray-50",
-    iconBg: "bg-gray-100",
+    color: "text-muted-foreground",
+    bgClass: "border-border bg-muted/50/40 hover:bg-muted/50",
+    iconBg: "bg-muted",
     tip: "Hobbies, personal challenges, family responsibilities — anything that shaped who you are.",
   },
 ]
@@ -356,14 +356,14 @@ export default function BragSheetPage() {
   }
 
   const strengthLabel = strength.score >= 80 ? "Strong" : strength.score >= 50 ? "Getting There" : strength.score >= 20 ? "Just Starting" : "Empty"
-  const strengthColor = strength.score >= 80 ? "bg-emerald-500" : strength.score >= 50 ? "bg-[#2563EB]" : strength.score >= 20 ? "bg-amber-500" : "bg-gray-300"
+  const strengthColor = strength.score >= 80 ? "bg-emerald-500" : strength.score >= 50 ? "bg-[#2563EB]" : strength.score >= 20 ? "bg-amber-500" : "bg-muted"
 
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Brag Sheet</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Brag Sheet</h1>
           <p className="mt-1 text-muted-foreground">
             Everything that makes you stand out — activities, awards, work, and more.
           </p>
@@ -379,17 +379,17 @@ export default function BragSheetPage() {
       <Card variant="bento">
         <CardContent className="pt-0">
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1E3A5F]/10">
-              <Zap className="h-5 w-5 text-[#1E3A5F]" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
+              <Zap className="h-5 w-5 text-secondary-foreground" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-sm font-medium text-foreground">
                   Brag Sheet Strength: <span className="font-semibold">{strengthLabel}</span>
                 </p>
-                <span className="text-sm font-semibold text-[#1E3A5F]">{strength.score}%</span>
+                <span className="text-sm font-semibold text-secondary-foreground">{strength.score}%</span>
               </div>
-              <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+              <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                 <motion.div
                   className={`h-full rounded-full ${strengthColor}`}
                   initial={{ width: 0 }}
@@ -411,19 +411,19 @@ export default function BragSheetPage() {
       {/* ── Quick Stats ── */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         {[
-          { icon: BookOpen, value: totalEntries, label: "Total Entries", color: "text-[#1E3A5F]", bg: "bg-[#1E3A5F]/10" },
-          { icon: Clock, value: totalHours > 0 ? totalHours.toLocaleString() : "0", label: "Total Hours", color: "text-[#2563EB]", bg: "bg-blue-50" },
+          { icon: BookOpen, value: totalEntries, label: "Total Entries", color: "text-secondary-foreground", bg: "bg-accent" },
+          { icon: Clock, value: totalHours > 0 ? totalHours.toLocaleString() : "0", label: "Total Hours", color: "text-[#2563EB]", bg: "bg-accent" },
           { icon: Users, value: leadershipCount, label: "Leadership", color: "text-amber-600", bg: "bg-amber-50" },
           { icon: Trophy, value: awardCount, label: "Awards", color: "text-emerald-600", bg: "bg-emerald-50" },
         ].map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="flex items-center gap-3 rounded-lg bg-white p-3 ring-1 ring-foreground/5">
+            <div key={stat.label} className="flex items-center gap-3 rounded-lg bg-card p-3 ring-1 ring-foreground/5">
               <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.bg}`}>
                 <Icon className={`h-4 w-4 ${stat.color}`} />
               </div>
               <div>
-                <p className="text-lg font-bold text-[#1E3A5F]">{stat.value}</p>
+                <p className="text-lg font-bold text-secondary-foreground">{stat.value}</p>
                 <p className="text-[11px] text-muted-foreground">{stat.label}</p>
               </div>
             </div>
@@ -442,7 +442,7 @@ export default function BragSheetPage() {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-            <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Your Categories
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -463,25 +463,25 @@ export default function BragSheetPage() {
                       onClick={() => setSelectedGroup(group.key)}
                       className={`w-full text-left rounded-xl border p-4 transition-all ${
                         isEmpty
-                          ? "border-dashed border-gray-300 bg-gray-50/30 hover:bg-gray-50"
+                          ? "border-dashed border-border bg-muted/50/30 hover:bg-muted/50"
                           : group.bgClass
                       }`}
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isEmpty ? "bg-gray-100" : group.iconBg}`}>
-                          <Icon className={`h-5 w-5 ${isEmpty ? "text-gray-400" : group.color}`} />
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isEmpty ? "bg-muted" : group.iconBg}`}>
+                          <Icon className={`h-5 w-5 ${isEmpty ? "text-muted-foreground" : group.color}`} />
                         </div>
                         {isEmpty ? (
-                          <span className="text-[11px] font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+                          <span className="text-[11px] font-medium text-muted-foreground bg-muted rounded-full px-2 py-0.5">
                             Empty
                           </span>
                         ) : (
-                          <span className="text-[11px] font-medium text-[#1E3A5F] bg-white/80 rounded-full px-2 py-0.5">
+                          <span className="text-[11px] font-medium text-secondary-foreground bg-card/80 rounded-full px-2 py-0.5">
                             {entries.length} {entries.length === 1 ? "entry" : "entries"}
                           </span>
                         )}
                       </div>
-                      <p className={`text-sm font-semibold ${isEmpty ? "text-gray-500" : "text-[#1E3A5F]"}`}>
+                      <p className={`text-sm font-semibold ${isEmpty ? "text-muted-foreground" : "text-secondary-foreground"}`}>
                         {group.label}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
@@ -592,7 +592,7 @@ function CategoryDetailView({
             <Icon className={`h-5 w-5 ${group.color}`} />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-[#1E3A5F]">{group.label}</h2>
+            <h2 className="text-lg font-semibold text-secondary-foreground">{group.label}</h2>
             <p className="text-xs text-muted-foreground">{group.description}</p>
           </div>
         </div>
@@ -602,9 +602,9 @@ function CategoryDetailView({
       </div>
 
       {/* Tip */}
-      <div className="rounded-lg bg-blue-50/70 border border-blue-200/50 px-4 py-3 flex items-start gap-2">
+      <div className="rounded-lg bg-accent/70 border border-blue-200/50 px-4 py-3 flex items-start gap-2">
         <Lightbulb className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" />
-        <p className="text-xs text-[#1E3A5F]/80">{group.tip}</p>
+        <p className="text-xs text-secondary-foreground/80">{group.tip}</p>
       </div>
 
       {/* Entries */}
@@ -638,7 +638,7 @@ function CategoryDetailView({
                       <div className="space-y-1.5 min-w-0 flex-1">
                         {/* Title row */}
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-semibold text-[#1E3A5F]">{entry.title}</p>
+                          <p className="text-sm font-semibold text-secondary-foreground">{entry.title}</p>
                           {entry.isLeadership && (
                             <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
                               <Users className="h-3 w-3" /> Leadership
@@ -650,7 +650,7 @@ function CategoryDetailView({
                             </span>
                           )}
                           {entry.isVerified && (
-                            <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-accent px-2 py-0.5 text-[11px] font-medium text-blue-700">
                               <ShieldCheck className="h-3 w-3" /> Verified
                             </span>
                           )}
@@ -692,7 +692,7 @@ function CategoryDetailView({
                         {entry.skillsGained && entry.skillsGained.length > 0 && (
                           <div className="flex flex-wrap gap-1 pt-0.5">
                             {entry.skillsGained.map((skill) => (
-                              <span key={skill} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+                              <span key={skill} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">
                                 {skill}
                               </span>
                             ))}

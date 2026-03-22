@@ -105,22 +105,22 @@ export default function OverviewPage() {
       label: "Total Applications",
       value: stats.total,
       icon: FileText,
-      color: "text-[#1E3A5F]",
-      bg: "bg-[#1E3A5F]/10",
+      color: "text-secondary-foreground",
+      bg: "bg-accent",
     },
     {
       label: "Not Started",
       value: stats.notStarted,
       icon: Clock,
-      color: "text-gray-600",
-      bg: "bg-gray-100",
+      color: "text-muted-foreground",
+      bg: "bg-muted",
     },
     {
       label: "In Progress",
       value: stats.inProgress,
       icon: FileText,
       color: "text-[#2563EB]",
-      bg: "bg-blue-50",
+      bg: "bg-accent",
     },
     {
       label: "Submitted",
@@ -133,8 +133,8 @@ export default function OverviewPage() {
       label: "Upcoming Deadlines",
       value: stats.upcoming,
       icon: AlertTriangle,
-      color: stats.upcoming > 0 ? "text-amber-600" : "text-gray-500",
-      bg: stats.upcoming > 0 ? "bg-amber-50" : "bg-gray-100",
+      color: stats.upcoming > 0 ? "text-amber-600" : "text-muted-foreground",
+      bg: stats.upcoming > 0 ? "bg-amber-50" : "bg-muted",
     },
     {
       label: "Total Awarded",
@@ -170,7 +170,7 @@ export default function OverviewPage() {
                       <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                         {stat.label}
                       </p>
-                      <p className="text-2xl font-bold tracking-tight text-[#1E3A5F] font-display">
+                      <p className="text-2xl font-bold tracking-tight text-secondary-foreground font-display">
                         {stat.value}
                       </p>
                     </div>
@@ -187,7 +187,7 @@ export default function OverviewPage() {
 
       {/* Scholarship Pipeline */}
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+        <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
           Scholarship Pipeline
         </h2>
         <ScholarshipPipeline applications={applications} />
@@ -195,7 +195,7 @@ export default function OverviewPage() {
 
       {/* Won Awards */}
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+        <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
           Won Awards
         </h2>
 
@@ -218,11 +218,11 @@ export default function OverviewPage() {
           <Card variant="bento">
             <CardContent className="pt-0">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E3A5F]/10">
-                  <Trophy className="h-5 w-5 text-[#1E3A5F]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent">
+                  <Trophy className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-[#1E3A5F]">{stats.awardedCount}</p>
+                  <p className="text-2xl font-bold text-secondary-foreground">{stats.awardedCount}</p>
                   <p className="text-xs text-muted-foreground">Scholarships Won</p>
                 </div>
               </div>

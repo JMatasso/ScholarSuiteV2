@@ -61,14 +61,14 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-md">
-        <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+        <div className="rounded-2xl bg-card p-8 shadow-sm ring-1 ring-gray-200">
           <div className="mb-6 flex flex-col items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1E3A5F]/10 text-[#1E3A5F]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-secondary-foreground">
               <Lock className="h-6 w-6" />
             </div>
-            <h1 className="text-xl font-semibold text-[#1E3A5F]">Change Your Password</h1>
+            <h1 className="text-xl font-semibold text-secondary-foreground">Change Your Password</h1>
             <p className="text-center text-sm text-muted-foreground">
               Your account was created with a temporary password. Please set a new password to continue.
             </p>
@@ -83,7 +83,7 @@ export default function ChangePasswordPage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter your temporary password"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
               />
             </div>
             <div className="space-y-1.5">
@@ -94,7 +94,7 @@ export default function ChangePasswordPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="At least 8 characters"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
               />
             </div>
             <div className="space-y-1.5">
@@ -105,7 +105,7 @@ export default function ChangePasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter new password"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
               />
             </div>
             <Button

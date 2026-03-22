@@ -315,7 +315,7 @@ export default function AdminCollegesPage() {
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => router.push(`/admin/colleges/${college.id}`)}
                   >
-                    <TableCell className="font-medium text-[#1E3A5F] max-w-[260px] truncate">
+                    <TableCell className="font-medium text-secondary-foreground max-w-[260px] truncate">
                       {college.name}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground">
@@ -324,7 +324,7 @@ export default function AdminCollegesPage() {
                     <TableCell>{college.state || "\u2014"}</TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {college.type ? (
-                        <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+                        <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">
                           {getCollegeTypeLabel(college.type)}
                         </span>
                       ) : (
@@ -396,26 +396,26 @@ export default function AdminCollegesPage() {
       {/* Sync Section */}
       <Card variant="bento">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+          <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />
             College Scorecard Sync
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
               <Terminal className="h-5 w-5" />
             </div>
             <div className="space-y-2">
-              <p className="text-sm text-[#1A1A1A]">
+              <p className="text-sm text-foreground">
                 The college database is synced from the U.S. Department of Education College Scorecard API.
                 Since the sync can take several minutes, it runs via the CLI.
               </p>
-              <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 font-mono text-xs space-y-1">
+              <div className="rounded-lg bg-muted/50 border border-border p-3 font-mono text-xs space-y-1">
                 <p className="text-muted-foreground"># Set your API key first:</p>
-                <p className="text-[#1A1A1A]">export SCORECARD_API_KEY=your_api_key_here</p>
+                <p className="text-foreground">export SCORECARD_API_KEY=your_api_key_here</p>
                 <p className="text-muted-foreground mt-2"># Then run the sync:</p>
-                <p className="text-[#1A1A1A]">npm run db:seed-colleges</p>
+                <p className="text-foreground">npm run db:seed-colleges</p>
               </div>
               <p className="text-xs text-muted-foreground">
                 Get a free API key at{" "}

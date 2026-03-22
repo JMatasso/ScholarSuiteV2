@@ -48,7 +48,7 @@ const visitTypeColor: Record<string, string> = {
   INFO_SESSION: "bg-purple-100 text-purple-700 border-purple-200",
   OPEN_HOUSE: "bg-amber-100 text-amber-700 border-amber-200",
   OVERNIGHT: "bg-teal-100 text-teal-700 border-teal-200",
-  VIRTUAL: "bg-gray-100 text-gray-600 border-gray-200",
+  VIRTUAL: "bg-muted text-muted-foreground border-border",
   INTERVIEW: "bg-rose-100 text-rose-700 border-rose-200",
 }
 
@@ -130,7 +130,7 @@ export default function ParentVisitsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">College Visits</h1>
+        <h1 className="text-2xl font-semibold text-secondary-foreground">College Visits</h1>
         <p className="mt-1 text-muted-foreground">
           View your child&apos;s campus visit schedule. You can add your own notes to each visit.
         </p>
@@ -154,7 +154,7 @@ export default function ParentVisitsPage() {
           {/* Upcoming Visits */}
           {upcoming.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+              <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
                 Upcoming Visits
               </h2>
               <div className="space-y-3">
@@ -187,7 +187,7 @@ export default function ParentVisitsPage() {
           {/* Past Visits */}
           {past.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+              <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
                 Past Visits
               </h2>
               <div className="space-y-3">
@@ -252,12 +252,12 @@ function VisitCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-semibold text-[#1E3A5F]">
+              <h3 className="text-sm font-semibold text-secondary-foreground">
                 {visit.collegeApplication.universityName}
               </h3>
               <Badge
                 variant="secondary"
-                className={`text-[10px] ${visitTypeColor[visit.type] || "bg-gray-100 text-gray-600"}`}
+                className={`text-[10px] ${visitTypeColor[visit.type] || "bg-muted text-muted-foreground"}`}
               >
                 {visitTypeLabel[visit.type] || visit.type}
               </Badge>

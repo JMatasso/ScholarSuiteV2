@@ -99,7 +99,7 @@ export function AnimatedLogo({
       </motion.div>
       {showText && (
         <motion.span
-          className={cn("font-semibold text-[#1E3A5F] tracking-tight", s.text)}
+          className={cn("font-semibold text-secondary-foreground tracking-tight", s.text)}
           initial={{ opacity: 0, x: -4 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}

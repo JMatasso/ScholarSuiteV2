@@ -61,7 +61,7 @@ export function Topbar({
   const breadcrumbs = buildBreadcrumbs(pathname);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center border-b border-border bg-white/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center border-b border-border bg-card/80 backdrop-blur-sm">
       <div className="flex w-full items-center justify-between px-6">
         {/* Left: Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm">

@@ -52,14 +52,14 @@ export function ScholarshipOffset({ awards }: ScholarshipOffsetProps) {
             <p className="text-xl font-bold text-emerald-700">{formatTuition(totalAwarded)}</p>
             <p className="text-[10px] text-emerald-600/70">{awards.length} scholarship{awards.length !== 1 ? "s" : ""}</p>
           </div>
-          <div className="rounded-lg bg-blue-50 p-3 text-center">
+          <div className="rounded-lg bg-accent p-3 text-center">
             <p className="text-xs text-blue-600 font-medium">Recurring / Year</p>
             <p className="text-xl font-bold text-blue-700">{formatTuition(recurringTotal)}</p>
             <p className="text-[10px] text-blue-600/70">{recurringAwards.length} recurring</p>
           </div>
-          <div className="rounded-lg bg-[#1E3A5F]/5 p-3 text-center">
-            <p className="text-xs text-[#1E3A5F] font-medium">4-Year Projected</p>
-            <p className="text-xl font-bold text-[#1E3A5F]">{formatTuition(fourYearProjected)}</p>
+          <div className="rounded-lg bg-accent p-3 text-center">
+            <p className="text-xs text-secondary-foreground font-medium">4-Year Projected</p>
+            <p className="text-xl font-bold text-secondary-foreground">{formatTuition(fourYearProjected)}</p>
             <p className="text-[10px] text-muted-foreground">recurring x4 + one-time</p>
           </div>
         </div>

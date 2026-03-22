@@ -106,13 +106,13 @@ export interface ColumnDef {
 /* ────── constants ────── */
 
 export const COLUMNS: ColumnDef[] = [
-  { key: "RESEARCHING", label: "Researching", color: "text-gray-600", bg: "bg-gray-50", icon: Search },
-  { key: "IN_PROGRESS", label: "In Progress", color: "text-blue-600", bg: "bg-blue-50/60", icon: GraduationCap },
+  { key: "RESEARCHING", label: "Researching", color: "text-muted-foreground", bg: "bg-muted/50", icon: Search },
+  { key: "IN_PROGRESS", label: "In Progress", color: "text-blue-600", bg: "bg-accent/60", icon: GraduationCap },
   { key: "SUBMITTED", label: "Submitted", color: "text-purple-600", bg: "bg-purple-50/60", icon: Send },
   { key: "ACCEPTED", label: "Accepted", color: "text-emerald-600", bg: "bg-emerald-50/60", icon: CheckCircle2 },
   { key: "WAITLISTED", label: "Waitlisted / Deferred", color: "text-amber-600", bg: "bg-amber-50/60", icon: Clock },
   { key: "DENIED", label: "Denied", color: "text-rose-600", bg: "bg-rose-50/60", icon: XCircle },
-  { key: "WITHDRAWN", label: "Withdrawn", color: "text-gray-400", bg: "bg-gray-50/60", icon: ArrowRightFromLine },
+  { key: "WITHDRAWN", label: "Withdrawn", color: "text-muted-foreground", bg: "bg-muted/50/60", icon: ArrowRightFromLine },
 ]
 
 export const APP_TYPE_LABELS: Record<AppType, string> = {
@@ -129,7 +129,7 @@ const APP_TYPE_COLORS: Record<AppType, string> = {
   EARLY_DECISION_2: "bg-purple-100 text-purple-700",
   EARLY_ACTION: "bg-blue-100 text-blue-700",
   RESTRICTIVE_EARLY_ACTION: "bg-indigo-100 text-indigo-700",
-  REGULAR: "bg-gray-100 text-gray-700",
+  REGULAR: "bg-muted text-foreground",
   ROLLING: "bg-teal-100 text-teal-700",
 }
 
@@ -205,7 +205,7 @@ export function KanbanColumn({
       <div className="mb-3 flex items-center gap-2">
         <Icon className={`h-4 w-4 ${column.color}`} />
         <span className={`text-sm font-semibold ${column.color}`}>{column.label}</span>
-        <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-xs font-medium text-gray-600 shadow-sm">
+        <span className="ml-auto rounded-full bg-card px-2 py-0.5 text-xs font-medium text-muted-foreground shadow-sm">
           {apps.length}
         </span>
       </div>
@@ -249,13 +249,13 @@ function KanbanCard({
     >
       <Card
         variant="bento"
-        className="bg-white shadow-sm ring-1 ring-gray-200/60 p-3 space-y-2 hover:shadow-md transition-shadow cursor-pointer"
+        className="bg-card shadow-sm ring-1 ring-gray-200/60 p-3 space-y-2 hover:shadow-md transition-shadow cursor-pointer"
         onClick={onClick}
       >
         {/* top row: name + location */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-[#1E3A5F] leading-tight truncate">{app.universityName}</h3>
+            <h3 className="text-sm font-semibold text-secondary-foreground leading-tight truncate">{app.universityName}</h3>
             {app.college && (app.college.city || app.college.state) && (
               <p className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
                 <MapPin className="h-2.5 w-2.5 shrink-0" />
@@ -281,7 +281,7 @@ function KanbanCard({
             </span>
           )}
           {app.platform && (
-            <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-600">
+            <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground">
               {PLATFORM_LABELS[app.platform]}
             </span>
           )}
@@ -307,7 +307,7 @@ function KanbanCard({
             <span>Checklist</span>
             <span>{done}/{total}</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-gray-200">
+          <div className="h-1.5 w-full rounded-full bg-muted">
             <div
               className={`h-1.5 rounded-full transition-all ${progressPct === 100 ? "bg-emerald-500" : "bg-[#2563EB]"}`}
               style={{ width: `${progressPct}%` }}
@@ -317,7 +317,7 @@ function KanbanCard({
 
         {/* move menu */}
         <div
-          className="pt-1 border-t border-gray-100"
+          className="pt-1 border-t border-border"
           onClick={(e) => e.stopPropagation()}
         >
           <Select value={app.status} onValueChange={(v) => v && onStatusChange(app.id, v as AppStatus)}>

@@ -64,7 +64,7 @@ export function WelcomeTour({ slides, onComplete, onSkip }: WelcomeTourProps) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="relative w-full max-w-md mx-4 rounded-3xl bg-white shadow-2xl overflow-hidden"
+        className="relative w-full max-w-md mx-4 rounded-3xl bg-card shadow-2xl overflow-hidden"
       >
         {/* Skip button */}
         <button
@@ -87,10 +87,10 @@ export function WelcomeTour({ slides, onComplete, onSkip }: WelcomeTourProps) {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="flex flex-col items-center"
             >
-              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#1E3A5F]/10 text-[#1E3A5F] mb-6">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-accent text-secondary-foreground mb-6">
                 {slides[currentSlide].icon}
               </div>
-              <h2 className="text-xl font-bold text-[#1E3A5F] mb-2">
+              <h2 className="text-xl font-bold text-secondary-foreground mb-2">
                 {slides[currentSlide].title}
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
@@ -112,7 +112,7 @@ export function WelcomeTour({ slides, onComplete, onSkip }: WelcomeTourProps) {
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === currentSlide
                   ? "w-6 bg-[#2563EB]"
-                  : "w-1.5 bg-gray-300 hover:bg-gray-400"
+                  : "w-1.5 bg-muted hover:bg-muted"
               }`}
             />
           ))}

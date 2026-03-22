@@ -176,8 +176,8 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
       <Card variant="bento">
         <CardContent className="pt-0">
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1E3A5F]/10">
-              <BookOpen className="h-5 w-5 text-[#1E3A5F]" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
+              <BookOpen className="h-5 w-5 text-secondary-foreground" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1.5">
@@ -191,7 +191,7 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
                   {percentage}%
                 </span>
               </div>
-              <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+              <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                 <motion.div
                   className={cn(
                     "h-full rounded-full",
@@ -236,7 +236,7 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
                     "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2",
                     isCompleted
                       ? "border-emerald-500 bg-emerald-500 text-white"
-                      : "border-gray-300 text-gray-400"
+                      : "border-border text-muted-foreground"
                   )}>
                     {isCompleted ? (
                       <CheckCircle2 className="h-4 w-4" />
@@ -351,16 +351,16 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3, delay: 0.1 }}
-                                className="rounded-lg bg-blue-50/80 border border-blue-200/60 p-4 space-y-3"
+                                className="rounded-lg bg-accent/80 border border-blue-200/60 p-4 space-y-3"
                               >
                                 <div className="flex items-center gap-2">
                                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#2563EB]/10">
                                     <Lightbulb className="h-4 w-4 text-[#2563EB]" />
                                   </div>
-                                  <h4 className="text-sm font-semibold text-[#1E3A5F]">Key Takeaways</h4>
+                                  <h4 className="text-sm font-semibold text-secondary-foreground">Key Takeaways</h4>
                                 </div>
                                 <div
-                                  className="prose prose-sm max-w-none text-[#1E3A5F]/80"
+                                  className="prose prose-sm max-w-none text-secondary-foreground/80"
                                   dangerouslySetInnerHTML={{ __html: takeawaysContent }}
                                 />
                               </motion.div>

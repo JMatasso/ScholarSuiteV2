@@ -232,7 +232,7 @@ export default function CollegeApplicationsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">College Applications</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">College Applications</h1>
           <p className="mt-1 text-muted-foreground">Track your applications from research to decision.</p>
         </div>
         {activeTab === "applications" && (
@@ -263,7 +263,7 @@ export default function CollegeApplicationsPage() {
             className={cn(
               "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
               activeTab === tab
-                ? "bg-[#1E3A5F]/5 text-[#1E3A5F]"
+                ? "bg-accent text-secondary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -387,7 +387,7 @@ export default function CollegeApplicationsPage() {
               {/* Acceptances */}
               {accepted.length > 0 && (
                 <div className="space-y-3">
-                  <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+                  <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
                     Acceptances
                   </h2>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -468,7 +468,7 @@ export default function CollegeApplicationsPage() {
               {/* Waitlisted & Deferred */}
               {(waitlisted.length > 0 || deferred.length > 0) && (
                 <div className="space-y-3">
-                  <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+                  <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
                     Waitlisted & Deferred
                   </h2>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -519,7 +519,7 @@ export default function CollegeApplicationsPage() {
                 <div className="space-y-3">
                   <button
                     onClick={() => setDeniedExpanded((v) => !v)}
-                    className="flex items-center gap-2 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide hover:text-[#2563EB] transition-colors"
+                    className="flex items-center gap-2 text-sm font-semibold text-secondary-foreground uppercase tracking-wide hover:text-[#2563EB] transition-colors"
                   >
                     Denied ({denied.length})
                     {deniedExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}

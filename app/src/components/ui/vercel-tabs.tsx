@@ -78,7 +78,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
 
           {/* Active Indicator */}
           <div
-            className="absolute bottom-[-6px] h-[2px] bg-[#0e0f11] dark:bg-white transition-all duration-300 ease-out"
+            className="absolute bottom-[-6px] h-[2px] bg-[#0e0f11] dark:bg-card transition-all duration-300 ease-out"
             style={activeStyle}
           />
 

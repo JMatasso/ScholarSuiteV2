@@ -55,7 +55,7 @@ const EVENT_ICONS: Record<string, typeof CheckCircle2> = {
 
 const EVENT_COLORS: Record<string, string> = {
   TASK_COMPLETED: "text-emerald-600 bg-emerald-50",
-  SCHOLARSHIP_APP_SUBMITTED: "text-blue-600 bg-blue-50",
+  SCHOLARSHIP_APP_SUBMITTED: "text-blue-600 bg-accent",
   COLLEGE_APP_SUBMITTED: "text-violet-600 bg-violet-50",
   ESSAY_STATUS_CHANGED: "text-amber-600 bg-amber-50",
 }
@@ -180,7 +180,7 @@ export default function ParentUpdatesPage() {
       >
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground">
               This Week&apos;s Summary
             </CardTitle>
           </CardHeader>
@@ -190,7 +190,7 @@ export default function ParentUpdatesPage() {
                 <p className="text-lg font-semibold text-emerald-700">{weeklyCounts.tasks}</p>
                 <p className="text-xs text-muted-foreground">Tasks Done</p>
               </div>
-              <div className="rounded-lg bg-blue-50/50 p-3 text-center">
+              <div className="rounded-lg bg-accent/50 p-3 text-center">
                 <p className="text-lg font-semibold text-blue-700">{weeklyCounts.scholarships}</p>
                 <p className="text-xs text-muted-foreground">Scholarship Apps</p>
               </div>
@@ -219,7 +219,7 @@ export default function ParentUpdatesPage() {
               onClick={() => setShowPrefs(!showPrefs)}
               className="flex w-full items-center justify-between"
             >
-              <CardTitle className="text-sm font-semibold text-[#1E3A5F] flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold text-secondary-foreground flex items-center gap-2">
                 <Bell className="h-4 w-4" />
                 Notification Preferences
               </CardTitle>
@@ -319,7 +319,7 @@ export default function ParentUpdatesPage() {
                       }`}
                     >
                       <span
-                        className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                        className={`block h-5 w-5 rounded-full bg-card shadow transition-transform ${
                           prefs[item.key as keyof NotifPrefs]
                             ? "translate-x-5"
                             : "translate-x-0.5"
@@ -354,7 +354,7 @@ export default function ParentUpdatesPage() {
         transition={{ duration: 0.4, delay: 0.2 }}
         className="space-y-3"
       >
-        <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
           Activity Feed
         </h2>
 
@@ -375,7 +375,7 @@ export default function ParentUpdatesPage() {
           <div className="space-y-2">
             {events.map((event) => {
               const Icon = EVENT_ICONS[event.type] || Bell
-              const colorClass = EVENT_COLORS[event.type] || "text-gray-600 bg-gray-50"
+              const colorClass = EVENT_COLORS[event.type] || "text-muted-foreground bg-muted/50"
 
               return (
                 <Card key={event.id} variant="bento">

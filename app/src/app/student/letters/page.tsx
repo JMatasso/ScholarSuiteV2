@@ -47,14 +47,14 @@ const statusLabel: Record<string, string> = {
   IN_PROGRESS: "In Progress", RECEIVED: "Received",
 }
 const statusColor: Record<string, string> = {
-  NOT_ASKED: "bg-gray-100 text-gray-700 ring-gray-300",
+  NOT_ASKED: "bg-muted text-foreground ring-gray-300",
   REQUESTED: "bg-amber-100 text-amber-700 ring-amber-300",
   IN_PROGRESS: "bg-blue-100 text-blue-700 ring-blue-300",
   RECEIVED: "bg-emerald-100 text-emerald-700 ring-emerald-300",
 }
 const dotColor: Record<string, string> = {
-  RECEIVED: "bg-emerald-500", REQUESTED: "bg-blue-500",
-  IN_PROGRESS: "bg-blue-500", NOT_ASKED: "bg-gray-400",
+  RECEIVED: "bg-emerald-500", REQUESTED: "bg-accent0",
+  IN_PROGRESS: "bg-accent0", NOT_ASKED: "bg-muted-foreground",
 }
 
 const emptyForm = {
@@ -200,7 +200,7 @@ export default function LettersPage() {
           className="flex w-full items-center justify-between px-4 py-3 text-left"
           onClick={() => setTipsOpen(o => !o)}
         >
-          <span className="text-sm font-semibold text-[#1E3A5F]">Tips for Recommendation Letters</span>
+          <span className="text-sm font-semibold text-secondary-foreground">Tips for Recommendation Letters</span>
           {tipsOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
         </button>
         {tipsOpen && (
@@ -232,28 +232,28 @@ export default function LettersPage() {
         <>
           {/* Summary stats */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-            <span className="font-medium text-[#1A1A1A]">{counts.total} recommender{counts.total !== 1 ? "s" : ""}</span>
+            <span className="font-medium text-foreground">{counts.total} recommender{counts.total !== 1 ? "s" : ""}</span>
             <span className="flex items-center gap-1.5"><span className={cn("h-2 w-2 rounded-full", dotColor.RECEIVED)} />{counts.received} received</span>
             <span className="flex items-center gap-1.5"><span className={cn("h-2 w-2 rounded-full", dotColor.IN_PROGRESS)} />{counts.inProgress} in progress</span>
             <span className="flex items-center gap-1.5"><span className={cn("h-2 w-2 rounded-full", dotColor.NOT_ASKED)} />{counts.notAsked} not asked</span>
           </div>
 
           {/* Table */}
-          <div className="rounded-lg border border-gray-200 bg-white overflow-x-auto">
+          <div className="rounded-lg border border-border bg-card overflow-x-auto">
             <div className="min-w-[650px]">
-            <div className="hidden sm:grid grid-cols-[1fr_120px_80px_110px_100px_160px] gap-2 px-4 py-2 text-xs font-medium text-muted-foreground border-b bg-gray-50/60">
+            <div className="hidden sm:grid grid-cols-[1fr_120px_80px_110px_100px_160px] gap-2 px-4 py-2 text-xs font-medium text-muted-foreground border-b bg-muted/50/60">
               <span>Writer</span><span>Category</span><span>For</span><span>Status</span><span>Due Date</span><span>Actions</span>
             </div>
             {recs.map(r => (
               <div key={r.id} className="border-b last:border-b-0">
                 <div
-                  className="grid sm:grid-cols-[1fr_120px_80px_110px_100px_160px] gap-2 px-4 py-3 items-center cursor-pointer hover:bg-gray-50/50 transition-colors min-w-[650px]"
+                  className="grid sm:grid-cols-[1fr_120px_80px_110px_100px_160px] gap-2 px-4 py-3 items-center cursor-pointer hover:bg-muted/50/50 transition-colors min-w-[650px]"
                   onClick={() => setExpanded(expanded === r.id ? null : r.id)}
                 >
                   <div className="flex items-center gap-2">
                     <ChevronRight className={cn("h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform", expanded === r.id && "rotate-90")} />
                     <div>
-                      <p className="text-sm font-medium text-[#1A1A1A]">{r.name}</p>
+                      <p className="text-sm font-medium text-foreground">{r.name}</p>
                       {r.title && <p className="text-xs text-muted-foreground">{r.title}</p>}
                     </div>
                   </div>
@@ -290,7 +290,7 @@ export default function LettersPage() {
                         <span className="text-xs font-medium text-muted-foreground">Linked applications:</span>
                         <div className="flex flex-wrap gap-1.5 mt-1">
                           {r.scholarshipApps.map(a => (
-                            <span key={a.scholarshipApp.scholarship.id} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">{a.scholarshipApp.scholarship.name}</span>
+                            <span key={a.scholarshipApp.scholarship.id} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">{a.scholarshipApp.scholarship.name}</span>
                           ))}
                           {r.collegeApps.map(a => (
                             <span key={a.collegeApp.id} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-purple-50 text-purple-700">{a.collegeApp.universityName}</span>
@@ -369,7 +369,7 @@ export default function LettersPage() {
             {apps.length > 0 && (
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Linked Applications</label>
-                <div className="max-h-32 overflow-y-auto space-y-2 rounded-lg border border-gray-200 p-2">
+                <div className="max-h-32 overflow-y-auto space-y-2 rounded-lg border border-border p-2">
                   {apps.map(a => (
                     <label key={a.id} className="flex items-center gap-2 text-sm cursor-pointer">
                       <Checkbox
@@ -380,7 +380,7 @@ export default function LettersPage() {
                             : [...form.linkedAppIds, a.id])
                         }
                       />
-                      <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium", a.type === "college" ? "bg-purple-50 text-purple-700" : "bg-blue-50 text-blue-700")}>
+                      <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium", a.type === "college" ? "bg-purple-50 text-purple-700" : "bg-accent text-blue-700")}>
                         {a.type === "college" ? "College" : "Scholarship"}
                       </span>
                       <span className="truncate">{a.label}</span>

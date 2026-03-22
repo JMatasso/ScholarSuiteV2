@@ -71,7 +71,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex">
+    <div className="min-h-screen bg-background flex">
       {/* Left: Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#1E3A5F] p-12 flex-col justify-between">
         <div>
@@ -116,19 +116,19 @@ export default function RegisterPage() {
               <div className="w-8 h-8 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-[#1A1A1A]">ScholarSuite</span>
+              <span className="text-xl font-semibold text-foreground">ScholarSuite</span>
             </Link>
           </div>
 
-          <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Create your account</h1>
-          <p className="text-gray-500 mb-8">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Create your account</h1>
+          <p className="text-muted-foreground mb-8">
             {step === 1 ? "Choose your role to get started" : "Fill in your details to continue"}
           </p>
 
           {/* Progress */}
           <div className="flex items-center gap-2 mb-8">
-            <div className={`h-1 flex-1 rounded-full ${step >= 1 ? "bg-[#2563EB]" : "bg-gray-200"}`} />
-            <div className={`h-1 flex-1 rounded-full ${step >= 2 ? "bg-[#2563EB]" : "bg-gray-200"}`} />
+            <div className={`h-1 flex-1 rounded-full ${step >= 1 ? "bg-[#2563EB]" : "bg-muted"}`} />
+            <div className={`h-1 flex-1 rounded-full ${step >= 2 ? "bg-[#2563EB]" : "bg-muted"}`} />
           </div>
 
           {step === 1 ? (
@@ -139,18 +139,18 @@ export default function RegisterPage() {
                   onClick={() => { setRole(r.value); setStep(2); }}
                   className={`w-full flex items-center gap-4 p-4 rounded-lg border-2 transition-all text-left ${
                     role === r.value
-                      ? "border-[#2563EB] bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300 bg-white"
+                      ? "border-[#2563EB] bg-accent"
+                      : "border-border hover:border-border bg-card"
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    role === r.value ? "bg-[#2563EB] text-white" : "bg-gray-100 text-gray-600"
+                    role === r.value ? "bg-[#2563EB] text-white" : "bg-muted text-muted-foreground"
                   }`}>
                     {r.icon}
                   </div>
                   <div>
-                    <p className="font-medium text-[#1A1A1A]">{r.label}</p>
-                    <p className="text-sm text-gray-500">{r.description}</p>
+                    <p className="font-medium text-foreground">{r.label}</p>
+                    <p className="text-sm text-muted-foreground">{r.description}</p>
                   </div>
                 </button>
               ))}
@@ -158,7 +158,7 @@ export default function RegisterPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1.5">
                   Full name
                 </label>
                 <input
@@ -168,12 +168,12 @@ export default function RegisterPage() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Smith"
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
                   Email address
                 </label>
                 <input
@@ -183,12 +183,12 @@ export default function RegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -200,12 +200,12 @@ export default function RegisterPage() {
                     placeholder="At least 8 characters"
                     required
                     minLength={8}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow pr-10"
+                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -217,9 +217,9 @@ export default function RegisterPage() {
                         {check.met ? (
                           <Check className="w-3 h-3 text-emerald-600" />
                         ) : (
-                          <X className="w-3 h-3 text-gray-400" />
+                          <X className="w-3 h-3 text-muted-foreground" />
                         )}
-                        <span className={check.met ? "text-emerald-600" : "text-gray-400"}>
+                        <span className={check.met ? "text-emerald-600" : "text-muted-foreground"}>
                           {check.label}
                         </span>
                       </div>
@@ -229,7 +229,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-1.5">
                   Confirm password
                 </label>
                 <input
@@ -239,7 +239,7 @@ export default function RegisterPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repeat your password"
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                 />
               </div>
 
@@ -247,7 +247,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-6 py-2.5 rounded-lg border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  className="px-6 py-2.5 rounded-lg border border-border text-foreground font-medium hover:bg-muted/50 transition-colors"
                 >
                   Back
                 </button>
@@ -269,18 +269,18 @@ export default function RegisterPage() {
             </form>
           )}
 
-          <p className="text-center text-sm text-gray-500 mt-8">
+          <p className="text-center text-sm text-muted-foreground mt-8">
             Already have an account?{" "}
             <Link href="/login" className="text-[#2563EB] font-medium hover:text-blue-700">
               Sign in
             </Link>
           </p>
 
-          <p className="text-center text-xs text-gray-400 mt-4">
+          <p className="text-center text-xs text-muted-foreground mt-4">
             By creating an account, you agree to our{" "}
-            <Link href="/terms" className="underline hover:text-gray-600">Terms of Service</Link>
+            <Link href="/terms" className="underline hover:text-muted-foreground">Terms of Service</Link>
             {" "}and{" "}
-            <Link href="/privacy" className="underline hover:text-gray-600">Privacy Policy</Link>.
+            <Link href="/privacy" className="underline hover:text-muted-foreground">Privacy Policy</Link>.
           </p>
         </div>
       </div>

@@ -242,7 +242,7 @@ function StudentDetailContent() {
 
       {/* Student Header */}
       <motion.div
-        className="flex items-start gap-5 rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+        className="flex items-start gap-5 rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -258,7 +258,7 @@ function StudentDetailContent() {
             <select
               value={profile?.serviceTier || ""}
               onChange={e => handleServiceTierChange(e.target.value)}
-              className="h-7 rounded-md border border-gray-200 bg-white px-2 text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+              className="h-7 rounded-md border border-border bg-card px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             >
               <option value="">No Tier</option>
               {Object.entries(SERVICE_TIER_LABELS).map(([key, label]) => (
@@ -278,19 +278,19 @@ function StudentDetailContent() {
             {profile?.phone && <span className="flex items-center gap-1"><Phone className="size-3.5" /> {profile.phone}</span>}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg bg-[#FAFAF8] p-3 text-center">
+            <div className="rounded-lg bg-background p-3 text-center">
               <p className="text-lg font-semibold text-foreground">{applications.length}</p>
               <p className="text-xs text-muted-foreground">Applications</p>
             </div>
-            <div className="rounded-lg bg-[#FAFAF8] p-3 text-center">
+            <div className="rounded-lg bg-background p-3 text-center">
               <p className="text-lg font-semibold text-foreground">{awardedCount}</p>
               <p className="text-xs text-muted-foreground">Awarded</p>
             </div>
-            <div className="rounded-lg bg-[#FAFAF8] p-3 text-center">
+            <div className="rounded-lg bg-background p-3 text-center">
               <p className="text-lg font-semibold text-green-600">{totalAwardedAmount > 0 ? `$${totalAwardedAmount.toLocaleString()}` : "$0"}</p>
               <p className="text-xs text-muted-foreground">Total Awarded</p>
             </div>
-            <div className="rounded-lg bg-[#FAFAF8] p-3 text-center">
+            <div className="rounded-lg bg-background p-3 text-center">
               <p className="text-lg font-semibold text-foreground">{tasksComplete}/{tasks.length}</p>
               <p className="text-xs text-muted-foreground">Tasks Complete</p>
             </div>
@@ -311,7 +311,7 @@ function StudentDetailContent() {
 
       {/* Tab Content */}
       <motion.div
-        className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+        className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -327,7 +327,7 @@ function StudentDetailContent() {
                   <select
                     value={profile?.journeyStage || "EARLY_EXPLORATION"}
                     onChange={e => handleJourneyStageChange(e.target.value)}
-                    className="h-7 rounded-md border border-gray-200 bg-white px-2 text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                    className="h-7 rounded-md border border-border bg-card px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     {Object.entries(JOURNEY_STAGE_LABELS).map(([key, val]) => (
                       <option key={key} value={key}>{val.shortLabel}</option>
@@ -452,8 +452,8 @@ function StudentDetailContent() {
                 </div>
                 <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${
                   task.status === "DONE" ? "bg-green-50 text-green-700 ring-green-300" :
-                  task.status === "IN_PROGRESS" ? "bg-blue-50 text-blue-700 ring-blue-300" :
-                  "bg-gray-100 text-gray-700 ring-gray-300"
+                  task.status === "IN_PROGRESS" ? "bg-accent text-blue-700 ring-blue-300" :
+                  "bg-muted text-foreground ring-gray-300"
                 }`}>{task.status === "DONE" ? "Done" : task.status === "IN_PROGRESS" ? "In Progress" : "Not Started"}</span>
               </div>
             ))}
@@ -477,9 +477,9 @@ function StudentDetailContent() {
                 </div>
                 <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${
                   essay.status === "APPROVED" ? "bg-green-50 text-green-700 ring-green-300" :
-                  essay.status === "UNDER_REVIEW" ? "bg-blue-50 text-blue-700 ring-blue-300" :
+                  essay.status === "UNDER_REVIEW" ? "bg-accent text-blue-700 ring-blue-300" :
                   essay.status === "REVISION_NEEDED" ? "bg-amber-50 text-amber-700 ring-amber-300" :
-                  "bg-gray-100 text-gray-700 ring-gray-300"
+                  "bg-muted text-foreground ring-gray-300"
                 }`}>{essay.status === "REVISION_NEEDED" ? "Revision Needed" : essay.status === "UNDER_REVIEW" ? "Under Review" : essay.status === "APPROVED" ? "Approved" : "Draft"}</span>
               </div>
             ))}
@@ -515,7 +515,7 @@ function StudentDetailContent() {
                   <p className="text-2xl font-semibold text-green-700">${totalIncome.toLocaleString()}</p>
                   <p className="text-xs text-green-600">Total Income / Aid</p>
                 </div>
-                <div className="rounded-lg bg-blue-50 p-4 text-center">
+                <div className="rounded-lg bg-accent p-4 text-center">
                   <p className="text-2xl font-semibold text-blue-700">${totalCost.toLocaleString()}</p>
                   <p className="text-xs text-blue-600">Total Cost of Attendance</p>
                 </div>

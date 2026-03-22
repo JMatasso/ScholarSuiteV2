@@ -119,13 +119,13 @@ function DashboardSkeleton() {
 }
 
 const collegeStatusColor: Record<string, string> = {
-  RESEARCHING: "bg-gray-100 text-gray-600",
+  RESEARCHING: "bg-muted text-muted-foreground",
   IN_PROGRESS: "bg-blue-100 text-blue-700",
   SUBMITTED: "bg-purple-100 text-purple-700",
   ACCEPTED: "bg-emerald-100 text-emerald-700",
   DENIED: "bg-rose-100 text-rose-700",
   WAITLISTED: "bg-amber-100 text-amber-700",
-  DEFERRED: "bg-gray-100 text-gray-600",
+  DEFERRED: "bg-muted text-muted-foreground",
 }
 
 export default function ParentDashboard() {
@@ -223,9 +223,9 @@ export default function ParentDashboard() {
   // Applications by status
   const statusGroups = [
     { status: "Submitted", count: applications.filter(a => a.status === "SUBMITTED").length, color: "bg-purple-500" },
-    { status: "In Progress", count: applications.filter(a => a.status === "IN_PROGRESS").length, color: "bg-blue-500" },
+    { status: "In Progress", count: applications.filter(a => a.status === "IN_PROGRESS").length, color: "bg-accent0" },
     { status: "Awarded", count: applications.filter(a => a.status === "AWARDED").length, color: "bg-green-500" },
-    { status: "Not Started", count: applications.filter(a => a.status === "NOT_STARTED").length, color: "bg-gray-300" },
+    { status: "Not Started", count: applications.filter(a => a.status === "NOT_STARTED").length, color: "bg-muted" },
   ]
   const totalAppCount = statusGroups.reduce((s, i) => s + i.count, 0)
 
@@ -267,7 +267,7 @@ export default function ParentDashboard() {
       </motion.div>
 
       {/* Student Profile Card */}
-      <motion.div className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+      <motion.div className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
           <Avatar size="lg" className="size-14">
             {selectedStudent.image && <AvatarImage src={selectedStudent.image} alt={selectedStudent.name ?? ""} />}
@@ -288,7 +288,7 @@ export default function ParentDashboard() {
             <TrendingUp className="size-4 text-[#2563EB]" />
             <div>
               <p className="text-xs text-muted-foreground">Journey Stage</p>
-              <p className="text-sm font-bold text-[#1E3A5F]">{stage}</p>
+              <p className="text-sm font-bold text-secondary-foreground">{stage}</p>
             </div>
           </div>
         </div>
@@ -307,7 +307,7 @@ export default function ParentDashboard() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Task Completion */}
-        <motion.div className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+        <motion.div className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Task Completion</h3>
           <div className="mt-5 flex items-center justify-center">
             <div className="relative size-36">
@@ -325,7 +325,7 @@ export default function ParentDashboard() {
         </motion.div>
 
         {/* Scholarship Apps by Status */}
-        <motion.div className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
+        <motion.div className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Scholarship Applications</h3>
           <div className="mt-5 space-y-3">
             {statusGroups.map(item => (
@@ -344,7 +344,7 @@ export default function ParentDashboard() {
         </motion.div>
 
         {/* College Apps Summary */}
-        <motion.div className="rounded-xl bg-white p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.56 }}>
+        <motion.div className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.56 }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">College Applications</h3>
             <Link href="/parent/colleges"><Button variant="ghost" size="sm" className="text-xs gap-1">View All <ArrowRight className="h-3 w-3" /></Button></Link>
@@ -359,7 +359,7 @@ export default function ParentDashboard() {
                     {app.isDream && <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />}
                     <span className="text-sm font-medium truncate">{app.universityName}</span>
                   </div>
-                  <Badge variant="secondary" className={`text-[10px] shrink-0 ${collegeStatusColor[app.status] || "bg-gray-100"}`}>
+                  <Badge variant="secondary" className={`text-[10px] shrink-0 ${collegeStatusColor[app.status] || "bg-muted"}`}>
                     {app.status.charAt(0) + app.status.slice(1).toLowerCase().replace("_", " ")}
                   </Badge>
                 </div>
@@ -410,7 +410,7 @@ export default function ParentDashboard() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-blue-50"><MessageSquare className="h-3.5 w-3.5 text-[#2563EB]" /></div>
+                  <div className="flex size-7 items-center justify-center rounded-lg bg-accent"><MessageSquare className="h-3.5 w-3.5 text-[#2563EB]" /></div>
                   Recent Messages
                 </CardTitle>
                 <Link href="/parent/messages"><Button variant="ghost" size="sm" className="text-xs gap-1">View All <ArrowRight className="h-3 w-3" /></Button></Link>

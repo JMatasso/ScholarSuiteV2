@@ -136,7 +136,7 @@ export default function ProvidersPage() {
     const map: Record<string, string> = {
       PROSPECT: "bg-amber-100 text-amber-700 border-amber-200",
       ACTIVE: "bg-emerald-100 text-emerald-700 border-emerald-200",
-      INACTIVE: "bg-gray-100 text-gray-600 border-gray-200",
+      INACTIVE: "bg-muted text-muted-foreground border-border",
     }
     return (
       <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium", map[status] ?? map.INACTIVE)}>
@@ -179,18 +179,18 @@ export default function ProvidersPage() {
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Total Providers", value: stats.total, icon: Building2, color: "text-[#1E3A5F]" },
+          { label: "Total Providers", value: stats.total, icon: Building2, color: "text-secondary-foreground" },
           { label: "Active", value: stats.active, icon: Users, color: "text-emerald-600" },
           { label: "Prospect", value: stats.prospect, icon: UserPlus, color: "text-amber-600" },
-          { label: "Inactive", value: stats.inactive, icon: UserMinus, color: "text-gray-500" },
+          { label: "Inactive", value: stats.inactive, icon: UserMinus, color: "text-muted-foreground" },
         ].map(s => (
-          <div key={s.label} className="flex items-center gap-3 rounded-xl border bg-white p-4">
-            <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg bg-[#1E3A5F]/10", s.color)}>
+          <div key={s.label} className="flex items-center gap-3 rounded-xl border bg-card p-4">
+            <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg bg-accent", s.color)}>
               <s.icon className="h-5 w-5" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">{s.label}</p>
-              <p className="text-xl font-semibold text-[#1E3A5F]">{s.value}</p>
+              <p className="text-xl font-semibold text-secondary-foreground">{s.value}</p>
             </div>
           </div>
         ))}
@@ -207,8 +207,8 @@ export default function ProvidersPage() {
           <p className="text-sm">No providers found.</p>
         </div>
       ) : (
-        <div className="rounded-xl border bg-white overflow-x-auto">
-          <div className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 border-b bg-gray-50/80 px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[700px]">
+        <div className="rounded-xl border bg-card overflow-x-auto">
+          <div className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 border-b bg-muted/50/80 px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[700px]">
             <span>Name</span><span>Type</span><span>County / State</span><span>Scholarships</span><span>Status</span><span>Last Contacted</span><span className="text-right">Actions</span>
           </div>
           <AnimatePresence initial={false}>
@@ -221,10 +221,10 @@ export default function ProvidersPage() {
                 transition={{ duration: 0.15 }}
               >
                 <div
-                  className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 items-center border-b px-4 py-3 text-sm hover:bg-gray-50/50 cursor-pointer transition-colors min-w-[700px]"
+                  className="grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_1fr_0.6fr] gap-2 items-center border-b px-4 py-3 text-sm hover:bg-muted/50/50 cursor-pointer transition-colors min-w-[700px]"
                   onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
                 >
-                  <span className="font-medium text-[#1E3A5F] flex items-center gap-1.5">
+                  <span className="font-medium text-secondary-foreground flex items-center gap-1.5">
                     {expandedId === p.id ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
                     {p.name}
                   </span>
@@ -247,7 +247,7 @@ export default function ProvidersPage() {
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.15 }}
-                      className="border-b bg-gray-50/30 px-4 py-3"
+                      className="border-b bg-muted/50/30 px-4 py-3"
                     >
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
                         {p.contactName && <div className="flex items-center gap-2 text-muted-foreground"><User className="h-4 w-4" /> {p.contactName}</div>}

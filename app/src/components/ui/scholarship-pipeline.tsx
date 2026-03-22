@@ -43,7 +43,7 @@ const statusConfig: Record<string, { color: string; bgColor: string; ringColor: 
   },
   IN_PROGRESS: {
     color: "text-[#2563EB]",
-    bgColor: "bg-blue-50/50",
+    bgColor: "bg-accent/50",
     ringColor: "ring-blue-200",
     dotColor: "bg-[#2563EB]",
     icon: Clock,
@@ -58,10 +58,10 @@ const statusConfig: Record<string, { color: string; bgColor: string; ringColor: 
     label: "Denied",
   },
   NOT_STARTED: {
-    color: "text-gray-500",
-    bgColor: "bg-gray-50/50",
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/50/50",
     ringColor: "ring-gray-200",
-    dotColor: "bg-gray-400",
+    dotColor: "bg-muted-foreground",
     icon: FileText,
     label: "Not Started",
   },
@@ -126,8 +126,8 @@ export function ScholarshipPipeline({ applications, className }: ScholarshipPipe
     <div className={cn("space-y-4", className)}>
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-lg bg-white p-3 ring-1 ring-foreground/5 text-center">
-          <p className="text-lg font-semibold text-[#1E3A5F]">{stats.totalApplied}</p>
+        <div className="rounded-lg bg-card p-3 ring-1 ring-foreground/5 text-center">
+          <p className="text-lg font-semibold text-secondary-foreground">{stats.totalApplied}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Applied</p>
         </div>
         <div className="rounded-lg bg-emerald-50/50 p-3 ring-1 ring-emerald-200/50 text-center">
@@ -136,7 +136,7 @@ export function ScholarshipPipeline({ applications, className }: ScholarshipPipe
           </p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Awarded</p>
         </div>
-        <div className="rounded-lg bg-blue-50/50 p-3 ring-1 ring-blue-200/50 text-center">
+        <div className="rounded-lg bg-accent/50 p-3 ring-1 ring-blue-200/50 text-center">
           <p className="text-lg font-semibold text-[#2563EB]">{stats.pending}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Pending</p>
         </div>
@@ -144,7 +144,7 @@ export function ScholarshipPipeline({ applications, className }: ScholarshipPipe
 
       {/* Vertical timeline */}
       <div className="relative ml-4 pl-8">
-        <div className="absolute left-[7px] top-0 bottom-0 w-0.5 bg-gray-200" />
+        <div className="absolute left-[7px] top-0 bottom-0 w-0.5 bg-muted" />
 
         <div className="space-y-3">
           {sorted.map((app, index) => {

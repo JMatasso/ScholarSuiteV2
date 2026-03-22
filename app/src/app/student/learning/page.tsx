@@ -117,9 +117,9 @@ export default function LearningDashboard() {
       />
 
       {/* Overall progress */}
-      <div className="flex items-center gap-3 rounded-lg bg-white p-4 ring-1 ring-foreground/5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E3A5F]/10">
-          <BookOpen className="h-5 w-5 text-[#1E3A5F]" />
+      <div className="flex items-center gap-3 rounded-lg bg-card p-4 ring-1 ring-foreground/5">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent">
+          <BookOpen className="h-5 w-5 text-secondary-foreground" />
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium text-foreground">
@@ -147,7 +147,7 @@ export default function LearningDashboard() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 mb-4">
                   <GraduationCap className="h-7 w-7 text-purple-700" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#1E3A5F] mb-1">College Prep</h2>
+                <h2 className="text-lg font-semibold text-secondary-foreground mb-1">College Prep</h2>
                 <p className="text-xs text-muted-foreground mb-6">
                   Everything about getting into the right school
                 </p>
@@ -180,7 +180,7 @@ export default function LearningDashboard() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 mb-4">
                   <DollarSign className="h-7 w-7 text-blue-700" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#1E3A5F] mb-1">Scholarship Mastery</h2>
+                <h2 className="text-lg font-semibold text-secondary-foreground mb-1">Scholarship Mastery</h2>
                 <p className="text-xs text-muted-foreground mb-6">
                   Finding and winning scholarships
                 </p>

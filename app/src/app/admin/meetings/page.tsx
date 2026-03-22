@@ -42,7 +42,7 @@ interface UserOption {
 }
 
 const statusColors: Record<string, string> = {
-  SCHEDULED: "bg-blue-50 text-blue-700 ring-blue-300",
+  SCHEDULED: "bg-accent text-blue-700 ring-blue-300",
   COMPLETED: "bg-green-50 text-green-700 ring-green-300",
   CANCELLED: "bg-red-50 text-red-700 ring-red-300",
   PENDING_APPROVAL: "bg-amber-50 text-amber-700 ring-amber-300",
@@ -235,8 +235,8 @@ export default function MeetingsPage() {
       />
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
-          <h3 className="mb-4 text-sm font-semibold text-[#1E3A5F]">Schedule Meeting</h3>
+        <form onSubmit={handleSubmit} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
+          <h3 className="mb-4 text-sm font-semibold text-secondary-foreground">Schedule Meeting</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="col-span-2">
               <label className="block text-xs font-medium text-muted-foreground mb-1">Title *</label>
@@ -314,8 +314,8 @@ export default function MeetingsPage() {
       )}
 
       {rescheduleId && (
-        <form onSubmit={handleReschedule} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
-          <h3 className="mb-4 text-sm font-semibold text-[#1E3A5F]">Reschedule Meeting</h3>
+        <form onSubmit={handleReschedule} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
+          <h3 className="mb-4 text-sm font-semibold text-secondary-foreground">Reschedule Meeting</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">New Start Time *</label>
@@ -341,7 +341,7 @@ export default function MeetingsPage() {
         <>
           {/* Upcoming */}
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Upcoming</h2>
+            <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Upcoming</h2>
             {upcoming.length === 0 ? (
               <p className="text-sm text-muted-foreground">No upcoming meetings.</p>
             ) : (
@@ -356,20 +356,20 @@ export default function MeetingsPage() {
                   return (
                     <motion.div
                       key={meeting.id}
-                      className="rounded-xl bg-white p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
+                      className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="flex items-start gap-4">
-                        <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-lg bg-[#1E3A5F]/5 text-[#1E3A5F]">
+                        <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-lg bg-accent text-secondary-foreground">
                           <Calendar className="size-4 mb-0.5" />
                           <span className="text-[10px] font-medium">{start.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="text-sm font-medium text-foreground">{meeting.title}</h3>
-                            <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ring-1 ring-inset ${statusColors[meeting.status] || "bg-gray-100 text-gray-600 ring-gray-300"}`}>
+                            <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ring-1 ring-inset ${statusColors[meeting.status] || "bg-muted text-muted-foreground ring-gray-300"}`}>
                               {statusLabels[meeting.status] || meeting.status}
                             </span>
                           </div>
@@ -434,7 +434,7 @@ export default function MeetingsPage() {
           {/* Past */}
           {past.length > 0 && (
             <div>
-              <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Past Meetings</h2>
+              <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Past Meetings</h2>
               <div className="flex flex-col gap-3">
                 {past.map((meeting, index) => {
                   const start = new Date(meeting.startTime)
@@ -444,7 +444,7 @@ export default function MeetingsPage() {
                   return (
                     <motion.div
                       key={meeting.id}
-                      className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 opacity-60"
+                      className="flex items-center gap-4 rounded-xl bg-card p-4 ring-1 ring-foreground/10 opacity-60"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 0.6 }}
                       transition={{ duration: 0.4, delay: index * 0.08 }}

@@ -162,7 +162,7 @@ export default function ParentLearningPage() {
       {/* Header with student selector */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Learning Library</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Learning Library</h1>
           <p className="mt-1 text-muted-foreground">Browse learning content and track your student&apos;s progress.</p>
         </div>
         {students.length > 1 && (
@@ -211,10 +211,10 @@ export default function ParentLearningPage() {
               <ProgressRing percentage={collegePrepProgress.percentage} color="#1E3A5F" />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
                     <GraduationCap className="h-4 w-4" />
                   </div>
-                  <h3 className="text-sm font-semibold text-[#1E3A5F]">College Prep</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground">College Prep</h3>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {collegePrepProgress.completed} of {collegePrepProgress.total} lessons completed
@@ -257,7 +257,7 @@ export default function ParentLearningPage() {
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             activeSubject === "COLLEGE_PREP"
               ? "bg-[#1E3A5F] text-white shadow-sm"
-              : "bg-white text-muted-foreground ring-1 ring-gray-200/60 hover:bg-muted/50"
+              : "bg-card text-muted-foreground ring-1 ring-gray-200/60 hover:bg-muted/50"
           }`}
         >
           <GraduationCap className="h-4 w-4" />
@@ -268,7 +268,7 @@ export default function ParentLearningPage() {
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             activeSubject === "SCHOLARSHIP"
               ? "bg-[#1E3A5F] text-white shadow-sm"
-              : "bg-white text-muted-foreground ring-1 ring-gray-200/60 hover:bg-muted/50"
+              : "bg-card text-muted-foreground ring-1 ring-gray-200/60 hover:bg-muted/50"
           }`}
         >
           <DollarSign className="h-4 w-4" />

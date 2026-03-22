@@ -359,7 +359,7 @@ export default function CollegeVisitsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">
+          <h1 className="text-2xl font-semibold text-secondary-foreground">
             College Visits
           </h1>
           <p className="mt-1 text-muted-foreground">
@@ -524,7 +524,7 @@ export default function CollegeVisitsPage() {
         <div className="space-y-8">
           {/* Upcoming Visits */}
           <section className="space-y-4">
-            <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Upcoming Visits ({upcoming.length})
             </h2>
             {upcoming.length === 0 ? (
@@ -571,7 +571,7 @@ export default function CollegeVisitsPage() {
 
           {/* Past Visits */}
           <section className="space-y-4">
-            <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Past Visits ({past.length})
             </h2>
             {past.length === 0 ? (
@@ -798,7 +798,7 @@ function VisitCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
               <TypeIcon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -842,7 +842,7 @@ function VisitCard({
         )}
 
         {/* Actions */}
-        <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-100">
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-border">
           <div>
             {!visit.completed && (
               <Button

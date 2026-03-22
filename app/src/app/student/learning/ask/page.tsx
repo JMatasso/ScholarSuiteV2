@@ -195,7 +195,7 @@ export default function ScholarshipAdvisorPage() {
         <div className="mb-4">
           <Link
             href="/student/learning"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-[#1E3A5F]"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-secondary-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Learning
@@ -219,11 +219,11 @@ export default function ScholarshipAdvisorPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col items-center gap-4"
                 >
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1E3A5F]/10">
-                    <Sparkles className="h-8 w-8 text-[#1E3A5F]" />
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent">
+                    <Sparkles className="h-8 w-8 text-secondary-foreground" />
                   </div>
                   <div className="text-center">
-                    <h2 className="text-lg font-semibold text-[#1E3A5F]">
+                    <h2 className="text-lg font-semibold text-secondary-foreground">
                       ScholarShape Advisor
                     </h2>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -239,7 +239,7 @@ export default function ScholarshipAdvisorPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => sendMessage(question)}
-                        className="rounded-xl border border-gray-200 bg-white p-4 text-left text-sm text-gray-700 shadow-sm transition-colors hover:border-[#2563EB]/30 hover:bg-[#2563EB]/5 hover:text-[#1E3A5F]"
+                        className="rounded-xl border border-border bg-card p-4 text-left text-sm text-foreground shadow-sm transition-colors hover:border-[#2563EB]/30 hover:bg-[#2563EB]/5 hover:text-secondary-foreground"
                       >
                         {question}
                       </motion.button>
@@ -271,7 +271,7 @@ export default function ScholarshipAdvisorPage() {
                           "max-w-[70%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
                           msg.role === "user"
                             ? "bg-[#2563EB] text-white"
-                            : "bg-gray-100 text-gray-900"
+                            : "bg-muted text-foreground"
                         )}
                       >
                         {msg.role === "assistant" ? (
@@ -280,15 +280,15 @@ export default function ScholarshipAdvisorPage() {
                             {msg.content === "" && isStreaming && (
                               <span className="inline-flex gap-1">
                                 <span
-                                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"
+                                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground"
                                   style={{ animationDelay: "0ms" }}
                                 />
                                 <span
-                                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"
+                                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground"
                                   style={{ animationDelay: "150ms" }}
                                 />
                                 <span
-                                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"
+                                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground"
                                   style={{ animationDelay: "300ms" }}
                                 />
                               </span>
@@ -312,7 +312,7 @@ export default function ScholarshipAdvisorPage() {
           </div>
 
           {/* Input Area */}
-          <div className="shrink-0 border-t border-gray-100 bg-white p-4">
+          <div className="shrink-0 border-t border-border bg-card p-4">
             <form
               onSubmit={handleSubmit}
               className="mx-auto flex max-w-3xl items-center gap-3"
@@ -323,7 +323,7 @@ export default function ScholarshipAdvisorPage() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask me about scholarships..."
                 disabled={isStreaming}
-                className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition-colors placeholder:text-gray-400 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 disabled:opacity-50"
+                className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-[#2563EB] focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
               />
               <Button
                 type="submit"

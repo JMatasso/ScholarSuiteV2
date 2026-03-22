@@ -45,8 +45,8 @@ interface Application {
 }
 
 const statusConfig: Record<string, { label: string; color: string; dotColor: string }> = {
-  NOT_STARTED: { label: "Not Started", color: "bg-gray-100 text-gray-700 border-gray-200", dotColor: "bg-gray-400" },
-  IN_PROGRESS: { label: "In Progress", color: "bg-blue-100 text-blue-700 border-blue-200", dotColor: "bg-blue-500" },
+  NOT_STARTED: { label: "Not Started", color: "bg-muted text-foreground border-border", dotColor: "bg-muted-foreground" },
+  IN_PROGRESS: { label: "In Progress", color: "bg-blue-100 text-blue-700 border-blue-200", dotColor: "bg-accent0" },
   SUBMITTED: { label: "Submitted", color: "bg-amber-100 text-amber-700 border-amber-200", dotColor: "bg-amber-500" },
   AWARDED: { label: "Awarded", color: "bg-emerald-100 text-emerald-700 border-emerald-200", dotColor: "bg-emerald-500" },
   DENIED: { label: "Denied", color: "bg-rose-100 text-rose-700 border-rose-200", dotColor: "bg-rose-500" },
@@ -294,7 +294,7 @@ export default function ApplicationsPage() {
       onClick={() => handleSort(field)}
       className={cn(
         "flex items-center gap-1 text-xs font-medium uppercase tracking-wide",
-        sortField === field ? "text-[#1E3A5F]" : "text-muted-foreground hover:text-foreground"
+        sortField === field ? "text-secondary-foreground" : "text-muted-foreground hover:text-foreground"
       )}
     >
       {children}
@@ -330,7 +330,7 @@ export default function ApplicationsPage() {
             "rounded-full px-3 py-1 text-xs font-medium transition-all flex-nowrap whitespace-nowrap",
             statusFilter === "ALL"
               ? "bg-[#1E3A5F] text-white"
-              : "bg-white text-muted-foreground ring-1 ring-gray-200 hover:bg-gray-50"
+              : "bg-card text-muted-foreground ring-1 ring-gray-200 hover:bg-muted/50"
           )}
         >
           All ({applications.length})
@@ -346,7 +346,7 @@ export default function ApplicationsPage() {
                 "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all flex-nowrap whitespace-nowrap",
                 statusFilter === status
                   ? "bg-[#1E3A5F] text-white"
-                  : "bg-white text-muted-foreground ring-1 ring-gray-200 hover:bg-gray-50"
+                  : "bg-card text-muted-foreground ring-1 ring-gray-200 hover:bg-muted/50"
               )}
             >
               <span className={cn("h-2 w-2 rounded-full", config.dotColor)} />
@@ -405,7 +405,7 @@ export default function ApplicationsPage() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-        <div className="rounded-xl bg-white ring-1 ring-foreground/5 overflow-hidden">
+        <div className="rounded-xl bg-card ring-1 ring-foreground/5 overflow-hidden">
           {/* Table header */}
           <div className="grid grid-cols-[32px_1fr_140px_110px_110px_140px_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30 min-w-[900px]">
             <button type="button" onClick={toggleSelectAll} className="flex items-center justify-center">
@@ -542,7 +542,7 @@ export default function ApplicationsPage() {
               placeholder="Search available scholarships..."
               className="w-full"
             />
-            <div className="max-h-64 overflow-y-auto space-y-1 rounded-lg border border-gray-200 p-1.5">
+            <div className="max-h-64 overflow-y-auto space-y-1 rounded-lg border border-border p-1.5">
               {filteredAddScholarships.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">No scholarships found</p>
               ) : (

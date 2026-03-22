@@ -76,14 +76,14 @@ function NpsSelector({
             className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-all ${
               value === n
                 ? "bg-[#2563EB] text-white shadow-sm"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                : "bg-muted text-muted-foreground hover:bg-muted"
             }`}
           >
             {n}
           </button>
         ))}
       </div>
-      <div className="flex justify-between text-xs text-gray-400">
+      <div className="flex justify-between text-xs text-muted-foreground">
         <span>Not at all likely</span>
         <span>Extremely likely</span>
       </div>
@@ -163,23 +163,23 @@ export default function ReviewPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
-        <div className="text-sm text-gray-500">Loading survey...</div>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-sm text-muted-foreground">Loading survey...</div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="flex size-14 items-center justify-center rounded-xl bg-rose-100">
               <AlertCircle className="size-6 text-rose-600" />
             </div>
           </div>
-          <h1 className="text-xl font-semibold text-[#1E3A5F]">Link Not Found</h1>
-          <p className="text-sm text-gray-500 max-w-sm">
+          <h1 className="text-xl font-semibold text-secondary-foreground">Link Not Found</h1>
+          <p className="text-sm text-muted-foreground max-w-sm">
             This review link is invalid or has expired. Please check your email for the correct link.
           </p>
         </div>
@@ -189,15 +189,15 @@ export default function ReviewPage() {
 
   if (alreadySubmitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="flex size-14 items-center justify-center rounded-xl bg-emerald-100">
               <CheckCircle2 className="size-6 text-emerald-600" />
             </div>
           </div>
-          <h1 className="text-xl font-semibold text-[#1E3A5F]">Already Submitted</h1>
-          <p className="text-sm text-gray-500 max-w-sm">
+          <h1 className="text-xl font-semibold text-secondary-foreground">Already Submitted</h1>
+          <p className="text-sm text-muted-foreground max-w-sm">
             Thank you, {info?.name}! You&apos;ve already submitted your feedback.
           </p>
         </div>
@@ -207,7 +207,7 @@ export default function ReviewPage() {
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -218,8 +218,8 @@ export default function ReviewPage() {
               <CheckCircle2 className="size-6 text-emerald-600" />
             </div>
           </div>
-          <h1 className="text-xl font-semibold text-[#1E3A5F]">Thank You!</h1>
-          <p className="text-sm text-gray-500 max-w-sm">
+          <h1 className="text-xl font-semibold text-secondary-foreground">Thank You!</h1>
+          <p className="text-sm text-muted-foreground max-w-sm">
             Your feedback has been submitted. Thank you for helping us improve ScholarSuite!
           </p>
         </motion.div>
@@ -228,7 +228,7 @@ export default function ReviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -241,32 +241,32 @@ export default function ReviewPage() {
               S
             </div>
           </div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">
+          <h1 className="text-2xl font-semibold text-secondary-foreground">
             {info?.campaignName || "Graduation Review"}
           </h1>
-          <p className="text-sm text-gray-500 max-w-md mx-auto">
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
             {info?.campaignMessage ||
               "We'd love to hear about your experience. Your feedback helps us improve for future students and families."}
           </p>
-          <p className="text-xs text-gray-400">
-            Responding as <span className="font-medium text-gray-600">{info?.name}</span>
+          <p className="text-xs text-muted-foreground">
+            Responding as <span className="font-medium text-muted-foreground">{info?.name}</span>
           </p>
         </div>
 
         {/* Overall Rating */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 space-y-4">
+        <div className="rounded-2xl bg-card p-6 shadow-sm ring-1 ring-gray-200/60 space-y-4">
           <div>
-            <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Overall Experience
             </h2>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               How would you rate your overall experience with ScholarSuite?
             </p>
           </div>
           <div className="flex items-center gap-3">
             <StarRating value={overallRating} onChange={setOverallRating} />
             {overallRating > 0 && (
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-muted-foreground">
                 {overallRating}/5
               </span>
             )}
@@ -274,17 +274,17 @@ export default function ReviewPage() {
         </div>
 
         {/* Area Ratings */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 space-y-5">
+        <div className="rounded-2xl bg-card p-6 shadow-sm ring-1 ring-gray-200/60 space-y-5">
           <div>
-            <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Rate Specific Areas
             </h2>
-            <p className="text-xs text-gray-500 mt-1">Optional — rate the areas you experienced.</p>
+            <p className="text-xs text-muted-foreground mt-1">Optional — rate the areas you experienced.</p>
           </div>
           <div className="space-y-4">
             {areaLabels.map(({ key, label }) => (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">{label}</span>
+                <span className="text-sm text-foreground">{label}</span>
                 <StarRating
                   size="sm"
                   value={areaRatings[key] || 0}
@@ -298,12 +298,12 @@ export default function ReviewPage() {
         </div>
 
         {/* NPS */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 space-y-4">
+        <div className="rounded-2xl bg-card p-6 shadow-sm ring-1 ring-gray-200/60 space-y-4">
           <div>
-            <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Net Promoter Score
             </h2>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               How likely are you to recommend ScholarSuite to a friend or family member?
             </p>
           </div>
@@ -311,9 +311,9 @@ export default function ReviewPage() {
         </div>
 
         {/* Would Recommend */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 space-y-4">
+        <div className="rounded-2xl bg-card p-6 shadow-sm ring-1 ring-gray-200/60 space-y-4">
           <div>
-            <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Would You Recommend Us?
             </h2>
           </div>
@@ -328,7 +328,7 @@ export default function ReviewPage() {
                     ? val
                       ? "bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200"
                       : "bg-rose-50 text-rose-700 ring-2 ring-rose-200"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
                 }`}
               >
                 {val ? "Yes, absolutely!" : "Not really"}
@@ -338,12 +338,12 @@ export default function ReviewPage() {
         </div>
 
         {/* Open-ended Questions */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 space-y-5">
-          <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+        <div className="rounded-2xl bg-card p-6 shadow-sm ring-1 ring-gray-200/60 space-y-5">
+          <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
             Tell Us More
           </h2>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500">
+            <label className="text-xs font-medium text-muted-foreground">
               What was most helpful about your experience?
             </label>
             <Textarea
@@ -354,7 +354,7 @@ export default function ReviewPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500">
+            <label className="text-xs font-medium text-muted-foreground">
               What could we improve?
             </label>
             <Textarea
@@ -365,7 +365,7 @@ export default function ReviewPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500">
+            <label className="text-xs font-medium text-muted-foreground">
               Would you like to share a testimonial? (May be used with your permission)
             </label>
             <Textarea

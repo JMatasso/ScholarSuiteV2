@@ -21,12 +21,12 @@ interface AuditEntry {
 
 const actionColors: Record<string, string> = {
   CREATE: "bg-green-50 text-green-700",
-  UPDATE: "bg-blue-50 text-blue-700",
+  UPDATE: "bg-accent text-blue-700",
   DELETE: "bg-red-50 text-red-700",
   UPLOAD: "bg-purple-50 text-purple-700",
   SUBMIT: "bg-amber-50 text-amber-700",
-  LOGIN: "bg-gray-100 text-gray-700",
-  VIEW: "bg-gray-100 text-gray-600",
+  LOGIN: "bg-muted text-foreground",
+  VIEW: "bg-muted text-muted-foreground",
   EXPORT: "bg-cyan-50 text-cyan-700",
   ASSIGN: "bg-indigo-50 text-indigo-700",
 }
@@ -80,7 +80,7 @@ export default function AuditPage() {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => (
-        <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ${actionColors[row.original.action] || "bg-gray-100 text-gray-600"}`}>
+        <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ${actionColors[row.original.action] || "bg-muted text-muted-foreground"}`}>
           {row.original.action}
         </span>
       ),

@@ -175,7 +175,7 @@ export default function SupportPage() {
       />
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <form onSubmit={handleSubmit} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Create Ticket</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="col-span-2">

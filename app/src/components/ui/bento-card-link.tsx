@@ -24,7 +24,7 @@ function BentoCardLink({
   description,
   icon: Icon,
   iconColor = "text-[#2563EB]",
-  iconBg = "bg-blue-50",
+  iconBg = "bg-accent",
   badge,
   children,
   cta = "View All",
@@ -34,7 +34,7 @@ function BentoCardLink({
     <Link href={href} className="block">
       <div
         className={cn(
-          "group relative flex flex-col overflow-hidden rounded-xl bg-white transform-gpu",
+          "group relative flex flex-col overflow-hidden rounded-xl bg-card transform-gpu",
           "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
           "transition-all duration-300",
           "hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]",
@@ -48,12 +48,12 @@ function BentoCardLink({
               <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", iconBg)}>
                 <Icon className={cn("h-4 w-4", iconColor)} />
               </div>
-              <h3 className="text-sm font-semibold text-[#1A1A1A]">{title}</h3>
+              <h3 className="text-sm font-semibold text-foreground">{title}</h3>
             </div>
             {badge}
           </div>
           {description && (
-            <p className="text-xs text-gray-500 mb-1">{description}</p>
+            <p className="text-xs text-muted-foreground mb-1">{description}</p>
           )}
           {children}
         </div>

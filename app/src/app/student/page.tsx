@@ -134,13 +134,13 @@ const appTypeShort: Record<string, string> = {
 }
 
 const collegeStatusColor: Record<string, string> = {
-  RESEARCHING: "bg-gray-100 text-gray-600",
+  RESEARCHING: "bg-muted text-muted-foreground",
   IN_PROGRESS: "bg-blue-100 text-blue-700",
   SUBMITTED: "bg-purple-100 text-purple-700",
   ACCEPTED: "bg-emerald-100 text-emerald-700",
   DENIED: "bg-rose-100 text-rose-700",
   WAITLISTED: "bg-amber-100 text-amber-700",
-  DEFERRED: "bg-gray-100 text-gray-600",
+  DEFERRED: "bg-muted text-muted-foreground",
 }
 
 export default function StudentDashboard() {
@@ -279,12 +279,12 @@ export default function StudentDashboard() {
   const isToday = (day: number) => day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear()
 
   const stats = [
-    { label: "Scholarships Matched", value: String(totalMatched), sub: "Available", icon: Search, color: "text-[#2563EB]", bg: "bg-blue-50" },
+    { label: "Scholarships Matched", value: String(totalMatched), sub: "Available", icon: Search, color: "text-[#2563EB]", bg: "bg-accent" },
     { label: "Scholarship Apps", value: String(appsInProgress), sub: `$${totalAwarded.toLocaleString()} won`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "College Apps", value: String(collegeApps.length), sub: `${collegeApplied} submitted`, icon: GraduationCap, color: "text-purple-600", bg: "bg-purple-50" },
     { label: "Accepted", value: String(collegeAccepted), sub: `${collegeApps.filter(c => c.status === "WAITLISTED").length} waitlisted`, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Tasks Due", value: String(activeTasks.filter(t => t.dueDate && daysUntil(t.dueDate)! <= 7 && daysUntil(t.dueDate)! >= 0).length), sub: overdueTasks.length > 0 ? `${overdueTasks.length} overdue` : "All on track", icon: CheckSquare, color: overdueTasks.length > 0 ? "text-rose-600" : "text-amber-600", bg: overdueTasks.length > 0 ? "bg-rose-50" : "bg-amber-50" },
-    { label: "Brag Sheet", value: String(activities.length), sub: `${totalHours.toLocaleString()} hrs`, icon: Activity, color: "text-[#1E3A5F]", bg: "bg-[#1E3A5F]/10" },
+    { label: "Brag Sheet", value: String(activities.length), sub: `${totalHours.toLocaleString()} hrs`, icon: Activity, color: "text-secondary-foreground", bg: "bg-accent" },
   ]
 
   const handleMarkDone = async (taskId: string) => {
@@ -310,7 +310,7 @@ export default function StudentDashboard() {
 
       {/* Welcome + Urgent Deadline */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-        <h1 className="text-4xl font-black tracking-tight text-[#1E3A5F] font-display">
+        <h1 className="text-4xl font-black tracking-tight text-secondary-foreground font-display">
           Welcome back{userName ? `, ${userName}` : ""}
         </h1>
         <p className="mt-2 text-base text-muted-foreground">
@@ -336,14 +336,14 @@ export default function StudentDashboard() {
           <>
             {stageInfo && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
-                <Card variant="bento" className="border-[#2563EB]/20 bg-blue-50/30">
+                <Card variant="bento" className="border-[#2563EB]/20 bg-accent/30">
                   <CardContent className="pt-0">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10 ring-2 ring-[#2563EB]/20">
                         <Target className="h-5 w-5 text-[#2563EB]" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-[#1E3A5F]">{stageInfo.label}</p>
+                        <p className="text-sm font-semibold text-secondary-foreground">{stageInfo.label}</p>
                         <p className="text-xs text-muted-foreground">{stageInfo.description}</p>
                       </div>
                     </div>
@@ -382,7 +382,7 @@ export default function StudentDashboard() {
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{stat.label}</p>
-                        <p className="text-2xl font-bold tracking-tight text-[#1E3A5F] font-display">{stat.value}</p>
+                        <p className="text-2xl font-bold tracking-tight text-secondary-foreground font-display">{stat.value}</p>
                         <p className="text-[11px] text-muted-foreground">{stat.sub}</p>
                       </div>
                       <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.bg}`}>
@@ -434,7 +434,7 @@ export default function StudentDashboard() {
                       const isOverdue = days !== null && days < 0
                       return (
                         <div key={task.id} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-muted/50 transition-colors group">
-                          <button onClick={() => handleMarkDone(task.id)} className="flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 border-gray-300 transition-colors hover:border-[#2563EB] hover:bg-[#2563EB]/10 group-hover:border-[#2563EB]">
+                          <button onClick={() => handleMarkDone(task.id)} className="flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 border-border transition-colors hover:border-[#2563EB] hover:bg-[#2563EB]/10 group-hover:border-[#2563EB]">
                             {task.status === "DONE" && <CheckCircle2 className="h-4 w-4 text-[#2563EB]" />}
                           </button>
                           <div className="flex-1 min-w-0">
@@ -490,9 +490,9 @@ export default function StudentDashboard() {
                         <div className="flex items-center gap-2.5 min-w-0">
                           {app.isDream && <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400 shrink-0" />}
                           <span className="text-sm font-medium truncate">{app.universityName}</span>
-                          <Badge variant="secondary" className="text-[10px] shrink-0 bg-gray-100 text-gray-500">{appTypeShort[app.applicationType] || app.applicationType}</Badge>
+                          <Badge variant="secondary" className="text-[10px] shrink-0 bg-muted text-muted-foreground">{appTypeShort[app.applicationType] || app.applicationType}</Badge>
                         </div>
-                        <Badge variant="secondary" className={`text-[10px] shrink-0 ${collegeStatusColor[app.status] || "bg-gray-100 text-gray-600"}`}>
+                        <Badge variant="secondary" className={`text-[10px] shrink-0 ${collegeStatusColor[app.status] || "bg-muted text-muted-foreground"}`}>
                           {app.status.charAt(0) + app.status.slice(1).toLowerCase().replace("_", " ")}
                         </Badge>
                       </div>
@@ -512,8 +512,8 @@ export default function StudentDashboard() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-                      <Activity className="h-3.5 w-3.5 text-[#1E3A5F]" />
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
+                      <Activity className="h-3.5 w-3.5 text-secondary-foreground" />
                     </div>
                     Brag Sheet
                   </CardTitle>
@@ -537,10 +537,10 @@ export default function StudentDashboard() {
                 ) : (
                   <div className="space-y-3">
                     <div className="flex items-center gap-6 text-sm">
-                      <div><span className="text-lg font-bold text-[#1E3A5F]">{activities.length}</span> <span className="text-muted-foreground">activities</span></div>
-                      <div><span className="text-lg font-bold text-[#1E3A5F]">{totalHours.toLocaleString()}</span> <span className="text-muted-foreground">hours</span></div>
-                      <div><span className="text-lg font-bold text-[#1E3A5F]">{leadershipCount}</span> <span className="text-muted-foreground">leadership</span></div>
-                      <div><span className="text-lg font-bold text-[#1E3A5F]">{awardCount}</span> <span className="text-muted-foreground">awards</span></div>
+                      <div><span className="text-lg font-bold text-secondary-foreground">{activities.length}</span> <span className="text-muted-foreground">activities</span></div>
+                      <div><span className="text-lg font-bold text-secondary-foreground">{totalHours.toLocaleString()}</span> <span className="text-muted-foreground">hours</span></div>
+                      <div><span className="text-lg font-bold text-secondary-foreground">{leadershipCount}</span> <span className="text-muted-foreground">leadership</span></div>
+                      <div><span className="text-lg font-bold text-secondary-foreground">{awardCount}</span> <span className="text-muted-foreground">awards</span></div>
                     </div>
                     {/* Smart nudges */}
                     {activities.filter(a => a.category === "VOLUNTEER").length === 0 && (
@@ -565,7 +565,7 @@ export default function StudentDashboard() {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                      <div className="flex size-7 items-center justify-center rounded-lg bg-blue-50">
+                      <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
                         <Calendar className="h-3.5 w-3.5 text-[#2563EB]" />
                       </div>
                       {monthNames[calMonth]} {calYear}
@@ -627,7 +627,7 @@ export default function StudentDashboard() {
                           <div key={app.id} className="rounded-xl bg-muted/30 p-3 space-y-1 hover:bg-muted/50 transition-colors">
                             <div className="flex items-start justify-between gap-2">
                               <p className="text-sm font-medium leading-tight">{app.scholarship.name}</p>
-                              {app.scholarship.amount && <span className="text-xs font-semibold text-[#1E3A5F] shrink-0">${app.scholarship.amount.toLocaleString()}</span>}
+                              {app.scholarship.amount && <span className="text-xs font-semibold text-secondary-foreground shrink-0">${app.scholarship.amount.toLocaleString()}</span>}
                             </div>
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <span>{formatDate(app.scholarship.deadline, "No deadline")}</span>
@@ -651,7 +651,7 @@ export default function StudentDashboard() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-blue-50">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
                       <PenTool className="h-3.5 w-3.5 text-[#2563EB]" />
                     </div>
                     Essays
@@ -672,7 +672,7 @@ export default function StudentDashboard() {
                       <div key={essay.id} className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-muted/50 transition-colors">
                         <span className="text-sm font-medium truncate">{essay.title}</span>
                         <Badge variant="secondary" className={`text-[10px] ${
-                          essay.status === "DRAFT" ? "bg-gray-100 text-gray-600" :
+                          essay.status === "DRAFT" ? "bg-muted text-muted-foreground" :
                           essay.status === "UNDER_REVIEW" ? "bg-blue-100 text-blue-700" :
                           essay.status === "REVISION_NEEDED" ? "bg-amber-100 text-amber-700" :
                           "bg-emerald-100 text-emerald-700"
@@ -693,7 +693,7 @@ export default function StudentDashboard() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-blue-50">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
                       <MessageSquare className="h-3.5 w-3.5 text-[#2563EB]" />
                     </div>
                     Messages

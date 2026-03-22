@@ -54,7 +54,7 @@ interface ApplicationDetail {
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-  NOT_STARTED: { label: "Not Started", color: "bg-gray-100 text-gray-700 border-gray-200" },
+  NOT_STARTED: { label: "Not Started", color: "bg-muted text-foreground border-border" },
   IN_PROGRESS: { label: "In Progress", color: "bg-blue-100 text-blue-700 border-blue-200" },
   SUBMITTED: { label: "Submitted", color: "bg-amber-100 text-amber-700 border-amber-200" },
   AWARDED: { label: "Awarded", color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
@@ -182,11 +182,11 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
             <CardContent className="pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E3A5F]/10">
-                    <DollarSign className="h-5 w-5 text-[#1E3A5F]" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent">
+                    <DollarSign className="h-5 w-5 text-secondary-foreground" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-[#1E3A5F]">{formatAmount(s.amount)}</p>
+                    <p className="text-2xl font-bold text-secondary-foreground">{formatAmount(s.amount)}</p>
                     {s.amountMax && s.amountMax !== s.amount && (
                       <p className="text-xs text-muted-foreground">Up to {formatAmount(s.amountMax)}</p>
                     )}
@@ -266,7 +266,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                       <span className="rounded-full bg-purple-50 px-2.5 py-0.5 text-[11px] font-medium text-purple-700">First-Gen Required</span>
                     )}
                     {s.requiresPell && (
-                      <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-medium text-blue-700">Pell Eligible Required</span>
+                      <span className="rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-medium text-blue-700">Pell Eligible Required</span>
                     )}
                     {s.requiresFinancialNeed && (
                       <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-700">Financial Need Required</span>
@@ -294,7 +294,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                       "ml-auto rounded-full border px-2 py-0.5 text-[10px] font-medium",
                       essay.status === "FINAL" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                       essay.status === "DRAFT" ? "bg-amber-50 text-amber-700 border-amber-200" :
-                      "bg-gray-50 text-gray-600 border-gray-200"
+                      "bg-muted/50 text-muted-foreground border-border"
                     )}>
                       {essay.status}
                     </span>

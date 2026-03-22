@@ -81,7 +81,7 @@ function SetupAccountForm() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="size-6 animate-spin text-[#2563EB]" />
-        <span className="ml-2 text-sm text-gray-500">Validating invite...</span>
+        <span className="ml-2 text-sm text-muted-foreground">Validating invite...</span>
       </div>
     );
   }
@@ -90,8 +90,8 @@ function SetupAccountForm() {
     return (
       <div className="text-center py-8">
         <XCircle className="size-12 text-red-400 mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Invalid Invite</h2>
-        <p className="text-gray-500 mb-6">{error}</p>
+        <h2 className="text-lg font-semibold text-foreground mb-2">Invalid Invite</h2>
+        <p className="text-muted-foreground mb-6">{error}</p>
         <Link
           href="/login"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#2563EB] hover:underline"
@@ -104,15 +104,15 @@ function SetupAccountForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="rounded-xl bg-blue-50/60 px-4 py-3">
-        <p className="text-sm text-[#1E3A5F]">
+      <div className="rounded-xl bg-accent/60 px-4 py-3">
+        <p className="text-sm text-secondary-foreground">
           Welcome, <span className="font-semibold">{name}</span>! Set a password to get started.
         </p>
-        <p className="text-xs text-gray-500 mt-0.5">{email}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{email}</p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-foreground mb-1.5">
           Password
         </label>
         <div className="relative">
@@ -123,12 +123,12 @@ function SetupAccountForm() {
             required
             minLength={8}
             placeholder="Create a password"
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent pr-10"
+            className="w-full px-4 py-2.5 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent pr-10"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -136,7 +136,7 @@ function SetupAccountForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-foreground mb-1.5">
           Confirm password
         </label>
         <input
@@ -145,7 +145,7 @@ function SetupAccountForm() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
           placeholder="Repeat your password"
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+          className="w-full px-4 py-2.5 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
         />
       </div>
 
@@ -157,7 +157,7 @@ function SetupAccountForm() {
               className={`size-3.5 ${check.valid ? "text-green-500" : "text-gray-300"}`}
             />
             <span
-              className={`text-xs ${check.valid ? "text-green-700" : "text-gray-400"}`}
+              className={`text-xs ${check.valid ? "text-green-700" : "text-muted-foreground"}`}
             >
               {check.label}
             </span>
@@ -185,16 +185,16 @@ function SetupAccountForm() {
 
 export default function SetupAccountPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center p-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-8">
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 mb-12">
           <div className="w-8 h-8 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-semibold text-[#1A1A1A]">ScholarSuite</span>
+          <span className="text-xl font-semibold text-foreground">ScholarSuite</span>
         </Link>
-        <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Set up your account</h1>
-        <p className="text-gray-500 mb-8">
+        <h1 className="text-2xl font-bold text-foreground mb-2">Set up your account</h1>
+        <p className="text-muted-foreground mb-8">
           Create a password to access your ScholarSuite account.
         </p>
         <Suspense

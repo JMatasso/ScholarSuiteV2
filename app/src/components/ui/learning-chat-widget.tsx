@@ -193,7 +193,7 @@ export function LearningChatWidget({ className }: LearningChatWidgetProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="mb-3 flex w-[400px] flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-black/5"
+            className="mb-3 flex w-[400px] flex-col overflow-hidden rounded-2xl bg-card shadow-xl ring-1 ring-black/5"
             style={{ maxHeight: "500px" }}
           >
             {/* Header */}
@@ -216,10 +216,10 @@ export function LearningChatWidget({ className }: LearningChatWidgetProps) {
             <div className="flex-1 space-y-3 overflow-y-auto p-4" style={{ maxHeight: "360px" }}>
               {messages.length === 0 && (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1E3A5F]/10">
-                    <Sparkles className="h-5 w-5 text-[#1E3A5F]" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent">
+                    <Sparkles className="h-5 w-5 text-secondary-foreground" />
                   </div>
-                  <p className="text-sm font-medium text-[#1E3A5F]">ScholarShape Advisor</p>
+                  <p className="text-sm font-medium text-secondary-foreground">ScholarShape Advisor</p>
                   <p className="text-xs text-muted-foreground">
                     Ask me anything about scholarships, financial aid, or the application process!
                   </p>
@@ -241,7 +241,7 @@ export function LearningChatWidget({ className }: LearningChatWidgetProps) {
                       "max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-relaxed",
                       msg.role === "user"
                         ? "bg-[#2563EB] text-white"
-                        : "bg-gray-100 text-gray-900"
+                        : "bg-muted text-foreground"
                     )}
                   >
                     {msg.role === "assistant" ? (
@@ -251,9 +251,9 @@ export function LearningChatWidget({ className }: LearningChatWidgetProps) {
                     )}
                     {msg.role === "assistant" && msg.content === "" && isStreaming && (
                       <span className="inline-flex gap-1">
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: "0ms" }} />
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: "150ms" }} />
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: "300ms" }} />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "0ms" }} />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "150ms" }} />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "300ms" }} />
                       </span>
                     )}
                   </div>
@@ -268,14 +268,14 @@ export function LearningChatWidget({ className }: LearningChatWidgetProps) {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="flex gap-2 border-t border-gray-100 p-3">
+            <form onSubmit={handleSubmit} className="flex gap-2 border-t border-border p-3">
               <input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask me about scholarships!"
                 disabled={isStreaming}
-                className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors placeholder:text-gray-400 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 disabled:opacity-50"
+                className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-[#2563EB] focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
               />
               <Button
                 type="submit"

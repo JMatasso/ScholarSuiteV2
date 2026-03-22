@@ -53,14 +53,14 @@ export default function AnimatedMenuComponent() {
   };
 
   return (
-    <div className={`w-full min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`w-full min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-muted/50'}`}>
       <header className="relative z-20 px-6 py-4 flex items-center justify-between">
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen(!isOpen)}
           className={`p-2 rounded-lg transition-colors ${
-            isDark ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-white text-gray-900 hover:bg-gray-100'
+            isDark ? 'bg-gray-800 text-white hover:bg-muted' : 'bg-card text-foreground hover:bg-muted'
           } shadow-lg`}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -71,7 +71,7 @@ export default function AnimatedMenuComponent() {
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsDark(!isDark)}
           className={`p-2 rounded-lg transition-colors ${
-            isDark ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-900 hover:bg-gray-100'
+            isDark ? 'bg-gray-800 text-yellow-400 hover:bg-muted' : 'bg-card text-foreground hover:bg-muted'
           } shadow-lg`}
         >
           {isDark ? <Sun size={24} /> : <Moon size={24} />}
@@ -100,7 +100,7 @@ export default function AnimatedMenuComponent() {
         dragElastic={0.2}
         onDragEnd={handleDragEnd}
         style={{ x: dragX }}
-        className={`fixed top-0 left-0 h-full w-80 z-40 shadow-2xl ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+        className={`fixed top-0 left-0 h-full w-80 z-40 shadow-2xl ${isDark ? 'bg-gray-800' : 'bg-card'}`}
       >
         <motion.button
           initial={{ opacity: 0, scale: 0.8 }}
@@ -110,7 +110,7 @@ export default function AnimatedMenuComponent() {
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(false)}
           className={`absolute top-6 right-6 p-2 rounded-full transition-colors ${
-            isDark ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+            isDark ? 'bg-gray-700 text-white hover:bg-muted' : 'bg-muted text-foreground hover:bg-muted'
           }`}
         >
           <X size={24} />
@@ -120,7 +120,7 @@ export default function AnimatedMenuComponent() {
           style={{ opacity: dragOpacity }}
           className="absolute top-1/2 right-4 -translate-y-1/2 pointer-events-none"
         >
-          <ChevronLeft size={32} className={isDark ? 'text-gray-600' : 'text-gray-400'} />
+          <ChevronLeft size={32} className={isDark ? 'text-muted-foreground' : 'text-muted-foreground'} />
         </motion.div>
 
         <div className="p-8 pt-20">
@@ -130,12 +130,12 @@ export default function AnimatedMenuComponent() {
             transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
             className="mb-12"
           >
-            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Navigation</h2>
+            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-foreground'}`}>Navigation</h2>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: 80 }}
               transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
-              className={`h-1 mt-2 rounded ${isDark ? 'bg-blue-500' : 'bg-blue-600'}`}
+              className={`h-1 mt-2 rounded ${isDark ? 'bg-accent0' : 'bg-blue-600'}`}
             />
           </motion.div>
 
@@ -146,15 +146,15 @@ export default function AnimatedMenuComponent() {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center space-x-4 p-4 rounded-lg transition-all ${
-                    isDark ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-800'
+                    isDark ? 'hover:bg-muted text-gray-200' : 'hover:bg-muted text-foreground'
                   } group`}
                 >
                   <motion.div
                     whileHover={{ scale: 1.15, rotate: 8 }}
                     whileTap={{ scale: 0.95 }}
                     className={`p-2 rounded-lg ${
-                      isDark ? 'bg-gray-700' : 'bg-gray-200'
-                    } group-hover:bg-blue-500 group-hover:text-white transition-all duration-300`}
+                      isDark ? 'bg-gray-700' : 'bg-muted'
+                    } group-hover:bg-accent0 group-hover:text-white transition-all duration-300`}
                   >
                     <item.icon size={24} />
                   </motion.div>
@@ -168,9 +168,9 @@ export default function AnimatedMenuComponent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5 }}
-            className={`absolute bottom-8 left-8 right-8 p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}
+            className={`absolute bottom-8 left-8 right-8 p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-muted'}`}
           >
-            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Drag left to close</p>
+            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-muted-foreground'}`}>Drag left to close</p>
           </motion.div>
         </div>
       </motion.nav>

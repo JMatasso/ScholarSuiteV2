@@ -16,9 +16,9 @@ const ORG_TYPES = [
 ]
 
 const inputClass =
-  "w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+  "w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
 
-const labelClass = "text-sm font-medium text-[#1A1A1A]"
+const labelClass = "text-sm font-medium text-foreground"
 
 export default function SubmitScholarshipPage() {
   const router = useRouter()
@@ -78,7 +78,7 @@ export default function SubmitScholarshipPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">
+        <h1 className="text-2xl font-semibold text-secondary-foreground">
           List Your Scholarship on ScholarSuite
         </h1>
         <p className="mt-1 text-muted-foreground">
@@ -97,8 +97,8 @@ export default function SubmitScholarshipPage() {
         <input type="text" name="_hp" className="hidden" tabIndex={-1} autoComplete="off" />
 
         {/* Organization Info */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[#1E3A5F]">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-secondary-foreground">
             Organization Info
           </h2>
           <div className="space-y-4">
@@ -218,8 +218,8 @@ export default function SubmitScholarshipPage() {
         </div>
 
         {/* Scholarship Details */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[#1E3A5F]">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-secondary-foreground">
             Scholarship Details
           </h2>
           <div className="space-y-4">
@@ -301,9 +301,9 @@ export default function SubmitScholarshipPage() {
                 id="isRecurring"
                 name="isRecurring"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-[#2563EB] focus:ring-[#2563EB]"
+                className="h-4 w-4 rounded border-border text-[#2563EB] focus:ring-ring"
               />
-              <label htmlFor="isRecurring" className="text-sm text-[#1A1A1A]">
+              <label htmlFor="isRecurring" className="text-sm text-foreground">
                 This scholarship is offered every year
               </label>
             </div>
@@ -313,7 +313,7 @@ export default function SubmitScholarshipPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-[#2563EB] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]/90 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-lg bg-[#2563EB] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? "Submitting..." : "Submit for Review"}
         </button>

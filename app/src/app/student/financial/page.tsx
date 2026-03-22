@@ -162,7 +162,7 @@ export default function FinancialPlanPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">Financial Plan</h1>
+        <h1 className="text-2xl font-semibold text-secondary-foreground">Financial Plan</h1>
         <p className="mt-1 text-muted-foreground">
           Compare college costs, track scholarships, and manage your semester budget.
         </p>
@@ -182,8 +182,8 @@ export default function FinancialPlanPage() {
           value={hasFinancialPlan ? formatCurrency(totalCost) : "--"}
           sublabel={hasFinancialPlan ? `${semesters.length} semesters` : "No budget set"}
           icon={GraduationCap}
-          color="text-[#1E3A5F]"
-          bg="bg-blue-50"
+          color="text-secondary-foreground"
+          bg="bg-accent"
           index={0}
         />
         <SummaryCard
@@ -201,7 +201,7 @@ export default function FinancialPlanPage() {
           sublabel={`${awardItems.length} awarded`}
           icon={Award}
           color="text-[#2563EB]"
-          bg="bg-blue-50"
+          bg="bg-accent"
           index={2}
         />
         <SummaryCard
@@ -288,7 +288,7 @@ export default function FinancialPlanPage() {
                             </div>
                             <div className="flex items-center gap-1 h-6">
                               <div
-                                className="h-5 rounded bg-[#1E3A5F]/20 relative"
+                                className="h-5 rounded bg-accent relative"
                                 style={{ width: `${(total / maxTotal) * 100}%` }}
                               >
                                 {aid > 0 && (
@@ -304,7 +304,7 @@ export default function FinancialPlanPage() {
                       })}
                       <div className="flex items-center gap-4 pt-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1.5">
-                          <div className="h-3 w-3 rounded bg-[#1E3A5F]/20" />
+                          <div className="h-3 w-3 rounded bg-accent" />
                           <span>Total Cost</span>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -334,7 +334,7 @@ export default function FinancialPlanPage() {
                             <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Food</th>
                             <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Books</th>
                             <th className="pb-2 pr-4 font-medium text-muted-foreground text-right">Other</th>
-                            <th className="pb-2 font-medium text-[#1E3A5F] text-right">Total</th>
+                            <th className="pb-2 font-medium text-secondary-foreground text-right">Total</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -348,7 +348,7 @@ export default function FinancialPlanPage() {
                                 <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.food)}</td>
                                 <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.books)}</td>
                                 <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.other + sem.transportation + sem.personal)}</td>
-                                <td className="py-2.5 text-right font-semibold text-[#1E3A5F]">{formatCurrency(total)}</td>
+                                <td className="py-2.5 text-right font-semibold text-secondary-foreground">{formatCurrency(total)}</td>
                               </tr>
                             )
                           })}
@@ -361,7 +361,7 @@ export default function FinancialPlanPage() {
                             <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.food, 0))}</td>
                             <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.books, 0))}</td>
                             <td className="pt-3 text-right">{formatCurrency(semesters.reduce((a, s) => a + s.other + s.transportation + s.personal, 0))}</td>
-                            <td className="pt-3 text-right text-[#1E3A5F]">{formatCurrency(totalCost)}</td>
+                            <td className="pt-3 text-right text-secondary-foreground">{formatCurrency(totalCost)}</td>
                           </tr>
                         </tfoot>
                       </table>
@@ -390,7 +390,7 @@ export default function FinancialPlanPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="text-sm font-semibold text-[#1E3A5F] w-24 text-right">
+                            <span className="text-sm font-semibold text-secondary-foreground w-24 text-right">
                               {formatCurrency(source.amount)}
                             </span>
                           </div>

@@ -47,7 +47,7 @@ export default function ParentCalendarPage() {
         title="Calendar"
         description="View your student's upcoming deadlines and meetings."
       />
-      <div className="rounded-2xl bg-white ring-1 ring-gray-200/60 shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-card ring-1 ring-gray-200/60 shadow-sm overflow-hidden">
         <FullScreenCalendar
           data={data}
           onEventClick={(event) => {
@@ -57,7 +57,7 @@ export default function ParentCalendarPage() {
       </div>
       <div className="flex flex-wrap items-center gap-4 px-1">
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="size-2.5 rounded-full bg-blue-500" /> Scholarship Deadline
+          <span className="size-2.5 rounded-full bg-accent0" /> Scholarship Deadline
         </span>
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="size-2.5 rounded-full bg-amber-500" /> Task Due

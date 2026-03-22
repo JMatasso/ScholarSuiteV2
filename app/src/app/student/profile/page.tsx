@@ -241,7 +241,7 @@ function BoolField({ label, value, onChange, editing }: {
           onClick={() => onChange(!value)}
           className={`h-6 w-11 rounded-full transition-colors ${value ? "bg-primary" : "bg-muted"}`}
         >
-          <span className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${value ? "translate-x-5" : "translate-x-0.5"}`} />
+          <span className={`block h-5 w-5 rounded-full bg-card shadow transition-transform ${value ? "translate-x-5" : "translate-x-0.5"}`} />
         </button>
       ) : (
         <span className={`text-sm font-medium ${value ? "text-primary" : "text-muted-foreground"}`}>

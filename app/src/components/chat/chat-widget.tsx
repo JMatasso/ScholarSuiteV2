@@ -163,10 +163,10 @@ export function ChatWidget({ role = "STUDENT" }: { role?: "STUDENT" | "PARENT" }
           <ChatMessageList>
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1E3A5F]/10 mb-3">
-                  <Bot className="h-6 w-6 text-[#1E3A5F]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent mb-3">
+                  <Bot className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <p className="text-sm font-medium text-[#1E3A5F]">
+                <p className="text-sm font-medium text-secondary-foreground">
                   Hi! I'm your ScholarSuite assistant.
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-[250px]">
@@ -202,7 +202,7 @@ export function ChatWidget({ role = "STUDENT" }: { role?: "STUDENT" | "PARENT" }
                           <a
                             key={i}
                             href={href}
-                            className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                            className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium bg-accent text-blue-700 hover:bg-blue-100 transition-colors"
                           >
                             {source.label}
                           </a>

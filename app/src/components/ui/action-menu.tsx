@@ -84,7 +84,7 @@ function ActionMenu({ items, trigger, align = "right", className }: ActionMenuPr
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -4 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="fixed z-[999] w-44 overflow-hidden rounded-lg border border-border bg-white py-1 shadow-lg"
+              className="fixed z-[999] w-44 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-lg"
               style={{
                 top: coords.top,
                 ...(align === "right"

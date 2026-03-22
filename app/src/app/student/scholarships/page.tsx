@@ -84,7 +84,7 @@ function MatchScoreBadge({ score }: { score: number }) {
       ? "bg-emerald-100 text-emerald-700 border-emerald-200"
       : score >= 60
       ? "bg-amber-100 text-amber-700 border-amber-200"
-      : "bg-gray-100 text-gray-600 border-gray-200"
+      : "bg-muted text-muted-foreground border-border"
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${color}`}>
       {score}%
@@ -295,7 +295,7 @@ function ScholarshipRow({
                 {scholarship.tags.map((tag) => (
                   <span
                     key={tag.id}
-                    className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700"
+                    className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700"
                   >
                     {tag.name}
                   </span>
@@ -655,7 +655,7 @@ export default function ScholarshipDiscovery() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Scholarship Discovery</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Scholarship Discovery</h1>
           <p className="mt-1 text-muted-foreground">Find and track scholarships tailored to your profile.</p>
         </div>
         {activeTab === "matched" && (
@@ -797,7 +797,7 @@ export default function ScholarshipDiscovery() {
 
           {/* Matched tab */}
           {activeTab === "matched" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
+            <div className="rounded-b-xl bg-card ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {matchLoading ? (
                 <div className="flex justify-center py-12">
                   <LoaderOne />
@@ -846,7 +846,7 @@ export default function ScholarshipDiscovery() {
 
           {/* All tab */}
           {activeTab === "all" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
+            <div className="rounded-b-xl bg-card ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {allLoading ? (
                 <div className="flex justify-center py-12">
                   <LoaderOne />
@@ -905,7 +905,7 @@ export default function ScholarshipDiscovery() {
 
           {/* Local tab */}
           {activeTab === "local" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
+            <div className="rounded-b-xl bg-card ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {!studentCounty ? (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <MapPin className="h-10 w-10 mb-3 opacity-40" />
@@ -957,7 +957,7 @@ export default function ScholarshipDiscovery() {
                   {/* Previously Available */}
                   {localScholarships.filter((s) => s.cycleStatus !== "CONFIRMED").length > 0 && (
                     <>
-                      <div className="px-4 py-2 bg-gray-50 border-b border-border/30 mt-1">
+                      <div className="px-4 py-2 bg-muted/50 border-b border-border/30 mt-1">
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Previously Available</span>
                       </div>
                       {localScholarships
@@ -1022,7 +1022,7 @@ export default function ScholarshipDiscovery() {
 
           {/* My List tab */}
           {activeTab === "mylist" && (
-            <div className="rounded-b-xl bg-white ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
+            <div className="rounded-b-xl bg-card ring-1 ring-foreground/5 overflow-hidden overflow-x-auto">
               {savedScholarships.length > 0 ? (
                 <>
                   <div className="grid min-w-[700px] grid-cols-[auto_1fr_120px_160px_auto_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">

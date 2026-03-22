@@ -23,8 +23,8 @@ interface Announcement {
 
 const statusConfig: Record<string, { bg: string; text: string; icon?: React.ElementType }> = {
   Active: { bg: "bg-green-50 ring-green-300", text: "text-green-700" },
-  Expired: { bg: "bg-gray-100 ring-gray-300", text: "text-gray-600" },
-  Pinned: { bg: "bg-blue-50 ring-blue-300", text: "text-blue-700", icon: Pin },
+  Expired: { bg: "bg-muted ring-gray-300", text: "text-muted-foreground" },
+  Pinned: { bg: "bg-accent ring-blue-300", text: "text-blue-700", icon: Pin },
 }
 
 const getTargetIcon = (role?: string | null) => {
@@ -140,7 +140,7 @@ export default function AnnouncementsPage() {
       />
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <form onSubmit={handleSubmit} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
           <h3 className="mb-4 text-sm font-semibold text-foreground">New Announcement</h3>
           <div className="flex flex-col gap-4 mb-4">
             <div>
@@ -216,7 +216,7 @@ export default function AnnouncementsPage() {
           return (
             <motion.div
               key={ann.id}
-              className="rounded-xl bg-white p-5 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
+              className="rounded-xl bg-card p-5 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}

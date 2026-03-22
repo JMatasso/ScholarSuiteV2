@@ -88,11 +88,11 @@ function DataTable<TData, TValue>({
 
   return (
     <div data-slot="data-table" className={cn("flex flex-col gap-4", className)}>
-      <div className="rounded-xl bg-white ring-1 ring-gray-200/60 overflow-hidden shadow-sm">
+      <div className="rounded-xl bg-card ring-1 ring-gray-200/60 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200/60">
+              <TableRow key={headerGroup.id} className="bg-muted/50/80 hover:bg-muted/50/80 border-b border-border/60">
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder

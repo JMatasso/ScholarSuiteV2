@@ -108,7 +108,7 @@ export default function ParentModuleViewerPage({ params }: { params: Promise<{ m
       />
 
       {/* Student progress indicator */}
-      <div className="flex items-center gap-3 rounded-lg bg-white p-3 ring-1 ring-foreground/5">
+      <div className="flex items-center gap-3 rounded-lg bg-card p-3 ring-1 ring-foreground/5">
         <BookOpen className="h-4 w-4 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">
           Your student has completed <span className="font-medium text-foreground">{completedLessons} of {totalLessons}</span> lessons
@@ -142,7 +142,7 @@ export default function ParentModuleViewerPage({ params }: { params: Promise<{ m
                     "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2",
                     isCompleted
                       ? "border-emerald-500 bg-emerald-500 text-white"
-                      : "border-gray-300 text-gray-400"
+                      : "border-border text-muted-foreground"
                   )}>
                     {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <span className="text-xs font-semibold">{index + 1}</span>}
                   </div>

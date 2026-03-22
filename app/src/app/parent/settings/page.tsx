@@ -182,7 +182,7 @@ export default function ParentSettingsPage() {
                         onClick={() => setPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof typeof p] }))}
                         className={`h-6 w-11 rounded-full transition-colors ${prefs[item.key as keyof typeof prefs] ? "bg-primary" : "bg-muted"}`}
                       >
-                        <span className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[item.key as keyof typeof prefs] ? "translate-x-5" : "translate-x-0.5"}`} />
+                        <span className={`block h-5 w-5 rounded-full bg-card shadow transition-transform ${prefs[item.key as keyof typeof prefs] ? "translate-x-5" : "translate-x-0.5"}`} />
                       </button>
                     </div>
                   ))}
@@ -277,9 +277,9 @@ export default function ParentSettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
-          <section className="rounded-xl bg-white p-6 ring-1 ring-foreground/10">
+          <section className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="h-5 w-5 text-[#1E3A5F]" />
+              <Shield className="h-5 w-5 text-secondary-foreground" />
               <h3 className="text-base font-semibold text-foreground">Privacy Settings</h3>
             </div>
             {loading ? (
@@ -305,7 +305,7 @@ export default function ParentSettingsPage() {
                           onClick={() => setPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof Preferences] }))}
                           className={`h-6 w-11 rounded-full transition-colors ${!adminAllows ? "opacity-40 cursor-not-allowed" : ""} ${prefs[item.key as keyof Preferences] ? "bg-primary" : "bg-muted"}`}
                         >
-                          <span className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[item.key as keyof Preferences] ? "translate-x-5" : "translate-x-0.5"}`} />
+                          <span className={`block h-5 w-5 rounded-full bg-card shadow transition-transform ${prefs[item.key as keyof Preferences] ? "translate-x-5" : "translate-x-0.5"}`} />
                         </button>
                       </div>
                     )
@@ -332,7 +332,7 @@ export default function ParentSettingsPage() {
           <Card variant="bento">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-semibold text-[#1E3A5F]">Current Plan</CardTitle>
+                <CardTitle className="text-base font-semibold text-secondary-foreground">Current Plan</CardTitle>
                 <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
                   Early Access — Free
                 </Badge>
@@ -344,7 +344,7 @@ export default function ParentSettingsPage() {
               </p>
 
               <div className="rounded-lg bg-muted/50 p-4">
-                <p className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">What&apos;s included</p>
+                <p className="text-xs font-semibold text-secondary-foreground uppercase tracking-wide mb-3">What&apos;s included</p>
                 <div className="grid gap-2">
                   {includedFeatures.map((feature) => (
                     <div key={feature.label} className="flex items-center gap-2.5">
@@ -364,7 +364,7 @@ export default function ParentSettingsPage() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Crown className="h-5 w-5 text-[#2563EB]" />
-                <CardTitle className="text-base font-semibold text-[#1E3A5F]">Family Pro</CardTitle>
+                <CardTitle className="text-base font-semibold text-secondary-foreground">Family Pro</CardTitle>
                 <Badge variant="outline" className="text-[#2563EB] border-[#2563EB]/30 text-[10px]">
                   Coming Soon
                 </Badge>

@@ -68,7 +68,7 @@ function CircularProgress({ percentage }: { percentage: number }) {
         y={40}
         textAnchor="middle"
         dominantBaseline="central"
-        className="fill-[#1E3A5F] text-lg font-bold"
+        className="fill-secondary-foreground text-lg font-bold"
         fontSize={18}
         fontWeight={700}
       >
@@ -92,7 +92,7 @@ export function CompletionBanner({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -20, opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="relative rounded-xl bg-white p-5 ring-1 ring-foreground/10"
+        className="relative rounded-xl bg-card p-5 ring-1 ring-foreground/10"
       >
         {/* Dismiss button */}
         <button
@@ -108,7 +108,7 @@ export function CompletionBanner({
 
           {/* Content */}
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-[#1E3A5F]">
+            <h3 className="text-sm font-semibold text-secondary-foreground">
               Complete Your Profile
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">

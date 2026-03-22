@@ -17,7 +17,7 @@ interface Prof { firstName: string | null; lastName: string | null; highSchool: 
 interface Enh { activityId: string; impactStatement: string; actionVerbs: string[] }
 
 const CC: Record<string, { label: string; icon: typeof Activity; color: string }> = {
-  ATHLETICS: { label: "Athletics", icon: Dumbbell, color: "text-orange-600" }, ARTS: { label: "Arts", icon: Palette, color: "text-purple-600" }, ACADEMIC: { label: "Academic", icon: BookOpen, color: "text-blue-600" }, VOLUNTEER: { label: "Volunteer", icon: Heart, color: "text-rose-600" }, WORK: { label: "Work", icon: Briefcase, color: "text-emerald-600" }, LEADERSHIP: { label: "Leadership", icon: Users, color: "text-amber-600" }, ENTREPRENEURSHIP: { label: "Entrepreneurship", icon: Rocket, color: "text-cyan-600" }, RESEARCH: { label: "Research", icon: FlaskConical, color: "text-indigo-600" }, STUDY_ABROAD: { label: "Study Abroad", icon: Globe, color: "text-sky-600" }, CERTIFICATION: { label: "Certifications", icon: BadgeCheck, color: "text-violet-600" }, MENTORING: { label: "Mentoring", icon: HandHeart, color: "text-pink-600" }, AWARD: { label: "Awards", icon: Medal, color: "text-yellow-600" }, PROJECT: { label: "Projects", icon: FolderKanban, color: "text-green-600" }, PROFESSIONAL_DEV: { label: "Professional Dev", icon: GraduationCap, color: "text-slate-600" }, OTHER: { label: "Other", icon: Activity, color: "text-gray-600" },
+  ATHLETICS: { label: "Athletics", icon: Dumbbell, color: "text-orange-600" }, ARTS: { label: "Arts", icon: Palette, color: "text-purple-600" }, ACADEMIC: { label: "Academic", icon: BookOpen, color: "text-blue-600" }, VOLUNTEER: { label: "Volunteer", icon: Heart, color: "text-rose-600" }, WORK: { label: "Work", icon: Briefcase, color: "text-emerald-600" }, LEADERSHIP: { label: "Leadership", icon: Users, color: "text-amber-600" }, ENTREPRENEURSHIP: { label: "Entrepreneurship", icon: Rocket, color: "text-cyan-600" }, RESEARCH: { label: "Research", icon: FlaskConical, color: "text-indigo-600" }, STUDY_ABROAD: { label: "Study Abroad", icon: Globe, color: "text-sky-600" }, CERTIFICATION: { label: "Certifications", icon: BadgeCheck, color: "text-violet-600" }, MENTORING: { label: "Mentoring", icon: HandHeart, color: "text-pink-600" }, AWARD: { label: "Awards", icon: Medal, color: "text-yellow-600" }, PROJECT: { label: "Projects", icon: FolderKanban, color: "text-green-600" }, PROFESSIONAL_DEV: { label: "Professional Dev", icon: GraduationCap, color: "text-slate-600" }, OTHER: { label: "Other", icon: Activity, color: "text-muted-foreground" },
 }
 const ORDER = ["ACADEMIC","LEADERSHIP","VOLUNTEER","ATHLETICS","ARTS","WORK","ENTREPRENEURSHIP","RESEARCH","STUDY_ABROAD","CERTIFICATION","MENTORING","AWARD","PROJECT","PROFESSIONAL_DEV","OTHER"]
 
@@ -115,7 +115,7 @@ export default function ResumePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">My Brag Sheet</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">My Brag Sheet</h1>
           <p className="mt-1 text-muted-foreground">Your activities, achievements, and experiences — ready for applications.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -132,7 +132,7 @@ export default function ResumePage() {
       {profile && (
         <Card variant="bento"><CardContent className="pt-0">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            {fullName && <h2 className="text-lg font-semibold text-[#1E3A5F]">{fullName}</h2>}
+            {fullName && <h2 className="text-lg font-semibold text-secondary-foreground">{fullName}</h2>}
             {profile.highSchool && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><GraduationCap className="h-4 w-4" /> {profile.highSchool}</span>}
             {profile.gradeLevel && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Calendar className="h-4 w-4" /> Grade {profile.gradeLevel}</span>}
             {profile.gpa && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Trophy className="h-4 w-4" /> {profile.gpa} GPA</span>}
@@ -145,14 +145,14 @@ export default function ResumePage() {
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: Activity, v: activities.length, l: "Activities", bg: "bg-[#1E3A5F]/10", c: "text-[#1E3A5F]" },
-          { icon: Clock, v: activities.reduce((a, b) => a + (b.totalHours ?? 0), 0).toLocaleString(), l: "Total Hours", bg: "bg-blue-50", c: "text-[#2563EB]" },
+          { icon: Activity, v: activities.length, l: "Activities", bg: "bg-accent", c: "text-secondary-foreground" },
+          { icon: Clock, v: activities.reduce((a, b) => a + (b.totalHours ?? 0), 0).toLocaleString(), l: "Total Hours", bg: "bg-accent", c: "text-[#2563EB]" },
           { icon: Users, v: activities.filter(a => a.isLeadership).length, l: "Leadership Roles", bg: "bg-amber-50", c: "text-amber-600" },
           { icon: Award, v: activities.filter(a => a.isAward).length, l: "Awards", bg: "bg-emerald-50", c: "text-emerald-600" },
         ].map(s => { const I = s.icon; return (
           <Card key={s.l} variant="bento"><CardContent className="pt-0"><div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${s.bg}`}><I className={`h-5 w-5 ${s.c}`} /></div>
-            <div><p className="text-2xl font-bold text-[#1E3A5F]">{s.v}</p><p className="text-xs text-muted-foreground">{s.l}</p></div>
+            <div><p className="text-2xl font-bold text-secondary-foreground">{s.v}</p><p className="text-xs text-muted-foreground">{s.l}</p></div>
           </div></CardContent></Card>
         )})}
       </div>
@@ -163,14 +163,14 @@ export default function ResumePage() {
       ) : (
         <div className="space-y-6">{grouped.map(g => { const cfg = CC[g.cat] || CC.OTHER; const I = cfg.icon; return (
           <div key={g.cat}>
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#1E3A5F]">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-secondary-foreground">
               <I className={`h-4 w-4 ${cfg.color}`} /> {cfg.label} ({g.items.length})
             </h2>
             <div className="space-y-2.5">{g.items.map(a => (
               <Card key={a.id} variant="bento"><CardContent className="pt-0 space-y-1.5">
                 <div className="flex items-start justify-between gap-4"><div className="min-w-0 flex-1 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-[#1E3A5F]">{a.title}</p>
+                    <p className="text-sm font-semibold text-secondary-foreground">{a.title}</p>
                     {a.isLeadership && <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700"><Users className="h-3 w-3" /> Leadership</span>}
                     {a.isAward && <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700"><Award className="h-3 w-3" /> Award</span>}
                   </div>
@@ -182,8 +182,8 @@ export default function ResumePage() {
                   </div>
                 </div></div>
                 {a.description && <p className="text-xs text-muted-foreground">{a.description}</p>}
-                {a.impactStatement && <div className="flex items-start gap-1.5 rounded-md bg-blue-50/60 px-2.5 py-1.5"><Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-[#2563EB]" /><p className="text-xs text-[#1E3A5F]">{a.impactStatement}</p></div>}
-                {a.skillsGained?.length > 0 && <div className="flex flex-wrap gap-1">{a.skillsGained.map(s => <span key={s} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">{s}</span>)}</div>}
+                {a.impactStatement && <div className="flex items-start gap-1.5 rounded-md bg-accent/60 px-2.5 py-1.5"><Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-[#2563EB]" /><p className="text-xs text-secondary-foreground">{a.impactStatement}</p></div>}
+                {a.skillsGained?.length > 0 && <div className="flex flex-wrap gap-1">{a.skillsGained.map(s => <span key={s} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">{s}</span>)}</div>}
               </CardContent></Card>
             ))}</div>
           </div>
@@ -201,8 +201,8 @@ export default function ResumePage() {
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-3">
                 {([{ key: "enhance" as const, title: "Polish Descriptions", desc: "Rewrite descriptions with strong action verbs" }, { key: "impact" as const, title: "Generate Impact Statements", desc: "Create quantified impact statements" }]).map(m => (
-                  <button key={m.key} onClick={() => setEnhanceMode(m.key)} className={`rounded-lg border-2 p-3 text-left transition-colors ${enhanceMode === m.key ? "border-[#2563EB] bg-blue-50/50" : "border-gray-200 hover:border-gray-300"}`}>
-                    <p className="text-sm font-medium text-[#1E3A5F]">{m.title}</p>
+                  <button key={m.key} onClick={() => setEnhanceMode(m.key)} className={`rounded-lg border-2 p-3 text-left transition-colors ${enhanceMode === m.key ? "border-[#2563EB] bg-accent/50" : "border-border hover:border-border"}`}>
+                    <p className="text-sm font-medium text-secondary-foreground">{m.title}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{m.desc}</p>
                   </button>
                 ))}
@@ -214,10 +214,10 @@ export default function ResumePage() {
                 </div>
                 <div className="max-h-56 overflow-y-auto space-y-1 rounded-md border p-2">
                   {activities.map(a => (
-                    <label key={a.id} className="flex items-center gap-2.5 rounded px-2 py-1.5 hover:bg-gray-50 cursor-pointer">
+                    <label key={a.id} className="flex items-center gap-2.5 rounded px-2 py-1.5 hover:bg-muted/50 cursor-pointer">
                       <Checkbox checked={selectedIds.has(a.id)} onCheckedChange={() => toggleSelect(a.id)} />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[#1E3A5F] truncate">{a.title}</p>
+                        <p className="text-sm font-medium text-secondary-foreground truncate">{a.title}</p>
                         <p className="text-xs text-muted-foreground truncate">{(CC[a.category] || CC.OTHER).label}{a.organization ? ` — ${a.organization}` : ""}</p>
                       </div>
                     </label>
@@ -228,16 +228,16 @@ export default function ResumePage() {
           ) : (
             <div className="space-y-4 py-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-[#1E3A5F]">{enhancements.length} enhancement{enhancements.length !== 1 ? "s" : ""} generated</p>
+                <p className="text-sm font-medium text-secondary-foreground">{enhancements.length} enhancement{enhancements.length !== 1 ? "s" : ""} generated</p>
                 <Button size="sm" className="gap-1.5 text-xs" onClick={applyAll} disabled={appliedIds.size === enhancements.length}><Check className="h-3.5 w-3.5" /> Apply All</Button>
               </div>
               <div className="space-y-3">{enhancements.map(enh => { const act = activities.find(a => a.id === enh.activityId); const done = appliedIds.has(enh.activityId); return (
                 <Card key={enh.activityId} variant="bento" className={done ? "border-emerald-200 bg-emerald-50/30" : ""}>
                   <CardHeader className="pb-2"><CardTitle className="text-sm">{act?.title || "Activity"}</CardTitle></CardHeader>
                   <CardContent className="space-y-2">
-                    {act?.impactStatement && <div><p className="text-[11px] font-medium text-muted-foreground mb-0.5">Before</p><p className="text-xs text-muted-foreground bg-gray-50 rounded px-2 py-1.5">{act.impactStatement}</p></div>}
-                    <div><p className="text-[11px] font-medium text-[#2563EB] mb-0.5 flex items-center gap-1"><ArrowRight className="h-3 w-3" /> After</p><p className="text-xs text-[#1E3A5F] bg-blue-50 rounded px-2 py-1.5">{enh.impactStatement}</p></div>
-                    {enh.actionVerbs.length > 0 && <div className="flex flex-wrap gap-1">{enh.actionVerbs.map(v => <span key={v} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">{v}</span>)}</div>}
+                    {act?.impactStatement && <div><p className="text-[11px] font-medium text-muted-foreground mb-0.5">Before</p><p className="text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1.5">{act.impactStatement}</p></div>}
+                    <div><p className="text-[11px] font-medium text-[#2563EB] mb-0.5 flex items-center gap-1"><ArrowRight className="h-3 w-3" /> After</p><p className="text-xs text-secondary-foreground bg-accent rounded px-2 py-1.5">{enh.impactStatement}</p></div>
+                    {enh.actionVerbs.length > 0 && <div className="flex flex-wrap gap-1">{enh.actionVerbs.map(v => <span key={v} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">{v}</span>)}</div>}
                     <div className="flex justify-end">
                       <Button size="sm" variant={done ? "outline" : "default"} className="gap-1.5 text-xs" disabled={done} onClick={() => applyOne(enh)}>
                         {done ? <><Check className="h-3.5 w-3.5" /> Applied</> : "Apply"}

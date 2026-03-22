@@ -82,20 +82,20 @@ function formatFileSize(bytes: number | null): string {
 function getFileIcon(mimeType: string | null) {
   if (mimeType?.startsWith("image/")) return "bg-purple-50 text-purple-600 border-purple-200"
   if (mimeType?.includes("pdf")) return "bg-rose-50 text-rose-600 border-rose-200"
-  if (mimeType?.includes("word") || mimeType?.includes("document")) return "bg-blue-50 text-blue-600 border-blue-200"
-  return "bg-gray-50 text-gray-600 border-gray-200"
+  if (mimeType?.includes("word") || mimeType?.includes("document")) return "bg-accent text-blue-600 border-blue-200"
+  return "bg-muted/50 text-muted-foreground border-border"
 }
 
 const folderColors: Record<string, string> = {
   "Transcripts": "bg-rose-50 text-rose-600",
   "Test Scores & FAFSA": "bg-amber-50 text-amber-600",
-  "Resumes": "bg-blue-50 text-blue-600",
+  "Resumes": "bg-accent text-blue-600",
   "Professional Headshots": "bg-purple-50 text-purple-600",
   "Letters of Recommendation": "bg-indigo-50 text-indigo-600",
   "Awards & Projects": "bg-emerald-50 text-emerald-600",
   "Applications": "bg-cyan-50 text-cyan-600",
   "Activities": "bg-teal-50 text-teal-600",
-  "ScholarShape Resources": "bg-[#1E3A5F]/5 text-[#1E3A5F]",
+  "ScholarShape Resources": "bg-accent text-secondary-foreground",
   "Essays": "bg-pink-50 text-pink-600",
   "Application Documents": "bg-sky-50 text-sky-600",
   "Acceptance Letters": "bg-green-50 text-green-600",
@@ -225,7 +225,7 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Documents</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Documents</h1>
           <p className="mt-1 text-muted-foreground">Organize and upload your application materials.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -407,11 +407,11 @@ export default function DocumentsPage() {
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", folderColors[activeFolder] || "bg-gray-50 text-gray-600")}>
+              <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", folderColors[activeFolder] || "bg-muted/50 text-muted-foreground")}>
                 <FolderOpen className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-[#1E3A5F]">{activeFolder}</h2>
+                <h2 className="text-lg font-semibold text-secondary-foreground">{activeFolder}</h2>
                 <p className="text-xs text-muted-foreground">{folderDocs.length} document{folderDocs.length !== 1 ? "s" : ""}</p>
               </div>
             </div>
@@ -448,7 +448,7 @@ export default function DocumentsPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-foreground/10 hover:shadow-sm transition-shadow"
+                    className="flex items-center gap-3 rounded-xl bg-card p-3 ring-1 ring-foreground/10 hover:shadow-sm transition-shadow"
                   >
                     <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border", getFileIcon(doc.mimeType))}>
                       <FileText className="h-4 w-4" />
@@ -496,11 +496,11 @@ export default function DocumentsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03, duration: 0.3 }}
                     onClick={() => setActiveFolder(folder)}
-                    className="group flex items-center gap-3 rounded-xl bg-white p-4 ring-1 ring-foreground/10 text-left transition-all hover:shadow-md hover:ring-[#2563EB]/30"
+                    className="group flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10 text-left transition-all hover:shadow-md hover:ring-[#2563EB]/30"
                   >
                     <div className={cn(
                       "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors",
-                      folderColors[folder] || "bg-gray-50 text-gray-600"
+                      folderColors[folder] || "bg-muted/50 text-muted-foreground"
                     )}>
                       <FolderOpen className="h-5 w-5" />
                     </div>
@@ -523,7 +523,7 @@ export default function DocumentsPage() {
                 </h3>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {uncategorized.map((doc) => (
-                    <div key={doc.id} className="group flex items-center gap-3 rounded-xl bg-white p-3 ring-1 ring-foreground/10">
+                    <div key={doc.id} className="group flex items-center gap-3 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
                       <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border", getFileIcon(doc.mimeType))}>
                         <File className="h-4 w-4" />
                       </div>

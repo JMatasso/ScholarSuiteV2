@@ -31,25 +31,25 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center p-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-8">
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 mb-12">
           <div className="w-8 h-8 bg-[#1E3A5F] rounded-lg flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-semibold text-[#1A1A1A]">ScholarSuite</span>
+          <span className="text-xl font-semibold text-foreground">ScholarSuite</span>
         </Link>
 
         {isSent ? (
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
               <Mail className="w-8 h-8 text-[#2563EB]" />
             </div>
-            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Check your email</h1>
-            <p className="text-gray-500 mb-8">
-              We sent a password reset link to <span className="font-medium text-[#1A1A1A]">{email}</span>
+            <h1 className="text-2xl font-bold text-foreground mb-2">Check your email</h1>
+            <p className="text-muted-foreground mb-8">
+              We sent a password reset link to <span className="font-medium text-foreground">{email}</span>
             </p>
-            <p className="text-sm text-gray-400 mb-6">
+            <p className="text-sm text-muted-foreground mb-6">
               Didn&apos;t receive the email? Check your spam folder or{" "}
               <button
                 onClick={() => setIsSent(false)}
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-[#1A1A1A]"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to sign in
@@ -68,14 +68,14 @@ export default function ForgotPasswordPage() {
           </div>
         ) : (
           <>
-            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Reset your password</h1>
-            <p className="text-gray-500 mb-8">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Reset your password</h1>
+            <p className="text-muted-foreground mb-8">
               Enter your email address and we&apos;ll send you a link to reset your password.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
                   Email address
                 </label>
                 <input
@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                 />
               </div>
 
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
             <div className="mt-8 text-center">
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-[#1A1A1A]"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to sign in

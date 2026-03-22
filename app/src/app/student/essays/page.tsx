@@ -111,7 +111,7 @@ interface WritingTipsResult {
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Edit3 }> = {
-  DRAFT: { label: "Draft", color: "bg-gray-100 text-gray-700 border-gray-200", icon: Edit3 },
+  DRAFT: { label: "Draft", color: "bg-muted text-foreground border-border", icon: Edit3 },
   UNDER_REVIEW: { label: "Under Review", color: "bg-amber-100 text-amber-700 border-amber-200", icon: AlertCircle },
   REVISION_NEEDED: { label: "Revision Needed", color: "bg-rose-100 text-rose-700 border-rose-200", icon: AlertCircle },
   APPROVED: { label: "Approved", color: "bg-emerald-100 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
@@ -144,10 +144,10 @@ function CategoryBar({ label, score, feedback }: { label: string; score: number;
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-sm">
-        <span className="font-medium text-[#1E3A5F]">{label}</span>
+        <span className="font-medium text-secondary-foreground">{label}</span>
         <span className="text-xs text-muted-foreground">{score}/100</span>
       </div>
-      <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
         <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${score}%` }} />
       </div>
       <p className="text-xs text-muted-foreground">{feedback}</p>
@@ -315,7 +315,7 @@ export default function EssaysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Essays</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Essays</h1>
           <p className="mt-1 text-muted-foreground">Write, review, and manage your scholarship essays.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -351,7 +351,7 @@ export default function EssaysPage() {
               </div>
 
               {/* External source section */}
-              <div className="space-y-3 rounded-lg border border-dashed border-gray-300 p-3">
+              <div className="space-y-3 rounded-lg border border-dashed border-border p-3">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Or import from external source</p>
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
@@ -401,7 +401,7 @@ export default function EssaysPage() {
         <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto sm:max-w-lg md:max-w-2xl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-[#1E3A5F]">
+              <DialogTitle className="flex items-center gap-2 text-secondary-foreground">
                 <Sparkles className="h-5 w-5 text-[#2563EB]" />
                 AI Essay Review
               </DialogTitle>
@@ -413,14 +413,14 @@ export default function EssaysPage() {
                 <div className="flex items-start gap-5">
                   <ScoreCircle score={reviewResult.overallScore} />
                   <div className="flex-1 space-y-1">
-                    <p className="text-sm font-semibold text-[#1E3A5F]">Overall Score</p>
+                    <p className="text-sm font-semibold text-secondary-foreground">Overall Score</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">{reviewResult.summary}</p>
                   </div>
                 </div>
 
                 {/* Category Scores */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Category Scores</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Category Scores</h3>
                   <div className="space-y-4">
                     <CategoryBar label="Content" score={reviewResult.categories.content.score} feedback={reviewResult.categories.content.feedback} />
                     <CategoryBar label="Structure" score={reviewResult.categories.structure.score} feedback={reviewResult.categories.structure.feedback} />
@@ -432,7 +432,7 @@ export default function EssaysPage() {
 
                 {/* Strengths */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Strengths</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Strengths</h3>
                   <div className="space-y-1.5">
                     {reviewResult.strengths.map((s, i) => (
                       <div key={i} className="flex items-start gap-2">
@@ -445,7 +445,7 @@ export default function EssaysPage() {
 
                 {/* Areas for Improvement */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Areas for Improvement</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Areas for Improvement</h3>
                   <div className="space-y-1.5">
                     {reviewResult.improvements.map((imp, i) => (
                       <div key={i} className="flex items-start gap-2">
@@ -459,7 +459,7 @@ export default function EssaysPage() {
                 {/* Actionable Suggestions */}
                 {reviewResult.suggestions.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Suggestions</h3>
+                    <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Suggestions</h3>
                     <div className="space-y-1.5">
                       {reviewResult.suggestions.map((sug, i) => (
                         <div key={i} className="flex items-start gap-2">
@@ -482,7 +482,7 @@ export default function EssaysPage() {
         <Dialog open={tipsOpen} onOpenChange={setTipsOpen}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto sm:max-w-lg md:max-w-2xl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-[#1E3A5F]">
+              <DialogTitle className="flex items-center gap-2 text-secondary-foreground">
                 <Lightbulb className="h-5 w-5 text-[#2563EB]" />
                 Writing Tips
               </DialogTitle>
@@ -536,12 +536,12 @@ export default function EssaysPage() {
               <div className="space-y-6 py-2">
                 {/* Brainstorming Angles */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Brainstorming Angles</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Brainstorming Angles</h3>
                   <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     {tipsResult.angles.map((angle, i) => (
                       <Card key={i} variant="bento">
                         <CardContent className="p-3 space-y-1.5">
-                          <p className="text-sm font-medium text-[#1E3A5F]">{angle.title}</p>
+                          <p className="text-sm font-medium text-secondary-foreground">{angle.title}</p>
                           <p className="text-xs text-muted-foreground">{angle.description}</p>
                           <div className="flex items-start gap-1.5 mt-1">
                             <ThumbsUp className="h-3 w-3 mt-0.5 shrink-0 text-[#2563EB]" />
@@ -555,7 +555,7 @@ export default function EssaysPage() {
 
                 {/* Structural Tips */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Structure</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Structure</h3>
                   <p className="text-sm text-muted-foreground">{tipsResult.structure.recommended}</p>
                   <ul className="space-y-1">
                     {tipsResult.structure.tips.map((tip, i) => (
@@ -595,7 +595,7 @@ export default function EssaysPage() {
 
                 {/* Opening Strategies */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Opening Strategies</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Opening Strategies</h3>
                   <div className="space-y-1.5">
                     {tipsResult.openingStrategies.map((s, i) => (
                       <div key={i} className="flex items-start gap-2">
@@ -608,10 +608,10 @@ export default function EssaysPage() {
 
                 {/* Key Themes */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">Key Themes from Your Profile</h3>
+                  <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">Key Themes from Your Profile</h3>
                   <div className="flex flex-wrap gap-2">
                     {tipsResult.keyThemes.map((theme, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium bg-accent text-blue-700 border border-blue-200">
                         {theme}
                       </span>
                     ))}
@@ -660,7 +660,7 @@ export default function EssaysPage() {
                   onClick={() => setSelectedId(essay.id)}
                   className={`w-full rounded-lg border p-3 sm:p-3 text-left transition-colors min-h-[44px] ${
                     selectedId === essay.id
-                      ? "border-[#2563EB] bg-blue-50/50 ring-1 ring-[#2563EB]/20"
+                      ? "border-[#2563EB] bg-accent/50 ring-1 ring-[#2563EB]/20"
                       : "hover:bg-muted/50"
                   }`}
                 >
@@ -669,7 +669,7 @@ export default function EssaysPage() {
                     <Icon className={`h-4 w-4 shrink-0 ${
                       essay.status === "APPROVED" ? "text-emerald-600" :
                       essay.status === "UNDER_REVIEW" ? "text-amber-600" :
-                      essay.status === "REVISION_NEEDED" ? "text-rose-600" : "text-gray-400"
+                      essay.status === "REVISION_NEEDED" ? "text-rose-600" : "text-muted-foreground"
                     }`} />
                   </div>
                   <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
@@ -681,7 +681,7 @@ export default function EssaysPage() {
                       {config.label}
                     </span>
                     {(essay.externalUrl || essay.attachmentName) && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-accent px-2 py-0.5 text-[10px] font-medium text-blue-700">
                         <ExternalLink className="h-3 w-3" />
                         {essay.attachmentName ? "File" : "External"}
                       </span>
@@ -749,14 +749,14 @@ export default function EssaysPage() {
                           href={selected.externalUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-accent px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                           Open Google Doc
                         </a>
                       )}
                       {selected.attachmentName && (
-                        <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/50 px-2.5 py-1 text-xs font-medium text-foreground">
                           <Upload className="h-3.5 w-3.5" />
                           {selected.attachmentName}
                         </span>
@@ -769,7 +769,7 @@ export default function EssaysPage() {
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-1.5">Linked Scholarship</p>
                       <div className="flex flex-wrap gap-1.5">
-                        <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 border border-blue-200">
+                        <span className="inline-flex items-center rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-blue-700 border border-blue-200">
                           {selected.application.scholarship.name}
                         </span>
                       </div>

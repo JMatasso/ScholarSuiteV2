@@ -63,7 +63,7 @@ interface CampaignDetail {
 }
 
 const statusColors: Record<string, string> = {
-  PENDING: "bg-gray-100 text-gray-600",
+  PENDING: "bg-muted text-muted-foreground",
   SENT: "bg-blue-100 text-blue-700",
   OPENED: "bg-amber-100 text-amber-700",
   COMPLETED: "bg-emerald-100 text-emerald-700",
@@ -129,10 +129,10 @@ export default function CampaignDetailPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-100" />
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl bg-gray-100" />
+            <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted" />
           ))}
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function CampaignDetailPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold text-[#1E3A5F]">
+            <h1 className="text-2xl font-semibold text-secondary-foreground">
               {campaign.name}
             </h1>
             <p className="mt-1 text-muted-foreground">
@@ -210,7 +210,7 @@ export default function CampaignDetailPage() {
 
       {/* Recipients & Responses */}
       <div>
-        <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+        <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
           Responses ({completedRequests.length})
         </h2>
         {completedRequests.length === 0 ? (
@@ -230,16 +230,16 @@ export default function CampaignDetailPage() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.04 }}
-                  className="rounded-xl bg-white overflow-hidden transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+                  className="rounded-xl bg-card overflow-hidden transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
                 >
                   <button
                     onClick={() =>
                       setExpandedId(isExpanded ? null : req.id)
                     }
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50/50 transition-colors"
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-muted/50/50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-full bg-[#1E3A5F]/10 text-sm font-semibold text-[#1E3A5F]">
+                      <div className="flex size-10 items-center justify-center rounded-full bg-accent text-sm font-semibold text-secondary-foreground">
                         {req.recipientName
                           .split(" ")
                           .map((n) => n[0])
@@ -249,12 +249,12 @@ export default function CampaignDetailPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-[#1E3A5F]">
+                          <span className="text-sm font-semibold text-secondary-foreground">
                             {req.recipientName}
                           </span>
                           <Badge
                             variant="secondary"
-                            className="text-[10px] bg-gray-100 text-gray-600"
+                            className="text-[10px] bg-muted text-muted-foreground"
                           >
                             {req.recipientRole}
                           </Badge>
@@ -292,7 +292,7 @@ export default function CampaignDetailPage() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="border-t border-gray-100 px-5 pb-5"
+                      className="border-t border-border px-5 pb-5"
                     >
                       <div className="pt-4 space-y-4">
                         {/* Area Ratings */}
@@ -309,9 +309,9 @@ export default function CampaignDetailPage() {
                               .map((a) => (
                                 <div
                                   key={a.label}
-                                  className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+                                  className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
                                 >
-                                  <span className="text-xs text-gray-600">
+                                  <span className="text-xs text-muted-foreground">
                                     {a.label}
                                   </span>
                                   <Stars count={a.val!} />
@@ -330,7 +330,7 @@ export default function CampaignDetailPage() {
                                   : "text-rose-600"
                               }`}
                             />
-                            <span className="text-gray-700">
+                            <span className="text-foreground">
                               {r.wouldRecommend
                                 ? "Would recommend"
                                 : "Would not recommend"}
@@ -344,7 +344,7 @@ export default function CampaignDetailPage() {
                             <h4 className="text-xs font-medium text-muted-foreground">
                               Most Helpful
                             </h4>
-                            <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
+                            <p className="text-sm text-foreground bg-muted/50 rounded-lg p-3">
                               {r.mostHelpful}
                             </p>
                           </div>
@@ -354,7 +354,7 @@ export default function CampaignDetailPage() {
                             <h4 className="text-xs font-medium text-muted-foreground">
                               Suggestions for Improvement
                             </h4>
-                            <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
+                            <p className="text-sm text-foreground bg-muted/50 rounded-lg p-3">
                               {r.improvements}
                             </p>
                           </div>
@@ -364,7 +364,7 @@ export default function CampaignDetailPage() {
                             <h4 className="text-xs font-medium text-muted-foreground">
                               Testimonial
                             </h4>
-                            <p className="text-sm text-gray-700 bg-emerald-50 rounded-lg p-3 italic border border-emerald-100">
+                            <p className="text-sm text-foreground bg-emerald-50 rounded-lg p-3 italic border border-emerald-100">
                               &ldquo;{r.testimonial}&rdquo;
                             </p>
                           </div>
@@ -403,10 +403,10 @@ export default function CampaignDetailPage() {
       {/* Pending Recipients */}
       {campaign.requests.filter((r) => r.status !== "COMPLETED").length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+          <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
             Pending ({campaign.requests.filter((r) => r.status !== "COMPLETED").length})
           </h2>
-          <div className="rounded-xl bg-white divide-y divide-gray-100 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]">
+          <div className="rounded-xl bg-card divide-y divide-gray-100 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]">
             {campaign.requests
               .filter((r) => r.status !== "COMPLETED")
               .map((req) => (
@@ -415,7 +415,7 @@ export default function CampaignDetailPage() {
                   className="flex items-center justify-between px-5 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex size-8 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
+                    <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
                       {req.recipientName
                         .split(" ")
                         .map((n) => n[0])
@@ -424,7 +424,7 @@ export default function CampaignDetailPage() {
                         .toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700">
+                      <p className="text-sm font-medium text-foreground">
                         {req.recipientName}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -435,7 +435,7 @@ export default function CampaignDetailPage() {
                   <div className="flex items-center gap-2">
                     <Badge
                       variant="secondary"
-                      className={statusColors[req.status] || "bg-gray-100 text-gray-600"}
+                      className={statusColors[req.status] || "bg-muted text-muted-foreground"}
                     >
                       {req.status === "SENT" && (
                         <Clock className="h-3 w-3 mr-1" />

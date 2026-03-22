@@ -204,11 +204,11 @@ export default function StudentsPage() {
       cell: ({ row }) => {
         const tier = row.original.serviceTier
         return tier ? (
-          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">
             {SERVICE_TIER_LABELS[tier] ?? tier}
           </span>
         ) : (
-          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-600">
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground">
             No Tier
           </span>
         )
@@ -285,7 +285,7 @@ export default function StudentsPage() {
       />
 
       {showAddForm && (
-        <form onSubmit={handleAddStudent} className="rounded-xl bg-white p-5 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
+        <form onSubmit={handleAddStudent} className="rounded-xl bg-card p-5 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Add New Student</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -389,8 +389,8 @@ export default function StudentsPage() {
 
       {/* Bulk Actions Bar */}
       {selectedCount > 0 && (
-        <div className="flex items-center gap-3 rounded-lg bg-[#1E3A5F]/5 p-3">
-          <span className="text-sm font-medium text-[#1E3A5F]">{selectedCount} selected</span>
+        <div className="flex items-center gap-3 rounded-lg bg-accent p-3">
+          <span className="text-sm font-medium text-secondary-foreground">{selectedCount} selected</span>
           <Button variant="outline" size="xs" onClick={() => router.push("/admin/messages")}>Send Message</Button>
           <Button variant="outline" size="xs" onClick={() => toast.info("Navigate to Tasks to assign tasks to selected students")}>Assign Task</Button>
           <Button variant="outline" size="xs" onClick={() => {

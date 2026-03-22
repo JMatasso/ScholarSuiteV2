@@ -80,8 +80,8 @@ const statusConfig: Record<
   },
   completed: {
     label: "Completed",
-    color: "text-gray-600",
-    bgColor: "bg-gray-50 ring-gray-200",
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/50 ring-gray-200",
   },
 };
 
@@ -195,7 +195,7 @@ export default function MeetingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-sm text-gray-400">Loading meetings…</p>
+        <p className="text-sm text-muted-foreground">Loading meetings…</p>
       </div>
     );
   }
@@ -208,10 +208,10 @@ export default function MeetingsPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Meetings
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           View and respond to meeting invitations
         </p>
       </div>
@@ -232,7 +232,7 @@ export default function MeetingsPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { icon: Calendar, label: "Upcoming", value: upcomingMeetings.length, bg: "bg-blue-50", iconColor: "text-blue-600" },
+          { icon: Calendar, label: "Upcoming", value: upcomingMeetings.length, bg: "bg-accent", iconColor: "text-blue-600" },
           { icon: Clock, label: "Pending Response", value: pendingCount, bg: "bg-amber-50", iconColor: "text-amber-600" },
           { icon: CheckCircle2, label: "Completed", value: pastMeetings.length, bg: "bg-green-50", iconColor: "text-green-600" },
         ].map((card, i) => {
@@ -243,14 +243,14 @@ export default function MeetingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="rounded-xl bg-white p-4 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex items-center gap-3"
+              className="rounded-xl bg-card p-4 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex items-center gap-3"
             >
               <div className={`flex size-10 items-center justify-center rounded-lg ${card.bg}`}>
                 <Icon className={`size-5 ${card.iconColor}`} />
               </div>
               <div>
-                <p className="text-xs text-gray-400">{card.label}</p>
-                <p className="text-xl font-bold text-gray-900">
+                <p className="text-xs text-muted-foreground">{card.label}</p>
+                <p className="text-xl font-bold text-foreground">
                   {card.value}
                 </p>
               </div>
@@ -261,7 +261,7 @@ export default function MeetingsPage() {
 
       {/* Upcoming meetings */}
       <div>
-        <h2 className="text-base font-semibold text-gray-800 mb-3">
+        <h2 className="text-base font-semibold text-foreground mb-3">
           Upcoming Meetings
         </h2>
         <div className="space-y-3">
@@ -273,12 +273,12 @@ export default function MeetingsPage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
+                className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-semibold text-gray-900">
+                      <h3 className="text-sm font-semibold text-foreground">
                         {meeting.title}
                       </h3>
                       <span
@@ -291,10 +291,10 @@ export default function MeetingsPage() {
                         {status.label}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {meeting.description}
                     </p>
-                    <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                    <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="size-3.5" />
                         {meeting.date}
@@ -368,8 +368,8 @@ export default function MeetingsPage() {
           })}
 
           {upcomingMeetings.length === 0 && (
-            <div className="rounded-xl bg-white p-12 text-center [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
-              <p className="text-sm text-gray-500">
+            <div className="rounded-xl bg-card p-12 text-center [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
+              <p className="text-sm text-muted-foreground">
                 No upcoming meetings scheduled.
               </p>
             </div>
@@ -380,14 +380,14 @@ export default function MeetingsPage() {
       {/* Past meetings */}
       {pastMeetings.length > 0 && (
         <div>
-          <h2 className="text-base font-semibold text-gray-800 mb-3">
+          <h2 className="text-base font-semibold text-foreground mb-3">
             Past Meetings
           </h2>
           <div className="space-y-2">
             {pastMeetings.map((meeting) => (
               <div
                 key={meeting.id}
-                className="rounded-xl bg-white px-5 py-3.5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
+                className="rounded-xl bg-card px-5 py-3.5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
@@ -398,15 +398,15 @@ export default function MeetingsPage() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-700 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {meeting.title}
                       </p>
-                      <p className="text-[11px] text-gray-400">
+                      <p className="text-[11px] text-muted-foreground">
                         {meeting.date} at {meeting.time}
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-500 ring-1 ring-inset ring-gray-200 shrink-0">
+                  <span className="inline-flex items-center rounded-full bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-gray-200 shrink-0">
                     Completed
                   </span>
                 </div>

@@ -185,7 +185,7 @@ export default function AdminReviewsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">
+          <h1 className="text-2xl font-semibold text-secondary-foreground">
             Graduation Reviews
           </h1>
           <p className="mt-1 text-muted-foreground">
@@ -242,7 +242,7 @@ export default function AdminReviewsPage() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-20 animate-pulse rounded-2xl bg-gray-100"
+              className="h-20 animate-pulse rounded-2xl bg-muted"
             />
           ))}
         </div>
@@ -269,14 +269,14 @@ export default function AdminReviewsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="flex items-center justify-between rounded-xl bg-white p-5 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+              className="flex items-center justify-between rounded-xl bg-card p-5 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
             >
               <div className="flex items-center gap-4">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-                  <ClipboardCheck className="size-5 text-[#1E3A5F]" />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-accent">
+                  <ClipboardCheck className="size-5 text-secondary-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-[#1E3A5F]">
+                  <h3 className="text-sm font-semibold text-secondary-foreground">
                     {campaign.name}
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -329,7 +329,7 @@ export default function AdminReviewsPage() {
       <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-[#1E3A5F]">
+            <DialogTitle className="text-secondary-foreground">
               Send Graduation Reviews
             </DialogTitle>
           </DialogHeader>
@@ -390,7 +390,7 @@ export default function AdminReviewsPage() {
                   </button>
                 )}
               </div>
-              <div className="max-h-48 overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-100">
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-border divide-y divide-gray-100">
                 {loadingStudents ? (
                   <p className="p-4 text-center text-xs text-muted-foreground">
                     Loading students...
@@ -403,16 +403,16 @@ export default function AdminReviewsPage() {
                   filteredStudents.map((student) => (
                     <label
                       key={student.id}
-                      className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 cursor-pointer"
+                      className="flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 cursor-pointer"
                     >
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(student.id)}
                         onChange={() => toggleStudent(student.id)}
-                        className="rounded border-gray-300"
+                        className="rounded border-border"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {student.name}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">

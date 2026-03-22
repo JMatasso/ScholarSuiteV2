@@ -225,7 +225,7 @@ export default function LocalScholarshipsPage() {
           <select
             value={county}
             onChange={e => setCounty(e.target.value)}
-            className="h-8 rounded-lg border border-border bg-card pl-8 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none"
+            className="h-8 rounded-lg border border-border bg-card pl-8 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-ring appearance-none"
           >
             {COUNTIES.map(c => <option key={c}>{c}</option>)}
           </select>
@@ -356,7 +356,7 @@ export default function LocalScholarshipsPage() {
                     const p = providers.find(p => p.id === e.target.value)
                     setForm(f => ({ ...f, providerId: e.target.value, providerName: p?.name ?? "", county: p?.county ?? f.county, state: p?.state ?? f.state }))
                   }}
-                  className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none"
+                  className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring appearance-none"
                 >
                   <option value="">-- Select or type below --</option>
                   {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}

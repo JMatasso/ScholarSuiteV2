@@ -718,7 +718,7 @@ export function ApplicationPacketBuilder({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-[#1E3A5F] flex items-center gap-2">
+          <DialogTitle className="text-secondary-foreground flex items-center gap-2">
             <FileText className="h-5 w-5" />
             Application Packet Builder
           </DialogTitle>
@@ -754,7 +754,7 @@ export function ApplicationPacketBuilder({
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <section.icon className="h-4 w-4 text-[#1E3A5F] shrink-0" />
+                      <section.icon className="h-4 w-4 text-secondary-foreground shrink-0" />
                       <span className="text-sm font-medium">{section.label}</span>
                       {section.hasData ? (
                         <span className="ml-auto flex items-center gap-1 text-[10px] font-medium text-emerald-600">
@@ -798,7 +798,7 @@ export function ApplicationPacketBuilder({
                             <span className={cn(
                               "ml-auto text-[10px] px-1.5 py-0.5 rounded",
                               essay.status === "APPROVED" ? "bg-emerald-100 text-emerald-700" :
-                              essay.status === "DRAFT" ? "bg-gray-100 text-gray-600" :
+                              essay.status === "DRAFT" ? "bg-muted text-muted-foreground" :
                               "bg-amber-100 text-amber-700"
                             )}>
                               {essay.status.toLowerCase()}

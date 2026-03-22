@@ -129,14 +129,14 @@ export function CollegeAutocomplete({
     <div ref={wrapperRef} className={cn("relative", className)}>
       {/* Selected value display */}
       {hasSelection ? (
-        <div className="flex h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white px-2.5">
-          <GraduationCap className="size-3.5 shrink-0 text-[#1E3A5F]" />
-          <span className="flex-1 truncate text-sm text-[#1A1A1A]">{value}</span>
+        <div className="flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-2.5">
+          <GraduationCap className="size-3.5 shrink-0 text-secondary-foreground" />
+          <span className="flex-1 truncate text-sm text-foreground">{value}</span>
           {!disabled && (
             <button
               type="button"
               onClick={handleClear}
-              className="flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-gray-100 hover:text-[#1A1A1A]"
+              className="flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <X className="size-3.5" />
             </button>
@@ -166,7 +166,7 @@ export function CollegeAutocomplete({
 
       {/* Dropdown results */}
       {open && results.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-xl shadow-black/[0.08] overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-card shadow-xl shadow-black/[0.08] overflow-hidden">
           <div ref={listRef} className="max-h-72 overflow-y-auto py-1">
             {results.map((college, i) => (
               <button
@@ -177,13 +177,13 @@ export function CollegeAutocomplete({
                 className={cn(
                   "flex w-full items-start gap-2.5 px-3 py-2.5 text-left text-sm transition-colors",
                   i === selectedIndex
-                    ? "bg-[#2563EB]/10 text-[#1A1A1A]"
-                    : "hover:bg-gray-50"
+                    ? "bg-[#2563EB]/10 text-foreground"
+                    : "hover:bg-muted/50"
                 )}
               >
-                <GraduationCap className="mt-0.5 size-3.5 shrink-0 text-[#1E3A5F]" />
+                <GraduationCap className="mt-0.5 size-3.5 shrink-0 text-secondary-foreground" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-[#1A1A1A]">{college.name}</p>
+                  <p className="truncate font-medium text-foreground">{college.name}</p>
                   <div className="mt-0.5 flex items-center gap-2">
                     {(college.city || college.state) && (
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -196,7 +196,7 @@ export function CollegeAutocomplete({
                         className={cn(
                           "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium",
                           college.type.includes("PUBLIC") || college.type === "Public"
-                            ? "bg-blue-50 text-blue-700"
+                            ? "bg-accent text-blue-700"
                             : "bg-purple-50 text-purple-700"
                         )}
                       >
@@ -218,7 +218,7 @@ export function CollegeAutocomplete({
 
       {/* Empty state */}
       {open && results.length === 0 && !loading && query.length >= 2 && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-gray-200 bg-white p-3 text-center text-sm text-muted-foreground shadow-xl shadow-black/[0.08]">
+        <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-card p-3 text-center text-sm text-muted-foreground shadow-xl shadow-black/[0.08]">
           No colleges found. Try a different search term.
         </div>
       )}

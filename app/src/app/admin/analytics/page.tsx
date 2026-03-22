@@ -154,7 +154,7 @@ export default function AnalyticsPage() {
         {/* Scholarship Application Pipeline */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground">
               Scholarship Application Pipeline
             </CardTitle>
           </CardHeader>
@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
         {/* College Application Status */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground">
               College Application Status
             </CardTitle>
           </CardHeader>
@@ -217,7 +217,7 @@ export default function AnalyticsPage() {
       {/* Applications Over Time */}
       <Card variant="bento">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+          <CardTitle className="text-sm font-semibold text-secondary-foreground">
             Applications Over Time
           </CardTitle>
         </CardHeader>
@@ -256,7 +256,7 @@ export default function AnalyticsPage() {
         {/* Students by Journey Stage */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground">
               Students by Journey Stage
             </CardTitle>
           </CardHeader>
@@ -284,21 +284,21 @@ export default function AnalyticsPage() {
         {/* Cohort Overview */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground">
               Cohort Overview
             </CardTitle>
           </CardHeader>
           <CardContent>
             {data?.cohorts && data.cohorts.length > 0 ? (
               <div className="space-y-2">
-                <div className="grid grid-cols-2 border-b border-gray-200 pb-2">
+                <div className="grid grid-cols-2 border-b border-border pb-2">
                   <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Cohort</span>
                   <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground text-right">Members</span>
                 </div>
                 {data.cohorts.map((cohort) => (
-                  <div key={cohort.id} className="grid grid-cols-2 py-2 border-b border-gray-100 last:border-0">
-                    <span className="text-sm text-[#1A1A1A]">{cohort.name}</span>
-                    <span className="text-sm font-medium text-[#1E3A5F] text-right">{cohort.members}</span>
+                  <div key={cohort.id} className="grid grid-cols-2 py-2 border-b border-border last:border-0">
+                    <span className="text-sm text-foreground">{cohort.name}</span>
+                    <span className="text-sm font-medium text-secondary-foreground text-right">{cohort.members}</span>
                   </div>
                 ))}
               </div>

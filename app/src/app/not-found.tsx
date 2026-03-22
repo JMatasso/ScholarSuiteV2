@@ -21,14 +21,14 @@ export default function NotFoundPage() {
     "Back to Home"
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center p-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-8">
       <div className="text-center">
         <div className="w-16 h-16 bg-[#1E3A5F] rounded-2xl flex items-center justify-center mx-auto mb-6">
           <GraduationCap className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-6xl font-bold text-[#1A1A1A] mb-4">404</h1>
-        <h2 className="text-xl font-semibold text-[#1A1A1A] mb-2">Page not found</h2>
-        <p className="text-gray-500 mb-8 max-w-md">
+        <h1 className="text-6xl font-bold text-foreground mb-4">404</h1>
+        <h2 className="text-xl font-semibold text-foreground mb-2">Page not found</h2>
+        <p className="text-muted-foreground mb-8 max-w-md">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
           Let&apos;s get you back on track.
         </p>

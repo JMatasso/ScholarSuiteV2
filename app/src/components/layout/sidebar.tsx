@@ -44,7 +44,7 @@ export function Sidebar({ items, groups, collapsed = false, onToggleCollapse }: 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-border bg-white transition-all duration-200",
+        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-border bg-card transition-all duration-200",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -54,7 +54,7 @@ export function Sidebar({ items, groups, collapsed = false, onToggleCollapse }: 
           <GraduationCap className="size-5" />
         </div>
         {!collapsed && (
-          <span className="text-lg font-semibold tracking-tight text-[#1E3A5F]">
+          <span className="text-lg font-semibold tracking-tight text-secondary-foreground">
             ScholarSuite
           </span>
         )}
@@ -84,12 +84,12 @@ export function Sidebar({ items, groups, collapsed = false, onToggleCollapse }: 
                       className={cn(
                         "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                         isActive
-                          ? "border-l-2 border-[#1E3A5F] bg-[#1E3A5F]/5 text-[#1E3A5F]"
+                          ? "border-l-2 border-[#1E3A5F] bg-accent text-secondary-foreground"
                           : "border-l-2 border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
                         collapsed && "justify-center px-2"
                       )}
                     >
-                      <Icon className={cn("size-5 shrink-0", isActive && "text-[#1E3A5F]")} />
+                      <Icon className={cn("size-5 shrink-0", isActive && "text-secondary-foreground")} />
                       {!collapsed && (
                         <>
                           <span className="truncate">{item.label}</span>

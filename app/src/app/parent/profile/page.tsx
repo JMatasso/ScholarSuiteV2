@@ -139,12 +139,12 @@ function ProfileSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
+    <div className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-          <Icon className="size-4 text-[#1E3A5F]" />
+        <div className="flex size-8 items-center justify-center rounded-lg bg-accent">
+          <Icon className="size-4 text-secondary-foreground" />
         </div>
-        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       </div>
       {children}
     </div>
@@ -160,10 +160,10 @@ function InfoRow({
 }) {
   return (
     <div className="flex flex-col gap-0.5 py-2">
-      <span className="text-xs text-gray-400 uppercase tracking-wider">
+      <span className="text-xs text-muted-foreground uppercase tracking-wider">
         {label}
       </span>
-      <span className="text-sm text-gray-700">
+      <span className="text-sm text-foreground">
         {typeof value === "string" ? value : value}
       </span>
     </div>
@@ -278,7 +278,7 @@ export default function ParentProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-sm text-gray-400">Loading profile...</p>
+        <p className="text-sm text-muted-foreground">Loading profile...</p>
       </div>
     );
   }
@@ -324,17 +324,17 @@ export default function ParentProfilePage() {
 
       {/* ─── Parent Profile Card ─── */}
       <motion.div
-        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
+        className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-              <User className="size-4 text-[#1E3A5F]" />
+            <div className="flex size-8 items-center justify-center rounded-lg bg-accent">
+              <User className="size-4 text-secondary-foreground" />
             </div>
-            <h3 className="text-sm font-semibold text-[#1E3A5F]">
+            <h3 className="text-sm font-semibold text-secondary-foreground">
               My Profile
             </h3>
           </div>
@@ -431,16 +431,16 @@ export default function ParentProfilePage() {
 
       {/* ─── Notification Preferences Card ─── */}
       <motion.div
-        className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
+        className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center gap-2 mb-4">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
-            <Bell className="size-4 text-[#1E3A5F]" />
+          <div className="flex size-8 items-center justify-center rounded-lg bg-accent">
+            <Bell className="size-4 text-secondary-foreground" />
           </div>
-          <h3 className="text-sm font-semibold text-[#1E3A5F]">
+          <h3 className="text-sm font-semibold text-secondary-foreground">
             Notification Preferences
           </h3>
         </div>
@@ -448,7 +448,7 @@ export default function ParentProfilePage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-700">Task Updates</p>
+              <p className="text-sm font-medium text-foreground">Task Updates</p>
               <p className="text-xs text-muted-foreground">
                 Get notified when tasks are assigned or updated
               </p>
@@ -457,7 +457,7 @@ export default function ParentProfilePage() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-foreground">
                 Deadline Reminders
               </p>
               <p className="text-xs text-muted-foreground">
@@ -471,7 +471,7 @@ export default function ParentProfilePage() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-foreground">
                 Award Notifications
               </p>
               <p className="text-xs text-muted-foreground">
@@ -482,7 +482,7 @@ export default function ParentProfilePage() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-700">New Messages</p>
+              <p className="text-sm font-medium text-foreground">New Messages</p>
               <p className="text-xs text-muted-foreground">
                 Get notified when you receive a new message
               </p>
@@ -510,12 +510,12 @@ export default function ParentProfilePage() {
       {/* ─── Student Profile Section (read-only) ─── */}
       {!student ? (
         <div className="flex items-center justify-center py-12">
-          <p className="text-sm text-gray-400">No linked student found.</p>
+          <p className="text-sm text-muted-foreground">No linked student found.</p>
         </div>
       ) : (
         <>
           <div>
-            <h2 className="text-lg font-semibold text-[#1E3A5F]">
+            <h2 className="text-lg font-semibold text-secondary-foreground">
               Student Profile
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
@@ -527,7 +527,7 @@ export default function ParentProfilePage() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             {/* Student card */}
             <motion.div
-              className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
+              className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -544,11 +544,11 @@ export default function ParentProfilePage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-lg font-semibold text-foreground">
                     {fullName}
                   </h2>
-                  <p className="text-sm text-gray-500">{schoolName}</p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted-foreground">{schoolName}</p>
+                  <p className="text-sm text-muted-foreground">
                     {gradeLabel}
                     {profile?.gpa ? ` · GPA ${profile.gpa}` : ""}
                   </p>
@@ -558,7 +558,7 @@ export default function ParentProfilePage() {
 
             {/* Journey stage */}
             <motion.div
-              className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex flex-col justify-center"
+              className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex flex-col justify-center"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -572,8 +572,8 @@ export default function ParentProfilePage() {
                   <TrendingUp className="size-5 text-[#2563EB]" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400">Journey Stage</p>
-                  <p className="text-lg font-semibold text-[#1E3A5F]">
+                  <p className="text-xs text-muted-foreground">Journey Stage</p>
+                  <p className="text-lg font-semibold text-secondary-foreground">
                     {stage}
                   </p>
                 </div>
@@ -584,12 +584,12 @@ export default function ParentProfilePage() {
                     key={s}
                     className={cn(
                       "h-1.5 flex-1 rounded-full",
-                      i <= stageIndex ? "bg-[#2563EB]" : "bg-gray-200"
+                      i <= stageIndex ? "bg-[#2563EB]" : "bg-muted"
                     )}
                   />
                 ))}
               </div>
-              <div className="mt-1.5 flex justify-between text-[10px] text-gray-400">
+              <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground">
                 <span>Early Exploration</span>
                 <span>Post Acceptance</span>
               </div>
@@ -597,7 +597,7 @@ export default function ParentProfilePage() {
 
             {/* Profile completion ring */}
             <motion.div
-              className="rounded-xl bg-white p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex flex-col items-center justify-center"
+              className="rounded-xl bg-card p-5 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] flex flex-col items-center justify-center"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -629,12 +629,12 @@ export default function ParentProfilePage() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-bold text-gray-900">
+                  <span className="text-xl font-bold text-foreground">
                     {profileCompletion}%
                   </span>
                 </div>
               </div>
-              <p className="mt-2 text-xs text-gray-500">Profile Completion</p>
+              <p className="mt-2 text-xs text-muted-foreground">Profile Completion</p>
             </motion.div>
           </div>
 
@@ -669,7 +669,7 @@ export default function ParentProfilePage() {
                     label="Email"
                     value={
                       <span className="flex items-center gap-1.5">
-                        <Mail className="size-3 text-gray-400" />
+                        <Mail className="size-3 text-muted-foreground" />
                         {student.email}
                       </span>
                     }
@@ -679,7 +679,7 @@ export default function ParentProfilePage() {
                     value={
                       profile?.phone ? (
                         <span className="flex items-center gap-1.5">
-                          <Phone className="size-3 text-gray-400" />
+                          <Phone className="size-3 text-muted-foreground" />
                           {profile.phone}
                         </span>
                       ) : (
@@ -693,7 +693,7 @@ export default function ParentProfilePage() {
                       value={
                         addressParts ? (
                           <span className="flex items-center gap-1.5">
-                            <MapPin className="size-3 text-gray-400" />
+                            <MapPin className="size-3 text-muted-foreground" />
                             {addressParts}
                           </span>
                         ) : (

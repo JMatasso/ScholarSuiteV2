@@ -58,7 +58,7 @@ const lessonTypeIcons: Record<string, React.ReactNode> = {
 }
 
 const lessonTypeColors: Record<string, string> = {
-  TEXT: "bg-gray-100 text-gray-700",
+  TEXT: "bg-muted text-foreground",
   VIDEO: "bg-rose-100 text-rose-700",
   LINK: "bg-sky-100 text-sky-700",
 }
@@ -240,7 +240,7 @@ export default function LearningPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="rounded-xl bg-white p-5 ring-1 ring-foreground/10">
+        <form onSubmit={handleSubmit} className="rounded-xl bg-card p-5 ring-1 ring-foreground/10">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Create Module</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="col-span-2">
@@ -309,7 +309,7 @@ export default function LearningPage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm cursor-pointer"
+                className="flex items-center gap-4 rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-sm cursor-pointer"
                 onClick={() => handleToggleExpand(mod.id)}
               >
                 <span className="text-muted-foreground">
@@ -318,19 +318,19 @@ export default function LearningPage() {
                 <span className="cursor-grab text-muted-foreground hover:text-foreground" title="Drag to reorder" onClick={e => e.stopPropagation()}>
                   <GripVertical className="size-4" />
                 </span>
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-xs font-semibold text-[#1E3A5F]">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent text-xs font-semibold text-secondary-foreground">
                   {mod.order}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <h3 className="text-sm font-medium text-foreground">{mod.title}</h3>
                     {mod.category && (
-                      <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ${categoryColors[mod.category] || "bg-gray-100 text-gray-600"}`}>
+                      <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ${categoryColors[mod.category] || "bg-muted text-muted-foreground"}`}>
                         {mod.category}
                       </span>
                     )}
                     {mod.subject && (
-                      <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ${subjectColors[mod.subject] || "bg-gray-100 text-gray-600"}`}>
+                      <span className={`inline-flex h-4 items-center rounded-full px-1.5 text-[10px] font-medium ${subjectColors[mod.subject] || "bg-muted text-muted-foreground"}`}>
                         {subjectLabels[mod.subject] || mod.subject}
                       </span>
                     )}
@@ -339,7 +339,7 @@ export default function LearningPage() {
                         Published
                       </span>
                     ) : (
-                      <span className="inline-flex h-4 items-center rounded-full bg-gray-100 px-1.5 text-[10px] font-medium text-gray-600 ring-1 ring-inset ring-gray-300">
+                      <span className="inline-flex h-4 items-center rounded-full bg-muted px-1.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-gray-300">
                         Draft
                       </span>
                     )}
@@ -390,9 +390,9 @@ export default function LearningPage() {
                     transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="ml-12 mr-2 mt-1 mb-2 rounded-lg border border-gray-200 bg-gray-50/50 p-4">
+                    <div className="ml-12 mr-2 mt-1 mb-2 rounded-lg border border-border bg-muted/50/50 p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Lessons</h4>
+                        <h4 className="text-xs font-semibold text-secondary-foreground uppercase tracking-wide">Lessons</h4>
                         <Button size="xs" variant="outline" onClick={() => {
                           setShowLessonForm(true)
                           setEditingLessonId(null)
@@ -410,7 +410,7 @@ export default function LearningPage() {
                       {moduleLessons[mod.id]?.sort((a, b) => a.order - b.order).map(lesson => (
                         <div key={lesson.id}>
                           {editingLessonId === lesson.id ? (
-                            <div className="rounded-lg border border-gray-200 bg-white p-3 mb-2">
+                            <div className="rounded-lg border border-border bg-card p-3 mb-2">
                               <div className="grid grid-cols-2 gap-3 mb-3">
                                 <div className="col-span-2">
                                   <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
@@ -445,12 +445,12 @@ export default function LearningPage() {
                               </div>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-white transition-colors mb-1">
-                              <span className="flex size-5 shrink-0 items-center justify-center rounded bg-[#1E3A5F]/10 text-[9px] font-semibold text-[#1E3A5F]">
+                            <div className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-card transition-colors mb-1">
+                              <span className="flex size-5 shrink-0 items-center justify-center rounded bg-accent text-[9px] font-semibold text-secondary-foreground">
                                 {lesson.order}
                               </span>
                               <span className="text-sm text-foreground flex-1">{lesson.title}</span>
-                              <span className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${lessonTypeColors[lesson.type] || "bg-gray-100 text-gray-600"}`}>
+                              <span className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${lessonTypeColors[lesson.type] || "bg-muted text-muted-foreground"}`}>
                                 {lessonTypeIcons[lesson.type]} {lesson.type}
                               </span>
                               <ActionMenu items={[
@@ -477,7 +477,7 @@ export default function LearningPage() {
                         <motion.div
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="rounded-lg border border-gray-200 bg-white p-3 mt-2"
+                          className="rounded-lg border border-border bg-card p-3 mt-2"
                         >
                           <h5 className="text-xs font-semibold text-foreground mb-3">New Lesson</h5>
                           <div className="grid grid-cols-2 gap-3 mb-3">

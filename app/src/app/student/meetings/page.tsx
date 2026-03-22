@@ -137,12 +137,12 @@ export default function MeetingsPage() {
           <div className="flex items-start gap-4">
             {/* Date block */}
             <div className={`flex flex-col items-center rounded-lg px-3 py-2 text-center shrink-0 ${
-              isUpcomingMeeting ? "bg-[#1E3A5F]/5" : "bg-muted/50"
+              isUpcomingMeeting ? "bg-accent" : "bg-muted/50"
             }`}>
               <span className="text-[10px] font-medium text-muted-foreground uppercase">
                 {dateParts[0]}
               </span>
-              <span className={`text-xl font-bold ${isUpcomingMeeting ? "text-[#1E3A5F]" : "text-muted-foreground"}`}>
+              <span className={`text-xl font-bold ${isUpcomingMeeting ? "text-secondary-foreground" : "text-muted-foreground"}`}>
                 {dateParts[1]?.replace(",", "")}
               </span>
             </div>
@@ -222,7 +222,7 @@ export default function MeetingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">Meetings</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">Meetings</h1>
           <p className="mt-1 text-muted-foreground">
             Schedule and manage meetings with your counselors and consultants.
           </p>
@@ -290,7 +290,7 @@ export default function MeetingsPage() {
 
       {/* Upcoming Meetings */}
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+        <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
           <Calendar className="h-4 w-4 text-[#2563EB]" />
           Upcoming ({upcoming.length})
         </h2>

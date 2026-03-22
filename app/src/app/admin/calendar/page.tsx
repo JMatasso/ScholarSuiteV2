@@ -45,12 +45,12 @@ export default function AdminCalendarPage() {
         title="Calendar"
         description="Overview of all upcoming deadlines, meetings, and milestones across your practice."
       />
-      <div className="rounded-2xl bg-white ring-1 ring-gray-200/60 shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-card ring-1 ring-gray-200/60 shadow-sm overflow-hidden">
         <FullScreenCalendar data={data} />
       </div>
       <div className="flex flex-wrap items-center gap-4 px-1">
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="size-2.5 rounded-full bg-blue-500" /> Scholarship Deadline
+          <span className="size-2.5 rounded-full bg-accent0" /> Scholarship Deadline
         </span>
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="size-2.5 rounded-full bg-amber-500" /> Task Due
@@ -59,7 +59,7 @@ export default function AdminCalendarPage() {
           <span className="size-2.5 rounded-full bg-emerald-500" /> Meeting
         </span>
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="size-2.5 rounded-full bg-gray-400" /> General
+          <span className="size-2.5 rounded-full bg-muted-foreground" /> General
         </span>
       </div>
     </div>

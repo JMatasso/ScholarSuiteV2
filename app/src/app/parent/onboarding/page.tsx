@@ -248,7 +248,7 @@ export default function ParentOnboardingPage() {
                           value={formData.firstName}
                           onChange={(e) => update("firstName", e.target.value)}
                           placeholder="Jane"
-                          className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                          className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                         />
                       </div>
                       <div>
@@ -260,7 +260,7 @@ export default function ParentOnboardingPage() {
                           value={formData.lastName}
                           onChange={(e) => update("lastName", e.target.value)}
                           placeholder="Johnson"
-                          className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                          className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                         />
                       </div>
                     </div>
@@ -271,7 +271,7 @@ export default function ParentOnboardingPage() {
                         value={formData.phone}
                         onChange={(e) => update("phone", e.target.value)}
                         placeholder="(555) 123-4567"
-                        className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                        className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                       />
                     </div>
                     <div>
@@ -281,7 +281,7 @@ export default function ParentOnboardingPage() {
                       <select
                         value={formData.relationship}
                         onChange={(e) => update("relationship", e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-shadow"
+                        className="w-full px-3 py-2.5 rounded-lg border border-foreground/10 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-shadow"
                       >
                         <option value="">Select relationship</option>
                         {RELATIONSHIP_OPTIONS.map((opt) => (
@@ -429,7 +429,7 @@ export default function ParentOnboardingPage() {
                             <select
                               value={formData.reportFrequency}
                               onChange={(e) => update("reportFrequency", e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border border-foreground/10 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                              className="w-full px-3 py-2 rounded-lg border border-foreground/10 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                             >
                               <option value="DAILY">Daily</option>
                               <option value="WEEKLY">Weekly</option>
@@ -442,7 +442,7 @@ export default function ParentOnboardingPage() {
                             <select
                               value={formData.reportDay}
                               onChange={(e) => update("reportDay", e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border border-foreground/10 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                              className="w-full px-3 py-2 rounded-lg border border-foreground/10 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                             >
                               {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((d) => (
                                 <option key={d} value={d}>{d}</option>
@@ -549,8 +549,8 @@ export default function ParentOnboardingPage() {
                     )}
 
                     {/* Privacy Statement */}
-                    <div className="rounded-xl border border-[#1E3A5F]/20 bg-[#1E3A5F]/5 p-4 space-y-3">
-                      <h3 className="text-sm font-semibold text-[#1E3A5F] flex items-center gap-2">
+                    <div className="rounded-xl border border-border bg-accent p-4 space-y-3">
+                      <h3 className="text-sm font-semibold text-secondary-foreground flex items-center gap-2">
                         <Shield className="h-4 w-4" />
                         Your Privacy Matters
                       </h3>

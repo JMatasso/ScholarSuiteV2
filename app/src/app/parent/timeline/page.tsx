@@ -117,14 +117,14 @@ export default function ParentTimelinePage() {
         <>
           {/* Current stage banner */}
           {stageInfo && (
-            <Card variant="bento" className="border-[#2563EB]/20 bg-blue-50/30">
+            <Card variant="bento" className="border-[#2563EB]/20 bg-accent/30">
               <CardContent className="pt-0">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10 ring-2 ring-[#2563EB]/20">
                     <Target className="h-5 w-5 text-[#2563EB]" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[#1E3A5F]">
+                    <p className="text-sm font-semibold text-secondary-foreground">
                       {selectedStudent?.name || "Student"} — {stageInfo.label}
                     </p>
                     <p className="text-xs text-muted-foreground">{stageInfo.description}</p>
@@ -149,7 +149,7 @@ export default function ParentTimelinePage() {
 
           {/* Scholarship pipeline */}
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+            <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
               Scholarship Pipeline
             </h2>
             <ScholarshipPipeline applications={data?.applications || []} />

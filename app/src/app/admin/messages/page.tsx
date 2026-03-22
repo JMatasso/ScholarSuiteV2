@@ -271,10 +271,10 @@ export default function MessagesPage() {
         </div>
       )}
 
-      <div className="flex h-[calc(100vh-14rem)] rounded-2xl bg-white ring-1 ring-gray-200/60 overflow-hidden shadow-sm">
+      <div className="flex h-[calc(100vh-14rem)] rounded-2xl bg-card ring-1 ring-gray-200/60 overflow-hidden shadow-sm">
         {/* Conversation List */}
-        <div className="w-80 border-r border-gray-100 flex flex-col bg-gray-50/30">
-          <div className="p-4 border-b border-gray-100">
+        <div className="w-80 border-r border-border flex flex-col bg-muted/50/30">
+          <div className="p-4 border-b border-border">
             <SearchInput
               value={search}
               onValueChange={setSearch}
@@ -284,7 +284,7 @@ export default function MessagesPage() {
           </div>
 
           {/* Filters */}
-          <div className="px-4 py-3 border-b border-gray-100 flex flex-col gap-2">
+          <div className="px-4 py-3 border-b border-border flex flex-col gap-2">
             {/* Role filter */}
             <div className="flex items-center gap-1 flex-wrap">
               {(["ALL", "STUDENT", "PARENT", "ADMIN"] as const).map(role => (
@@ -295,7 +295,7 @@ export default function MessagesPage() {
                     "px-2.5 py-1 text-[11px] font-medium rounded-full transition-all duration-200",
                     roleFilter === role
                       ? "bg-[#1E3A5F] text-white shadow-sm"
-                      : "bg-white text-muted-foreground hover:bg-gray-100 ring-1 ring-gray-200/60"
+                      : "bg-card text-muted-foreground hover:bg-muted ring-1 ring-gray-200/60"
                   )}
                 >
                   {role === "ALL" ? "All" : role === "STUDENT" ? "Students" : role === "PARENT" ? "Parents" : "Admins"}
@@ -312,7 +312,7 @@ export default function MessagesPage() {
                     "px-2.5 py-1 text-[11px] font-medium rounded-full transition-all duration-200",
                     readFilter === filter
                       ? "bg-[#2563EB] text-white shadow-sm"
-                      : "bg-white text-muted-foreground hover:bg-gray-100 ring-1 ring-gray-200/60"
+                      : "bg-card text-muted-foreground hover:bg-muted ring-1 ring-gray-200/60"
                   )}
                 >
                   {filter === "ALL" ? "All" : filter === "UNREAD" ? "Unread" : "Read"}
@@ -326,17 +326,17 @@ export default function MessagesPage() {
               <div className="p-4 space-y-3">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="flex items-center gap-3 p-2 animate-pulse">
-                    <div className="size-9 rounded-full bg-gray-200" />
+                    <div className="size-9 rounded-full bg-muted" />
                     <div className="flex-1 space-y-2">
-                      <div className="h-3 w-24 bg-gray-200 rounded" />
-                      <div className="h-2 w-32 bg-gray-100 rounded" />
+                      <div className="h-3 w-24 bg-muted rounded" />
+                      <div className="h-2 w-32 bg-muted rounded" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : filteredConversations.length === 0 ? (
               <div className="flex flex-col items-center py-12 px-4 text-center">
-                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                <div className="size-10 rounded-full bg-muted flex items-center justify-center mb-3">
                   <Send className="size-4 text-muted-foreground" />
                 </div>
                 <p className="text-sm font-medium text-foreground">No conversations</p>
@@ -347,10 +347,10 @@ export default function MessagesPage() {
                 key={convo.partnerId}
                 onClick={() => setSelectedPartnerId(convo.partnerId)}
                 className={cn(
-                  "flex w-full items-start gap-3 px-4 py-3 text-left transition-all duration-150 border-b border-gray-100/50",
+                  "flex w-full items-start gap-3 px-4 py-3 text-left transition-all duration-150 border-b border-border/50",
                   activePartnerId === convo.partnerId
-                    ? "bg-white shadow-sm border-l-2 border-l-[#2563EB]"
-                    : "hover:bg-white/80"
+                    ? "bg-card shadow-sm border-l-2 border-l-[#2563EB]"
+                    : "hover:bg-card/80"
                 )}
               >
                 <div className="relative">
@@ -359,7 +359,7 @@ export default function MessagesPage() {
                     <AvatarFallback className={cn(
                       convo.partnerRole === "STUDENT" ? "bg-blue-100 text-blue-700" :
                       convo.partnerRole === "PARENT" ? "bg-purple-100 text-purple-700" :
-                      "bg-gray-100 text-gray-700"
+                      "bg-muted text-foreground"
                     )}>{convo.partnerInitials}</AvatarFallback>
                   </Avatar>
                   {convo.unread && (
@@ -378,7 +378,7 @@ export default function MessagesPage() {
                       "inline-flex h-4 items-center rounded-full px-1.5 text-[9px] font-semibold uppercase tracking-wide",
                       convo.partnerRole === "STUDENT" ? "bg-blue-100 text-blue-700" :
                       convo.partnerRole === "PARENT" ? "bg-purple-100 text-purple-700" :
-                      "bg-gray-100 text-gray-600"
+                      "bg-muted text-muted-foreground"
                     )}>
                       {convo.partnerRole}
                     </span>
@@ -393,12 +393,12 @@ export default function MessagesPage() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex flex-1 flex-col bg-white">
+        <div className="flex flex-1 flex-col bg-card">
           {/* Chat Header */}
-          <div className="flex items-center gap-3 border-b border-gray-100 px-6 py-4">
+          <div className="flex items-center gap-3 border-b border-border px-6 py-4">
             <Avatar size="sm">
               {activeConversation?.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={activeConversation.partnerName} />}
-              <AvatarFallback className="bg-[#1E3A5F]/10 text-[#1E3A5F]">{activeConversation?.partnerInitials ?? "?"}</AvatarFallback>
+              <AvatarFallback className="bg-accent text-secondary-foreground">{activeConversation?.partnerInitials ?? "?"}</AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-semibold text-foreground">{activeConversation?.partnerName ?? "Select a conversation"}</p>
@@ -407,7 +407,7 @@ export default function MessagesPage() {
                   "inline-flex h-4 items-center rounded-full px-1.5 text-[9px] font-semibold uppercase tracking-wide mt-0.5",
                   activeConversation.partnerRole === "STUDENT" ? "bg-blue-100 text-blue-700" :
                   activeConversation.partnerRole === "PARENT" ? "bg-purple-100 text-purple-700" :
-                  "bg-gray-100 text-gray-600"
+                  "bg-muted text-muted-foreground"
                 )}>
                   {activeConversation.partnerRole}
                 </span>
@@ -416,7 +416,7 @@ export default function MessagesPage() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 bg-[#FAFAF8]">
+          <div className="flex-1 overflow-y-auto px-6 py-6 bg-background">
             <div className="flex flex-col gap-5">
               {chatMessages.map((msg) => {
                 const isOwn = msg.senderId === currentUserId
@@ -425,7 +425,7 @@ export default function MessagesPage() {
                     {!isOwn && (
                       <Avatar size="sm" className="shrink-0 mt-0.5">
                         {activeConversation?.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={activeConversation.partnerName} />}
-                        <AvatarFallback className="bg-gray-200 text-gray-600 text-xs">
+                        <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                           {activeConversation?.partnerInitials ?? "?"}
                         </AvatarFallback>
                       </Avatar>
@@ -435,7 +435,7 @@ export default function MessagesPage() {
                         "px-4 py-2.5 text-sm leading-relaxed shadow-sm",
                         isOwn
                           ? "bg-[#1E3A5F] text-white rounded-2xl rounded-br-md"
-                          : "bg-white text-foreground rounded-2xl rounded-bl-md ring-1 ring-gray-200/60"
+                          : "bg-card text-foreground rounded-2xl rounded-bl-md ring-1 ring-gray-200/60"
                       )}>
                         {msg.content}
                         {msg.imageUrl && (
@@ -454,7 +454,7 @@ export default function MessagesPage() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-gray-100 px-6 py-4 space-y-2 bg-white">
+          <div className="border-t border-border px-6 py-4 space-y-2 bg-card">
             {uploading && <UploadingIndicator />}
             {pendingAttachment && !uploading && (
               <AttachmentPreview attachment={pendingAttachment} onRemove={clearAttachment} />
@@ -476,7 +476,7 @@ export default function MessagesPage() {
                   onKeyDown={handleKeyDown}
                   placeholder="Type a message..."
                   disabled={sending}
-                  className="h-10 rounded-xl bg-gray-50 border-gray-200 pr-12 focus:bg-white"
+                  className="h-10 rounded-xl bg-muted/50 border-border pr-12 focus:bg-card"
                 />
               </div>
               <Button size="icon" className="shrink-0 rounded-xl h-10 w-10" onClick={() => sendMessage()} disabled={(!messageInput.trim() && !pendingAttachment) || sending}><Send className="size-4" /></Button>

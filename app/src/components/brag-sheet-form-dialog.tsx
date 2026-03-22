@@ -226,8 +226,8 @@ export function BragSheetFormDialog({
 
         {/* Contextual tip */}
         {tip && !editEntry && (
-          <div className="rounded-lg bg-blue-50/70 border border-blue-200/50 px-3 py-2.5">
-            <p className="text-xs text-[#1E3A5F]/80">💡 {tip}</p>
+          <div className="rounded-lg bg-accent/70 border border-blue-200/50 px-3 py-2.5">
+            <p className="text-xs text-secondary-foreground/80">💡 {tip}</p>
           </div>
         )}
 

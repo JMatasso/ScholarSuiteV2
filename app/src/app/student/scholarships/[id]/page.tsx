@@ -106,7 +106,7 @@ function DeadlineCountdown({ deadline }: { deadline: string | null }) {
 
   if (days < 0) {
     return (
-      <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-500">
+      <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
         <Clock className="h-4 w-4" />
         Deadline has passed
       </div>
@@ -139,7 +139,7 @@ function DeadlineCountdown({ deadline }: { deadline: string | null }) {
 function EligibilityItem({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 py-2.5">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
         <Icon className="h-4 w-4" />
       </div>
       <div>
@@ -238,11 +238,11 @@ export default function ScholarshipDetailPage() {
 
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold text-[#1E3A5F]">{scholarship.name}</h1>
+            <h1 className="text-2xl font-semibold text-secondary-foreground">{scholarship.name}</h1>
             <p className="text-muted-foreground">
               {scholarship.provider || "Unknown Provider"}
               {scholarship.applicationYear && (
-                <span className="ml-2 text-xs bg-blue-50 text-blue-700 rounded px-1.5 py-0.5">{scholarship.applicationYear}</span>
+                <span className="ml-2 text-xs bg-accent text-blue-700 rounded px-1.5 py-0.5">{scholarship.applicationYear}</span>
               )}
             </p>
           </div>
@@ -279,7 +279,7 @@ export default function ScholarshipDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-200 px-4 py-2.5">
+        <div className="flex items-center gap-2 rounded-lg bg-accent border border-blue-200 px-4 py-2.5">
           <Calendar className="h-5 w-5 text-blue-600" />
           <div>
             <p className="text-xs text-blue-600">Deadline</p>
@@ -310,7 +310,7 @@ export default function ScholarshipDetailPage() {
           <Card variant="bento">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
-                <FileText className="h-4 w-4 text-[#1E3A5F]" />
+                <FileText className="h-4 w-4 text-secondary-foreground" />
                 About This Scholarship
               </CardTitle>
             </CardHeader>
@@ -325,7 +325,7 @@ export default function ScholarshipDetailPage() {
           <Card variant="bento">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
-                <Shield className="h-4 w-4 text-[#1E3A5F]" />
+                <Shield className="h-4 w-4 text-secondary-foreground" />
                 Eligibility Requirements
               </CardTitle>
             </CardHeader>
@@ -415,7 +415,7 @@ export default function ScholarshipDetailPage() {
                   {scholarship.tags.map((tag) => (
                     <span
                       key={tag.id}
-                      className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
+                      className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium bg-accent text-blue-700 border border-blue-200"
                     >
                       {tag.name}
                     </span>
@@ -434,9 +434,9 @@ export default function ScholarshipDetailPage() {
           transition={{ delay: 0.15 }}
         >
           {/* Quick actions card */}
-          <Card variant="bento" className="border-[#2563EB]/20 bg-blue-50/30">
+          <Card variant="bento" className="border-[#2563EB]/20 bg-accent/30">
             <CardHeader>
-              <CardTitle className="text-sm text-[#1E3A5F]">Quick Actions</CardTitle>
+              <CardTitle className="text-sm text-secondary-foreground">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button className="w-full gap-2" onClick={handleSave} disabled={saving}>
@@ -464,7 +464,7 @@ export default function ScholarshipDetailPage() {
             <CardContent className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="font-semibold text-[#1E3A5F]">{formatAmount(scholarship)}</span>
+                <span className="font-semibold text-secondary-foreground">{formatAmount(scholarship)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Renewable</span>

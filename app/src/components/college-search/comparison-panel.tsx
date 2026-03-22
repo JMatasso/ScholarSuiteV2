@@ -45,7 +45,7 @@ export function ComparisonPanel({ colleges, onRemove, onAddToList, onClearAll }:
     <Card variant="bento">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold text-[#1E3A5F]">
+          <CardTitle className="text-sm font-semibold text-secondary-foreground">
             Compare Colleges ({colleges.length})
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClearAll} className="text-xs text-muted-foreground">
@@ -57,12 +57,12 @@ export function ComparisonPanel({ colleges, onRemove, onAddToList, onClearAll }:
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b border-border">
                 <th className="text-left py-2 pr-4 font-medium text-muted-foreground w-40">Metric</th>
                 {colleges.map((c) => (
                   <th key={c.id} className="text-left py-2 px-3 font-medium min-w-[160px]">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="truncate text-[#1E3A5F]">{c.name}</span>
+                      <span className="truncate text-secondary-foreground">{c.name}</span>
                       <button
                         onClick={() => onRemove(c.id)}
                         className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-rose-600 transition-colors"
@@ -76,7 +76,7 @@ export function ComparisonPanel({ colleges, onRemove, onAddToList, onClearAll }:
             </thead>
             <tbody>
               {COMPARISON_ROWS.map((row) => (
-                <tr key={row.label} className="border-b border-gray-50 hover:bg-gray-50/50">
+                <tr key={row.label} className="border-b border-border hover:bg-muted/50/50">
                   <td className="py-2 pr-4 text-muted-foreground">{row.label}</td>
                   {colleges.map((c) => (
                     <td key={c.id} className="py-2 px-3 font-medium">{row.getValue(c)}</td>

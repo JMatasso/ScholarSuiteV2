@@ -63,13 +63,13 @@ interface CollegeApp {
 }
 
 const statusColor: Record<string, string> = {
-  RESEARCHING: "bg-gray-100 text-gray-600",
+  RESEARCHING: "bg-muted text-muted-foreground",
   IN_PROGRESS: "bg-blue-100 text-blue-700",
   SUBMITTED: "bg-purple-100 text-purple-700",
   ACCEPTED: "bg-emerald-100 text-emerald-700",
   DENIED: "bg-rose-100 text-rose-700",
   WAITLISTED: "bg-amber-100 text-amber-700",
-  DEFERRED: "bg-gray-100 text-gray-600",
+  DEFERRED: "bg-muted text-muted-foreground",
 }
 
 const typeLabel: Record<string, string> = {
@@ -95,7 +95,7 @@ const classificationIcon: Record<string, typeof Target> = {
 
 const classificationColor: Record<string, string> = {
   REACH: "text-rose-600 bg-rose-50 border-rose-200",
-  MATCH: "text-blue-600 bg-blue-50 border-blue-200",
+  MATCH: "text-blue-600 bg-accent border-blue-200",
   SAFETY: "text-emerald-600 bg-emerald-50 border-emerald-200",
   LIKELY: "text-teal-600 bg-teal-50 border-teal-200",
 }
@@ -196,7 +196,7 @@ export default function ParentCollegesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[#1E3A5F]">College Applications</h1>
+        <h1 className="text-2xl font-semibold text-secondary-foreground">College Applications</h1>
         <p className="mt-1 text-muted-foreground">
           Track your child&apos;s college application progress and upcoming deadlines.
         </p>
@@ -234,8 +234,8 @@ export default function ParentCollegesPage() {
               return (
                 <div key={cls}>
                   <div className="flex items-center gap-2 mb-3">
-                    <Icon className="h-4 w-4 text-[#1E3A5F]" />
-                    <h2 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+                    <Icon className="h-4 w-4 text-secondary-foreground" />
+                    <h2 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
                       {label} ({items.length})
                     </h2>
                   </div>
@@ -260,7 +260,7 @@ export default function ParentCollegesPage() {
                                   {app.isDream && (
                                     <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400 shrink-0" />
                                   )}
-                                  <h3 className="text-sm font-semibold text-[#1E3A5F] truncate">
+                                  <h3 className="text-sm font-semibold text-secondary-foreground truncate">
                                     {app.universityName}
                                   </h3>
                                 </div>
@@ -276,7 +276,7 @@ export default function ParentCollegesPage() {
                                 )}
                                 <Badge
                                   variant="secondary"
-                                  className={`text-[10px] ${statusColor[app.status] || "bg-gray-100 text-gray-600"}`}
+                                  className={`text-[10px] ${statusColor[app.status] || "bg-muted text-muted-foreground"}`}
                                 >
                                   {app.status.charAt(0) + app.status.slice(1).toLowerCase().replace("_", " ")}
                                 </Badge>
@@ -335,7 +335,7 @@ export default function ParentCollegesPage() {
             <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-[#1E3A5F]" />
+                  <MapPin className="h-4 w-4 text-secondary-foreground" />
                   Upcoming Visits
                 </CardTitle>
               </CardHeader>
@@ -349,7 +349,7 @@ export default function ParentCollegesPage() {
                       className="flex items-start justify-between gap-2 text-xs"
                     >
                       <div>
-                        <p className="font-medium text-[#1E3A5F]">
+                        <p className="font-medium text-secondary-foreground">
                           {visit.collegeApplication.universityName}
                         </p>
                         <p className="text-muted-foreground">
@@ -369,7 +369,7 @@ export default function ParentCollegesPage() {
             <Card variant="bento">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-[#1E3A5F]" />
+                  <Clock className="h-4 w-4 text-secondary-foreground" />
                   Upcoming Deadlines
                 </CardTitle>
               </CardHeader>
@@ -385,7 +385,7 @@ export default function ParentCollegesPage() {
                         className="flex items-start justify-between gap-2 text-xs"
                       >
                         <div>
-                          <p className="font-medium text-[#1E3A5F]">{app.universityName}</p>
+                          <p className="font-medium text-secondary-foreground">{app.universityName}</p>
                           <p className="text-muted-foreground">
                             {typeLabel[app.applicationType] || app.applicationType}
                           </p>

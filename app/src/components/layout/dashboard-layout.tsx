@@ -27,7 +27,7 @@ export function DashboardLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#FAFAF8]">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <Sidebar
         groups={sidebarGroups}

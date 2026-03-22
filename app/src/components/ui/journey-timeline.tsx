@@ -27,7 +27,7 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
       <div className="hidden sm:block">
         <div className="relative flex items-start justify-between">
           {/* Background line */}
-          <div className="absolute top-5 left-[calc(12.5%)] right-[calc(12.5%)] h-0.5 bg-gray-200" />
+          <div className="absolute top-5 left-[calc(12.5%)] right-[calc(12.5%)] h-0.5 bg-muted" />
           {/* Progress line */}
           {currentIndex > 0 && (
             <motion.div
@@ -62,7 +62,7 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
                     "relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all",
                     isCompleted && "border-emerald-500 bg-emerald-500 text-white",
                     isCurrent && "border-[#2563EB] bg-[#2563EB] text-white",
-                    isUpcoming && "border-gray-300 bg-white text-gray-400"
+                    isUpcoming && "border-border bg-card text-muted-foreground"
                   )}
                 >
                   {isCompleted ? (
@@ -82,8 +82,8 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
                   className={cn(
                     "mt-3 text-xs font-semibold leading-tight",
                     isCompleted && "text-emerald-700",
-                    isCurrent && "text-[#1E3A5F]",
-                    isUpcoming && "text-gray-400"
+                    isCurrent && "text-secondary-foreground",
+                    isUpcoming && "text-muted-foreground"
                   )}
                 >
                   {info?.shortLabel ?? stage}
@@ -97,12 +97,12 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
                 {/* Task progress */}
                 {counts && counts.total > 0 && (
                   <div className="mt-1.5 flex items-center gap-1">
-                    <div className="h-1 w-12 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-1 w-12 rounded-full bg-muted overflow-hidden">
                       <motion.div
                         className={cn(
                           "h-full rounded-full",
                           isCompleted ? "bg-emerald-500" :
-                          isCurrent ? "bg-[#2563EB]" : "bg-gray-300"
+                          isCurrent ? "bg-[#2563EB]" : "bg-muted"
                         )}
                         initial={{ width: 0 }}
                         animate={{
@@ -136,7 +136,7 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
               key={stage}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2",
-                isCurrent && "bg-blue-50/50 ring-1 ring-[#2563EB]/20",
+                isCurrent && "bg-accent/50 ring-1 ring-[#2563EB]/20",
                 isCompleted && "bg-emerald-50/30",
               )}
               initial={{ opacity: 0, x: -12 }}
@@ -148,7 +148,7 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
                   "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs",
                   isCompleted && "border-emerald-500 bg-emerald-500 text-white",
                   isCurrent && "border-[#2563EB] bg-[#2563EB] text-white",
-                  isUpcoming && "border-gray-300 bg-white text-gray-400"
+                  isUpcoming && "border-border bg-card text-muted-foreground"
                 )}
               >
                 {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
@@ -158,8 +158,8 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
                   className={cn(
                     "text-xs font-semibold",
                     isCompleted && "text-emerald-700",
-                    isCurrent && "text-[#1E3A5F]",
-                    isUpcoming && "text-gray-400"
+                    isCurrent && "text-secondary-foreground",
+                    isUpcoming && "text-muted-foreground"
                   )}
                 >
                   {info?.shortLabel}
@@ -171,7 +171,7 @@ export function JourneyTimeline({ currentStage, taskCounts, className }: Journey
                   className={cn(
                     "text-[10px] font-medium",
                     isCompleted ? "text-emerald-600" :
-                    isCurrent ? "text-[#2563EB]" : "text-gray-400"
+                    isCurrent ? "text-[#2563EB]" : "text-muted-foreground"
                   )}
                 >
                   {counts.completed}/{counts.total}

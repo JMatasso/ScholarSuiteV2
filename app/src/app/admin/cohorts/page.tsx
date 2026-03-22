@@ -46,7 +46,7 @@ interface Student {
 /* ------------------------------------------------------------------ */
 
 const colorOptions = [
-  { label: "Blue", value: "bg-blue-500" },
+  { label: "Blue", value: "bg-accent0" },
   { label: "Purple", value: "bg-purple-500" },
   { label: "Green", value: "bg-green-500" },
   { label: "Amber", value: "bg-amber-500" },
@@ -54,7 +54,7 @@ const colorOptions = [
   { label: "Pink", value: "bg-pink-500" },
 ]
 
-const defaultForm = { name: "", description: "", color: "bg-blue-500" }
+const defaultForm = { name: "", description: "", color: "bg-accent0" }
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -141,7 +141,7 @@ export default function CohortsPage() {
     setForm({
       name: cohort.name,
       description: cohort.description || "",
-      color: cohort.color || "bg-blue-500",
+      color: cohort.color || "bg-accent0",
     })
     setCohortDialogOpen(true)
   }
@@ -359,7 +359,7 @@ export default function CohortsPage() {
                 >
                   <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                     <div className="flex items-center gap-3">
-                      <span className={`size-3 rounded-full shrink-0 ${cohort.color || "bg-gray-400"}`} />
+                      <span className={`size-3 rounded-full shrink-0 ${cohort.color || "bg-muted-foreground"}`} />
                       <CardTitle className="text-sm">{cohort.name}</CardTitle>
                     </div>
                     <div onClick={(e) => e.stopPropagation()}>
@@ -410,7 +410,7 @@ export default function CohortsPage() {
                     transition={{ duration: 0.25 }}
                     className="mt-2 rounded-xl bg-card p-4 overflow-hidden transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
                   >
-                    <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+                    <h4 className="text-xs font-semibold text-secondary-foreground uppercase tracking-wide mb-3">
                       Members ({cohort.members.length})
                     </h4>
                     {cohort.members.length === 0 ? (

@@ -42,7 +42,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof Star; color:
   WORK: { label: "Work Experience", icon: Briefcase, color: "text-amber-600" },
   LEADERSHIP: { label: "Leadership", icon: Users, color: "text-[#2563EB]" },
   AWARD: { label: "Awards & Honors", icon: Award, color: "text-yellow-600" },
-  OTHER: { label: "Other Activities", icon: Star, color: "text-gray-600" },
+  OTHER: { label: "Other Activities", icon: Star, color: "text-muted-foreground" },
 }
 
 function gradeLabel(level: number | null): string {
@@ -74,17 +74,17 @@ export default function SharedBragSheet() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#1E3A5F]" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-secondary-foreground" />
       </div>
     )
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-lg font-medium text-[#1E3A5F]">{error || "Not found"}</p>
+          <p className="text-lg font-medium text-secondary-foreground">{error || "Not found"}</p>
           <p className="text-sm text-muted-foreground mt-2">This link may have expired or been revoked.</p>
         </div>
       </div>
@@ -102,19 +102,19 @@ export default function SharedBragSheet() {
   const name = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "Student"
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-white px-6 py-4">
+      <header className="border-b bg-card px-6 py-4">
         <div className="mx-auto max-w-3xl flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1E3A5F] text-white font-bold text-sm">S</div>
-          <span className="text-lg font-semibold text-[#1E3A5F]">ScholarSuite — Brag Sheet</span>
+          <span className="text-lg font-semibold text-secondary-foreground">ScholarSuite — Brag Sheet</span>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-10 space-y-8">
         {/* Student info */}
-        <div className="rounded-xl bg-white p-6 ring-1 ring-gray-200/50 shadow-sm">
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">{name}</h1>
+        <div className="rounded-xl bg-card p-6 ring-1 ring-gray-200/50 shadow-sm">
+          <h1 className="text-2xl font-bold text-secondary-foreground">{name}</h1>
           <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
             {profile.highSchool && (
               <span className="flex items-center gap-1.5">
@@ -133,7 +133,7 @@ export default function SharedBragSheet() {
             )}
           </div>
           {profile.goals && (
-            <p className="mt-4 text-sm text-gray-600 leading-relaxed">{profile.goals}</p>
+            <p className="mt-4 text-sm text-muted-foreground leading-relaxed">{profile.goals}</p>
           )}
         </div>
 
@@ -145,12 +145,12 @@ export default function SharedBragSheet() {
             <div key={category}>
               <div className="flex items-center gap-2 mb-4">
                 <Icon className={`h-5 w-5 ${config.color}`} />
-                <h2 className="text-lg font-semibold text-[#1E3A5F]">{config.label}</h2>
+                <h2 className="text-lg font-semibold text-secondary-foreground">{config.label}</h2>
                 <span className="text-xs text-muted-foreground">({acts.length})</span>
               </div>
               <div className="space-y-3">
                 {acts.map((act) => (
-                  <div key={act.id} className="rounded-lg bg-white p-4 ring-1 ring-gray-200/50">
+                  <div key={act.id} className="rounded-lg bg-card p-4 ring-1 ring-gray-200/50">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h3 className="text-sm font-semibold text-foreground">{act.title}</h3>
@@ -169,15 +169,15 @@ export default function SharedBragSheet() {
                       )}
                     </div>
                     {act.description && (
-                      <p className="text-sm text-gray-600 mt-2 leading-relaxed">{act.description}</p>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{act.description}</p>
                     )}
                     {act.impactStatement && (
-                      <p className="text-sm text-[#1E3A5F] mt-2 font-medium italic">&ldquo;{act.impactStatement}&rdquo;</p>
+                      <p className="text-sm text-secondary-foreground mt-2 font-medium italic">&ldquo;{act.impactStatement}&rdquo;</p>
                     )}
                     {act.skillsGained?.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {act.skillsGained.map((skill) => (
-                          <span key={skill} className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-700">
+                          <span key={skill} className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium bg-accent text-blue-700">
                             {skill}
                           </span>
                         ))}

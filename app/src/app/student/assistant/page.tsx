@@ -117,7 +117,7 @@ export default function AssistantPage() {
             className="flex flex-col border-r border-border bg-muted/30 overflow-hidden shrink-0"
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h2 className="text-sm font-semibold text-[#1E3A5F]">Conversations</h2>
+              <h2 className="text-sm font-semibold text-secondary-foreground">Conversations</h2>
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -201,7 +201,7 @@ export default function AssistantPage() {
               <Bot className="h-4 w-4" />
             </div>
             <div>
-              <h1 className="text-sm font-semibold text-[#1E3A5F]">ScholarSuite AI</h1>
+              <h1 className="text-sm font-semibold text-secondary-foreground">ScholarSuite AI</h1>
               <p className="text-[11px] text-muted-foreground">Your personal college prep assistant</p>
             </div>
           </div>
@@ -229,10 +229,10 @@ export default function AssistantPage() {
                 transition={{ duration: 0.4 }}
                 className="text-center max-w-xl"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1E3A5F]/10 text-[#1E3A5F] mx-auto mb-5">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent text-secondary-foreground mx-auto mb-5">
                   <Bot className="h-8 w-8" />
                 </div>
-                <h2 className="text-2xl font-semibold text-[#1E3A5F]">
+                <h2 className="text-2xl font-semibold text-secondary-foreground">
                   ScholarSuite AI
                 </h2>
                 <p className="mt-2 text-muted-foreground text-sm max-w-md mx-auto">
@@ -252,7 +252,7 @@ export default function AssistantPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-2 rounded-full border-border text-muted-foreground hover:text-[#1E3A5F] hover:border-[#1E3A5F]/30 hover:bg-[#1E3A5F]/5"
+                          className="gap-2 rounded-full border-border text-muted-foreground hover:text-secondary-foreground hover:border-primary hover:bg-accent"
                           onClick={() => handleQuickAction(action.prompt)}
                         >
                           <Icon className="h-3.5 w-3.5" />
@@ -318,7 +318,7 @@ export default function AssistantPage() {
                             <a
                               key={i}
                               href={route}
-                              className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                              className="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium bg-accent text-blue-700 hover:bg-blue-100 transition-colors"
                             >
                               {source.label}
                             </a>
@@ -373,7 +373,7 @@ export default function AssistantPage() {
                             key={action.label}
                             type="button"
                             onClick={() => handleQuickAction(action.prompt)}
-                            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-muted-foreground hover:text-[#1E3A5F] hover:bg-muted transition-colors"
+                            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-muted-foreground hover:text-secondary-foreground hover:bg-muted transition-colors"
                           >
                             <Icon className="h-3 w-3" />
                             {action.label}

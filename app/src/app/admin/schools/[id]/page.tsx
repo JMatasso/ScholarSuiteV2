@@ -83,13 +83,13 @@ const STATUS_COLORS: Record<string, string> = {
   NEW: "bg-blue-100 text-blue-700 border-blue-200",
   ACTIVE: "bg-emerald-100 text-emerald-700 border-emerald-200",
   AT_RISK: "bg-rose-100 text-rose-700 border-rose-200",
-  INACTIVE: "bg-gray-100 text-gray-600 border-gray-200",
+  INACTIVE: "bg-muted text-muted-foreground border-border",
   GRADUATED: "bg-purple-100 text-purple-700 border-purple-200",
 }
 
 function StatusBadge({ status }: { status: string | null }) {
   const s = status ?? "UNKNOWN"
-  const color = STATUS_COLORS[s] ?? "bg-gray-100 text-gray-600 border-gray-200"
+  const color = STATUS_COLORS[s] ?? "bg-muted text-muted-foreground border-border"
   return (
     <span
       className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${color}`}
@@ -273,11 +273,11 @@ export default function SchoolDetailPage() {
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
                     <School className="h-6 w-6" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-semibold text-[#1E3A5F]">
+                    <h1 className="text-2xl font-semibold text-secondary-foreground">
                       {school.name}
                     </h1>
                     {fullAddress && (
@@ -331,7 +331,7 @@ export default function SchoolDetailPage() {
                       <span className="text-xs font-medium text-muted-foreground">
                         Join Code:
                       </span>
-                      <code className="rounded bg-gray-100 px-2 py-0.5 text-sm font-mono font-medium text-[#1E3A5F]">
+                      <code className="rounded bg-muted px-2 py-0.5 text-sm font-mono font-medium text-secondary-foreground">
                         {school.joinCode}
                       </code>
                       <Button
@@ -349,7 +349,7 @@ export default function SchoolDetailPage() {
                       <span className="text-xs font-medium text-muted-foreground">
                         NCES ID:
                       </span>
-                      <span className="text-sm font-mono text-[#1E3A5F]">
+                      <span className="text-sm font-mono text-secondary-foreground">
                         {school.ncesId}
                       </span>
                     </div>
@@ -431,7 +431,7 @@ export default function SchoolDetailPage() {
                     ) : (
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+                    <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
                       {label}
                     </CardTitle>
                   </div>
@@ -442,7 +442,7 @@ export default function SchoolDetailPage() {
                       {students.map((student) => (
                         <div
                           key={student.id}
-                          className="flex items-center gap-4 py-3 px-1 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-4 py-3 px-1 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                           onClick={() =>
                             router.push(`/admin/students/${student.id}`)
                           }
@@ -454,7 +454,7 @@ export default function SchoolDetailPage() {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[#1A1A1A] truncate">
+                            <p className="text-sm font-medium text-foreground truncate">
                               {student.name}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">
@@ -463,7 +463,7 @@ export default function SchoolDetailPage() {
                           </div>
                           <div className="hidden sm:flex items-center gap-3">
                             {student.studentProfile?.gpa != null && (
-                              <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                              <span className="inline-flex items-center rounded-md bg-accent px-2 py-0.5 text-[11px] font-medium text-blue-700">
                                 GPA: {student.studentProfile.gpa.toFixed(2)}
                               </span>
                             )}

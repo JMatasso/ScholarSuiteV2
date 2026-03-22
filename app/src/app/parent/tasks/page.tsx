@@ -48,7 +48,7 @@ const statusConfig: Record<
   },
   in_progress: { label: "In Progress", icon: Clock, color: "text-blue-600" },
   overdue: { label: "Overdue", icon: AlertTriangle, color: "text-red-600" },
-  not_started: { label: "Not Started", icon: Circle, color: "text-gray-400" },
+  not_started: { label: "Not Started", icon: Circle, color: "text-muted-foreground" },
 };
 
 type FilterStatus = "all" | TaskStatus;
@@ -158,7 +158,7 @@ export default function TasksPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-sm text-gray-400">Loading tasks…</p>
+        <p className="text-sm text-muted-foreground">Loading tasks…</p>
       </div>
     );
   }
@@ -167,10 +167,10 @@ export default function TasksPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Task Oversight
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Monitor your child&apos;s tasks and deadlines
         </p>
       </div>
@@ -195,16 +195,16 @@ export default function TasksPage() {
 
       {/* Progress summary */}
       {tasks.length > 0 && (
-        <div className="rounded-xl bg-white p-4 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
+        <div className="rounded-xl bg-card p-4 [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-foreground">
               Overall Progress
             </span>
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-foreground">
               {completedCount}/{tasks.length} tasks
             </span>
           </div>
-          <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
             <div
               className="h-full rounded-full bg-[#2563EB] transition-all"
               style={{
@@ -217,7 +217,7 @@ export default function TasksPage() {
 
       {/* Filter tabs */}
       <div className="flex items-center gap-1 flex-wrap">
-        <Filter className="size-4 text-gray-400 mr-1" />
+        <Filter className="size-4 text-muted-foreground mr-1" />
         {filters.map((f) => (
           <button
             key={f.key}
@@ -226,7 +226,7 @@ export default function TasksPage() {
               "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
               filter === f.key
                 ? "bg-[#1E3A5F] text-white"
-                : "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50"
+                : "bg-card text-muted-foreground ring-1 ring-gray-200 hover:bg-muted/50"
             )}
           >
             {f.label}
@@ -235,7 +235,7 @@ export default function TasksPage() {
                 "rounded-full px-1.5 py-0.5 text-[11px]",
                 filter === f.key
                   ? "bg-white/20 text-white"
-                  : "bg-gray-100 text-gray-500"
+                  : "bg-muted text-muted-foreground"
               )}
             >
               {f.count}
@@ -256,7 +256,7 @@ export default function TasksPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
               className={cn(
-                "flex items-start gap-3 rounded-xl bg-white px-5 py-4 transition-colors [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
+                "flex items-start gap-3 rounded-xl bg-card px-5 py-4 transition-colors [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
                 task.status === "overdue" && "ring-1 ring-red-200/60"
               )}
             >
@@ -265,7 +265,7 @@ export default function TasksPage() {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-foreground">
                     {task.title}
                   </p>
                   <span
@@ -274,21 +274,21 @@ export default function TasksPage() {
                       task.status === "completed"
                         ? "bg-green-50 text-green-700 ring-green-300"
                         : task.status === "in_progress"
-                          ? "bg-blue-50 text-blue-700 ring-blue-300"
+                          ? "bg-accent text-blue-700 ring-blue-300"
                           : task.status === "overdue"
                             ? "bg-red-50 text-red-700 ring-red-300"
-                            : "bg-gray-100 text-gray-600 ring-gray-300"
+                            : "bg-muted text-muted-foreground ring-gray-300"
                     )}
                   >
                     {config.label}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-gray-500">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {task.description}
                 </p>
-                <div className="mt-1.5 flex items-center gap-3 text-xs text-gray-400">
+                <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
                   <span>Due: {task.dueDate}</span>
-                  <span className="inline-flex items-center rounded bg-gray-50 px-1.5 py-0.5 text-[11px] text-gray-500">
+                  <span className="inline-flex items-center rounded bg-muted/50 px-1.5 py-0.5 text-[11px] text-muted-foreground">
                     {task.category}
                   </span>
                 </div>
@@ -317,8 +317,8 @@ export default function TasksPage() {
         })}
 
         {filteredTasks.length === 0 && (
-          <div className="rounded-xl bg-white p-12 text-center [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
-            <p className="text-sm text-gray-500">
+          <div className="rounded-xl bg-card p-12 text-center [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
+            <p className="text-sm text-muted-foreground">
               No tasks matching this filter.
             </p>
           </div>

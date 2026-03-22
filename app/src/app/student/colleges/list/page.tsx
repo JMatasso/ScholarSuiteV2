@@ -166,26 +166,26 @@ const CLASSIFICATION_CONFIG: Record<
     bg: "bg-blue-100",
     text: "text-blue-700",
     border: "border-blue-200",
-    headerBg: "bg-blue-50",
+    headerBg: "bg-accent",
   },
   UNCLASSIFIED: {
     label: "Unclassified",
-    bg: "bg-gray-100",
-    text: "text-gray-600",
-    border: "border-gray-200",
-    headerBg: "bg-gray-50",
+    bg: "bg-muted",
+    text: "text-muted-foreground",
+    border: "border-border",
+    headerBg: "bg-muted/50",
   },
 }
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  RESEARCHING: { label: "Researching", className: "bg-gray-100 text-gray-600 border-gray-200" },
+  RESEARCHING: { label: "Researching", className: "bg-muted text-muted-foreground border-border" },
   IN_PROGRESS: { label: "In Progress", className: "bg-amber-100 text-amber-700 border-amber-200" },
   SUBMITTED: { label: "Submitted", className: "bg-blue-100 text-blue-700 border-blue-200" },
   ACCEPTED: { label: "Accepted", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   DENIED: { label: "Denied", className: "bg-rose-100 text-rose-700 border-rose-200" },
   WAITLISTED: { label: "Waitlisted", className: "bg-amber-100 text-amber-700 border-amber-200" },
   DEFERRED: { label: "Deferred", className: "bg-amber-100 text-amber-700 border-amber-200" },
-  WITHDRAWN: { label: "Withdrawn", className: "bg-gray-100 text-gray-600 border-gray-200" },
+  WITHDRAWN: { label: "Withdrawn", className: "bg-muted text-muted-foreground border-border" },
 }
 
 const APP_TYPE_LABELS: Record<string, string> = {
@@ -500,7 +500,7 @@ export default function CollegeListPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-[#1E3A5F]">My Colleges</h1>
+          <h1 className="text-2xl font-semibold text-secondary-foreground">My Colleges</h1>
           <p className="mt-1 text-muted-foreground">
             Search, track, and compare your college list.
           </p>
@@ -559,7 +559,7 @@ export default function CollegeListPage() {
             className={cn(
               "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
               activeTab === tab.id
-                ? "bg-[#1E3A5F]/5 text-[#1E3A5F]"
+                ? "bg-accent text-secondary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
             onClick={() => setActiveTab(tab.id)}
@@ -591,7 +591,7 @@ export default function CollegeListPage() {
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-[#1E3A5F]">Add College to List</DialogTitle>
+            <DialogTitle className="text-secondary-foreground">Add College to List</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -801,7 +801,7 @@ function ListCollegeCard({
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {college?.type && (
-              <span className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-700">
+              <span className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium bg-accent text-blue-700">
                 {getCollegeTypeLabel(college.type)}
               </span>
             )}
@@ -837,7 +837,7 @@ function ListCollegeCard({
           <Badge variant="outline" className={statusCfg.className}>
             {statusCfg.label}
           </Badge>
-          <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-200">
+          <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
             {appTypeLabel}
           </Badge>
           {app.deadline && (
@@ -848,7 +848,7 @@ function ListCollegeCard({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100">
+        <div className="flex items-center gap-1.5 pt-1 border-t border-border">
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs px-2">
@@ -1092,7 +1092,7 @@ function SearchAddTab({ onAddedToList }: { onAddedToList: () => void }) {
 
         {/* Advanced filters */}
         {showAdvanced && (
-          <div className="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white p-3">
+          <div className="flex flex-wrap items-end gap-4 rounded-lg border border-border bg-card p-3">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Max Acceptance Rate (%)</label>
               <Input
@@ -1242,22 +1242,22 @@ function CompareTab({ apps }: { apps: CollegeApp[] }) {
       {selected.length < 2 ? (
         <Card variant="bento">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F] mb-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-secondary-foreground mb-3">
               <GraduationCap className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-[#1E3A5F]">Select at least 2 colleges</p>
+            <p className="text-sm font-medium text-secondary-foreground">Select at least 2 colleges</p>
             <p className="text-xs text-muted-foreground mt-1">Pick colleges from your list above to see a side-by-side comparison.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full min-w-[600px] text-sm">
             {compareSections.map((section) => (
               <tbody key={section.title}>
                 <tr>
                   <td
                     colSpan={selected.length + 1}
-                    className="bg-[#1E3A5F]/5 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#1E3A5F]"
+                    className="bg-accent px-4 py-2 text-xs font-semibold uppercase tracking-wide text-secondary-foreground"
                   >
                     {section.title}
                   </td>
@@ -1267,7 +1267,7 @@ function CompareTab({ apps }: { apps: CollegeApp[] }) {
                     ? rankValues(selected, row.rank.get, row.rank.dir)
                     : selected.map(() => "neutral" as const)
                   return (
-                    <tr key={row.label} className="border-t border-gray-100">
+                    <tr key={row.label} className="border-t border-border">
                       <td className="whitespace-nowrap px-4 py-2 font-medium text-muted-foreground w-48">
                         {row.label}
                       </td>

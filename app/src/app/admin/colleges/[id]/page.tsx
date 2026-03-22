@@ -108,14 +108,14 @@ interface CollegeData {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  RESEARCHING: "bg-gray-100 text-gray-600 border-gray-200",
+  RESEARCHING: "bg-muted text-muted-foreground border-border",
   IN_PROGRESS: "bg-amber-100 text-amber-700 border-amber-200",
   SUBMITTED: "bg-blue-100 text-blue-700 border-blue-200",
   ACCEPTED: "bg-emerald-100 text-emerald-700 border-emerald-200",
   DENIED: "bg-rose-100 text-rose-700 border-rose-200",
   WAITLISTED: "bg-purple-100 text-purple-700 border-purple-200",
   DEFERRED: "bg-orange-100 text-orange-700 border-orange-200",
-  WITHDRAWN: "bg-gray-100 text-gray-600 border-gray-200",
+  WITHDRAWN: "bg-muted text-muted-foreground border-border",
 }
 
 function formatPct(val: number | null): string {
@@ -130,9 +130,9 @@ function formatNum(val: number | null): string {
 
 function InfoRow({ label, value }: { label: string; value: string | React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between py-2 border-b border-gray-100 last:border-0">
+    <div className="flex items-start justify-between py-2 border-b border-border last:border-0">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <span className="text-sm text-[#1A1A1A] text-right">{value}</span>
+      <span className="text-sm text-foreground text-right">{value}</span>
     </div>
   )
 }
@@ -219,11 +219,11 @@ export default function CollegeDetailPage() {
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1E3A5F]/10 text-[#1E3A5F]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-secondary-foreground">
                     <Building2 className="h-6 w-6" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-semibold text-[#1E3A5F]">{college.name}</h1>
+                    <h1 className="text-2xl font-semibold text-secondary-foreground">{college.name}</h1>
                     <div className="mt-0.5 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                       {(college.city || college.state) && (
                         <span className="flex items-center gap-1">
@@ -234,7 +234,7 @@ export default function CollegeDetailPage() {
                         </span>
                       )}
                       {college.type && (
-                        <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+                        <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">
                           {getCollegeTypeLabel(college.type)}
                         </span>
                       )}
@@ -323,7 +323,7 @@ export default function CollegeDetailPage() {
         {/* Admissions */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
               <TestTube className="h-4 w-4" />
               Admissions
             </CardTitle>
@@ -358,7 +358,7 @@ export default function CollegeDetailPage() {
         {/* Cost */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               Cost
             </CardTitle>
@@ -378,7 +378,7 @@ export default function CollegeDetailPage() {
         {/* Outcomes */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Outcomes
             </CardTitle>
@@ -402,7 +402,7 @@ export default function CollegeDetailPage() {
         {/* Financial Aid */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
               <Percent className="h-4 w-4" />
               Financial Aid
             </CardTitle>
@@ -416,7 +416,7 @@ export default function CollegeDetailPage() {
         {/* Size & Demographics */}
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
               <Users className="h-4 w-4" />
               Size & Demographics
             </CardTitle>
@@ -449,7 +449,7 @@ export default function CollegeDetailPage() {
           college.fafsaDeadline) && (
           <Card variant="bento">
             <CardHeader>
-              <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide">
+              <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
                 Deadlines
               </CardTitle>
             </CardHeader>
@@ -478,7 +478,7 @@ export default function CollegeDetailPage() {
       {programs.length > 0 && (
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Top Programs
             </CardTitle>
@@ -488,7 +488,7 @@ export default function CollegeDetailPage() {
               {programs.map((program, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700"
+                  className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700"
                 >
                   {String(program)}
                 </span>
@@ -501,7 +501,7 @@ export default function CollegeDetailPage() {
       {/* Student Interest */}
       <Card variant="bento">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-2">
+          <CardTitle className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
             Student Interest ({college.applications.length})
           </CardTitle>
@@ -516,7 +516,7 @@ export default function CollegeDetailPage() {
               {college.applications.map((app) => (
                 <div
                   key={app.id}
-                  className="flex items-center gap-4 py-3 px-1 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-4 py-3 px-1 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={() => router.push(`/admin/students/${app.user.id}`)}
                 >
                   <Avatar>
@@ -526,7 +526,7 @@ export default function CollegeDetailPage() {
                     <AvatarFallback>{getInitials(app.user.name)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#1A1A1A] truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {app.user.name}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
@@ -535,13 +535,13 @@ export default function CollegeDetailPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {app.classification && (
-                      <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+                      <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-accent text-blue-700">
                         {app.classification}
                       </span>
                     )}
                     <span
                       className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${
-                        STATUS_COLORS[app.status] ?? "bg-gray-100 text-gray-600 border-gray-200"
+                        STATUS_COLORS[app.status] ?? "bg-muted text-muted-foreground border-border"
                       }`}
                     >
                       {app.status.replace("_", " ")}

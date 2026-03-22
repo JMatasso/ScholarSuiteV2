@@ -36,8 +36,8 @@ const statusMap: Record<string, StatusTab> = {
 }
 
 const statusStyles: Record<string, string> = {
-  Draft: "bg-gray-100 text-gray-700 ring-gray-300",
-  "In Progress": "bg-blue-50 text-blue-700 ring-blue-300",
+  Draft: "bg-muted text-foreground ring-gray-300",
+  "In Progress": "bg-accent text-blue-700 ring-blue-300",
   Review: "bg-amber-50 text-amber-700 ring-amber-300",
   Final: "bg-green-50 text-green-700 ring-green-300",
 }
@@ -128,7 +128,7 @@ export default function AdminEssaysPage() {
               className={cn(
                 "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
                 activeTab === tab
-                  ? "bg-white text-foreground shadow-sm"
+                  ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -231,7 +231,7 @@ export default function AdminEssaysPage() {
         >
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold text-[#1E3A5F]">{selectedEssay.title}</h3>
+              <h3 className="text-lg font-semibold text-secondary-foreground">{selectedEssay.title}</h3>
               <p className="text-sm text-muted-foreground mt-0.5">
                 By {selectedEssay.student?.name || selectedEssay.student?.email || "Unknown"} &middot; {getWordCount(selectedEssay).toLocaleString()} words
               </p>
