@@ -458,7 +458,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
 
       {/* Per-School Cost Cards */}
       {allEntries.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4 overflow-visible">
           {allEntries.map((entry, i) => {
             const college = entry.college!
             const isComparison = entry.isComparisonOnly
@@ -479,7 +479,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
               >
-                <Card variant="bento" className={`relative ${isCheapest ? "ring-2 ring-emerald-400" : ""} ${isComparison ? "border-dashed" : ""}`}>
+                <Card variant="bento" className={`relative overflow-visible ${isCheapest ? "ring-2 ring-emerald-400 mt-3" : ""} ${isComparison ? "border-dashed" : ""}`}>
                   {isCheapest && (
                     <div className="absolute -top-2.5 left-3">
                       <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-[11px] font-medium">

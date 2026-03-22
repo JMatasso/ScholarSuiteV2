@@ -31,7 +31,7 @@ export function CollegeCard({
 }: CollegeCardProps) {
   return (
     <Card
-      className="hover:shadow-sm transition-shadow cursor-pointer group"
+      className="overflow-visible hover:shadow-sm transition-shadow cursor-pointer group"
       onClick={() => onViewDetail(college)}
     >
       <CardHeader className="pb-2">
@@ -49,7 +49,7 @@ export function CollegeCard({
             </div>
           </div>
           <label
-            className="flex items-center gap-1.5 shrink-0"
+            className="flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             onClick={(e) => e.stopPropagation()}
           >
             <Checkbox
