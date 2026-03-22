@@ -92,10 +92,25 @@ export async function DELETE(
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    // Delete in order: related records first, then user (cascade handles profile)
+    // Delete in order: nested children first, then direct records, then user
+    // Step 1: records that reference other user-owned records (no cascade)
     await db.$transaction([
-      db.parentStudent.deleteMany({ where: { studentId: id } }),
+      db.recommenderCollegeApp.deleteMany({ where: { recommender: { userId: id } } }),
+      db.recommenderScholarshipApp.deleteMany({ where: { recommender: { userId: id } } }),
+      db.collegeVisit.deleteMany({ where: { userId: id } }),
+      db.ticketComment.deleteMany({ where: { userId: id } }),
+    ]);
+
+    // Step 2: nullify references from records owned by OTHER users
+    await db.$transaction([
+      db.supportTicket.updateMany({ where: { assigneeId: id }, data: { assigneeId: null } }),
+    ]);
+
+    // Step 3: all direct user-owned records, then user
+    await db.$transaction([
+      db.parentStudent.deleteMany({ where: { OR: [{ studentId: id }, { parentId: id }] } }),
       db.scholarshipApplication.deleteMany({ where: { userId: id } }),
+      db.collegeApplication.deleteMany({ where: { userId: id } }),
       db.task.deleteMany({ where: { userId: id } }),
       db.essay.deleteMany({ where: { userId: id } }),
       db.activity.deleteMany({ where: { userId: id } }),
@@ -103,8 +118,17 @@ export async function DELETE(
       db.message.deleteMany({ where: { OR: [{ senderId: id }, { receiverId: id }] } }),
       db.document.deleteMany({ where: { userId: id } }),
       db.notification.deleteMany({ where: { userId: id } }),
-      db.studentProfile.deleteMany({ where: { userId: id } }),
+      db.learningProgress.deleteMany({ where: { userId: id } }),
+      db.cohortMember.deleteMany({ where: { userId: id } }),
+      db.recommender.deleteMany({ where: { userId: id } }),
+      db.supportTicket.deleteMany({ where: { authorId: id } }),
+      db.auditLog.deleteMany({ where: { userId: id } }),
+      db.chatRateLimit.deleteMany({ where: { userId: id } }),
+      db.prospect.deleteMany({ where: { userId: id } }),
       db.financialPlan.deleteMany({ where: { userId: id } }),
+      db.consultantNote.deleteMany({ where: { OR: [{ aboutId: id }, { byId: id }] } }),
+      db.timeEntry.deleteMany({ where: { userId: id } }),
+      db.studentProfile.deleteMany({ where: { userId: id } }),
       db.user.delete({ where: { id } }),
     ]);
 
