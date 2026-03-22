@@ -35,8 +35,6 @@ import {
   Menu,
   CalendarDays,
   GraduationCap,
-  Building2,
-  CheckCircle2,
   Star,
   Mail,
 } from "lucide-react"
@@ -63,19 +61,17 @@ const navGroups = [
   {
     label: "Colleges",
     items: [
-      { name: "Search & Compare", href: "/student/colleges", icon: Building2 },
-      { name: "My List", href: "/student/colleges/list", icon: Star },
+      { name: "My Colleges", href: "/student/colleges/list", icon: Star },
       { name: "Applications", href: "/student/colleges/applications", icon: GraduationCap },
-      { name: "Decisions", href: "/student/colleges/decisions", icon: CheckCircle2 },
       { name: "Visits", href: "/student/colleges/visits", icon: CalendarDays },
     ],
   },
   {
     label: "Academics",
     items: [
-      { name: "Essays", href: "/student/essays", icon: PenTool },
-      { name: "Letters of Rec", href: "/student/letters", icon: Mail },
-      { name: "Resume", href: "/student/resume", icon: FileText },
+      { name: "Essays", href: "/student/essays", icon: PenTool, beta: true },
+      { name: "Letters of Rec", href: "/student/letters", icon: Mail, beta: true },
+      { name: "Resume", href: "/student/resume", icon: FileText, beta: true },
       { name: "Documents", href: "/student/documents", icon: FolderOpen },
       { name: "Activities", href: "/student/activities", icon: Activity },
     ],
@@ -241,7 +237,16 @@ export default function StudentLayout({
                       >
                         <Icon className="h-4 w-4" />
                       </motion.div>
-                      {(!collapsed || isMobile) && <span>{item.name}</span>}
+                      {(!collapsed || isMobile) && (
+                        <span className="flex items-center gap-1.5">
+                          {item.name}
+                          {"beta" in item && item.beta && (
+                            <span className="rounded bg-amber-100 px-1 py-px text-[9px] font-bold uppercase leading-tight text-amber-700">
+                              Beta
+                            </span>
+                          )}
+                        </span>
+                      )}
                     </Link>
                   </motion.div>
                 )
