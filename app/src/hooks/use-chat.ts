@@ -1,5 +1,6 @@
 "use client"
 
+import { getLocalReply } from "@/lib/chatbot-engine"
 import { useState, useCallback } from "react"
 
 export interface ChatMessageUI {
@@ -40,6 +41,21 @@ export function useChat() {
       setError(null)
 
       try {
+        // Try local (RiveScript) reply first — no API call needed
+        const localReply = await getLocalReply(content.trim())
+
+        if (localReply) {
+          const assistantMsg: ChatMessageUI = {
+            id: `local-${Date.now()}`,
+            role: "assistant",
+            content: localReply,
+            createdAt: new Date().toISOString(),
+          }
+          setMessages((prev) => [...prev, assistantMsg])
+          return
+        }
+
+        // Fall through to AI backend
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
