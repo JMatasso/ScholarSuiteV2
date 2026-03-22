@@ -13,7 +13,6 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
-import { Icon3D } from "@/components/ui/icon-3d"
 import {
   MessageSquare,
   Video,
@@ -217,30 +216,20 @@ export default function StudentLayout({
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        "group flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-all",
+                        "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all",
                         active
                           ? "bg-accent text-secondary-foreground"
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                        collapsed && !isMobile && "justify-center px-2"
                       )}
                     >
-                      <motion.div
-                        whileHover={{ scale: 1.12, rotate: 6 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center"
-                      >
-                        <Icon3D name={item.icon3d} size={28} />
-                      </motion.div>
-                      {(!collapsed || isMobile) && (
-                        <span className="flex items-center gap-1.5">
-                          {item.name}
-                          {"beta" in item && item.beta && (
-                            <span className="rounded bg-amber-100 px-1 py-px text-[9px] font-bold uppercase leading-tight text-amber-700">
-                              Beta
-                            </span>
-                          )}
-                        </span>
-                      )}
+                      <span className="flex items-center gap-1.5">
+                        {item.name}
+                        {"beta" in item && item.beta && (
+                          <span className="rounded bg-amber-100 px-1 py-px text-[9px] font-bold uppercase leading-tight text-amber-700">
+                            Beta
+                          </span>
+                        )}
+                      </span>
                     </Link>
                   </motion.div>
                 )
