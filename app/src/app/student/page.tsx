@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,14 +9,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
 import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
 import {
-  Search,
   FileText,
   PenTool,
   CheckSquare,
-  DollarSign,
   Award,
   ArrowRight,
-  Clock,
   GraduationCap,
   Building2,
   CheckCircle2,
@@ -104,16 +101,6 @@ function daysUntil(dateStr: string | null): number | null {
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 
-function StatSkeleton() {
-  return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-lg shadow-black/[0.04] ring-1 ring-white/60">
-      <Skeleton className="h-3 w-20 skeleton-shimmer" />
-      <Skeleton className="h-8 w-16 skeleton-shimmer" />
-      <Skeleton className="h-3 w-24 skeleton-shimmer" />
-    </div>
-  )
-}
-
 function getIncompleteSections(flags: Record<string, boolean> | null): Array<{ label: string; href: string }> {
   if (!flags) return []
   const sections: Array<{ label: string; href: string }> = []
@@ -146,7 +133,6 @@ const collegeStatusColor: Record<string, string> = {
 export default function StudentDashboard() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [applications, setApplications] = useState<Application[]>([])
-  const [scholarships, setScholarships] = useState<{ id: string }[]>([])
   const [collegeApps, setCollegeApps] = useState<CollegeApp[]>([])
   const [essays, setEssays] = useState<Essay[]>([])
   const [activities, setActivities] = useState<ActivityEntry[]>([])
@@ -191,17 +177,15 @@ export default function StudentDashboard() {
     Promise.all([
       fetch("/api/tasks").then(r => r.json()).catch(() => []),
       fetch("/api/applications").then(r => r.json()).catch(() => []),
-      fetch("/api/scholarships").then(r => r.json()).catch(() => []),
       fetch("/api/college-applications").then(r => r.json()).catch(() => []),
       fetch("/api/essays").then(r => r.json()).catch(() => []),
       fetch("/api/activities").then(r => r.json()).catch(() => []),
       fetch("/api/meetings").then(r => r.json()).catch(() => []),
       fetch("/api/messages").then(r => r.json()).catch(() => []),
       fetch("/api/timeline").then(r => r.json()).catch(() => null),
-    ]).then(([t, a, s, c, e, act, m, msg, tl]) => {
+    ]).then(([t, a, c, e, act, m, msg, tl]) => {
       setTasks(Array.isArray(t) ? t : [])
       setApplications(Array.isArray(a) ? a : [])
-      setScholarships(Array.isArray(s) ? s : [])
       setCollegeApps(Array.isArray(c) ? c : [])
       setEssays(Array.isArray(e) ? e : [])
       setActivities(Array.isArray(act) ? act : [])
@@ -211,15 +195,6 @@ export default function StudentDashboard() {
       setLoading(false)
     })
   }, [])
-
-  // Scholarship stats
-  const totalMatched = scholarships.length
-  const appsInProgress = applications.filter(a => a.status === "IN_PROGRESS" || a.status === "NOT_STARTED").length
-  const totalAwarded = applications.filter(a => a.status === "AWARDED").reduce((sum, a) => sum + (a.scholarship.amount ?? 0), 0)
-
-  // College stats
-  const collegeApplied = collegeApps.filter(c => ["SUBMITTED", "ACCEPTED", "DENIED", "WAITLISTED", "DEFERRED"].includes(c.status)).length
-  const collegeAccepted = collegeApps.filter(c => c.status === "ACCEPTED").length
 
   // Task stats
   const activeTasks = tasks.filter(t => t.status !== "DONE")
@@ -278,15 +253,6 @@ export default function StudentDashboard() {
   const today = new Date()
   const isToday = (day: number) => day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear()
 
-  const stats = [
-    { label: "Scholarships Matched", value: String(totalMatched), sub: "Available", icon: Search, color: "text-[#2563EB]", bg: "bg-accent" },
-    { label: "Scholarship Apps", value: String(appsInProgress), sub: `$${totalAwarded.toLocaleString()} won`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "College Apps", value: String(collegeApps.length), sub: `${collegeApplied} submitted`, icon: GraduationCap, color: "text-purple-600", bg: "bg-purple-50" },
-    { label: "Accepted", value: String(collegeAccepted), sub: `${collegeApps.filter(c => c.status === "WAITLISTED").length} waitlisted`, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Tasks Due", value: String(activeTasks.filter(t => t.dueDate && daysUntil(t.dueDate)! <= 7 && daysUntil(t.dueDate)! >= 0).length), sub: overdueTasks.length > 0 ? `${overdueTasks.length} overdue` : "All on track", icon: CheckSquare, color: overdueTasks.length > 0 ? "text-rose-600" : "text-amber-600", bg: overdueTasks.length > 0 ? "bg-rose-50" : "bg-amber-50" },
-    { label: "Brag Sheet", value: String(activities.length), sub: `${totalHours.toLocaleString()} hrs`, icon: Activity, color: "text-secondary-foreground", bg: "bg-accent" },
-  ]
-
   const handleMarkDone = async (taskId: string) => {
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: "DONE" } : t))
     try {
@@ -329,30 +295,31 @@ export default function StudentDashboard() {
         </motion.div>
       )}
 
-      {/* Journey Stage + Timeline */}
+      {/* Journey Stage + Timeline — clickable → Learning Hub */}
       {timelineData && (() => {
         const stageInfo = JOURNEY_STAGE_LABELS[timelineData.journeyStage]
         return (
-          <>
+          <Link href="/student/learning" className="block group">
             {stageInfo && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
-                <Card variant="bento" className="border-[#2563EB]/20 bg-accent/30">
+                <Card variant="bento" className="border-[#2563EB]/20 bg-accent/30 transition-shadow group-hover:shadow-md">
                   <CardContent className="pt-0">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10 ring-2 ring-[#2563EB]/20">
                         <Target className="h-5 w-5 text-[#2563EB]" />
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <p className="text-sm font-semibold text-secondary-foreground">{stageInfo.label}</p>
                         <p className="text-xs text-muted-foreground">{stageInfo.description}</p>
                       </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[#2563EB] transition-colors" />
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
             )}
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card variant="bento">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mt-4">
+              <Card variant="bento" className="transition-shadow group-hover:shadow-md">
                 <CardHeader>
                   <CardTitle className="text-sm">4-Year Journey</CardTitle>
                 </CardHeader>
@@ -364,38 +331,9 @@ export default function StudentDashboard() {
                 </CardContent>
               </Card>
             </motion.div>
-          </>
+          </Link>
         )
       })()}
-
-      {/* Stat Cards — 6 cards: 3 scholarship + 3 college/activity */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => <StatSkeleton key={i} />)
-        ) : (
-          stats.map((stat, i) => {
-            const Icon = stat.icon
-            return (
-              <motion.div key={stat.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}>
-                <Card variant="bento" className="transition-all duration-300 hover:scale-[1.02]">
-                  <CardContent className="pt-0">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{stat.label}</p>
-                        <p className="text-2xl font-bold tracking-tight text-secondary-foreground font-display">{stat.value}</p>
-                        <p className="text-[11px] text-muted-foreground">{stat.sub}</p>
-                      </div>
-                      <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.bg}`}>
-                        <Icon className={`h-4 w-4 ${stat.color}`} />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )
-          })
-        )}
-      </div>
 
       {/* Main Grid: Left (tasks + colleges + brag sheet) / Right (calendar + essays + scholarships + meeting) */}
       <div className="grid gap-6 lg:grid-cols-5">

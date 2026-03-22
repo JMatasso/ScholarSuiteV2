@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { GraduationCap, DollarSign, BookOpen, ArrowRight, CheckCircle2, Sparkles } from "lucide-react"
+import { JourneyTimeline } from "@/components/ui/journey-timeline"
+import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
+import { GraduationCap, DollarSign, BookOpen, ArrowRight, CheckCircle2, Sparkles, Target } from "lucide-react"
 import { LearningChatWidget } from "@/components/ui/learning-chat-widget"
 
 interface LessonProgress {
@@ -75,16 +77,18 @@ function ProgressRing({ percentage, color }: { percentage: number; color: string
 
 export default function LearningDashboard() {
   const [modules, setModules] = useState<LearningModule[]>([])
+  const [timelineData, setTimelineData] = useState<{ journeyStage: string; tasksByStage: Record<string, { total: number; completed: number }> } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/learning")
-      .then((r) => r.json())
-      .then((data) => {
-        setModules(Array.isArray(data) ? data : [])
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+    Promise.all([
+      fetch("/api/learning").then((r) => r.json()).catch(() => []),
+      fetch("/api/timeline").then((r) => r.json()).catch(() => null),
+    ]).then(([data, tl]) => {
+      setModules(Array.isArray(data) ? data : [])
+      setTimelineData(tl && tl.journeyStage ? tl : null)
+      setLoading(false)
+    })
   }, [])
 
   if (loading) {
@@ -115,6 +119,45 @@ export default function LearningDashboard() {
           </Link>
         }
       />
+
+      {/* Journey Stage + Timeline */}
+      {timelineData && (() => {
+        const stageInfo = JOURNEY_STAGE_LABELS[timelineData.journeyStage]
+        return (
+          <>
+            {stageInfo && (
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                <Card variant="bento" className="border-[#2563EB]/20 bg-accent/30">
+                  <CardContent className="pt-0">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10 ring-2 ring-[#2563EB]/20">
+                        <Target className="h-5 w-5 text-[#2563EB]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-secondary-foreground">{stageInfo.label}</p>
+                        <p className="text-xs text-muted-foreground">{stageInfo.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card variant="bento">
+                <CardHeader>
+                  <CardTitle className="text-sm">4-Year Journey</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <JourneyTimeline
+                    currentStage={timelineData.journeyStage}
+                    taskCounts={timelineData.tasksByStage}
+                  />
+                </CardContent>
+              </Card>
+            </motion.div>
+          </>
+        )
+      })()}
 
       {/* Overall progress */}
       <div className="flex items-center gap-3 rounded-lg bg-card p-4 ring-1 ring-foreground/5">
