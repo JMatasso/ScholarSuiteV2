@@ -172,6 +172,7 @@ export function ScholarshipPipeline({ applications, className }: ScholarshipPipe
                 )}
 
                 <Card
+                  variant="bento"
                   className={cn(
                     "transition-shadow hover:shadow-sm",
                     app.status === "IN_PROGRESS" && "border-[#2563EB]/20",

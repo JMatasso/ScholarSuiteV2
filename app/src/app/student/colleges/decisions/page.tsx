@@ -254,6 +254,7 @@ export default function DecisionsPage() {
                   transition={{ delay: i * 0.05 }}
                 >
                   <Card
+                    variant="bento"
                     className={
                       isCommitted
                         ? "ring-2 ring-emerald-400 bg-emerald-50 border-emerald-200"

@@ -248,6 +248,7 @@ function KanbanCard({
       transition={{ duration: 0.2 }}
     >
       <Card
+        variant="bento"
         className="bg-white shadow-sm ring-1 ring-gray-200/60 p-3 space-y-2 hover:shadow-md transition-shadow cursor-pointer"
         onClick={onClick}
       >

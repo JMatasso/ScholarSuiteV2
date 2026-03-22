@@ -24,7 +24,6 @@ import {
   BookOpen,
   DollarSign,
   Activity,
-  Clock,
   MessageSquare,
   Video,
   ChevronLeft,
@@ -47,9 +46,10 @@ const navGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/student", icon: LayoutDashboard },
+      { name: "Overview", href: "/student/overview", icon: Trophy },
       { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
-      { name: "Timeline", href: "/student/timeline", icon: Clock },
+      { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
       { name: "Learning", href: "/student/learning", icon: BookOpen },
     ],
   },
@@ -58,7 +58,6 @@ const navGroups = [
     items: [
       { name: "Discovery", href: "/student/scholarships", icon: Search },
       { name: "Applications", href: "/student/applications", icon: FileText },
-      { name: "Won Awards", href: "/student/awards", icon: Trophy },
     ],
   },
   {
@@ -69,7 +68,6 @@ const navGroups = [
       { name: "Applications", href: "/student/colleges/applications", icon: GraduationCap },
       { name: "Decisions", href: "/student/colleges/decisions", icon: CheckCircle2 },
       { name: "Visits", href: "/student/colleges/visits", icon: CalendarDays },
-      { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
     ],
   },
   {
