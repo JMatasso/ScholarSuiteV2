@@ -25,6 +25,7 @@ import {
   type AppClassification,
 } from "@/components/college-kanban"
 import { DiscoverTab } from "@/components/colleges/discover-tab"
+import { MyCollegesTab } from "@/components/colleges/my-colleges-tab"
 import { ApplicationsTab } from "@/components/colleges/applications-tab"
 import { DecisionsTab } from "@/components/colleges/decisions-tab"
 import LoaderOne from "@/components/ui/loader-one"
@@ -51,7 +52,7 @@ const APP_TYPES = [
 
 const DECISION_STATUSES = ["ACCEPTED", "WAITLISTED", "DENIED", "DEFERRED"]
 
-type TabId = "discover" | "applications" | "decisions"
+type TabId = "discover" | "my-colleges" | "applications" | "decisions"
 
 interface StudentProfile {
   satScore: number | null
@@ -62,7 +63,7 @@ interface StudentProfile {
 /* ────── page ────── */
 
 export default function CollegesPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("applications")
+  const [activeTab, setActiveTab] = useState<TabId>("my-colleges")
   const [apps, setApps] = useState<CollegeApp[]>([])
   const [profile, setProfile] = useState<StudentProfile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -259,6 +260,7 @@ export default function CollegesPage() {
 
   const tabs: { id: TabId; label: string }[] = [
     { id: "discover", label: "Discover" },
+    { id: "my-colleges", label: "My Colleges" },
     { id: "applications", label: "Applications" },
     { id: "decisions", label: "Decisions" },
   ]
@@ -295,7 +297,14 @@ export default function CollegesPage() {
 
       {/* Tab content */}
       {activeTab === "discover" && (
-        <DiscoverTab apps={apps} onAddedToList={fetchApps} />
+        <DiscoverTab onAddedToList={fetchApps} />
+      )}
+      {activeTab === "my-colleges" && (
+        <MyCollegesTab
+          apps={apps}
+          onDelete={handleDelete}
+          onAddOpen={() => { resetForm(); setAddOpen(true) }}
+        />
       )}
       {activeTab === "applications" && (
         <ApplicationsTab
