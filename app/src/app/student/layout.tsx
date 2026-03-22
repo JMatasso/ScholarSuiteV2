@@ -26,6 +26,7 @@ import {
   Activity,
   MessageSquare,
   Video,
+  Bot,
   ChevronLeft,
   ChevronRight,
   Bell,
@@ -44,6 +45,7 @@ const navGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/student", icon: LayoutDashboard },
+      { name: "AI Assistant", href: "/student/assistant", icon: Bot },
       { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
       { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
@@ -425,8 +427,8 @@ export default function StudentLayout({
         </main>
       </div>
 
-      {/* AI Chat Widget */}
-      <ChatWidget role="STUDENT" />
+      {/* AI Chat Widget — hidden on assistant page to avoid duplication */}
+      {!pathname.startsWith("/student/assistant") && <ChatWidget role="STUDENT" />}
     </div>
   )
 }
