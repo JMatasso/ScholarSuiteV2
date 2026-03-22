@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select"
 import { Loader2, Save } from "@/lib/icons"
 import { monthOptions, journeyStageLabels } from "@/lib/journey"
+import { SchoolAutocomplete } from "@/components/ui/school-autocomplete"
+import { CountyAutocomplete } from "@/components/ui/county-autocomplete"
 
 interface AdminEditProfileDialogProps {
   open: boolean
@@ -191,7 +193,14 @@ export function AdminEditProfileDialog({ open, onClose, studentId, onSaved }: Ad
                   </Select>
                 </Field>
                 <Field label="ZIP"><Input value={profile.zipCode} onChange={e => update("zipCode", e.target.value)} /></Field>
-                <Field label="County"><Input value={profile.county} onChange={e => update("county", e.target.value)} /></Field>
+                <Field label="County">
+                  <CountyAutocomplete
+                    value={profile.county}
+                    onValueChange={v => update("county", v)}
+                    state={profile.state || undefined}
+                    placeholder="Search county..."
+                  />
+                </Field>
               </div>
             </div>
 
@@ -199,7 +208,13 @@ export function AdminEditProfileDialog({ open, onClose, studentId, onSaved }: Ad
             <div>
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Academic</h4>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="High School"><Input value={profile.highSchool} onChange={e => update("highSchool", e.target.value)} /></Field>
+                <Field label="High School">
+                  <SchoolAutocomplete
+                    value={profile.highSchool}
+                    onValueChange={v => update("highSchool", v)}
+                    placeholder="Search school..."
+                  />
+                </Field>
                 <Field label="Grade Level"><Input type="number" value={profile.gradeLevel} onChange={e => update("gradeLevel", e.target.value)} /></Field>
                 <Field label="Graduation Year"><Input type="number" value={profile.graduationYear} onChange={e => update("graduationYear", e.target.value)} /></Field>
                 <Field label="Graduation Month">

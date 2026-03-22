@@ -10,7 +10,7 @@ export async function GET() {
     }
 
     const users = await db.user.findMany({
-      where: { isActive: true, role: { in: ["STUDENT", "PARENT"] } },
+      where: { isActive: true },
       select: { id: true, name: true, email: true, role: true, image: true },
       orderBy: { name: "asc" },
     })
