@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { Eye, EyeOff, Loader2, Save, Download, Check, X } from "@/lib/icons"
 import { Button } from "@/components/ui/button"
 import { ImageUpload } from "@/components/ui/image-upload"
+import { PhotoCropDialog } from "@/components/photo-crop-dialog"
+import { useUploadThing } from "@/lib/uploadthing"
 
 export function ProfileSettings() {
   const { data: session, update: updateSession } = useSession()
@@ -21,6 +23,26 @@ export function ProfileSettings() {
   const [savingPassword, setSavingPassword] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [cropOpen, setCropOpen] = useState(false)
+
+  const { startUpload } = useUploadThing("profileImage", {
+    onClientUploadComplete: async (res) => {
+      const url = res?.[0]?.ufsUrl || res?.[0]?.url
+      if (url) {
+        setImage(url)
+        await updateSession({ image: url })
+        toast.success("Photo uploaded")
+      }
+      setUploadingPhoto(false)
+      setCropOpen(false)
+      setCropSrc(null)
+    },
+    onUploadError: () => {
+      toast.error("Failed to upload photo")
+      setUploadingPhoto(false)
+    },
+  })
 
   useEffect(() => {
     if (session?.user) {
@@ -68,40 +90,21 @@ export function ProfileSettings() {
     }
   }
 
-  const handlePhotoUpload = async (file: File) => {
-    setUploadingPhoto(true)
-    try {
-      // Upload via UploadThing API directly
-      const formData = new FormData()
-      formData.append("file", file)
-      const uploadRes = await fetch("/api/uploadthing", {
-        method: "POST",
-        headers: { "x-uploadthing-endpoint": "profileImage" },
-        body: formData,
-      })
-      if (!uploadRes.ok) throw new Error("Upload failed")
-      const data = await uploadRes.json()
-      const imageUrl = data?.[0]?.url || data?.[0]?.ufsUrl
-      if (imageUrl) {
-        setImage(imageUrl)
-        const saveRes = await fetch("/api/auth/account", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: imageUrl }),
-        })
-        if (saveRes.ok) {
-          toast.success("Photo uploaded")
-          await updateSession({ image: imageUrl })
-        } else {
-          toast.error("Photo uploaded but failed to save")
-        }
-      }
-    } catch {
-      toast.error("Failed to upload photo")
-    } finally {
-      setUploadingPhoto(false)
+  const handlePhotoSelect = (file: File) => {
+    // Open crop dialog with the selected image
+    const reader = new FileReader()
+    reader.onload = () => {
+      setCropSrc(reader.result as string)
+      setCropOpen(true)
     }
+    reader.readAsDataURL(file)
   }
+
+  const handleCropComplete = useCallback(async (blob: Blob) => {
+    setUploadingPhoto(true)
+    const file = new File([blob], "profile-photo.jpg", { type: "image/jpeg" })
+    await startUpload([file])
+  }, [startUpload])
 
   // Password requirement checks
   const passwordChecks = [
@@ -182,7 +185,7 @@ export function ProfileSettings() {
       <section className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
         <ImageUpload
           currentImage={image}
-          onFileSelect={handlePhotoUpload}
+          onFileSelect={handlePhotoSelect}
           onRemove={async () => {
             setImage(null)
             await fetch("/api/auth/account", {
@@ -335,6 +338,17 @@ export function ProfileSettings() {
           </div>
         </div>
       </section>
+
+      {/* Photo Crop Dialog */}
+      {cropSrc && (
+        <PhotoCropDialog
+          open={cropOpen}
+          onClose={() => { setCropOpen(false); setCropSrc(null) }}
+          imageSrc={cropSrc}
+          onCropComplete={handleCropComplete}
+          uploading={uploadingPhoto}
+        />
+      )}
     </div>
   )
 }

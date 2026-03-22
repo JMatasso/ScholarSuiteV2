@@ -20,6 +20,7 @@ import {
   Plus,
   X,
   Search,
+  Download,
 } from "@/lib/icons"
 
 interface College {
@@ -302,7 +303,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
     const updated = [...filteredComparisons, newSchool]
     setComparisonSchools(updated)
     saveComparisons(updated)
-    setShowPicker(false)
+    // Keep picker open so user can add more schools
   }
 
   const handleRemoveComparison = (collegeId: string) => {
@@ -332,6 +333,50 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
   const getEntryKey = (entry: CostEntry) => entry.isComparisonOnly ? `cmp-${entry.id}` : entry.id
 
   const isEmpty = allEntries.length === 0
+
+  const handleExportExcel = () => {
+    if (allEntries.length < 2) return
+
+    const headers = ["Category", ...allEntries.map(e => e.universityName)]
+    const rows = [
+      ["Tuition", ...allEntries.map(e => getTuition(e.college!, useOutOfState, showGraduate)?.toString() ?? "N/A")],
+      ["Room & Board", ...allEntries.map(e => e.college!.roomAndBoard?.toString() ?? "N/A")],
+      ["Books & Supplies", ...allEntries.map(e => e.college!.booksSupplies?.toString() ?? "N/A")],
+      ["Total COA", ...allEntries.map(e => getCOA(e.college, useOutOfState, showGraduate)?.toString() ?? "N/A")],
+      ["Grants/Scholarships", ...allEntries.map(e => {
+        if (e.isComparisonOnly) return "N/A"
+        const g = getGrantAid((e as CollegeApp).aidPackage)
+        return g > 0 ? g.toString() : "N/A"
+      })],
+      ["Loans", ...allEntries.map(e => {
+        if (e.isComparisonOnly) return "N/A"
+        const l = (e as CollegeApp).aidPackage?.loans ?? 0
+        return l > 0 ? l.toString() : "N/A"
+      })],
+      ["Net Annual Cost", ...allEntries.map(e => {
+        const coa = getCOA(e.college, useOutOfState, showGraduate)
+        const aid = e.isComparisonOnly ? 0 : getAidTotal((e as CollegeApp).aidPackage)
+        return coa != null ? (coa - aid).toString() : "N/A"
+      })],
+      ["4-Year Total", ...allEntries.map(e => {
+        const coa = getCOA(e.college, useOutOfState, showGraduate)
+        const aid = e.isComparisonOnly ? 0 : getAidTotal((e as CollegeApp).aidPackage)
+        return coa != null ? ((coa - aid) * 4).toString() : "N/A"
+      })],
+    ]
+
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${(cell ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "college-cost-comparison.csv"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="space-y-4">
@@ -377,7 +422,14 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
 
       {/* Search picker */}
       {showPicker && (
-        <CollegeSearchPicker onSelect={handleAddComparison} excludeIds={excludeIds} />
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <CollegeSearchPicker onSelect={handleAddComparison} excludeIds={excludeIds} />
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => setShowPicker(false)} className="shrink-0 text-xs">
+            Done
+          </Button>
+        </div>
       )}
 
       {/* Empty state */}
@@ -406,7 +458,7 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
 
       {/* Per-School Cost Cards */}
       {allEntries.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-2">
           {allEntries.map((entry, i) => {
             const college = entry.college!
             const isComparison = entry.isComparisonOnly
@@ -585,10 +637,21 @@ export function CollegeCostComparison({ collegeApps, totalScholarships }: Colleg
       {allEntries.length >= 2 && (
         <Card variant="bento">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ArrowRight className="h-4 w-4 text-[#2563EB]" />
-              Side-by-Side Comparison
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ArrowRight className="h-4 w-4 text-[#2563EB]" />
+                Side-by-Side Comparison
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportExcel}
+                className="text-xs gap-1.5"
+              >
+                <Download className="h-3 w-3" />
+                Export CSV
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto -mx-4 px-4">

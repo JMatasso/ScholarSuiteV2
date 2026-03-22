@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,6 +32,7 @@ import {
   AlertTriangle,
   Plus,
   FolderInput,
+  ImagePlus,
 } from "@/lib/icons"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
@@ -559,8 +560,67 @@ export default function DocumentsPage() {
         )}
       </AnimatePresence>
 
+      {/* Quick Upload Drop Zone */}
+      <QuickUploadZone onUploadClick={() => { resetDialog(); setAddDialogOpen(true) }} />
+
       {/* Application Packet Builder */}
       <ApplicationPacketBuilder open={packetOpen} onOpenChange={setPacketOpen} />
+    </div>
+  )
+}
+
+// ─── Quick Upload Drop Zone ─────────────────────────────────
+
+function QuickUploadZone({ onUploadClick }: { onUploadClick: () => void }) {
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    onUploadClick()
+  }, [onUploadClick])
+
+  return (
+    <div
+      onClick={onUploadClick}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={cn(
+        "flex h-48 cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed transition-colors",
+        isDragging
+          ? "border-[#2563EB]/50 bg-[#2563EB]/5"
+          : "border-muted-foreground/20 bg-muted/30 hover:bg-muted/50 hover:border-muted-foreground/30"
+      )}
+    >
+      <div className="rounded-full bg-card p-3 shadow-sm ring-1 ring-foreground/5">
+        <ImagePlus className="h-6 w-6 text-muted-foreground" />
+      </div>
+      <div className="text-center">
+        <p className="text-sm font-medium text-foreground/80">Click to upload a document</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          or drag and drop your file here
+        </p>
+      </div>
     </div>
   )
 }
