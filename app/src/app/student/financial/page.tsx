@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatCurrency } from "@/lib/format"
 import { formatTuition } from "@/lib/college-utils"
@@ -158,6 +158,7 @@ export default function FinancialPlanPage() {
 
   // Determine default tab
   const defaultTab = hasCollegeCosts ? "college-costs" : hasFinancialPlan ? "budget" : "college-costs"
+  const [activeTab, setActiveTab] = useState(defaultTab)
 
   return (
     <div className="space-y-6">
@@ -216,32 +217,29 @@ export default function FinancialPlanPage() {
       </div>
 
       {/* Tabbed content */}
-      <Tabs defaultValue={defaultTab}>
-        <TabsList>
-          <TabsTrigger value="college-costs" className="gap-1.5">
-            <Building2 className="h-3.5 w-3.5" />
-            College Costs
-          </TabsTrigger>
-          <TabsTrigger value="scholarships" className="gap-1.5">
-            <Award className="h-3.5 w-3.5" />
-            Scholarships
-          </TabsTrigger>
-          <TabsTrigger value="budget" className="gap-1.5">
-            <Receipt className="h-3.5 w-3.5" />
-            Semester Budget
-          </TabsTrigger>
-        </TabsList>
+      <VercelTabs
+        tabs={[
+          { id: "college-costs", label: "College Costs" },
+          { id: "scholarships", label: "Scholarships" },
+          { id: "budget", label: "Semester Budget" },
+        ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-        {/* College Cost Comparison Tab */}
-        <TabsContent value="college-costs" className="space-y-6 mt-4">
+      {/* College Cost Comparison Tab */}
+      {activeTab === "college-costs" && (
+        <div className="space-y-6 mt-4">
           <CollegeCostComparison
             collegeApps={collegeApps}
             totalScholarships={totalScholarships}
           />
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Scholarships Tab */}
-        <TabsContent value="scholarships" className="space-y-6 mt-4">
+      {/* Scholarships Tab */}
+      {activeTab === "scholarships" && (
+        <div className="space-y-6 mt-4">
           <ScholarshipOffset awards={awardItems} />
           {!hasAwards && (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -252,10 +250,12 @@ export default function FinancialPlanPage() {
               </p>
             </div>
           )}
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Semester Budget Tab (existing content) */}
-        <TabsContent value="budget" className="space-y-6 mt-4">
+      {/* Semester Budget Tab (existing content) */}
+      {activeTab === "budget" && (
+        <div className="space-y-6 mt-4">
           {!hasFinancialPlan ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <DollarSign className="h-10 w-10 mb-3 opacity-40" />
@@ -402,8 +402,8 @@ export default function FinancialPlanPage() {
               )}
             </>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
     </div>
   )
 }

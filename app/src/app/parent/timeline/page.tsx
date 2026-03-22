@@ -138,11 +138,14 @@ export default function ParentTimelinePage() {
           <Card variant="bento">
             <CardHeader>
               <CardTitle className="text-sm">4-Year Journey</CardTitle>
+              <p className="text-xs text-muted-foreground">Click a year to see what to expect, your checklist, and the scholarship timeline.</p>
             </CardHeader>
             <CardContent>
               <JourneyTimeline
                 currentStage={data?.journeyStage || "EARLY_EXPLORATION"}
                 taskCounts={data?.tasksByStage}
+                role="PARENT"
+                expandable
               />
             </CardContent>
           </Card>

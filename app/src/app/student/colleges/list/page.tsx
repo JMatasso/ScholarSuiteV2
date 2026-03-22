@@ -62,6 +62,7 @@ import {
   getCollegeTypeLabel,
 } from "@/lib/college-utils"
 import { formatDate } from "@/lib/format"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { cn } from "@/lib/utils"
 import LoaderOne from "@/components/ui/loader-one"
 
@@ -552,22 +553,11 @@ export default function CollegeListPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-              activeTab === tab.id
-                ? "bg-accent text-secondary-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <VercelTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(id) => setActiveTab(id as TabId)}
+      />
 
       {/* Tab content */}
       {activeTab === "list" && (

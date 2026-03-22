@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import LoaderOne from "@/components/ui/loader-one"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { cn } from "@/lib/utils"
 import {
   Search,
@@ -772,28 +773,16 @@ export default function ScholarshipDiscovery() {
       ) : (
         <div>
           {/* Tab bar */}
-          <div className="flex gap-1 border-b border-border pb-px mb-0 overflow-x-auto flex-nowrap">
-            {[
-              { value: "matched", label: `Matched for You (${filteredMatches.length})`, icon: Sparkles },
-              { value: "all", label: "All Scholarships" },
-              { value: "local", label: studentCounty ? `Local (${studentCounty})` : "Local", icon: MapPin },
-              { value: "mylist", label: `My List (${savedApps.length})`, icon: Heart },
-            ].map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => { setActiveTab(tab.value); setExpandedId(null) }}
-                className={cn(
-                  "flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap",
-                  activeTab === tab.value
-                    ? "text-[#2563EB] border-b-2 border-[#2563EB] bg-[#2563EB]/5"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {tab.icon && <tab.icon className="h-3.5 w-3.5" />}
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <VercelTabs
+            tabs={[
+              { id: "matched", label: `Matched for You (${filteredMatches.length})` },
+              { id: "all", label: "All Scholarships" },
+              { id: "local", label: studentCounty ? `Local (${studentCounty})` : "Local" },
+              { id: "mylist", label: `My List (${savedApps.length})` },
+            ]}
+            activeTab={activeTab}
+            onTabChange={(id) => { setActiveTab(id); setExpandedId(null) }}
+          />
 
           {/* Matched tab */}
           {activeTab === "matched" && (

@@ -62,7 +62,7 @@ function ProgressRing({ percentage, color }: { percentage: number; color: string
   return (
     <div className="relative flex items-center justify-center">
       <svg className="size-24 -rotate-90" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={radius} fill="none" stroke="currentColor" strokeWidth="6" className="text-gray-200" />
+        <circle cx="50" cy="50" r={radius} fill="none" stroke="currentColor" strokeWidth="6" className="text-muted" />
         <motion.circle
           cx="50" cy="50" r={radius} fill="none" stroke={color} strokeWidth="6"
           strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference}
@@ -146,11 +146,14 @@ export default function LearningDashboard() {
               <Card variant="bento">
                 <CardHeader>
                   <CardTitle className="text-sm">4-Year Journey</CardTitle>
+                  <p className="text-xs text-muted-foreground">Click a year to see what to expect, your checklist, and the scholarship timeline.</p>
                 </CardHeader>
                 <CardContent>
                   <JourneyTimeline
                     currentStage={timelineData.journeyStage}
                     taskCounts={timelineData.tasksByStage}
+                    role="STUDENT"
+                    expandable
                   />
                 </CardContent>
               </Card>

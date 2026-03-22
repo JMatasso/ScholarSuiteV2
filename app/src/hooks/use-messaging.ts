@@ -100,6 +100,26 @@ export function useMessaging() {
 
   useEffect(() => { fetchMessages() }, [fetchMessages])
 
+  // Mark message-type notifications as read when entering messages
+  useEffect(() => {
+    fetch("/api/notifications?unread=true")
+      .then((r) => r.json())
+      .then((notifs) => {
+        if (!Array.isArray(notifs)) return
+        const messageNotifs = notifs.filter(
+          (n: { type: string }) => n.type === "MESSAGE"
+        )
+        messageNotifs.forEach((n: { id: string }) => {
+          fetch("/api/notifications", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: n.id }),
+          }).catch(() => {})
+        })
+      })
+      .catch(() => {})
+  }, [])
+
   // Auto-scroll on message/selection change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -153,6 +173,16 @@ export function useMessaging() {
   // Active conversation
   const activePartnerId = selectedPartnerId || conversations[0]?.partnerId || null
   const activeConversation = conversations.find((c) => c.partnerId === activePartnerId) || null
+
+  // Mark messages as read when selecting a partner
+  useEffect(() => {
+    if (!activePartnerId) return
+    fetch("/api/messages", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ senderId: activePartnerId }),
+    }).catch(() => {})
+  }, [activePartnerId])
 
   // Send a message
   const sendMessage = useCallback(

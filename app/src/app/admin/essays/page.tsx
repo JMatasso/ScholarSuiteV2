@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { FileText } from "lucide-react"
@@ -120,22 +121,11 @@ export default function AdminEssaysPage() {
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
-          {STATUS_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                activeTab === tab
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <VercelTabs
+          tabs={STATUS_TABS.map((tab) => ({ id: tab, label: tab }))}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id as StatusTab)}
+        />
         <SearchInput
           value={search}
           onValueChange={setSearch}

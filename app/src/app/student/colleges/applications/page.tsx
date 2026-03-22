@@ -29,6 +29,7 @@ import {
 import { CollegeAppDetail } from "@/components/college-app-detail"
 import { CollegeAutocomplete, type CollegeResult } from "@/components/ui/college-autocomplete"
 import { formatCurrency } from "@/lib/format"
+import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { cn } from "@/lib/utils"
 
 type TabView = "applications" | "decisions"
@@ -255,22 +256,14 @@ export default function CollegeApplicationsPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1">
-        {(["applications", "decisions"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-              activeTab === tab
-                ? "bg-accent text-secondary-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {tab === "applications" ? "Applications" : "Decisions"}
-          </button>
-        ))}
-      </div>
+      <VercelTabs
+        tabs={[
+          { id: "applications", label: "Applications" },
+          { id: "decisions", label: "Decisions" },
+        ]}
+        activeTab={activeTab}
+        onTabChange={(id) => setActiveTab(id as TabView)}
+      />
 
       {/* Stat cards — context-dependent */}
       {activeTab === "applications" ? (

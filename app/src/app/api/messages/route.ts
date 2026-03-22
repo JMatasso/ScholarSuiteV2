@@ -34,6 +34,38 @@ export async function GET() {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const data = await req.json();
+
+    // Mark messages from a specific sender as read
+    if (data.senderId) {
+      await db.message.updateMany({
+        where: {
+          senderId: data.senderId,
+          receiverId: session.user.id,
+          isRead: false,
+        },
+        data: { isRead: true },
+      });
+      return NextResponse.json({ success: true });
+    }
+
+    return NextResponse.json({ error: "senderId required" }, { status: 400 });
+  } catch (error) {
+    console.error("Error marking messages read:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await auth();

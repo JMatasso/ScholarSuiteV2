@@ -46,6 +46,8 @@ interface FullScreenCalendarProps {
   onDateSelect?: (day: Date) => void
   onEventClick?: (event: CalendarEvent) => void
   compact?: boolean
+  /** When set, only events with types in this set are shown */
+  visibleTypes?: Set<EventType>
 }
 
 const colStartClasses = [
@@ -66,7 +68,7 @@ const eventTypeColors: Record<EventType, { bg: string; text: string; dot: string
   general: { bg: "bg-muted/50", text: "text-foreground", dot: "bg-muted-foreground" },
 }
 
-export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact = false }: FullScreenCalendarProps) {
+export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact = false, visibleTypes }: FullScreenCalendarProps) {
   const today = startOfToday()
   const [selectedDay, setSelectedDay] = React.useState(today)
   const [currentMonth, setCurrentMonth] = React.useState(
@@ -74,6 +76,15 @@ export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact =
   )
   const firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date())
   const isDesktop = useMediaQuery("(min-width: 768px)")
+
+  // Filter data by visible types
+  const filteredData = React.useMemo(() => {
+    if (!visibleTypes) return data
+    return data.map(d => ({
+      ...d,
+      events: d.events.filter(e => visibleTypes.has(e.type || "general")),
+    })).filter(d => d.events.length > 0)
+  }, [data, visibleTypes])
 
   const days = eachDayOfInterval({
     start: startOfWeek(firstDayCurrentMonth),
@@ -100,7 +111,7 @@ export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact =
     onDateSelect?.(day)
   }
 
-  const selectedDayEvents = data
+  const selectedDayEvents = filteredData
     .filter((d) => isSameDay(d.day, selectedDay))
     .flatMap((d) => d.events)
 
@@ -201,7 +212,7 @@ export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact =
                 </button>
               </header>
               <div className={cn("flex-1 px-2 pb-1", compact ? "space-y-0.5" : "space-y-1")}>
-                {data
+                {filteredData
                   .filter((event) => isSameDay(event.day, day))
                   .map((dayData) => (
                     <div key={dayData.day.toString()} className="space-y-1">
@@ -256,9 +267,9 @@ export function FullScreenCalendar({ data, onDateSelect, onEventClick, compact =
               >
                 {format(day, "d")}
               </time>
-              {data.filter((date) => isSameDay(date.day, day)).length > 0 && (
+              {filteredData.filter((date) => isSameDay(date.day, day)).length > 0 && (
                 <div className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-                  {data
+                  {filteredData
                     .filter((date) => isSameDay(date.day, day))
                     .flatMap((d) => d.events)
                     .slice(0, 3)
