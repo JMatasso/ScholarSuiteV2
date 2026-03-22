@@ -15,6 +15,7 @@ import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
 import {
+  ArrowLeft,
   LayoutDashboard,
   User,
   FileText,
@@ -109,10 +110,21 @@ export default function ParentLayout({
     dragX.set(0);
   };
 
-  // Force password change redirect
+  // Role guard: redirect non-parent users to their correct portal
   useEffect(() => {
-    if (session?.user?.mustChangePassword) {
-      router.push("/change-password");
+    if (session?.user) {
+      const role = (session.user as { role?: string }).role;
+      if (role === "ADMIN") {
+        router.replace("/admin");
+        return;
+      }
+      if (role === "STUDENT") {
+        router.replace("/student");
+        return;
+      }
+      if (session.user.mustChangePassword) {
+        router.push("/change-password");
+      }
     }
   }, [session, router]);
 
@@ -268,6 +280,16 @@ export default function ParentLayout({
             <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={() => setMobileOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
+            {pathname !== "/parent" && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => router.back()}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
             <span className="text-muted-foreground">Parent Portal</span>
             <span className="text-muted-foreground/40">/</span>
             <span className="font-medium text-foreground">{currentPage}</span>

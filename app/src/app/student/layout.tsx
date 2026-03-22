@@ -27,6 +27,7 @@ import {
   MessageSquare,
   Video,
   Bot,
+  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Bell,
@@ -117,10 +118,21 @@ export default function StudentLayout({
       .catch(() => {})
   }, [])
 
-  // Force password change redirect
+  // Role guard: redirect non-student users to their correct portal
   useEffect(() => {
-    if (session?.user?.mustChangePassword) {
-      router.push("/change-password")
+    if (session?.user) {
+      const role = (session.user as { role?: string }).role
+      if (role === "ADMIN") {
+        router.replace("/admin")
+        return
+      }
+      if (role === "PARENT") {
+        router.replace("/parent")
+        return
+      }
+      if (session.user.mustChangePassword) {
+        router.push("/change-password")
+      }
     }
   }, [session, router])
 
@@ -344,6 +356,17 @@ export default function StudentLayout({
             >
               <Menu className="h-5 w-5" />
             </Button>
+            {/* Back button */}
+            {pathname !== "/student" && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => router.back()}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
             {/* Breadcrumbs */}
             <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
               {breadcrumbs.map((crumb, i) => (

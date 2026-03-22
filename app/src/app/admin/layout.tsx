@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useMotionValue } from "motion/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
+  ArrowLeft,
   LayoutDashboard,
   Users,
   UserPlus,
@@ -136,10 +137,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     dragX.set(0)
   }
 
-  // Force password change redirect
+  // Role guard: redirect non-admin users to their correct portal
   React.useEffect(() => {
-    if (session?.user?.mustChangePassword) {
-      router.push("/change-password")
+    if (session?.user) {
+      const role = (session.user as { role?: string }).role
+      if (role === "STUDENT") {
+        router.replace("/student")
+        return
+      }
+      if (role === "PARENT") {
+        router.replace("/parent")
+        return
+      }
+      if (session.user.mustChangePassword) {
+        router.push("/change-password")
+      }
     }
   }, [session, router])
 
@@ -267,6 +279,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={() => setMobileOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
+            {pathname !== "/admin" && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => router.back()}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <input

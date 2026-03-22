@@ -3,7 +3,7 @@
 import * as React from "react"
 import { motion } from "motion/react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Users, FileText, Award, AlertTriangle, Clock, TrendingUp, TrendingDown, ArrowRight, GraduationCap } from "lucide-react"
+import { Users, FileText, Award, AlertTriangle, TrendingUp, ArrowRight, GraduationCap } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -17,17 +17,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts"
-
-interface Student {
-  id: string
-  name?: string | null
-  email: string
-  studentProfile?: { status?: string | null } | null
-  tasks?: Array<{ status: string; dueDate?: string | null }>
-}
 
 interface AuditLog {
   id: string
@@ -38,69 +28,51 @@ interface AuditLog {
   user?: { name?: string | null; email: string } | null
 }
 
-const engagementData = [
-  { month: "Sep", logins: 120, tasks: 85, essays: 30 },
-  { month: "Oct", logins: 145, tasks: 110, essays: 45 },
-  { month: "Nov", logins: 160, tasks: 125, essays: 55 },
-  { month: "Dec", logins: 130, tasks: 90, essays: 40 },
-  { month: "Jan", logins: 175, tasks: 140, essays: 60 },
-  { month: "Feb", logins: 190, tasks: 155, essays: 72 },
-  { month: "Mar", logins: 210, tasks: 170, essays: 80 },
-]
+interface DashboardData {
+  totalStudents: number
+  activeApplications: number
+  awardedAmount: number
+  awardedCount: number
+  collegeAcceptances: number
+  atRiskCount: number
+  atRiskStudents: Array<{ id: string; name: string | null; email: string }>
+  engagementData: Array<{ month: string; logins: number; tasks: number; essays: number }>
+  pipelineData: Array<{ stage: string; count: number }>
+  auditLogs: AuditLog[]
+}
 
-const pipelineData = [
-  { stage: "Researching", count: 42 },
-  { stage: "Drafting", count: 35 },
-  { stage: "Reviewing", count: 28 },
-  { stage: "Submitted", count: 22 },
-  { stage: "Awarded", count: 14 },
-]
-
-// Mini sparkline data for KPI cards
-const sparkStudents = [{ v: 20 }, { v: 25 }, { v: 22 }, { v: 30 }, { v: 28 }, { v: 35 }, { v: 40 }]
-const sparkApps = [{ v: 50 }, { v: 55 }, { v: 60 }, { v: 58 }, { v: 70 }, { v: 75 }, { v: 84 }]
-const sparkAwards = [{ v: 200 }, { v: 400 }, { v: 600 }, { v: 750 }, { v: 900 }, { v: 1000 }, { v: 1200 }]
-const sparkRisk = [{ v: 5 }, { v: 4 }, { v: 3 }, { v: 4 }, { v: 2 }, { v: 1 }, { v: 0 }]
-const sparkCollege = [{ v: 5 }, { v: 10 }, { v: 18 }, { v: 25 }, { v: 32 }, { v: 40 }, { v: 48 }]
+function formatCurrency(amount: number): string {
+  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`
+  if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`
+  return `$${amount.toFixed(0)}`
+}
 
 type KpiTone = "blue" | "indigo" | "emerald" | "amber"
 
-const toneStyles: Record<KpiTone, { card: string; value: string; sparkColor: string; iconBg: string; iconColor: string; trendUp: string; trendDown: string }> = {
+const toneStyles: Record<KpiTone, { card: string; value: string; iconBg: string; iconColor: string }> = {
   blue: {
     card: "bg-accent/70 ring-1 ring-blue-200/60",
     value: "text-blue-700",
-    sparkColor: "#2563EB",
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
-    trendUp: "text-emerald-600",
-    trendDown: "text-rose-600",
   },
   indigo: {
     card: "bg-indigo-50/70 ring-1 ring-indigo-200/60",
     value: "text-indigo-700",
-    sparkColor: "#6366F1",
     iconBg: "bg-indigo-100",
     iconColor: "text-indigo-600",
-    trendUp: "text-emerald-600",
-    trendDown: "text-rose-600",
   },
   emerald: {
     card: "bg-emerald-50/70 ring-1 ring-emerald-200/60",
     value: "text-emerald-700",
-    sparkColor: "#10B981",
     iconBg: "bg-emerald-100",
     iconColor: "text-emerald-600",
-    trendUp: "text-emerald-700",
-    trendDown: "text-rose-600",
   },
   amber: {
     card: "bg-amber-50/70 ring-1 ring-amber-200/60",
     value: "text-amber-700",
-    sparkColor: "#F59E0B",
     iconBg: "bg-amber-100",
     iconColor: "text-amber-600",
-    trendUp: "text-emerald-600",
-    trendDown: "text-rose-600",
   },
 }
 
@@ -108,22 +80,18 @@ function KpiCard({
   title,
   value,
   icon: Icon,
-  trend,
+  subtitle,
   tone,
-  sparkData,
   index = 0,
 }: {
   title: string
   value: string | number
   icon: React.ComponentType<{ className?: string }>
-  trend: { value: number; label: string }
+  subtitle: string
   tone: KpiTone
-  sparkData: { v: number }[]
   index?: number
 }) {
   const t = toneStyles[tone]
-  const isUp = trend.value >= 0
-  const TrendIcon = isUp ? TrendingUp : TrendingDown
 
   return (
     <motion.div
@@ -143,33 +111,10 @@ function KpiCard({
         <div className="flex-1 space-y-1">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <p className={cn("text-3xl font-bold tracking-tight", t.value)}>{value}</p>
-          <div className="flex items-center gap-1.5">
-            <span className={cn("flex items-center gap-1 text-xs font-semibold", isUp ? t.trendUp : t.trendDown)}>
-              <TrendIcon className="h-3.5 w-3.5" />
-              {isUp ? "+" : ""}{trend.value}%
-            </span>
-            <span className="text-xs text-muted-foreground">{trend.label}</span>
-          </div>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
         </div>
-
-        <div className="flex flex-col items-end gap-3">
-          <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", t.iconBg)}>
-            <Icon className={cn("h-5 w-5", t.iconColor)} />
-          </div>
-          {/* Sparkline */}
-          <div className="h-8 w-20">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={sparkData}>
-                <Line
-                  type="monotone"
-                  dataKey="v"
-                  stroke={t.sparkColor}
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+        <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", t.iconBg)}>
+          <Icon className={cn("h-5 w-5", t.iconColor)} />
         </div>
       </div>
     </motion.div>
@@ -206,29 +151,19 @@ const actionColors: Record<string, string> = {
 }
 
 export default function AdminDashboardPage() {
-  const [students, setStudents] = React.useState<Student[]>([])
-  const [auditLogs, setAuditLogs] = React.useState<AuditLog[]>([])
+  const [data, setData] = React.useState<DashboardData | null>(null)
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
-    Promise.all([
-      fetch("/api/students").then(r => r.json()),
-      fetch("/api/audit?limit=10").then(r => r.json()),
-    ])
-      .then(([studentsData, auditData]) => {
-        setStudents(Array.isArray(studentsData) ? studentsData : [])
-        setAuditLogs(Array.isArray(auditData.logs) ? auditData.logs : [])
-        setLoading(false)
-      })
+    fetch("/api/admin/dashboard")
+      .then(r => r.json())
+      .then(d => { setData(d); setLoading(false) })
       .catch(() => { toast.error("Failed to load dashboard data"); setLoading(false) })
   }, [])
 
-  if (loading) {
+  if (loading || !data) {
     return <DashboardSkeleton />
   }
-
-  const totalStudents = students.length
-  const atRiskStudents = students.filter(s => s.studentProfile?.status === "AT_RISK")
 
   return (
     <div className="flex flex-col gap-8 pb-8">
@@ -245,51 +180,46 @@ export default function AdminDashboardPage() {
         </div>
       </motion.div>
 
-      {/* KPI Cards with colored tones + sparklines */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <KpiCard
           title="Total Students"
-          value={totalStudents}
+          value={data.totalStudents}
           icon={Users}
-          trend={{ value: 8, label: "vs last month" }}
+          subtitle="Enrolled students"
           tone="blue"
-          sparkData={sparkStudents}
           index={0}
         />
         <KpiCard
           title="Active Applications"
-          value={84}
+          value={data.activeApplications}
           icon={FileText}
-          trend={{ value: 12, label: "vs last month" }}
+          subtitle="In progress & submitted"
           tone="indigo"
-          sparkData={sparkApps}
           index={1}
         />
         <KpiCard
           title="Scholarships Awarded"
-          value="$1.2M"
+          value={formatCurrency(data.awardedAmount)}
           icon={Award}
-          trend={{ value: 23, label: "this cycle" }}
+          subtitle={`${data.awardedCount} award${data.awardedCount !== 1 ? "s" : ""}`}
           tone="emerald"
-          sparkData={sparkAwards}
           index={2}
         />
         <KpiCard
           title="College Acceptances"
-          value={48}
+          value={data.collegeAcceptances}
           icon={GraduationCap}
-          trend={{ value: 15, label: "this cycle" }}
+          subtitle="Accepted students"
           tone="indigo"
-          sparkData={sparkCollege}
           index={3}
         />
         <KpiCard
           title="At Risk Students"
-          value={atRiskStudents.length}
+          value={data.atRiskCount}
           icon={AlertTriangle}
-          trend={{ value: -5, label: "vs last week" }}
+          subtitle="Need attention"
           tone="amber"
-          sparkData={sparkRisk}
           index={4}
         />
       </div>
@@ -310,7 +240,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={engagementData}>
+              <AreaChart data={data.engagementData}>
                 <defs>
                   <linearGradient id="gradLogins" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#1E3A5F" stopOpacity={0.2} />
@@ -366,11 +296,11 @@ export default function AdminDashboardPage() {
         >
           <div className="mb-5 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-secondary-foreground">Application Pipeline</h3>
-            <span className="text-xs text-muted-foreground">{pipelineData.reduce((s, d) => s + d.count, 0)} total</span>
+            <span className="text-xs text-muted-foreground">{data.pipelineData.reduce((s, d) => s + d.count, 0)} total</span>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={pipelineData} barCategoryGap="20%">
+              <BarChart data={data.pipelineData} barCategoryGap="20%">
                 <defs>
                   <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#2563EB" />
@@ -413,9 +343,9 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
           <div className="flex flex-col divide-y divide-gray-100">
-            {auditLogs.length === 0 ? (
+            {data.auditLogs.length === 0 ? (
               <p className="text-sm text-muted-foreground py-8 text-center">No recent activity.</p>
-            ) : auditLogs.slice(0, 8).map((log, i) => (
+            ) : data.auditLogs.slice(0, 8).map((log, i) => (
               <motion.div
                 key={log.id}
                 initial={{ opacity: 0, x: -12 }}
@@ -463,7 +393,7 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
           <div className="flex flex-col gap-3">
-            {atRiskStudents.length === 0 ? (
+            {data.atRiskStudents.length === 0 ? (
               <div className="flex flex-col items-center py-8 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 mb-3">
                   <TrendingUp className="h-5 w-5 text-emerald-500" />
@@ -471,7 +401,7 @@ export default function AdminDashboardPage() {
                 <p className="text-sm font-medium text-foreground">All students on track</p>
                 <p className="text-xs text-muted-foreground mt-1">No at-risk students at this time.</p>
               </div>
-            ) : atRiskStudents.slice(0, 5).map((student, i) => (
+            ) : data.atRiskStudents.map((student, i) => (
               <motion.div
                 key={student.id}
                 initial={{ opacity: 0, y: 8 }}
