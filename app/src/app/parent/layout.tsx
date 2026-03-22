@@ -284,18 +284,20 @@ export default function ParentLayout({
             <ThemeToggle />
 
             {/* Messages */}
-            <Link href="/parent/messages" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+            <Link href="/parent/messages" className="relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
               <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline text-xs font-medium">Messages</span>
               {unreadMsgCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">
                   {unreadMsgCount > 9 ? "9+" : unreadMsgCount}
                 </span>
               )}
             </Link>
 
             {/* Meetings */}
-            <Link href="/parent/meetings" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+            <Link href="/parent/meetings" className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
               <Video className="h-4 w-4" />
+              <span className="hidden sm:inline text-xs font-medium">Meetings</span>
             </Link>
 
             {/* Notifications */}

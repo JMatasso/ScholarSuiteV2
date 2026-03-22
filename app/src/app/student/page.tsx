@@ -230,11 +230,12 @@ export default function StudentDashboard() {
     }
   }, [loading, urgentDeadline])
 
-  // Next meeting
+  // Upcoming meetings
   const now = new Date()
-  const nextMeeting = meetings
+  const upcomingMeetings = meetings
     .filter(m => new Date(m.startTime) > now)
-    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0]
+    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+    .slice(0, 3)
 
   // Mini calendar
   const calDays = new Date(calYear, calMonth + 1, 0).getDate()
@@ -625,29 +626,62 @@ export default function StudentDashboard() {
           </motion.div>
 
 
-          {/* Next Meeting */}
-          {nextMeeting && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-              <Card variant="bento">
-                <CardContent className="pt-0">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-green-50">
-                      <Video className="h-4 w-4 text-green-600" />
+          {/* Upcoming Meetings */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
+            <Card variant="bento">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-green-50">
+                      <Video className="h-3.5 w-3.5 text-green-600" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold">{nextMeeting.title}</p>
-                      <p className="text-xs text-muted-foreground">{formatDate(nextMeeting.startTime)}</p>
-                    </div>
-                    {nextMeeting.meetingUrl && (
-                      <a href={nextMeeting.meetingUrl} target="_blank" rel="noreferrer">
-                        <Button size="sm" className="text-xs">Join</Button>
-                      </a>
-                    )}
+                    Upcoming Meetings
+                  </CardTitle>
+                  <Link href="/student/meetings">
+                    <Button variant="ghost" size="sm" className="text-xs gap-1">View All <ArrowRight className="h-3 w-3" /></Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {loading ? (
+                  <Skeleton className="h-12 w-full skeleton-shimmer" />
+                ) : upcomingMeetings.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">No upcoming meetings</p>
+                ) : (
+                  <div className="space-y-2">
+                    {upcomingMeetings.map(meeting => {
+                      const meetingDate = new Date(meeting.startTime)
+                      const days = Math.ceil((meetingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+                      const isTodays = days <= 0 && meetingDate.toDateString() === now.toDateString()
+                      return (
+                        <div key={meeting.id} className="flex items-center gap-3 rounded-xl bg-muted/30 p-3 hover:bg-muted/50 transition-colors">
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-green-50">
+                            <Video className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{meeting.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDate(meeting.startTime)} · {formatTime(meeting.startTime)}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className={`text-[11px] font-medium ${isTodays ? "text-green-600" : days <= 1 ? "text-amber-600" : "text-muted-foreground"}`}>
+                              {isTodays ? "Today" : days === 1 ? "Tomorrow" : `${days}d`}
+                            </span>
+                            {meeting.meetingUrl && (
+                              <a href={meeting.meetingUrl} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>
+                                <Button size="xs" className="text-[11px]">Join</Button>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </div>
