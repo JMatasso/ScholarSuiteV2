@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import Link from "next/link"
 import { motion } from "motion/react"
 import { Award, Clock, Send, FileX, FileText, DollarSign, Calendar } from "@/lib/icons"
 import { cn } from "@/lib/utils"
@@ -10,7 +11,9 @@ interface ScholarshipApp {
   id: string
   status: string
   amountAwarded?: number | null
+  scholarshipId?: string
   scholarship: {
+    id?: string
     name: string
     amount?: number | null
     deadline?: string | null
@@ -171,57 +174,62 @@ export function ScholarshipPipeline({ applications, className }: ScholarshipPipe
                   <div className="absolute -left-8 top-3.5 h-3.5 w-3.5 animate-ping rounded-full bg-[#2563EB]/30" />
                 )}
 
-                <Card
-                  variant="bento"
-                  className={cn(
-                    "transition-shadow hover:shadow-sm",
-                    app.status === "IN_PROGRESS" && "border-[#2563EB]/20",
-                    app.status === "AWARDED" && "border-emerald-200",
-                    app.status === "DENIED" && "opacity-60"
-                  )}
+                <Link
+                  href={`/student/scholarships/${app.scholarshipId || app.scholarship.id || ""}`}
+                  className="block"
                 >
-                  <CardContent className="pt-0">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={cn(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                          config.bgColor
-                        )}
-                      >
-                        <Icon className={cn("h-4 w-4", config.color)} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-medium truncate">{app.scholarship.name}</p>
-                          <span
-                            className={cn(
-                              "inline-flex h-5 items-center rounded-full border px-2 text-[10px] font-medium shrink-0",
-                              config.bgColor,
-                              config.color,
-                              config.ringColor
-                            )}
-                          >
-                            {config.label}
-                          </span>
-                        </div>
-                        <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <DollarSign className="h-3 w-3" />
-                            {app.status === "AWARDED" && app.amountAwarded
-                              ? formatAmount(app.amountAwarded)
-                              : formatAmount(app.scholarship.amount)}
-                          </span>
-                          {app.scholarship.deadline && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {formatDeadline(app.scholarship.deadline)}
-                            </span>
+                  <Card
+                    variant="bento"
+                    className={cn(
+                      "transition-all hover:shadow-md cursor-pointer",
+                      app.status === "IN_PROGRESS" && "border-[#2563EB]/20",
+                      app.status === "AWARDED" && "border-emerald-200",
+                      app.status === "DENIED" && "opacity-60"
+                    )}
+                  >
+                    <CardContent className="pt-0">
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                            config.bgColor
                           )}
+                        >
+                          <Icon className={cn("h-4 w-4", config.color)} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium truncate">{app.scholarship.name}</p>
+                            <span
+                              className={cn(
+                                "inline-flex h-5 items-center rounded-full border px-2 text-[10px] font-medium shrink-0",
+                                config.bgColor,
+                                config.color,
+                                config.ringColor
+                              )}
+                            >
+                              {config.label}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="h-3 w-3" />
+                              {app.status === "AWARDED" && app.amountAwarded
+                                ? formatAmount(app.amountAwarded)
+                                : formatAmount(app.scholarship.amount)}
+                            </span>
+                            {app.scholarship.deadline && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {formatDeadline(app.scholarship.deadline)}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               </motion.div>
             )
           })}

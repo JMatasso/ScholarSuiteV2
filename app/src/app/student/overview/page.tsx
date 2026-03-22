@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import Link from "next/link"
 import { motion } from "motion/react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,9 +16,11 @@ import {
   Clock,
   Send,
   AlertTriangle,
+  ArrowRight,
 } from "@/lib/icons"
 
 interface Scholarship {
+  id: string
   name: string
   provider: string | null
   amount: number | null
@@ -26,11 +29,84 @@ interface Scholarship {
 
 interface Application {
   id: string
+  scholarshipId: string
   status: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "AWARDED" | "DENIED"
   amountAwarded: number | null
   scholarship: Scholarship
   createdAt: string
   updatedAt: string
+}
+
+function DeadlineCalendar({ applications }: { applications: Application[] }) {
+  const deadlines = useMemo(() => {
+    const now = new Date()
+    return applications
+      .filter((a) => {
+        if (a.status === "AWARDED" || a.status === "DENIED") return false
+        if (!a.scholarship.deadline) return false
+        return new Date(a.scholarship.deadline) >= now
+      })
+      .sort((a, b) => new Date(a.scholarship.deadline!).getTime() - new Date(b.scholarship.deadline!).getTime())
+      .slice(0, 6)
+  }, [applications])
+
+  const getDaysLeft = (deadline: string) => {
+    const days = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    return days
+  }
+
+  return (
+    <Card variant="bento" className="h-full">
+      <CardContent className="pt-0 space-y-3">
+        {deadlines.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+            <Calendar className="h-8 w-8 mb-2 opacity-40" />
+            <p className="text-sm">No upcoming deadlines</p>
+          </div>
+        ) : (
+          <>
+            {deadlines.map((app) => {
+              const days = getDaysLeft(app.scholarship.deadline!)
+              const urgent = days <= 7
+              const soon = days <= 14
+              return (
+                <Link
+                  key={app.id}
+                  href={`/student/scholarships/${app.scholarshipId}`}
+                  className="block"
+                >
+                  <div className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-all hover:shadow-sm cursor-pointer ${urgent ? "border-rose-200 bg-rose-50/30" : soon ? "border-amber-200 bg-amber-50/30" : "border-gray-100"}`}>
+                    <div className={`flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg text-center ${urgent ? "bg-rose-100" : soon ? "bg-amber-100" : "bg-[#1E3A5F]/10"}`}>
+                      <span className={`text-[10px] font-semibold uppercase leading-none ${urgent ? "text-rose-600" : soon ? "text-amber-600" : "text-[#1E3A5F]"}`}>
+                        {new Date(app.scholarship.deadline!).toLocaleDateString("en-US", { month: "short" })}
+                      </span>
+                      <span className={`text-sm font-bold leading-tight ${urgent ? "text-rose-700" : soon ? "text-amber-700" : "text-[#1E3A5F]"}`}>
+                        {new Date(app.scholarship.deadline!).getDate()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{app.scholarship.name}</p>
+                      <p className={`text-xs ${urgent ? "text-rose-600 font-medium" : soon ? "text-amber-600" : "text-muted-foreground"}`}>
+                        {days === 0 ? "Due today" : days === 1 ? "Due tomorrow" : `${days} days left`}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </>
+        )}
+        <Link
+          href="/student/calendar"
+          className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-200 px-3 py-2 text-xs text-muted-foreground hover:text-[#2563EB] hover:border-[#2563EB]/30 transition-colors"
+        >
+          <Calendar className="h-3.5 w-3.5" />
+          View full calendar
+          <ArrowRight className="h-3 w-3" />
+        </Link>
+      </CardContent>
+    </Card>
+  )
 }
 
 export default function OverviewPage() {
@@ -185,12 +261,20 @@ export default function OverviewPage() {
         })}
       </div>
 
-      {/* Scholarship Pipeline */}
-      <div>
-        <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
-          Scholarship Pipeline
-        </h2>
-        <ScholarshipPipeline applications={applications} />
+      {/* Scholarship Pipeline + Deadline Calendar */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
+            Scholarship Pipeline
+          </h2>
+          <ScholarshipPipeline applications={applications} />
+        </div>
+        <div>
+          <h2 className="mb-3 text-sm font-semibold text-secondary-foreground uppercase tracking-wide">
+            Upcoming Deadlines
+          </h2>
+          <DeadlineCalendar applications={applications} />
+        </div>
       </div>
 
       {/* Won Awards */}
