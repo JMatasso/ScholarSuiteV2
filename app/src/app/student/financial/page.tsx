@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "motion/react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -13,6 +13,7 @@ import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import { CollegeCostComparison } from "@/components/ui/college-cost-comparison"
 import { ScholarshipOffset } from "@/components/ui/scholarship-offset"
 import { SemesterBudget } from "@/components/ui/semester-budget"
+import { BudgetOverview } from "@/components/ui/budget-overview"
 import { toast } from "sonner"
 import {
   DollarSign,
@@ -20,7 +21,6 @@ import {
   AlertTriangle,
   GraduationCap,
   Award,
-  Receipt,
   Plus,
   RefreshCw,
   Loader2,
@@ -33,6 +33,12 @@ interface IncomeSource {
   type: string
   status: string
   isRecurring: boolean
+}
+
+interface CustomExpense {
+  id: string
+  name: string
+  amount: number
 }
 
 interface Semester {
@@ -49,6 +55,7 @@ interface Semester {
   personal: number
   other: number
   incomeSources: IncomeSource[]
+  customExpenses: CustomExpense[]
 }
 
 interface FinancialPlan {
@@ -119,6 +126,16 @@ export default function FinancialPlanPage() {
 
   useEffect(() => { loadData() }, [loadData])
 
+  // Reload financial plan after scholarship sync
+  const handleBudgetSynced = useCallback(() => {
+    fetch("/api/financial")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.id) setPlan(data)
+      })
+      .catch(() => {})
+  }, [])
+
   const createPlanFromCollege = async (collegeId: string, collegeName: string) => {
     setCreating(true)
     try {
@@ -157,7 +174,7 @@ export default function FinancialPlanPage() {
     }
   }
 
-  // Prepare scholarship award data for the offset component
+  // Prepare scholarship award data
   const awardItems = awardedScholarships.map((a) => ({
     id: a.id,
     scholarshipName: a.scholarship.name,
@@ -188,11 +205,9 @@ export default function FinancialPlanPage() {
     )
   }
 
-  // Determine if we have data for each tab
   const hasFinancialPlan = plan !== null
   const hasAwards = awardItems.length > 0
 
-  // Compute plan stats if available
   const semesters = plan?.semesters ?? []
   const totalCost = semesters.reduce((a, s) => a + getSemesterTotal(s), 0)
   const totalAid = semesters.reduce((a, s) => a + getSemesterAid(s), 0)
@@ -202,6 +217,8 @@ export default function FinancialPlanPage() {
     .flatMap((s) => s.incomeSources)
     .filter((src, idx, arr) => arr.findIndex((s) => s.id === src.id) === idx)
 
+  // Semesters for scholarship allocation (simple id+name)
+  const semesterList = semesters.map((s) => ({ id: s.id, name: s.name }))
 
   return (
     <div className="space-y-6">
@@ -212,7 +229,6 @@ export default function FinancialPlanPage() {
         </p>
       </div>
 
-      {/* Learn more banner */}
       <LearnMoreBanner
         title="Learn: FAFSA & University Aid"
         description="FAFSA filing tips, university aid, department scholarships, and financial appeals."
@@ -264,6 +280,7 @@ export default function FinancialPlanPage() {
         tabs={[
           { id: "college-costs", label: "College Costs" },
           { id: "scholarships", label: "Scholarships" },
+          { id: "overview", label: "Budget Overview" },
           { id: "budget", label: "Semester Budget" },
         ]}
         activeTab={activeTab}
@@ -283,7 +300,12 @@ export default function FinancialPlanPage() {
       {/* Scholarships Tab */}
       {activeTab === "scholarships" && (
         <div className="space-y-6 mt-4">
-          <ScholarshipOffset awards={awardItems} />
+          <ScholarshipOffset
+            awards={awardItems}
+            semesters={semesterList}
+            planId={plan?.id}
+            onBudgetSynced={handleBudgetSynced}
+          />
           {!hasAwards && (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <Award className="h-10 w-10 mb-3 opacity-40" />
@@ -292,6 +314,32 @@ export default function FinancialPlanPage() {
                 Apply to scholarships and mark them as awarded to see your offset here.
               </p>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Budget Overview Tab */}
+      {activeTab === "overview" && (
+        <div className="space-y-6 mt-4">
+          {!hasFinancialPlan ? (
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+              <DollarSign className="h-10 w-10 mb-3 opacity-40" />
+              <p className="text-sm">No budget set up yet.</p>
+              <p className="text-xs mt-1">
+                Go to the Semester Budget tab to create your budget.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4 gap-1.5"
+                onClick={() => setActiveTab("budget")}
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Set Up Budget
+              </Button>
+            </div>
+          ) : (
+            <BudgetOverview plan={plan} totalScholarships={totalScholarships} />
           )}
         </div>
       )}
@@ -308,13 +356,14 @@ export default function FinancialPlanPage() {
             />
           ) : (
             <>
-              <SemesterBudget plan={plan} onPlanUpdate={setPlan} totalScholarships={totalScholarships} />
-              <BudgetSchoolSwitcher
+              <BudgetSchoolBar
                 collegeApps={collegeApps}
                 creating={creating}
                 onSelectCollege={createPlanFromCollege}
                 onCreateBlank={createBlankPlan}
+                onRefresh={loadData}
               />
+              <SemesterBudget plan={plan} onPlanUpdate={setPlan} totalScholarships={totalScholarships} />
             </>
           )}
         </div>
@@ -378,7 +427,6 @@ function BudgetSetup({
   onSelectCollege: (collegeId: string, name: string) => void
   onCreateBlank: () => void
 }) {
-  // Filter college apps that have cost data
   const appsWithCosts = collegeApps.filter(
     (a) => a.college?.inStateTuition != null || a.college?.outOfStateTuition != null
   )
@@ -399,7 +447,6 @@ function BudgetSetup({
           </p>
         </div>
 
-        {/* Quick picks from college list */}
         {appsWithCosts.length > 0 && (
           <div className="mb-6">
             <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
@@ -439,7 +486,6 @@ function BudgetSetup({
           </div>
         )}
 
-        {/* Search any school */}
         <div className="mb-4">
           <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
             Search Any School
@@ -453,7 +499,6 @@ function BudgetSetup({
           />
         </div>
 
-        {/* Blank budget option */}
         <div className="flex items-center gap-3 pt-4 border-t">
           <div className="flex-1">
             <p className="text-sm font-medium text-foreground">Start from scratch</p>
@@ -476,96 +521,42 @@ function BudgetSetup({
   )
 }
 
-// ─── Budget School Switcher (shown below existing budget) ───
+// ─── Budget School Bar (top of semester budget) ─────────────
 
-function BudgetSchoolSwitcher({
+function BudgetSchoolBar({
   collegeApps,
   creating,
   onSelectCollege,
   onCreateBlank,
+  onRefresh,
 }: {
   collegeApps: CollegeApp[]
   creating: boolean
   onSelectCollege: (collegeId: string, name: string) => void
   onCreateBlank: () => void
+  onRefresh: () => void
 }) {
-  const [open, setOpen] = useState(false)
-
-  if (!open) {
-    return (
-      <div className="flex items-center justify-center">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setOpen(true)}
-          className="gap-1.5 text-xs text-muted-foreground"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Switch School or Reset Budget
-        </Button>
-      </div>
-    )
-  }
-
-  const appsWithCosts = collegeApps.filter(
-    (a) => a.college?.inStateTuition != null || a.college?.outOfStateTuition != null
-  )
-
   return (
-    <Card variant="bento" className="border-amber-200 bg-amber-50/30">
-      <CardContent className="pt-6">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h4 className="text-sm font-semibold text-secondary-foreground">Switch School</h4>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              This will replace all semester costs with the new school&apos;s data. Income sources you&apos;ve added will be removed.
-            </p>
-          </div>
-          <Button variant="ghost" size="sm" onClick={() => setOpen(false)} className="text-xs">
-            Cancel
-          </Button>
-        </div>
-
-        {appsWithCosts.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {appsWithCosts.map((app) => (
-              <Button
-                key={app.id}
-                variant="outline"
-                size="sm"
-                disabled={creating}
-                onClick={() => { onSelectCollege(app.college?.id, app.universityName); setOpen(false) }}
-                className="text-xs gap-1.5"
-              >
-                <GraduationCap className="h-3.5 w-3.5" />
-                {app.universityName}
-              </Button>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center gap-2">
-          <div className="flex-1">
-            <CollegeAutocomplete
-              onSelect={(college: CollegeResult) => {
-                if (college.id) { onSelectCollege(college.id, college.name); setOpen(false) }
-              }}
-              placeholder="Search any school..."
-              disabled={creating}
-            />
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => { onCreateBlank(); setOpen(false) }}
-            disabled={creating}
-            className="text-xs shrink-0"
-          >
-            Reset to Blank
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex items-center gap-2">
+      <div className="flex-1">
+        <CollegeAutocomplete
+          onSelect={(college: CollegeResult) => {
+            if (college.id) onSelectCollege(college.id, college.name)
+          }}
+          placeholder="Switch school — search to replace budget costs..."
+          disabled={creating}
+        />
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onRefresh}
+        className="gap-1.5 shrink-0"
+      >
+        <RefreshCw className="h-3.5 w-3.5" />
+        Refresh
+      </Button>
+    </div>
   )
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
