@@ -404,7 +404,7 @@ export default function TasksPage() {
                         onUploadError={(error: Error) => { toast.error(`Upload failed: ${error.message}`) }}
                         appearance={{
                           button: "bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-xs px-3 py-1.5 rounded-lg w-full",
-                          allowedContent: "text-[10px] text-muted-foreground mt-1",
+                          allowedContent: "hidden",
                         }}
                       />
 

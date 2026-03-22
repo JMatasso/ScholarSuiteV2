@@ -295,7 +295,7 @@ export default function DocumentsPage() {
                     onUploadError={(error: Error) => { void toast.error(`Upload failed: ${error.message}`) }}
                     appearance={{
                       button: "bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-sm px-4 py-2 rounded-lg",
-                      allowedContent: "text-xs text-muted-foreground mt-1",
+                      allowedContent: "hidden",
                     }}
                   />
                 </div>
@@ -461,7 +461,7 @@ export default function DocumentsPage() {
                 onUploadError={(error: Error) => { void toast.error(`Upload failed: ${error.message}`) }}
                 appearance={{
                   button: "bg-[#2563EB] hover:bg-[#2563EB]/90 text-white text-sm px-4 py-2 rounded-lg",
-                  allowedContent: "text-xs text-muted-foreground mt-1",
+                  allowedContent: "hidden",
                 }}
               />
             </div>
