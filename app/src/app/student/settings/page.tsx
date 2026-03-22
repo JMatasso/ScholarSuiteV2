@@ -5,6 +5,7 @@ import { motion } from "motion/react"
 import { toast } from "sonner"
 import { PageHeader } from "@/components/ui/page-header"
 import { ProfileSettings } from "@/components/ui/profile-settings"
+import { EditProfileForm } from "@/components/edit-profile-form"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import LoaderOne from "@/components/ui/loader-one"
@@ -27,6 +28,7 @@ import {
 
 const tabItems = [
   { id: "Account", label: "Account" },
+  { id: "Profile", label: "Edit Profile" },
   { id: "Notifications", label: "Notifications" },
   { id: "Privacy", label: "Privacy" },
   { id: "Plan", label: "Plan & Billing" },
@@ -178,6 +180,16 @@ export default function StudentSettingsPage() {
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <ProfileSettings />
+        </motion.div>
+      )}
+
+      {activeTab === "Profile" && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <EditProfileForm />
         </motion.div>
       )}
 

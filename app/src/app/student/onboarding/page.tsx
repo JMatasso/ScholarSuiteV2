@@ -34,6 +34,7 @@ import {
 } from "@/lib/icons";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { computeJourneyStage, journeyStageLabels, monthOptions } from "@/lib/journey";
 import { getCountyFromZip } from "@/lib/county-lookup";
 import { Button } from "@/components/ui/button";
 import {
@@ -194,6 +195,7 @@ export default function OnboardingPage() {
     classRank: "",
     classSize: "",
     graduationYear: "",
+    graduationMonth: "",
     satScore: "",
     actScore: "",
     intendedMajor: "",
@@ -259,6 +261,17 @@ export default function OnboardingPage() {
       if (county) update("county", county);
     }
   }, [formData.zipCode]);
+
+  // Auto-calculate journey stage from graduation date
+  useEffect(() => {
+    if (formData.graduationYear) {
+      const stage = computeJourneyStage(
+        parseInt(formData.graduationYear),
+        formData.graduationMonth ? parseInt(formData.graduationMonth) : null
+      );
+      update("journeyStage", stage);
+    }
+  }, [formData.graduationYear, formData.graduationMonth]);
 
   // Map between display step index and actual step id
   const getActualStep = (displayIndex: number): number => {
@@ -549,6 +562,19 @@ export default function OnboardingPage() {
                   </div>
                   <FormField label="Grade Level" value={formData.gradeLevel} onChange={(v) => update("gradeLevel", v)} placeholder="12" type="number" />
                   <FormField label="Graduation Year" value={formData.graduationYear} onChange={(v) => update("graduationYear", v)} placeholder="2026" type="number" />
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Graduation Month</label>
+                    <Select value={formData.graduationMonth} onValueChange={(v) => v && update("graduationMonth", v)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select month" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {monthOptions.map((m) => (
+                          <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">GPA</label>
                     <input
@@ -1052,31 +1078,26 @@ export default function OnboardingPage() {
                 step={currentStep}
               >
                 <div className="space-y-6">
-                  {/* Show auto-set notice when college journey determined the stage */}
-                  {isCollegePath && (formData.collegeJourneyStage === "DECIDED" || formData.collegeJourneyStage === "WAITING" || formData.collegeJourneyStage === "APPLYING") && (
-                    <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">
-                      {formData.collegeJourneyStage === "DECIDED" ? (
-                        <>Since you&apos;ve already committed to a college, we&apos;ve set your scholarship journey to <strong>Post-Acceptance</strong>. We&apos;ll focus on scholarships you can still apply for. You can change this below if needed.</>
-                      ) : formData.collegeJourneyStage === "WAITING" ? (
-                        <>Since you&apos;re waiting on decisions, we&apos;ve set your journey to <strong>Application Phase</strong>. You can still adjust this below.</>
-                      ) : (
-                        <>Since you&apos;re actively applying, we&apos;ve set your journey to <strong>Application Phase</strong>. You can adjust this below if needed.</>
-                      )}
-                    </div>
-                  )}
+                  {/* Auto-calculated journey stage display */}
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">
+                    {formData.graduationYear ? (
+                      <>Your scholarship journey stage is automatically set to <strong>{journeyStageLabels[formData.journeyStage] || formData.journeyStage.replace(/_/g, " ")}</strong> based on your graduation date ({monthOptions.find(m => String(m.value) === formData.graduationMonth)?.label || "June"} {formData.graduationYear}). You can update this by changing your graduation month and year in the Academic step.</>
+                    ) : (
+                      <>Set your graduation year in the Academic step to auto-determine your journey stage.</>
+                    )}
+                  </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-3">Where are you in your scholarship journey?</label>
+                    <label className="block text-sm font-medium text-foreground mb-3">Your scholarship journey stage</label>
                     <div className="space-y-3">
                       {JOURNEY_STAGES.map((stage) => (
-                        <button
+                        <div
                           key={stage.value}
-                          onClick={() => update("journeyStage", stage.value)}
                           className={cn(
                             "w-full p-4 rounded-xl border-2 text-left transition-all duration-300 flex items-start gap-4",
                             formData.journeyStage === stage.value
                               ? "border-primary bg-primary/5"
-                              : "border-border hover:border-muted-foreground/30"
+                              : "border-border opacity-50"
                           )}
                         >
                           <div className={cn(
@@ -1091,7 +1112,7 @@ export default function OnboardingPage() {
                             </p>
                             <p className="text-sm text-muted-foreground mt-0.5">{stage.description}</p>
                           </div>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -1200,7 +1221,7 @@ export default function OnboardingPage() {
                     ["GPA", formData.gpa ? `${formData.gpa}${formData.gpaType ? ` (${formData.gpaType === "UNWEIGHTED_4" ? "Unweighted 4.0" : formData.gpaType === "WEIGHTED_5" ? "Weighted 5.0" : "Weighted 4.0"})` : ""}` : ""],
                     ["Class Rank", formData.classRank && formData.classSize ? `${formData.classRank} / ${formData.classSize} (Top ${Math.round((Number(formData.classRank) / Number(formData.classSize)) * 100)}%)` : formData.classRank],
                     ["Grade", formData.gradeLevel],
-                    ["Graduation Year", formData.graduationYear],
+                    ["Graduation", [monthOptions.find(m => String(m.value) === formData.graduationMonth)?.label, formData.graduationYear].filter(Boolean).join(" ")],
                     ["SAT", formData.satScore],
                     ["ACT", formData.actScore],
                     ["1st Major", formData.intendedMajor],
@@ -1231,7 +1252,7 @@ export default function OnboardingPage() {
                     ]} />
                   )}
                   <ReviewSection title="Goals" items={[
-                    ["Journey Stage", formData.journeyStage.replace(/_/g, " ")],
+                    ["Journey Stage", journeyStageLabels[formData.journeyStage] || formData.journeyStage.replace(/_/g, " ")],
                     ["Pathway", formData.postSecondaryPath.replace(/_/g, " ")],
                     ...(formData.goals ? [["Goals", formData.goals] as [string, string]] : []),
                   ]} />

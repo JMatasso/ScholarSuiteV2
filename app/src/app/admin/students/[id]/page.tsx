@@ -18,6 +18,7 @@ import { AssigneePicker, type AdminUser } from "@/components/ui/assignee-picker"
 import { FullScreenCalendar, type CalendarData, type CalendarEvent } from "@/components/ui/fullscreen-calendar"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
+import { AdminEditProfileDialog } from "@/components/admin-edit-profile-dialog"
 import { TASK_PHASE_TO_JOURNEY_STAGE, SERVICE_TIER_LABELS, JOURNEY_STAGE_LABELS } from "@/lib/constants"
 
 const tabItems = [
@@ -145,6 +146,7 @@ function StudentDetailContent() {
       })
       .catch(() => setCalendarLoading(false))
   }, [activeTab, id])
+  const [editProfileOpen, setEditProfileOpen] = React.useState(false)
   const [assigningTasks, setAssigningTasks] = React.useState(false)
   const [admins, setAdmins] = React.useState<AdminUser[]>([])
   const [addTaskOpen, setAddTaskOpen] = React.useState(false)
@@ -423,6 +425,12 @@ function StudentDetailContent() {
       >
         {activeTab === "Profile" && (
           <div className="flex flex-col gap-6">
+            <div className="flex justify-end">
+              <Button variant="outline" size="sm" onClick={() => setEditProfileOpen(true)} className="gap-2">
+                <FileText className="h-3.5 w-3.5" />
+                Edit Full Profile
+              </Button>
+            </div>
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-foreground">Journey Progress</h3>
@@ -848,6 +856,13 @@ function StudentDetailContent() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AdminEditProfileDialog
+        open={editProfileOpen}
+        onClose={() => setEditProfileOpen(false)}
+        studentId={id}
+        onSaved={refreshStudent}
+      />
     </div>
   )
 }

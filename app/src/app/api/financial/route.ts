@@ -26,11 +26,18 @@ function buildSemestersFromCollege(college: {
   const semesterBooks = Math.round(yearlyBooks / 2);
 
   const years = ["Freshman", "Sophomore", "Junior", "Senior"];
-  const terms = ["Fall", "Spring"];
+  const terms: Array<{ label: string; type: "FALL" | "SPRING" }> = [
+    { label: "Fall", type: "FALL" },
+    { label: "Spring", type: "SPRING" },
+  ];
 
+  let order = 0;
   return years.flatMap((year) =>
     terms.map((term) => ({
-      name: `${year} ${term}`,
+      name: `${year} ${term.label}`,
+      type: term.type,
+      order: order++,
+      isCustom: false,
       tuition: semesterTuition,
       housing: semesterHousing,
       food: semesterFood,
@@ -74,7 +81,7 @@ export async function GET(req: Request) {
       include: {
         semesters: {
           include: { incomeSources: true },
-          orderBy: { name: "asc" },
+          orderBy: { order: "asc" },
         },
       },
     });
@@ -127,7 +134,7 @@ export async function GET(req: Request) {
             include: {
               semesters: {
                 include: { incomeSources: true },
-                orderBy: { name: "asc" },
+                orderBy: { order: "asc" },
               },
             },
           });

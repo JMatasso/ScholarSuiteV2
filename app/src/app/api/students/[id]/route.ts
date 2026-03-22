@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { computeJourneyStage } from "@/lib/journey";
 
 export async function GET(
   _req: Request,
@@ -149,24 +150,78 @@ export async function PATCH(
     }
 
     if (data.profile) {
-      // Whitelist allowed profile fields to prevent mass assignment
-      const allowedFields = [
-        "gpa", "gradeLevel", "graduationYear", "journeyStage", "status",
-        "school", "state", "county", "zipCode", "gender", "ethnicity",
-        "citizenship", "firstGeneration", "householdIncome", "fieldOfStudy",
-        "interests", "extracurriculars", "notes", "assignedAdminId",
+      const p = data.profile;
+      const profileUpdate: Record<string, unknown> = {};
+
+      // String fields
+      const stringFields = [
+        "firstName", "lastName", "phone", "address", "city", "state", "zipCode",
+        "county", "gpaType", "highSchool", "classRank", "classSize",
+        "intendedMajor", "major2", "major3", "gender", "ethnicity", "citizenship",
+        "militaryAffiliation", "disabilityStatus", "medicalConditions",
+        "householdIncome", "financialSituation",
+        "parent1Education", "parent1Profession", "parent1College",
+        "parent2Education", "parent2Profession", "parent2College",
+        "activities", "communityService", "leadershipRoles", "awards",
+        "dreamSchools", "goals", "committedCollegeName",
       ];
-      const sanitizedProfile: Record<string, unknown> = {};
-      for (const key of allowedFields) {
-        if (key in data.profile) {
-          sanitizedProfile[key] = data.profile[key];
-        }
+      for (const f of stringFields) {
+        if (p[f] !== undefined) profileUpdate[f] = p[f] || null;
       }
+
+      // Date field
+      if (p.dateOfBirth !== undefined) profileUpdate.dateOfBirth = p.dateOfBirth ? new Date(p.dateOfBirth) : null;
+
+      // Float fields
+      if (p.gpa !== undefined) profileUpdate.gpa = p.gpa ? parseFloat(p.gpa) : null;
+
+      // Int fields
+      const intFields = ["gradeLevel", "graduationYear", "graduationMonth", "satScore", "actScore"];
+      for (const f of intFields) {
+        if (p[f] !== undefined) profileUpdate[f] = p[f] ? parseInt(p[f]) : null;
+      }
+
+      // Boolean fields
+      const boolFields = [
+        "isFirstGen", "isPellEligible", "hasFinancialNeed",
+        "interestedInLgbtScholarships", "parentsDivorced", "isDependentStudent",
+        "doneApplying",
+      ];
+      for (const f of boolFields) {
+        if (p[f] !== undefined) profileUpdate[f] = Boolean(p[f]);
+      }
+
+      // Enum fields
+      if (p.status !== undefined) profileUpdate.status = p.status;
+      if (p.postSecondaryPath !== undefined) profileUpdate.postSecondaryPath = p.postSecondaryPath || "COLLEGE";
+      if (p.collegeJourneyStage !== undefined) profileUpdate.collegeJourneyStage = p.collegeJourneyStage || null;
+      if (p.serviceTier !== undefined) profileUpdate.serviceTier = p.serviceTier || null;
+
+      // Auto-calculate journey stage from graduation date if provided
+      const gradYear = p.graduationYear ? parseInt(p.graduationYear) : undefined;
+      const gradMonth = p.graduationMonth ? parseInt(p.graduationMonth) : undefined;
+      if (gradYear) {
+        profileUpdate.journeyStage = computeJourneyStage(gradYear, gradMonth);
+      } else if (p.journeyStage !== undefined) {
+        profileUpdate.journeyStage = p.journeyStage;
+      }
+
       await db.studentProfile.upsert({
         where: { userId: id },
-        update: sanitizedProfile,
-        create: { userId: id, ...sanitizedProfile },
+        update: profileUpdate,
+        create: { userId: id, ...profileUpdate },
       });
+
+      // Update user name if name fields changed
+      if (p.firstName !== undefined || p.lastName !== undefined) {
+        const existing = await db.studentProfile.findUnique({ where: { userId: id }, select: { firstName: true, lastName: true } });
+        const first = p.firstName ?? existing?.firstName ?? "";
+        const last = p.lastName ?? existing?.lastName ?? "";
+        const fullName = [first, last].filter(Boolean).join(" ");
+        if (fullName) {
+          await db.user.update({ where: { id }, data: { name: fullName } });
+        }
+      }
     }
 
     return NextResponse.json({ success: true });

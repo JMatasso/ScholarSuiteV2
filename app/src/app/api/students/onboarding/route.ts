@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { StudentStatus } from "@/generated/prisma/client";
 import { autoMatchStudentToLocalScholarships } from "@/lib/local-scholarship-matcher";
 import { determineCounty } from "@/lib/county-lookup";
+import { computeJourneyStage } from "@/lib/journey";
 
 export async function GET() {
   try {
@@ -41,6 +42,7 @@ export async function GET() {
         classRank: profile.classRank || "",
         classSize: profile.classSize || "",
         graduationYear: profile.graduationYear != null ? String(profile.graduationYear) : "",
+        graduationMonth: profile.graduationMonth != null ? String(profile.graduationMonth) : "",
         satScore: profile.satScore != null ? String(profile.satScore) : "",
         actScore: profile.actScore != null ? String(profile.actScore) : "",
         intendedMajor: profile.intendedMajor || "",
@@ -112,6 +114,7 @@ export async function POST(req: Request) {
       gradeLevel: data.gradeLevel ? parseInt(data.gradeLevel) : null,
       highSchool: data.highSchool || null,
       graduationYear: data.graduationYear ? parseInt(data.graduationYear) : null,
+      graduationMonth: data.graduationMonth ? parseInt(data.graduationMonth) : null,
       satScore: data.satScore ? parseInt(data.satScore) : null,
       actScore: data.actScore ? parseInt(data.actScore) : null,
       intendedMajor: data.intendedMajor || null,
@@ -138,7 +141,9 @@ export async function POST(req: Request) {
       interestedInLgbtScholarships: data.interestedInLgbtScholarships ?? false,
       // Auto-determine Pell eligibility from household income
       isPellEligible: data.isPellEligible !== undefined ? data.isPellEligible : autoPellEligible(data.householdIncome),
-      journeyStage: data.journeyStage || "EARLY_EXPLORATION",
+      journeyStage: data.graduationYear
+        ? computeJourneyStage(parseInt(data.graduationYear), data.graduationMonth ? parseInt(data.graduationMonth) : null)
+        : (data.journeyStage || "EARLY_EXPLORATION"),
       postSecondaryPath: data.postSecondaryPath || "COLLEGE",
       collegeJourneyStage: data.collegeJourneyStage || null,
       committedCollegeName: data.committedCollegeName || null,
