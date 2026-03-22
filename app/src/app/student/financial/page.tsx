@@ -257,7 +257,10 @@ export default function FinancialPlanPage() {
           {!hasFinancialPlan ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <DollarSign className="h-10 w-10 mb-3 opacity-40" />
-              <p className="text-sm">No financial plan yet. Your counselor will set one up with you.</p>
+              <p className="text-sm font-medium text-foreground">No semester budget yet</p>
+              <p className="text-xs mt-1 max-w-xs text-center">
+                Once you have an accepted college with cost data, your budget will be generated automatically.
+              </p>
             </div>
           ) : (
             <>
