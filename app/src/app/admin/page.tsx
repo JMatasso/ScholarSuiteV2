@@ -4,6 +4,7 @@ import * as React from "react"
 import { motion } from "motion/react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Users, FileText, Award, AlertTriangle, TrendingUp, ArrowRight, GraduationCap } from "@/lib/icons"
+import { AdminTeamChat } from "@/components/admin-team-chat"
 import { toast } from "sonner"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -327,7 +328,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent Activity */}
         <motion.div
           className="rounded-xl bg-card p-6 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
@@ -424,6 +425,16 @@ export default function AdminDashboardPage() {
               </motion.div>
             ))}
           </div>
+        </motion.div>
+
+        {/* Team Chat */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+          viewport={{ once: true }}
+        >
+          <AdminTeamChat />
         </motion.div>
       </div>
     </div>
