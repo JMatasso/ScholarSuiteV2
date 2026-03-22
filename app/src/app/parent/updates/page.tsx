@@ -22,6 +22,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "@/lib/icons"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 
 interface ActivityEvent {
   id: string
@@ -274,13 +275,12 @@ export default function ParentUpdatesPage() {
                     />
                   </div>
                   <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
+                    <CustomCheckbox
                       checked={prefs.smsConsent}
                       onChange={(e) =>
                         setPrefs((p) => ({ ...p, smsConsent: e.target.checked }))
                       }
-                      className="size-4 rounded border-input mt-0.5"
+                      className="h-5 w-5 mt-0.5"
                     />
                     <span className="text-xs text-muted-foreground">
                       I agree to receive text message alerts from ScholarSuite. Message and data rates may apply. Reply STOP to unsubscribe.

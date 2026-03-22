@@ -9,6 +9,7 @@ import { ActionMenu } from "@/components/ui/action-menu"
 import { motion, AnimatePresence } from "motion/react"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 
 interface Lesson {
   id: string
@@ -285,8 +286,8 @@ export default function LearningPage() {
                 className="h-9" />
             </div>
             <div className="flex items-center gap-2">
-              <input type="checkbox" id="isPublished" checked={form.isPublished} onChange={e => setForm(p => ({ ...p, isPublished: e.target.checked }))}
-                className="size-4 rounded border-input" />
+              <CustomCheckbox id="isPublished" checked={form.isPublished} onChange={e => setForm(p => ({ ...p, isPublished: e.target.checked }))}
+                className="h-5 w-5" />
               <label htmlFor="isPublished" className="text-sm text-foreground">Publish immediately</label>
             </div>
           </div>

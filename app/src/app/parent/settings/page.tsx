@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
 import { Loader2, Save, Shield, Check, Sparkles, Crown, TrendingUp, Bell, MessageSquare, FileText, Mail, Phone, Smartphone } from "@/lib/icons"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 import LoaderOne from "@/components/ui/loader-one"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/ui/page-header"
@@ -221,11 +222,10 @@ export default function ParentSettingsPage() {
                         />
                       </div>
                       <label className="flex items-start gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
+                        <CustomCheckbox
                           checked={Boolean(prefs.smsConsent)}
                           onChange={e => setPrefs(p => ({ ...p, smsConsent: e.target.checked }))}
-                          className="size-4 rounded border-input mt-0.5"
+                          className="h-5 w-5 mt-0.5"
                         />
                         <span className="text-xs text-muted-foreground">
                           I agree to receive text alerts from ScholarSuite. Reply STOP to unsubscribe.

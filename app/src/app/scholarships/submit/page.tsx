@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 
 const ORG_TYPES = [
   "Foundation",
@@ -297,11 +298,10 @@ export default function SubmitScholarshipPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <input
+              <CustomCheckbox
                 id="isRecurring"
                 name="isRecurring"
-                type="checkbox"
-                className="h-4 w-4 rounded border-border text-[#2563EB] focus:ring-ring"
+                className="h-5 w-5"
               />
               <label htmlFor="isRecurring" className="text-sm text-foreground">
                 This scholarship is offered every year

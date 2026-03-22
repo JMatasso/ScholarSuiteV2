@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, GraduationCap, Loader2 } from "@/lib/icons";
 import { AnimatedLogo } from "@/components/ui/animated-logo";
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 
 // --- TYPE DEFINITIONS ---
 
@@ -115,7 +116,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
               <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" name="rememberMe" className="custom-checkbox" />
+                  <CustomCheckbox name="rememberMe" className="h-5 w-5" />
                   <span className="text-foreground/90">Keep me signed in</span>
                 </label>
               </div>

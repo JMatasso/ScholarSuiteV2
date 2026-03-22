@@ -10,6 +10,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { GridList, GridListItem } from "@/components/ui/grid-list"
 import { toast } from "sonner"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
 import {
@@ -19,10 +20,11 @@ import {
   ExternalLink,
   Trash2,
   ArrowUpDown,
+  Loader2,
   CheckSquare,
   Square,
-  Loader2,
 } from "@/lib/icons"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 
 interface Scholarship {
   id: string
@@ -408,13 +410,13 @@ export default function ApplicationsPage() {
         <div className="rounded-xl bg-card ring-1 ring-foreground/5 overflow-hidden">
           {/* Table header */}
           <div className="grid grid-cols-[32px_1fr_140px_110px_110px_140px_auto] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30 min-w-[900px]">
-            <button type="button" onClick={toggleSelectAll} className="flex items-center justify-center">
-              {selectedIds.size === filtered.length && filtered.length > 0 ? (
-                <CheckSquare className="h-4 w-4 text-[#2563EB]" />
-              ) : (
-                <Square className="h-4 w-4 text-muted-foreground" />
-              )}
-            </button>
+            <div className="flex items-center justify-center">
+              <CustomCheckbox
+                checked={selectedIds.size === filtered.length && filtered.length > 0}
+                onChange={toggleSelectAll}
+                className="h-4 w-4"
+              />
+            </div>
             <SortButton field="name">Scholarship</SortButton>
             <SortButton field="provider">Provider</SortButton>
             <SortButton field="amount">Amount</SortButton>
@@ -436,13 +438,13 @@ export default function ApplicationsPage() {
                   transition={{ duration: 0.2, delay: index * 0.02 }}
                 >
                   {/* Checkbox */}
-                  <button type="button" onClick={() => toggleSelect(app.id)} className="flex items-center justify-center">
-                    {selectedIds.has(app.id) ? (
-                      <CheckSquare className="h-4 w-4 text-[#2563EB]" />
-                    ) : (
-                      <Square className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </button>
+                  <div className="flex items-center justify-center">
+                    <CustomCheckbox
+                      checked={selectedIds.has(app.id)}
+                      onChange={() => toggleSelect(app.id)}
+                      className="h-4 w-4"
+                    />
+                  </div>
 
                   {/* Scholarship Name */}
                   <div className="min-w-0">
@@ -542,25 +544,28 @@ export default function ApplicationsPage() {
               placeholder="Search available scholarships..."
               className="w-full"
             />
-            <div className="max-h-64 overflow-y-auto space-y-1 rounded-lg border border-border p-1.5">
-              {filteredAddScholarships.length === 0 ? (
+            <GridList
+              aria-label="Available scholarships"
+              className="max-h-64 overflow-y-auto"
+              selectionMode="none"
+              renderEmptyState={() => (
                 <p className="text-sm text-muted-foreground text-center py-4">No scholarships found</p>
-              ) : (
-                filteredAddScholarships.map((s) => {
-                  const alreadyAdded = existingScholarshipIds.has(s.id)
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      disabled={alreadyAdded || adding}
-                      onClick={() => handleAddScholarship(s.id)}
-                      className={cn(
-                        "flex w-full items-center justify-between rounded-md px-3 py-3 sm:py-2 text-left transition-colors",
-                        alreadyAdded
-                          ? "opacity-50 cursor-not-allowed bg-muted/30"
-                          : "hover:bg-muted/50 cursor-pointer"
-                      )}
-                    >
+              )}
+            >
+              {filteredAddScholarships.map((s) => {
+                const alreadyAdded = existingScholarshipIds.has(s.id)
+                return (
+                  <GridListItem
+                    key={s.id}
+                    textValue={s.name}
+                    isDisabled={alreadyAdded || adding}
+                    onAction={() => !alreadyAdded && !adding && handleAddScholarship(s.id)}
+                    className={cn(
+                      "cursor-pointer py-3 sm:py-2",
+                      alreadyAdded && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    <div className="flex w-full items-center justify-between">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{s.name}</p>
                         <p className="text-xs text-muted-foreground">
@@ -570,11 +575,11 @@ export default function ApplicationsPage() {
                       {alreadyAdded && (
                         <span className="text-[10px] text-muted-foreground shrink-0 ml-2">Added</span>
                       )}
-                    </button>
-                  )
-                })
-              )}
-            </div>
+                    </div>
+                  </GridListItem>
+                )
+              })}
+            </GridList>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddDialogOpen(false)}>Close</Button>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Shield, Sparkles, AlertTriangle } from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { ProfileSettings } from "@/components/ui/profile-settings"
 
@@ -173,21 +174,19 @@ export default function SettingsPage() {
               />
             </div>
             <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
+              <CustomCheckbox
                 checked={get("emailNotifications", "true") === "true"}
                 onChange={e => set("emailNotifications", String(e.target.checked))}
-                className="size-4 rounded border-input"
+                className="h-5 w-5"
                 id="email-notif"
               />
               <label htmlFor="email-notif" className="text-sm text-foreground">Send email notifications for new messages</label>
             </div>
             <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
+              <CustomCheckbox
                 checked={get("weeklyDigest", "true") === "true"}
                 onChange={e => set("weeklyDigest", String(e.target.checked))}
-                className="size-4 rounded border-input"
+                className="h-5 w-5"
                 id="email-digest"
               />
               <label htmlFor="email-digest" className="text-sm text-foreground">Send weekly digest to students</label>
@@ -214,21 +213,19 @@ export default function SettingsPage() {
               />
             </div>
             <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
+              <CustomCheckbox
                 checked={get("require2faAdmins", "true") === "true"}
                 onChange={e => set("require2faAdmins", String(e.target.checked))}
-                className="size-4 rounded border-input"
+                className="h-5 w-5"
                 id="2fa"
               />
               <label htmlFor="2fa" className="text-sm text-foreground">Require two-factor authentication for admins</label>
             </div>
             <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
+              <CustomCheckbox
                 checked={get("require2faStudents", "false") === "true"}
                 onChange={e => set("require2faStudents", String(e.target.checked))}
-                className="size-4 rounded border-input"
+                className="h-5 w-5"
                 id="2fa-students"
               />
               <label htmlFor="2fa-students" className="text-sm text-foreground">Require two-factor authentication for students</label>
@@ -273,11 +270,10 @@ export default function SettingsPage() {
               <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-4">Student Privacy Options</h3>
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
+                  <CustomCheckbox
                     checked={get("privacy:allowStudentHideGpa", "true") === "true"}
                     onChange={e => set("privacy:allowStudentHideGpa", String(e.target.checked))}
-                    className="size-4 rounded border-input mt-0.5"
+                    className="h-5 w-5 mt-0.5"
                     id="privacy-hide-gpa"
                   />
                   <div>
@@ -286,11 +282,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
+                  <CustomCheckbox
                     checked={get("privacy:allowStudentHideEssays", "true") === "true"}
                     onChange={e => set("privacy:allowStudentHideEssays", String(e.target.checked))}
-                    className="size-4 rounded border-input mt-0.5"
+                    className="h-5 w-5 mt-0.5"
                     id="privacy-hide-essays"
                   />
                   <div>
@@ -299,11 +294,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
+                  <CustomCheckbox
                     checked={get("privacy:allowStudentHideCohortProfile", "true") === "true"}
                     onChange={e => set("privacy:allowStudentHideCohortProfile", String(e.target.checked))}
-                    className="size-4 rounded border-input mt-0.5"
+                    className="h-5 w-5 mt-0.5"
                     id="privacy-hide-cohort"
                   />
                   <div>
@@ -318,11 +312,10 @@ export default function SettingsPage() {
               <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-4">Parent Privacy Options</h3>
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
+                  <CustomCheckbox
                     checked={get("privacy:allowParentHideContactFromCounselors", "true") === "true"}
                     onChange={e => set("privacy:allowParentHideContactFromCounselors", String(e.target.checked))}
-                    className="size-4 rounded border-input mt-0.5"
+                    className="h-5 w-5 mt-0.5"
                     id="privacy-parent-contact"
                   />
                   <div>
@@ -331,11 +324,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
+                  <CustomCheckbox
                     checked={get("privacy:allowParentEmailOnlyComms", "true") === "true"}
                     onChange={e => set("privacy:allowParentEmailOnlyComms", String(e.target.checked))}
-                    className="size-4 rounded border-input mt-0.5"
+                    className="h-5 w-5 mt-0.5"
                     id="privacy-parent-email-only"
                   />
                   <div>
@@ -373,11 +365,10 @@ export default function SettingsPage() {
               <h3 className="text-sm font-semibold text-secondary-foreground uppercase tracking-wide mb-4">Scholarship Matching</h3>
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
+                  <CustomCheckbox
                     checked={get("feature:aiMatching", "false") === "true"}
                     onChange={e => set("feature:aiMatching", String(e.target.checked))}
-                    className="size-4 rounded border-input mt-0.5"
+                    className="h-5 w-5 mt-0.5"
                     id="ai-matching"
                   />
                   <div>

@@ -31,6 +31,8 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
+import { GridList, GridListItem } from "@/components/ui/grid-list"
 
 interface Campaign {
   id: string
@@ -390,47 +392,48 @@ export default function AdminReviewsPage() {
                   </button>
                 )}
               </div>
-              <div className="max-h-48 overflow-y-auto rounded-lg border border-border divide-y divide-gray-100">
-                {loadingStudents ? (
-                  <p className="p-4 text-center text-xs text-muted-foreground">
-                    Loading students...
-                  </p>
-                ) : filteredStudents.length === 0 ? (
-                  <p className="p-4 text-center text-xs text-muted-foreground">
-                    No students found
-                  </p>
-                ) : (
-                  filteredStudents.map((student) => (
-                    <label
-                      key={student.id}
-                      className="flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(student.id)}
-                        onChange={() => toggleStudent(student.id)}
-                        className="rounded border-border"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {student.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {student.email}
-                        </p>
-                      </div>
-                      {student.status === "GRADUATED" && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-emerald-100 text-emerald-700 text-[10px]"
-                        >
-                          Graduated
-                        </Badge>
-                      )}
-                    </label>
-                  ))
-                )}
-              </div>
+              <GridList
+                aria-label="Select students for review"
+                className="max-h-48 overflow-y-auto"
+                selectionMode="multiple"
+                selectionBehavior="toggle"
+                selectedKeys={new Set(selectedIds)}
+                onSelectionChange={(keys) => {
+                  if (keys === "all") {
+                    setSelectedIds(filteredStudents.map((s) => s.id))
+                  } else {
+                    setSelectedIds(Array.from(keys as Set<string>))
+                  }
+                }}
+                renderEmptyState={() =>
+                  loadingStudents ? (
+                    <p className="p-4 text-center text-xs text-muted-foreground">Loading students...</p>
+                  ) : (
+                    <p className="p-4 text-center text-xs text-muted-foreground">No students found</p>
+                  )
+                }
+              >
+                {filteredStudents.map((student) => (
+                  <GridListItem key={student.id} id={student.id} textValue={student.name}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {student.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {student.email}
+                      </p>
+                    </div>
+                    {student.status === "GRADUATED" && (
+                      <Badge
+                        variant="secondary"
+                        className="bg-emerald-100 text-emerald-700 text-[10px]"
+                      >
+                        Graduated
+                      </Badge>
+                    )}
+                  </GridListItem>
+                ))}
+              </GridList>
               <p className="text-[11px] text-muted-foreground">
                 <Users className="inline h-3 w-3 mr-1" />
                 Linked parents will automatically receive a review email too.

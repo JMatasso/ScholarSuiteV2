@@ -15,6 +15,7 @@ import {
   CheckCircle2, Clock, ListTodo, Plus, Trash2, Building2, Upload,
 } from "@/lib/icons"
 import { AssigneePicker, type AdminUser } from "@/components/ui/assignee-picker"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 import { FullScreenCalendar, type CalendarData, type CalendarEvent } from "@/components/ui/fullscreen-calendar"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
@@ -839,11 +840,10 @@ function StudentDetailContent() {
               </div>
             </div>
             <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+              <CustomCheckbox
                 checked={newTask.requiresUpload}
                 onChange={e => setNewTask(prev => ({ ...prev, requiresUpload: e.target.checked }))}
-                className="rounded border-border"
+                className="h-5 w-5"
               />
               Requires document upload to complete
             </label>

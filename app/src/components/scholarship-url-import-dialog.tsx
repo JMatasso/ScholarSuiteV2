@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Globe, Loader2, Sparkles, Save, AlertCircle } from "@/lib/icons"
 import { toast } from "sonner"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 
 interface ExtractedData {
   name?: string
@@ -264,15 +265,15 @@ export function ScholarshipUrlImportDialog({
               </div>
               <div className="flex flex-wrap gap-4">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={data.requiresFirstGen || false} onChange={(e) => updateField("requiresFirstGen", e.target.checked)} className="size-4 rounded border-input" />
+                  <CustomCheckbox checked={data.requiresFirstGen || false} onChange={(e) => updateField("requiresFirstGen", e.target.checked)} className="h-5 w-5" />
                   First-gen required
                 </label>
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={data.requiresPell || false} onChange={(e) => updateField("requiresPell", e.target.checked)} className="size-4 rounded border-input" />
+                  <CustomCheckbox checked={data.requiresPell || false} onChange={(e) => updateField("requiresPell", e.target.checked)} className="h-5 w-5" />
                   Pell eligible required
                 </label>
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={data.requiresFinancialNeed || false} onChange={(e) => updateField("requiresFinancialNeed", e.target.checked)} className="size-4 rounded border-input" />
+                  <CustomCheckbox checked={data.requiresFinancialNeed || false} onChange={(e) => updateField("requiresFinancialNeed", e.target.checked)} className="h-5 w-5" />
                   Financial need required
                 </label>
               </div>

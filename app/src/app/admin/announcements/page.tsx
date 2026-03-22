@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Plus, Pin, Clock, Users, UserPlus, Shield } from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 
 interface Announcement {
   id: string
@@ -186,12 +187,11 @@ export default function AnnouncementsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
+              <CustomCheckbox
                 id="isPinned"
                 checked={form.isPinned}
                 onChange={e => setForm(p => ({ ...p, isPinned: e.target.checked }))}
-                className="size-4 rounded border-input"
+                className="h-5 w-5"
               />
               <label htmlFor="isPinned" className="text-sm text-foreground">Pin this announcement</label>
             </div>
@@ -271,7 +271,7 @@ export default function AnnouncementsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" checked={editForm.isPinned} onChange={e => setEditForm(p => ({ ...p, isPinned: e.target.checked }))} className="size-4 rounded border-input" />
+                      <CustomCheckbox checked={editForm.isPinned} onChange={e => setEditForm(p => ({ ...p, isPinned: e.target.checked }))} className="h-5 w-5" />
                       <label className="text-sm text-foreground">Pinned</label>
                     </div>
                   </div>

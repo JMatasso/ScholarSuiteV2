@@ -14,6 +14,7 @@ import { Plus, Upload, Mail, Eye, Trash2, Pencil } from "@/lib/icons"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 import { useRouter } from "next/navigation"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -146,19 +147,17 @@ export default function StudentsPage() {
     {
       id: "select",
       header: ({ table }) => (
-        <input
-          type="checkbox"
+        <CustomCheckbox
           checked={table.getIsAllPageRowsSelected()}
           onChange={(e) => { table.toggleAllPageRowsSelected(e.target.checked); setSelectedCount(e.target.checked ? filtered.length : 0); setSelectedIds(e.target.checked ? new Set(filtered.map(s => s.id)) : new Set()) }}
-          className="size-4 rounded border-input"
+          className="h-4 w-4"
         />
       ),
       cell: ({ row }) => (
-        <input
-          type="checkbox"
+        <CustomCheckbox
           checked={row.getIsSelected()}
           onChange={(e) => { row.toggleSelected(e.target.checked); setSelectedCount(prev => e.target.checked ? prev + 1 : prev - 1); setSelectedIds(prev => { const next = new Set(prev); e.target.checked ? next.add(row.original.id) : next.delete(row.original.id); return next }) }}
-          className="size-4 rounded border-input"
+          className="h-4 w-4"
         />
       ),
       enableSorting: false,
