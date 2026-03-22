@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { JourneyTimeline } from "@/components/ui/journey-timeline"
+import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
 import {
   Search,
   FileText,
@@ -26,6 +28,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
+  Target,
 } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -149,6 +152,7 @@ export default function StudentDashboard() {
   const [activities, setActivities] = useState<ActivityEntry[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [messages, setMessages] = useState<Message[]>([])
+  const [timelineData, setTimelineData] = useState<{ journeyStage: string; tasksByStage: Record<string, { total: number; completed: number }> } | null>(null)
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState<string | null>(null)
   const [bannerDismissed, setBannerDismissed] = useState(false)
@@ -193,7 +197,8 @@ export default function StudentDashboard() {
       fetch("/api/activities").then(r => r.json()).catch(() => []),
       fetch("/api/meetings").then(r => r.json()).catch(() => []),
       fetch("/api/messages").then(r => r.json()).catch(() => []),
-    ]).then(([t, a, s, c, e, act, m, msg]) => {
+      fetch("/api/timeline").then(r => r.json()).catch(() => null),
+    ]).then(([t, a, s, c, e, act, m, msg, tl]) => {
       setTasks(Array.isArray(t) ? t : [])
       setApplications(Array.isArray(a) ? a : [])
       setScholarships(Array.isArray(s) ? s : [])
@@ -202,6 +207,7 @@ export default function StudentDashboard() {
       setActivities(Array.isArray(act) ? act : [])
       setMeetings(Array.isArray(m) ? m : [])
       setMessages(Array.isArray(msg) ? msg : [])
+      setTimelineData(tl && tl.journeyStage ? tl : null)
       setLoading(false)
     })
   }, [])
@@ -322,6 +328,45 @@ export default function StudentDashboard() {
           </span>
         </motion.div>
       )}
+
+      {/* Journey Stage + Timeline */}
+      {timelineData && (() => {
+        const stageInfo = JOURNEY_STAGE_LABELS[timelineData.journeyStage]
+        return (
+          <>
+            {stageInfo && (
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
+                <Card variant="bento" className="border-[#2563EB]/20 bg-blue-50/30">
+                  <CardContent className="pt-0">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10 ring-2 ring-[#2563EB]/20">
+                        <Target className="h-5 w-5 text-[#2563EB]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#1E3A5F]">{stageInfo.label}</p>
+                        <p className="text-xs text-muted-foreground">{stageInfo.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+              <Card variant="bento">
+                <CardHeader>
+                  <CardTitle className="text-sm">4-Year Journey</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <JourneyTimeline
+                    currentStage={timelineData.journeyStage}
+                    taskCounts={timelineData.tasksByStage}
+                  />
+                </CardContent>
+              </Card>
+            </motion.div>
+          </>
+        )
+      })()}
 
       {/* Stat Cards — 6 cards: 3 scholarship + 3 college/activity */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">

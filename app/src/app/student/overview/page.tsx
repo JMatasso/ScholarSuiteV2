@@ -6,8 +6,6 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ScholarshipPipeline } from "@/components/ui/scholarship-pipeline"
-import { JourneyTimeline } from "@/components/ui/journey-timeline"
-import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
 import {
   Award,
   DollarSign,
@@ -17,7 +15,6 @@ import {
   Clock,
   Send,
   AlertTriangle,
-  Target,
 } from "lucide-react"
 
 interface Scholarship {
@@ -36,25 +33,18 @@ interface Application {
   updatedAt: string
 }
 
-interface TimelineData {
-  journeyStage: string
-  tasksByStage: Record<string, { total: number; completed: number }>
-}
-
 export default function OverviewPage() {
   const [applications, setApplications] = useState<Application[]>([])
-  const [timelineData, setTimelineData] = useState<TimelineData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/applications").then((r) => r.json()).catch(() => []),
-      fetch("/api/timeline").then((r) => r.json()).catch(() => null),
-    ]).then(([apps, timeline]) => {
-      setApplications(Array.isArray(apps) ? apps : [])
-      setTimelineData(timeline && timeline.journeyStage ? timeline : null)
-      setLoading(false)
-    })
+    fetch("/api/applications")
+      .then((r) => r.json())
+      .then((apps) => {
+        setApplications(Array.isArray(apps) ? apps : [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
 
   const stats = useMemo(() => {
@@ -94,8 +84,6 @@ export default function OverviewPage() {
     () => applications.filter((a) => a.status === "AWARDED"),
     [applications]
   )
-
-  const stageInfo = timelineData ? JOURNEY_STAGE_LABELS[timelineData.journeyStage] : null
 
   if (loading) {
     return (
@@ -196,39 +184,6 @@ export default function OverviewPage() {
           )
         })}
       </div>
-
-      {/* Journey Stage + Timeline */}
-      {timelineData && (
-        <>
-          {stageInfo && (
-            <Card variant="bento" className="border-[#2563EB]/20 bg-blue-50/30">
-              <CardContent className="pt-0">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10 ring-2 ring-[#2563EB]/20">
-                    <Target className="h-5 w-5 text-[#2563EB]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#1E3A5F]">{stageInfo.label}</p>
-                    <p className="text-xs text-muted-foreground">{stageInfo.description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card variant="bento">
-            <CardHeader>
-              <CardTitle className="text-sm">4-Year Journey</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <JourneyTimeline
-                currentStage={timelineData.journeyStage}
-                taskCounts={timelineData.tasksByStage}
-              />
-            </CardContent>
-          </Card>
-        </>
-      )}
 
       {/* Scholarship Pipeline */}
       <div>

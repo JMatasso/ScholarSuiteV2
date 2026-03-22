@@ -46,7 +46,6 @@ const navGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/student", icon: LayoutDashboard },
-      { name: "Overview", href: "/student/overview", icon: Trophy },
       { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
       { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
@@ -58,6 +57,7 @@ const navGroups = [
     items: [
       { name: "Discovery", href: "/student/scholarships", icon: Search },
       { name: "Applications", href: "/student/applications", icon: FileText },
+      { name: "Overview", href: "/student/overview", icon: Trophy },
     ],
   },
   {
