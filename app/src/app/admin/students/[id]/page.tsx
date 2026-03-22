@@ -15,6 +15,7 @@ import {
   CheckCircle2, Clock, ListTodo, Plus, Trash2, Building2, Upload,
 } from "@/lib/icons"
 import { AssigneePicker, type AdminUser } from "@/components/ui/assignee-picker"
+import { FullScreenCalendar, type CalendarData, type CalendarEvent } from "@/components/ui/fullscreen-calendar"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
 import { TASK_PHASE_TO_JOURNEY_STAGE, SERVICE_TIER_LABELS, JOURNEY_STAGE_LABELS } from "@/lib/constants"
@@ -24,6 +25,7 @@ const tabItems = [
   { id: "Applications", label: "Scholarships" },
   { id: "CollegeApps", label: "College Apps" },
   { id: "Tasks", label: "Tasks" },
+  { id: "Calendar", label: "Calendar" },
   { id: "Essays", label: "Essays" },
   { id: "Documents", label: "Documents" },
   { id: "Financial", label: "Financial" },
@@ -121,6 +123,28 @@ function StudentDetailContent() {
   const [student, setStudent] = React.useState<StudentData | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [noteText, setNoteText] = React.useState("")
+  const [calendarData, setCalendarData] = React.useState<CalendarData[]>([])
+  const [calendarLoading, setCalendarLoading] = React.useState(false)
+
+  // Fetch student calendar when Calendar tab is active
+  React.useEffect(() => {
+    if (activeTab !== "Calendar" || !id) return
+    setCalendarLoading(true)
+    fetch(`/api/calendar?studentId=${id}`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (Array.isArray(res)) {
+          setCalendarData(
+            res.map((d: { day: string; events: CalendarEvent[] }) => ({
+              day: new Date(d.day),
+              events: d.events,
+            }))
+          )
+        }
+        setCalendarLoading(false)
+      })
+      .catch(() => setCalendarLoading(false))
+  }, [activeTab, id])
   const [assigningTasks, setAssigningTasks] = React.useState(false)
   const [admins, setAdmins] = React.useState<AdminUser[]>([])
   const [addTaskOpen, setAddTaskOpen] = React.useState(false)
@@ -591,6 +615,34 @@ function StudentDetailContent() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {activeTab === "Calendar" && (
+          <div className="flex flex-col gap-4">
+            {calendarLoading ? (
+              <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">Loading calendar...</div>
+            ) : calendarData.length === 0 ? (
+              <div className="text-sm text-muted-foreground text-center py-12">No upcoming events for this student.</div>
+            ) : (
+              <div className="rounded-xl bg-card ring-1 ring-foreground/5 overflow-hidden">
+                <FullScreenCalendar data={calendarData} compact />
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-4 px-1">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="size-2 rounded-full bg-blue-500" /> Scholarships
+              </span>
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="size-2 rounded-full bg-amber-500" /> Tasks
+              </span>
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="size-2 rounded-full bg-emerald-500" /> Meetings
+              </span>
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="size-2 rounded-full bg-purple-500" /> College Apps
+              </span>
+            </div>
           </div>
         )}
 

@@ -1131,8 +1131,10 @@ model CalendarEvent {
   title       String
   description String?
   date        DateTime
+  endDate     DateTime?
   type        String?
   linkedId    String?
+  createdById String?
   createdAt   DateTime @default(now())
 }
 

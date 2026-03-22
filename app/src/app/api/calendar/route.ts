@@ -150,6 +150,18 @@ export async function GET(request: NextRequest) {
     const role = session.user.role
     const events: CalendarEvent[] = []
 
+    // Admin can request a specific student's calendar
+    const { searchParams } = new URL(request.url)
+    const studentId = searchParams.get("studentId")
+    if (role === "ADMIN" && studentId) {
+      const studentEvents = await getStudentEvents([studentId])
+      events.push(...studentEvents)
+      const meetingEvents = await getMeetingEvents(studentId)
+      events.push(...meetingEvents)
+      const grouped = groupByDay(events)
+      return NextResponse.json(grouped)
+    }
+
     if (role === "STUDENT") {
       // Student's own tasks, scholarship deadlines, college apps
       const studentEvents = await getStudentEvents([userId])
@@ -189,22 +201,20 @@ export async function GET(request: NextRequest) {
         })
       }
 
-      // All active scholarship deadlines
-      const scholarships = await db.scholarship.findMany({
-        where: {
-          isActive: true,
-          deadline: { not: null },
-        },
+      // Admin tasks with due dates
+      const adminTasks = await db.task.findMany({
+        where: { dueDate: { not: null } },
+        include: { user: { select: { name: true } } },
       })
-      for (const s of scholarships) {
-        if (!s.deadline) continue
+      for (const task of adminTasks) {
+        if (!task.dueDate) continue
         events.push({
-          id: `scholarship-${s.id}`,
-          name: s.name,
-          time: formatTime(s.deadline),
-          datetime: formatDatetime(s.deadline),
-          type: "scholarship",
-          day: formatDay(s.deadline),
+          id: `task-${task.id}`,
+          name: `${task.title}${task.user?.name ? ` (${task.user.name})` : ""}`,
+          time: formatTime(task.dueDate),
+          datetime: formatDatetime(task.dueDate),
+          type: "task",
+          day: formatDay(task.dueDate),
         })
       }
     }
@@ -230,5 +240,66 @@ export async function GET(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     )
+  }
+}
+
+// POST — create a new calendar event (admin only)
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if ((session.user as { role: string }).role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    const body = await request.json()
+    const { title, description, date, endDate, type } = body
+
+    if (!title || !date) {
+      return NextResponse.json({ error: "Title and date are required" }, { status: 400 })
+    }
+
+    const event = await db.calendarEvent.create({
+      data: {
+        title,
+        description: description || null,
+        date: new Date(date),
+        endDate: endDate ? new Date(endDate) : null,
+        type: type || "general",
+        createdById: session.user.id,
+      },
+    })
+
+    return NextResponse.json(event, { status: 201 })
+  } catch (error) {
+    console.error("Calendar POST error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+// DELETE — remove a calendar event (admin only)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if ((session.user as { role: string }).role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get("id")
+    if (!id) {
+      return NextResponse.json({ error: "Missing event id" }, { status: 400 })
+    }
+
+    await db.calendarEvent.delete({ where: { id } })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Calendar DELETE error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
