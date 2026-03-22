@@ -377,17 +377,22 @@ export default function StudentDashboard() {
       {/* 4-Year Journey Timeline */}
       {timelineData && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <Card variant="bento">
-            <CardHeader>
-              <CardTitle className="text-sm">4-Year Journey</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <JourneyTimeline
-                currentStage={timelineData.journeyStage}
-                taskCounts={timelineData.tasksByStage}
-              />
-            </CardContent>
-          </Card>
+          <Link href="/student/learning" className="block group">
+            <Card variant="bento" className="cursor-pointer transition-shadow group-hover:shadow-md">
+              <CardHeader className="flex-row items-center justify-between">
+                <CardTitle className="text-sm">4-Year Journey</CardTitle>
+                <span className="text-xs text-muted-foreground group-hover:text-[#2563EB] transition-colors flex items-center gap-1">
+                  View details <ArrowRight className="h-3 w-3" />
+                </span>
+              </CardHeader>
+              <CardContent>
+                <JourneyTimeline
+                  currentStage={timelineData.journeyStage}
+                  taskCounts={timelineData.tasksByStage}
+                />
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
       )}
 
