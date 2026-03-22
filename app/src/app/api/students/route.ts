@@ -14,6 +14,22 @@ export async function GET(req: Request) {
     const roleFilter = searchParams.get("role");
 
     if (role === "ADMIN") {
+      // Lightweight list for push dialogs, pickers, etc.
+      const minimal = searchParams.get("minimal");
+      if (minimal === "true") {
+        const students = await db.user.findMany({
+          where: { role: "STUDENT", isActive: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            studentProfile: { select: { journeyStage: true } },
+          },
+          orderBy: { name: "asc" },
+        });
+        return NextResponse.json(students);
+      }
+
       // Admin can query PARENT role users for the parents page
       if (roleFilter === "PARENT") {
         const parents = await db.user.findMany({
@@ -111,31 +127,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // Auto-assign tasks from the default template
-    try {
-      const template = await db.taskTemplate.findFirst({
-        where: { isDefault: true },
-        include: { items: { orderBy: { order: "asc" } } },
-      });
-      if (template && template.items.length > 0) {
-        await db.task.createMany({
-          data: template.items.map((item) => ({
-            userId: user.id,
-            title: item.title,
-            description: item.description,
-            phase: item.phase,
-            track: item.track,
-            priority: item.priority,
-            documentFolder: item.documentFolder,
-            templateId: template.id,
-            templateItemId: item.id,
-          })),
-        });
-      }
-    } catch (templateErr) {
-      console.error("Failed to auto-assign tasks:", templateErr);
-      // Don't fail student creation if template assignment fails
-    }
+    // Tasks are no longer auto-assigned on student creation.
+    // Admins push task templates to students on demand from /admin/templates.
 
     return NextResponse.json(user, { status: 201 });
   } catch (error) {

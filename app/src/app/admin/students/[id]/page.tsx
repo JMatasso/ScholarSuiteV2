@@ -216,13 +216,16 @@ function StudentDetailContent() {
     }
   }
 
-  const handleAssignPhaseTasks = async () => {
+  const [pushStage, setPushStage] = React.useState<string>("")
+
+  const handleAssignPhaseTasks = async (stage?: string) => {
+    const targetStage = stage || pushStage || student?.studentProfile?.journeyStage || "EARLY_EXPLORATION"
     setAssigningTasks(true)
     try {
       const res = await fetch("/api/task-templates/assign-phase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentId: id }),
+        body: JSON.stringify({ studentId: id, stage: targetStage }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to assign tasks")
@@ -571,14 +574,23 @@ function StudentDetailContent() {
                   <Plus className="h-4 w-4" />
                   Add Task
                 </Button>
+                <select
+                  value={pushStage || student?.studentProfile?.journeyStage || "EARLY_EXPLORATION"}
+                  onChange={e => setPushStage(e.target.value)}
+                  className="h-8 rounded-lg border border-input bg-transparent px-2 text-xs outline-none focus-visible:border-ring"
+                >
+                  {Object.entries(JOURNEY_STAGE_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>{v.shortLabel}</option>
+                  ))}
+                </select>
                 <Button
                   size="sm"
                   className="gap-2"
                   disabled={assigningTasks}
-                  onClick={handleAssignPhaseTasks}
+                  onClick={() => handleAssignPhaseTasks()}
                 >
                   <ListTodo className="h-4 w-4" />
-                  {assigningTasks ? "Assigning..." : "Assign Phase Tasks"}
+                  {assigningTasks ? "Pushing..." : "Push Stage Tasks"}
                 </Button>
               </div>
             </div>

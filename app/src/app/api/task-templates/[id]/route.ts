@@ -24,6 +24,7 @@ export async function PATCH(
     if (data.priority !== undefined) updateData.priority = data.priority
     if (data.order !== undefined) updateData.order = data.order
     if (data.documentFolder !== undefined) updateData.documentFolder = data.documentFolder
+    if (data.requiresUpload !== undefined) updateData.requiresUpload = data.requiresUpload
 
     const item = await db.taskTemplateItem.update({
       where: { id },

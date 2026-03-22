@@ -81,6 +81,7 @@ export async function POST(req: Request) {
         priority: data.priority || "MEDIUM",
         order: data.order ?? (maxOrder._max.order || 0) + 1,
         documentFolder: data.documentFolder || null,
+        requiresUpload: data.requiresUpload ?? false,
       },
     })
 

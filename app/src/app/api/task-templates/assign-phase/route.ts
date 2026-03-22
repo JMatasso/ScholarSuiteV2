@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
-import { JOURNEY_STAGE_TO_TASK_PHASES, DEFAULT_TEMPLATE_ITEMS } from "@/lib/constants"
+import { JOURNEY_STAGE_TO_TASK_PHASES } from "@/lib/constants"
 
-// POST — assign template tasks for a specific journey stage to a single student
+// POST — assign template tasks for a specific journey stage
+// Supports: single student, multiple students, or all students in a stage
 export async function POST(req: Request) {
   try {
     const session = await auth()
@@ -12,69 +13,81 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json()
-    const { studentId, stage } = data as { studentId: string; stage?: string }
-
-    if (!studentId) {
-      return NextResponse.json({ error: "studentId is required" }, { status: 400 })
+    const { studentId, studentIds, stage, allInStage } = data as {
+      studentId?: string
+      studentIds?: string[]
+      stage?: string
+      allInStage?: boolean
     }
 
-    // Look up the student's journey stage if not provided
-    let targetStage = stage
-    if (!targetStage) {
-      const profile = await db.studentProfile.findUnique({
-        where: { userId: studentId },
-        select: { journeyStage: true },
-      })
-      targetStage = profile?.journeyStage || "EARLY_EXPLORATION"
+    if (!stage) {
+      return NextResponse.json({ error: "stage is required" }, { status: 400 })
     }
 
-    // Get matching task phases for this journey stage
-    const taskPhases = JOURNEY_STAGE_TO_TASK_PHASES[targetStage]
+    const taskPhases = JOURNEY_STAGE_TO_TASK_PHASES[stage]
     if (!taskPhases || taskPhases.length === 0) {
       return NextResponse.json({ error: "No task phases for this stage" }, { status: 400 })
     }
 
-    // Try to find a DB template first; fall back to constants
+    // Determine target students
+    let targetStudentIds: string[] = []
+
+    if (allInStage) {
+      // Push to all active students in this journey stage
+      const profiles = await db.studentProfile.findMany({
+        where: { journeyStage: stage as "EARLY_EXPLORATION" | "ACTIVE_PREP" | "APPLICATION_PHASE" | "POST_ACCEPTANCE" },
+        select: { userId: true },
+      })
+      targetStudentIds = profiles.map(p => p.userId)
+    } else if (studentIds && studentIds.length > 0) {
+      targetStudentIds = studentIds
+    } else if (studentId) {
+      targetStudentIds = [studentId]
+    } else {
+      return NextResponse.json({ error: "Provide studentId, studentIds, or allInStage" }, { status: 400 })
+    }
+
+    if (targetStudentIds.length === 0) {
+      return NextResponse.json({ success: true, tasksCreated: 0, studentsUpdated: 0, message: "No students found for this stage" })
+    }
+
+    // Get template items for the matching phases
     const template = await db.taskTemplate.findFirst({
       where: { isDefault: true },
     })
 
-    let templateId: string | null = template?.id || null
+    if (!template) {
+      return NextResponse.json({ error: "No default template found" }, { status: 400 })
+    }
 
-    if (template) {
-      // Use DB template items
-      const templateItems = await db.taskTemplateItem.findMany({
-        where: {
-          templateId: template.id,
-          phase: { in: taskPhases as ("INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL")[] },
-        },
-        orderBy: { order: "asc" },
+    const templateItems = await db.taskTemplateItem.findMany({
+      where: {
+        templateId: template.id,
+        phase: { in: taskPhases as ("INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL")[] },
+      },
+      orderBy: { order: "asc" },
+    })
+
+    if (templateItems.length === 0) {
+      return NextResponse.json({ success: true, tasksCreated: 0, studentsUpdated: 0, message: "No template items for this phase" })
+    }
+
+    let totalCreated = 0
+    let studentsUpdated = 0
+
+    for (const sid of targetStudentIds) {
+      const existingTasks = await db.task.findMany({
+        where: { userId: sid, templateId: template.id },
+        select: { templateItemId: true },
       })
+      const existingItemIds = new Set(existingTasks.map(t => t.templateItemId).filter(Boolean))
 
-      if (templateItems.length > 0) {
-        const existingTasks = await db.task.findMany({
-          where: { userId: studentId, templateId: template.id },
-          select: { templateItemId: true },
-        })
-        const existingItemIds = new Set(
-          existingTasks.map((t) => t.templateItemId).filter(Boolean)
-        )
+      const missingItems = templateItems.filter(item => !existingItemIds.has(item.id))
 
-        const missingItems = templateItems.filter(
-          (item) => !existingItemIds.has(item.id)
-        )
-
-        if (missingItems.length === 0) {
-          return NextResponse.json({
-            success: true,
-            tasksCreated: 0,
-            message: "All phase tasks already assigned",
-          })
-        }
-
+      if (missingItems.length > 0) {
         await db.task.createMany({
-          data: missingItems.map((item) => ({
-            userId: studentId,
+          data: missingItems.map(item => ({
+            userId: sid,
             title: item.title,
             description: item.description,
             phase: item.phase,
@@ -86,68 +99,16 @@ export async function POST(req: Request) {
             templateItemId: item.id,
           })),
         })
-
-        return NextResponse.json({
-          success: true,
-          tasksCreated: missingItems.length,
-          stage: targetStage,
-        })
+        totalCreated += missingItems.length
+        studentsUpdated++
       }
     }
 
-    // Fallback: use DEFAULT_TEMPLATE_ITEMS from constants
-    const phaseItems = DEFAULT_TEMPLATE_ITEMS.filter(
-      (item) => taskPhases.includes(item.phase)
-    )
-
-    if (phaseItems.length === 0) {
-      return NextResponse.json({
-        success: true,
-        tasksCreated: 0,
-        message: "No template items found for this phase",
-      })
-    }
-
-    // Deduplicate: check existing tasks by title
-    const existingTasks = await db.task.findMany({
-      where: { userId: studentId },
-      select: { title: true },
-    })
-    const existingTitles = new Set(existingTasks.map((t) => t.title))
-
-    const missingItems = phaseItems.filter(
-      (item) => !existingTitles.has(item.title)
-    )
-
-    if (missingItems.length === 0) {
-      return NextResponse.json({
-        success: true,
-        tasksCreated: 0,
-        message: "All phase tasks already assigned",
-      })
-    }
-
-    await db.task.createMany({
-      data: missingItems.map((item) => {
-        const rec = item as { title: string; description: string; phase: string; track?: string; priority: string; documentFolder?: string; requiresUpload?: boolean; order: number }
-        return {
-          userId: studentId,
-          title: rec.title,
-          description: rec.description,
-          phase: rec.phase as "INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL",
-          track: (rec.track || "SCHOLARSHIP") as "SCHOLARSHIP" | "COLLEGE_PREP" | "COLLEGE_APP" | "FINANCIAL" | "ACADEMIC" | "GENERAL",
-          priority: rec.priority as "LOW" | "MEDIUM" | "HIGH",
-          documentFolder: rec.documentFolder || null,
-          requiresUpload: rec.requiresUpload || false,
-          templateId: templateId,
-        }
-      }),
-    })
-
     return NextResponse.json({
       success: true,
-      tasksCreated: missingItems.length,
-      stage: targetStage,
+      tasksCreated: totalCreated,
+      studentsUpdated,
+      stage,
     })
   } catch (error) {
     console.error("Error assigning phase tasks:", error)
