@@ -33,8 +33,6 @@ import {
   Plus,
   FolderInput,
   ImagePlus,
-  Sparkles,
-  ExternalLink,
 } from "@/lib/icons"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format"
@@ -363,36 +361,6 @@ export default function DocumentsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Brag Sheet Quick Access */}
-      <div className="rounded-xl bg-card ring-1 ring-foreground/10 p-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-[#2563EB]">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-secondary-foreground">Brag Sheet</p>
-            <p className="text-xs text-muted-foreground">Your activities, awards, and experiences — ready for applications.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => window.open("/student/resume", "_blank")}
-          >
-            <ExternalLink className="h-3.5 w-3.5" /> View
-          </Button>
-          <Button
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => window.location.href = "/student/activities"}
-          >
-            <Sparkles className="h-3.5 w-3.5" /> Edit Brag Sheet
-          </Button>
-        </div>
-      </div>
 
       {/* Learn more banner */}
       <LearnMoreBanner
