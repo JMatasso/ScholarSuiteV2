@@ -82,23 +82,41 @@ async function getStudentEvents(studentIds: string[]): Promise<CalendarEvent[]> 
     })
   }
 
-  // College application deadlines
+  // College application deadlines (including financial aid + deposit)
   const collegeApps = await db.collegeApplication.findMany({
-    where: {
-      userId: { in: studentIds },
-      deadline: { not: null },
-    },
+    where: { userId: { in: studentIds } },
   })
   for (const app of collegeApps) {
-    if (!app.deadline) continue
-    events.push({
-      id: `college-${app.id}`,
-      name: `${app.universityName} Application`,
-      time: formatTime(app.deadline),
-      datetime: formatDatetime(app.deadline),
-      type: "college",
-      day: formatDay(app.deadline),
-    })
+    if (app.deadline) {
+      events.push({
+        id: `college-${app.id}`,
+        name: `${app.universityName} Application`,
+        time: formatTime(app.deadline),
+        datetime: formatDatetime(app.deadline),
+        type: "college",
+        day: formatDay(app.deadline),
+      })
+    }
+    if (app.financialAidDeadline) {
+      events.push({
+        id: `college-finaid-${app.id}`,
+        name: `${app.universityName} Financial Aid`,
+        time: formatTime(app.financialAidDeadline),
+        datetime: formatDatetime(app.financialAidDeadline),
+        type: "college",
+        day: formatDay(app.financialAidDeadline),
+      })
+    }
+    if (app.depositDeadline) {
+      events.push({
+        id: `college-deposit-${app.id}`,
+        name: `${app.universityName} Deposit`,
+        time: formatTime(app.depositDeadline),
+        datetime: formatDatetime(app.depositDeadline),
+        type: "college",
+        day: formatDay(app.depositDeadline),
+      })
+    }
   }
 
   return events

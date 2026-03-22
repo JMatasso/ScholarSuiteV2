@@ -106,6 +106,8 @@ model User {
 
   assignedStudents StudentProfile[] @relation("AssignedStudents")
 
+  calendarToken     String?   @unique
+
   prospect  Prospect?
   chatConversations ChatConversation[]
   recommenders      Recommender[]
