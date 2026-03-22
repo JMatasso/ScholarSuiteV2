@@ -6,11 +6,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   CheckSquare,
   Calendar,
   Filter,
   ListTodo,
+  GraduationCap,
+  Award,
   FolderOpen,
   Upload,
   X,
@@ -89,6 +92,7 @@ function formatFileSize(bytes: number | null): string {
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTrack, setActiveTrack] = useState<"COLLEGE_PREP" | "SCHOLARSHIP">("COLLEGE_PREP")
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "completed">("all")
   const [filterPriority, setFilterPriority] = useState<"all" | "HIGH" | "MEDIUM" | "LOW">("all")
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -132,15 +136,22 @@ export default function TasksPage() {
     }
   }
 
-  const filteredTasks = tasks.filter((t) => {
+  const trackTasks = tasks.filter((t) => t.track === activeTrack)
+
+  const filteredTasks = trackTasks.filter((t) => {
     if (filterStatus === "pending" && t.status === "DONE") return false
     if (filterStatus === "completed" && t.status !== "DONE") return false
     if (filterPriority !== "all" && t.priority !== filterPriority) return false
     return true
   })
 
-  const totalTasks = tasks.length
-  const completedCount = tasks.filter((t) => t.status === "DONE").length
+  const collegeTasks = tasks.filter((t) => t.track === "COLLEGE_PREP")
+  const scholarshipTasks = tasks.filter((t) => t.track === "SCHOLARSHIP")
+  const collegeCompleted = collegeTasks.filter((t) => t.status === "DONE").length
+  const scholarshipCompleted = scholarshipTasks.filter((t) => t.status === "DONE").length
+
+  const totalTasks = trackTasks.length
+  const completedCount = trackTasks.filter((t) => t.status === "DONE").length
   const progressPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
 
   if (loading) {
@@ -152,7 +163,7 @@ export default function TasksPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-secondary-foreground">Tasks</h1>
-          <p className="mt-1 text-muted-foreground">{completedCount} of {totalTasks} tasks completed</p>
+          <p className="mt-1 text-muted-foreground">Track your college prep and scholarship progress.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -163,6 +174,22 @@ export default function TasksPage() {
           </div>
         </div>
       </div>
+
+      {/* Track Tabs */}
+      <Tabs value={activeTrack} onValueChange={(v) => { setActiveTrack(v as "COLLEGE_PREP" | "SCHOLARSHIP"); setSelectedTask(null) }}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="COLLEGE_PREP" className="gap-2">
+            <GraduationCap className="h-4 w-4" />
+            College Prep
+            <span className="ml-1 text-xs text-muted-foreground">{collegeCompleted}/{collegeTasks.length}</span>
+          </TabsTrigger>
+          <TabsTrigger value="SCHOLARSHIP" className="gap-2">
+            <Award className="h-4 w-4" />
+            Scholarships
+            <span className="ml-1 text-xs text-muted-foreground">{scholarshipCompleted}/{scholarshipTasks.length}</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* Filter bar */}
       <Card variant="bento">

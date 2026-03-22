@@ -84,6 +84,7 @@ export default function FinancialPlanPage() {
   const [collegeApps, setCollegeApps] = useState<CollegeApp[]>([])
   const [awardedScholarships, setAwardedScholarships] = useState<ScholarshipApp[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("college-costs")
 
   useEffect(() => {
     Promise.all([
@@ -156,9 +157,6 @@ export default function FinancialPlanPage() {
     (src, idx, arr) => arr.findIndex((s) => s.id === src.id) === idx
   )
 
-  // Determine default tab
-  const defaultTab = hasCollegeCosts ? "college-costs" : hasFinancialPlan ? "budget" : "college-costs"
-  const [activeTab, setActiveTab] = useState(defaultTab)
 
   return (
     <div className="space-y-6">
