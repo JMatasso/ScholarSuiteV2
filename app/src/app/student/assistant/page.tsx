@@ -103,7 +103,7 @@ export default function AssistantPage() {
   const hasMessages = messages.length > 0
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] -mt-2 gap-0 overflow-hidden rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#0a0a0f] shadow-sm dark:shadow-2xl">
+    <div className="flex h-[calc(100vh-7rem)] -mt-2 gap-0 overflow-hidden rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#191919] shadow-sm dark:shadow-2xl">
       {/* Sidebar */}
       <AnimatePresence initial={false}>
         {sidebarOpen && (
@@ -112,7 +112,7 @@ export default function AssistantPage() {
             animate={{ width: 280, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex flex-col border-r border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-[#0d0d14] overflow-hidden shrink-0"
+            className="flex flex-col border-r border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-[#202020] overflow-hidden shrink-0"
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-800">
               <h2 className="text-sm font-semibold text-[#1E3A5F] dark:text-neutral-200">Conversations</h2>
@@ -185,7 +185,7 @@ export default function AssistantPage() {
       {/* Main Chat Area */}
       <div className="flex flex-1 flex-col min-w-0 relative">
         {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0a0a0f]/80 backdrop-blur-md z-10">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-neutral-800 bg-white/80 dark:bg-[#191919]/80 backdrop-blur-md z-10">
           {!sidebarOpen && (
             <Button
               variant="ghost"
@@ -364,7 +364,7 @@ export default function AssistantPage() {
 
         {/* Input Bar (active chat) */}
         {hasMessages && (
-          <div className="border-t border-gray-200 dark:border-neutral-800 p-4 bg-white/80 dark:bg-[#0a0a0f]/80 backdrop-blur-md">
+          <div className="border-t border-gray-200 dark:border-neutral-800 p-4 bg-white/80 dark:bg-[#191919]/80 backdrop-blur-md">
             <form onSubmit={handleSubmit}>
               <div className="relative bg-white/80 dark:bg-black/60 backdrop-blur-md rounded-xl border border-gray-200 dark:border-neutral-700 focus-within:border-[#2563EB]/40 dark:focus-within:border-blue-500/50 transition-colors max-w-3xl mx-auto shadow-lg shadow-gray-200/50 dark:shadow-black/20">
                 <ChatInput
