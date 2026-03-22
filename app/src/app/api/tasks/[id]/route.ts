@@ -17,6 +17,24 @@ export async function PATCH(
     const data = await req.json();
     const role = (session.user as { role: string }).role;
 
+    // Verify ownership: students can only update their own tasks
+    const existingTask = await db.task.findUnique({ where: { id } });
+    if (!existingTask) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+    if (role === "STUDENT" && existingTask.userId !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    if (role === "PARENT") {
+      // Parents can only update tasks belonging to their linked students
+      const link = await db.parentStudent.findFirst({
+        where: { parentId: session.user.id, studentId: existingTask.userId },
+      });
+      if (!link) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: Record<string, any> = {};
 

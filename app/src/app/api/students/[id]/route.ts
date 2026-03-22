@@ -149,10 +149,23 @@ export async function PATCH(
     }
 
     if (data.profile) {
+      // Whitelist allowed profile fields to prevent mass assignment
+      const allowedFields = [
+        "gpa", "gradeLevel", "graduationYear", "journeyStage", "status",
+        "school", "state", "county", "zipCode", "gender", "ethnicity",
+        "citizenship", "firstGeneration", "householdIncome", "fieldOfStudy",
+        "interests", "extracurriculars", "notes", "assignedAdminId",
+      ];
+      const sanitizedProfile: Record<string, unknown> = {};
+      for (const key of allowedFields) {
+        if (key in data.profile) {
+          sanitizedProfile[key] = data.profile[key];
+        }
+      }
       await db.studentProfile.upsert({
         where: { userId: id },
-        update: data.profile,
-        create: { userId: id, ...data.profile },
+        update: sanitizedProfile,
+        create: { userId: id, ...sanitizedProfile },
       });
     }
 

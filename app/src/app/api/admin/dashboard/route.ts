@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { Prisma } from "@/generated/prisma/client"
 import { withRole } from "@/lib/api-middleware"
 import { db } from "@/lib/db"
 
@@ -48,8 +49,8 @@ export const GET = withRole("ADMIN", async () => {
     }),
 
     // Monthly activity (last 7 months) from audit logs
-    db.$queryRawUnsafe<Array<{ month: string; logins: bigint; tasks: bigint; essays: bigint }>>(`
-      SELECT
+    db.$queryRaw<Array<{ month: string; logins: bigint; tasks: bigint; essays: bigint }>>(
+      Prisma.sql`SELECT
         to_char(date_trunc('month', "createdAt"), 'Mon') AS month,
         COUNT(*) FILTER (WHERE action = 'LOGIN_SUCCESS') AS logins,
         COUNT(*) FILTER (WHERE resource = 'task') AS tasks,
@@ -57,8 +58,8 @@ export const GET = withRole("ADMIN", async () => {
       FROM "AuditLog"
       WHERE "createdAt" >= date_trunc('month', NOW()) - INTERVAL '6 months'
       GROUP BY date_trunc('month', "createdAt")
-      ORDER BY date_trunc('month', "createdAt")
-    `),
+      ORDER BY date_trunc('month', "createdAt")`
+    ),
 
     // Application pipeline
     db.scholarshipApplication.groupBy({

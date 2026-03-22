@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react"
 import Link from "next/link"
 import { motion } from "motion/react"
+import DOMPurify from "isomorphic-dompurify"
 import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -174,7 +175,7 @@ export default function ParentModuleViewerPage({ params }: { params: Promise<{ m
                     )}
                     {lesson.content && (
                       <div className="prose prose-sm max-w-none text-foreground"
-                        dangerouslySetInnerHTML={{ __html: lesson.content }} />
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lesson.content) }} />
                     )}
                   </div>
                 )}

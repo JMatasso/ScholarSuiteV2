@@ -51,11 +51,22 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const studentId = searchParams.get("studentId");
+    const role = (session.user as { role: string }).role;
 
-    const userId =
-      (session.user as { role: string }).role === "ADMIN" && studentId
-        ? studentId
-        : session.user.id;
+    let userId = session.user.id;
+
+    if (studentId && role === "ADMIN") {
+      userId = studentId;
+    } else if (studentId && role === "PARENT") {
+      // Parents can only view their linked students' financial data
+      const link = await db.parentStudent.findFirst({
+        where: { parentId: session.user.id, studentId },
+      });
+      if (!link) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      userId = studentId;
+    }
 
     // Check for existing plan
     let plan = await db.financialPlan.findFirst({

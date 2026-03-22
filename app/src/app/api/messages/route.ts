@@ -75,11 +75,38 @@ export async function POST(req: Request) {
 
     const data = await req.json();
 
+    if (!data.receiverId || !data.content?.trim()) {
+      return NextResponse.json(
+        { error: "Receiver and message content are required" },
+        { status: 400 }
+      );
+    }
+
+    // Prevent sending messages to yourself
+    if (data.receiverId === session.user.id) {
+      return NextResponse.json(
+        { error: "Cannot send messages to yourself" },
+        { status: 400 }
+      );
+    }
+
+    // Verify receiver exists and is active
+    const receiver = await db.user.findUnique({
+      where: { id: data.receiverId },
+      select: { id: true, isActive: true },
+    });
+    if (!receiver || !receiver.isActive) {
+      return NextResponse.json(
+        { error: "Recipient not found" },
+        { status: 404 }
+      );
+    }
+
     const message = await db.message.create({
       data: {
         senderId: session.user.id,
         receiverId: data.receiverId,
-        content: data.content,
+        content: data.content.trim(),
         imageUrl: data.imageUrl,
       },
       include: {

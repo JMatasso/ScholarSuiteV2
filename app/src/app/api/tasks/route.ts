@@ -50,10 +50,15 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json();
+    const role = (session.user as { role: string }).role;
+
+    // Only admins can create tasks for other users
+    const targetUserId =
+      role === "ADMIN" && data.userId ? data.userId : session.user.id;
 
     const task = await db.task.create({
       data: {
-        userId: data.userId || session.user.id,
+        userId: targetUserId,
         title: data.title,
         description: data.description,
         phase: data.phase || "INTRODUCTION",

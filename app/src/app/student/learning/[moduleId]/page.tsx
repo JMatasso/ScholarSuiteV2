@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect, use, useMemo } from "react"
 import Link from "next/link"
 import { motion } from "motion/react"
+import DOMPurify from "isomorphic-dompurify"
 import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -331,11 +332,13 @@ export default function ModuleDetailPage({ params }: { params: Promise<{ moduleI
                       {lesson.content && (() => {
                         const marker = "<!-- KEY_TAKEAWAYS -->"
                         const hasKeyTakeaways = lesson.content.includes(marker)
-                        const mainContent = hasKeyTakeaways
-                          ? lesson.content.split(marker)[0]
-                          : lesson.content
+                        const mainContent = DOMPurify.sanitize(
+                          hasKeyTakeaways
+                            ? lesson.content.split(marker)[0]
+                            : lesson.content
+                        )
                         const takeawaysContent = hasKeyTakeaways
-                          ? lesson.content.split(marker)[1]
+                          ? DOMPurify.sanitize(lesson.content.split(marker)[1])
                           : null
 
                         return (

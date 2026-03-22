@@ -56,6 +56,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.35.2",
     "hugeicons-react": "^0.4.0",
+    "isomorphic-dompurify": "^3.6.0",
     "jspdf": "^4.2.1",
     "livekit-client": "^2.17.3",
     "livekit-server-sdk": "^2.15.0",

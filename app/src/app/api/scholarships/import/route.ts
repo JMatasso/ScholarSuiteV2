@@ -11,6 +11,18 @@ export async function POST(req: Request) {
 
     const rows: Record<string, string>[] = await req.json();
 
+    if (!Array.isArray(rows)) {
+      return NextResponse.json({ error: "Expected array of rows" }, { status: 400 });
+    }
+
+    // Limit batch size to prevent DoS
+    if (rows.length > 5000) {
+      return NextResponse.json(
+        { error: "Too many rows. Maximum 5,000 per import." },
+        { status: 400 }
+      );
+    }
+
     const data = rows
       .filter((row) => row.name || row.Name)
       .map((row) => {
@@ -20,16 +32,22 @@ export async function POST(req: Request) {
         const deadline = row.deadline || row.Deadline;
         const minGpa = row.minGpa || row.min_gpa || row.MinGPA;
 
+        const parsedAmount = amount ? parseFloat(amount) : null;
+        const parsedAmountMax = amountMax ? parseFloat(amountMax) : null;
+        const parsedMinGpa = minGpa ? parseFloat(minGpa) : null;
+        const parsedDeadline = deadline ? new Date(deadline) : null;
+        const scholarshipName = (row.name || row.Name || "").trim().slice(0, 500);
+
         return {
-          name: row.name || row.Name,
-          provider: row.provider || row.Provider || null,
-          amount: amount ? parseFloat(amount) : null,
-          amountMax: amountMax ? parseFloat(amountMax) : null,
-          deadline: deadline ? new Date(deadline) : null,
+          name: scholarshipName,
+          provider: (row.provider || row.Provider || "").trim().slice(0, 500) || null,
+          amount: parsedAmount && parsedAmount > 0 && isFinite(parsedAmount) ? parsedAmount : null,
+          amountMax: parsedAmountMax && parsedAmountMax > 0 && isFinite(parsedAmountMax) ? parsedAmountMax : null,
+          deadline: parsedDeadline && !isNaN(parsedDeadline.getTime()) ? parsedDeadline : null,
           description: row.description || row.Description || null,
           url,
           sourceUrl: url,
-          minGpa: minGpa ? parseFloat(minGpa) : null,
+          minGpa: parsedMinGpa && parsedMinGpa > 0 && parsedMinGpa <= 5.0 && isFinite(parsedMinGpa) ? parsedMinGpa : null,
           states: row.states ? row.states.split(",").map((s: string) => s.trim()).filter(Boolean) : [],
           citizenships: row.citizenships ? row.citizenships.split(",").map((s: string) => s.trim()).filter(Boolean) : [],
           fieldsOfStudy: row.fieldsOfStudy || row.fields_of_study ? (row.fieldsOfStudy || row.fields_of_study).split(",").map((s: string) => s.trim()).filter(Boolean) : [],

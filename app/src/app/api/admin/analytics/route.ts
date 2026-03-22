@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { Prisma } from "@/generated/prisma/client"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 
@@ -74,8 +75,8 @@ export async function GET() {
       }),
 
       // Scholarship applications created per month (last 6 months)
-      db.$queryRawUnsafe<Array<{ month: string; count: bigint }>>(
-        `SELECT TO_CHAR("createdAt", 'YYYY-MM') as month, COUNT(*)::bigint as count
+      db.$queryRaw<Array<{ month: string; count: bigint }>>(
+        Prisma.sql`SELECT TO_CHAR("createdAt", 'YYYY-MM') as month, COUNT(*)::bigint as count
          FROM "ScholarshipApplication"
          WHERE "createdAt" >= NOW() - INTERVAL '6 months'
          GROUP BY month
