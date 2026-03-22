@@ -10,7 +10,12 @@ RUN npm ci
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-ARG CACHE_BUST
+
+# Copy schema first so changes to it bust the prisma generate cache
+COPY prisma ./prisma
+RUN npx prisma generate
+
+# Copy the rest of the app
 COPY . .
 
 ARG DATABASE_URL
@@ -22,7 +27,6 @@ ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_LIVEKIT_URL=$NEXT_PUBLIC_LIVEKIT_URL
 ENV AUTH_TRUST_HOST=true
 
-RUN npx prisma generate
 RUN npm run build
 
 # Production runner
