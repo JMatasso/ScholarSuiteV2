@@ -45,7 +45,7 @@ const navGroups = [
     label: "Overview",
     items: [
       { name: "Dashboard", href: "/student", icon: LayoutDashboard },
-      { name: "AI Assistant", href: "/student/assistant", icon: Bot },
+      { name: "ScholarSuite AI", href: "/student/assistant", icon: Bot, beta: true },
       { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
       { name: "Learning", href: "/student/learning", icon: BookOpen },

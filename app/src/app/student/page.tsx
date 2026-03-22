@@ -14,10 +14,7 @@ import {
   CheckSquare,
   Award,
   ArrowRight,
-  GraduationCap,
-  Building2,
   CheckCircle2,
-  Star,
   Calendar,
   Video,
   Activity,
@@ -26,6 +23,7 @@ import {
   ChevronRight,
   MessageSquare,
   Target,
+  Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -60,22 +58,6 @@ interface CollegeApp {
   deadline: string | null
   isDream: boolean
   isSafety: boolean
-}
-
-interface Essay {
-  id: string
-  title: string
-  status: string
-  updatedAt: string
-}
-
-interface ActivityEntry {
-  id: string
-  title: string
-  category: string
-  totalHours: number | null
-  isLeadership: boolean
-  isAward: boolean
 }
 
 interface Meeting {
@@ -113,29 +95,10 @@ function getIncompleteSections(flags: Record<string, boolean> | null): Array<{ l
   return sections
 }
 
-const appTypeShort: Record<string, string> = {
-  REGULAR: "Regular",
-  EARLY_DECISION: "ED",
-  EARLY_ACTION: "EA",
-  ROLLING: "Rolling",
-}
-
-const collegeStatusColor: Record<string, string> = {
-  RESEARCHING: "bg-muted text-muted-foreground",
-  IN_PROGRESS: "bg-blue-100 text-blue-700",
-  SUBMITTED: "bg-purple-100 text-purple-700",
-  ACCEPTED: "bg-emerald-100 text-emerald-700",
-  DENIED: "bg-rose-100 text-rose-700",
-  WAITLISTED: "bg-amber-100 text-amber-700",
-  DEFERRED: "bg-muted text-muted-foreground",
-}
-
 export default function StudentDashboard() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [applications, setApplications] = useState<Application[]>([])
   const [collegeApps, setCollegeApps] = useState<CollegeApp[]>([])
-  const [essays, setEssays] = useState<Essay[]>([])
-  const [activities, setActivities] = useState<ActivityEntry[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [timelineData, setTimelineData] = useState<{ journeyStage: string; tasksByStage: Record<string, { total: number; completed: number }> } | null>(null)
@@ -178,17 +141,13 @@ export default function StudentDashboard() {
       fetch("/api/tasks").then(r => r.json()).catch(() => []),
       fetch("/api/applications").then(r => r.json()).catch(() => []),
       fetch("/api/college-applications").then(r => r.json()).catch(() => []),
-      fetch("/api/essays").then(r => r.json()).catch(() => []),
-      fetch("/api/activities").then(r => r.json()).catch(() => []),
       fetch("/api/meetings").then(r => r.json()).catch(() => []),
       fetch("/api/messages").then(r => r.json()).catch(() => []),
       fetch("/api/timeline").then(r => r.json()).catch(() => null),
-    ]).then(([t, a, c, e, act, m, msg, tl]) => {
+    ]).then(([t, a, c, m, msg, tl]) => {
       setTasks(Array.isArray(t) ? t : [])
       setApplications(Array.isArray(a) ? a : [])
       setCollegeApps(Array.isArray(c) ? c : [])
-      setEssays(Array.isArray(e) ? e : [])
-      setActivities(Array.isArray(act) ? act : [])
       setMeetings(Array.isArray(m) ? m : [])
       setMessages(Array.isArray(msg) ? msg : [])
       setTimelineData(tl && tl.journeyStage ? tl : null)
@@ -220,19 +179,11 @@ export default function StudentDashboard() {
 
   const urgentDeadline = allDeadlines[0]
 
-  // Brag sheet stats
-  const totalHours = activities.reduce((sum, a) => sum + (a.totalHours ?? 0), 0)
-  const leadershipCount = activities.filter(a => a.isLeadership).length
-  const awardCount = activities.filter(a => a.isAward).length
-
   // Next meeting
   const now = new Date()
   const nextMeeting = meetings
     .filter(m => new Date(m.startTime) > now)
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0]
-
-  // Top essays
-  const activeEssays = essays.filter(e => e.status !== "APPROVED").slice(0, 3)
 
   // Mini calendar
   const calDays = new Date(calYear, calMonth + 1, 0).getDate()
@@ -393,102 +344,82 @@ export default function StudentDashboard() {
             </Card>
           </motion.div>
 
-          {/* College Applications */}
+          {/* Recent Messages */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
             <Card variant="bento">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-purple-50">
-                      <GraduationCap className="h-3.5 w-3.5 text-purple-600" />
+                    <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
+                      <MessageSquare className="h-3.5 w-3.5 text-[#2563EB]" />
                     </div>
-                    College Applications
+                    Messages
                   </CardTitle>
-                  <Link href="/student/colleges/applications">
+                  <Link href="/student/messages">
                     <Button variant="ghost" size="sm" className="text-xs gap-1">View All <ArrowRight className="h-3 w-3" /></Button>
                   </Link>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 {loading ? (
-                  <div className="space-y-3">{[1, 2, 3].map(i => <Skeleton key={i} className="h-10 w-full skeleton-shimmer" />)}</div>
-                ) : collegeApps.length === 0 ? (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground mb-2">No colleges tracked yet</p>
-                    <Link href="/student/colleges">
-                      <Button size="sm" className="gap-1 text-xs">
-                        <Building2 className="h-3 w-3" /> Search Colleges
-                      </Button>
-                    </Link>
-                  </div>
+                  <Skeleton className="h-12 w-full skeleton-shimmer" />
+                ) : messages.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">No messages yet</p>
                 ) : (
-                  <div className="space-y-1.5">
-                    {collegeApps.slice(0, 5).map(app => (
-                      <div key={app.id} className="flex items-center justify-between rounded-lg px-2 py-2 hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          {app.isDream && <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400 shrink-0" />}
-                          <span className="text-sm font-medium truncate">{app.universityName}</span>
-                          <Badge variant="secondary" className="text-[10px] shrink-0 bg-muted text-muted-foreground">{appTypeShort[app.applicationType] || app.applicationType}</Badge>
+                  <div className="space-y-2">
+                    {messages.slice(0, 4).map(msg => (
+                      <div key={msg.id} className="flex items-start gap-2.5 rounded-lg px-2 py-1.5 hover:bg-muted/50 transition-colors">
+                        <Avatar size="sm">
+                          {msg.sender?.image && <AvatarImage src={msg.sender.image} />}
+                          <AvatarFallback className="text-[10px]">{getInitials(msg.sender?.name)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-medium">{msg.sender?.name || "Unknown"}</p>
+                            <span className="text-[10px] text-muted-foreground">{formatTime(msg.createdAt)}</span>
+                            {!msg.isRead && <div className="h-1.5 w-1.5 rounded-full bg-[#2563EB]" />}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">{msg.content}</p>
                         </div>
-                        <Badge variant="secondary" className={`text-[10px] shrink-0 ${collegeStatusColor[app.status] || "bg-muted text-muted-foreground"}`}>
-                          {app.status.charAt(0) + app.status.slice(1).toLowerCase().replace("_", " ")}
-                        </Badge>
                       </div>
                     ))}
-                    {collegeApps.length > 5 && (
-                      <p className="text-xs text-muted-foreground text-center pt-1">+ {collegeApps.length - 5} more</p>
-                    )}
                   </div>
                 )}
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Brag Sheet Snapshot */}
+          {/* Suggested Tools */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}>
             <Card variant="bento">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
-                      <Activity className="h-3.5 w-3.5 text-secondary-foreground" />
-                    </div>
-                    Brag Sheet
-                  </CardTitle>
-                  <Link href="/student/activities">
-                    <Button variant="ghost" size="sm" className="text-xs gap-1">View Full Sheet <ArrowRight className="h-3 w-3" /></Button>
-                  </Link>
-                </div>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                  <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
+                    <Sparkles className="h-3.5 w-3.5 text-[#2563EB]" />
+                  </div>
+                  Suggested Tools
+                </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                {loading ? (
-                  <Skeleton className="h-16 w-full skeleton-shimmer" />
-                ) : activities.length === 0 ? (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground mb-2">Start building your brag sheet</p>
-                    <Link href="/student/activities">
-                      <Button size="sm" className="gap-1 text-xs">
-                        <Activity className="h-3 w-3" /> Add Activities
-                      </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: "Essays", href: "/student/essays", icon: PenTool, color: "text-blue-600 bg-blue-50" },
+                    { label: "Brag Sheet", href: "/student/activities", icon: Activity, color: "text-emerald-600 bg-emerald-50" },
+                    { label: "Resume", href: "/student/resume", icon: FileText, color: "text-purple-600 bg-purple-50" },
+                    { label: "Documents", href: "/student/documents", icon: FileText, color: "text-amber-600 bg-amber-50" },
+                    { label: "ScholarSuite AI", href: "/student/assistant", icon: Sparkles, color: "text-[#2563EB] bg-[#2563EB]/10" },
+                    { label: "Letters of Rec", href: "/student/letters", icon: Award, color: "text-rose-600 bg-rose-50" },
+                  ].map(tool => (
+                    <Link key={tool.href} href={tool.href}>
+                      <div className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 hover:bg-muted/50 transition-colors group">
+                        <div className={`flex size-8 items-center justify-center rounded-lg ${tool.color}`}>
+                          <tool.icon className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">{tool.label}</span>
+                      </div>
                     </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-6 text-sm">
-                      <div><span className="text-lg font-bold text-secondary-foreground">{activities.length}</span> <span className="text-muted-foreground">activities</span></div>
-                      <div><span className="text-lg font-bold text-secondary-foreground">{totalHours.toLocaleString()}</span> <span className="text-muted-foreground">hours</span></div>
-                      <div><span className="text-lg font-bold text-secondary-foreground">{leadershipCount}</span> <span className="text-muted-foreground">leadership</span></div>
-                      <div><span className="text-lg font-bold text-secondary-foreground">{awardCount}</span> <span className="text-muted-foreground">awards</span></div>
-                    </div>
-                    {/* Smart nudges */}
-                    {activities.filter(a => a.category === "VOLUNTEER").length === 0 && (
-                      <p className="text-xs text-amber-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Add volunteer activities to strengthen your brag sheet</p>
-                    )}
-                    {activities.filter(a => !a.totalHours).length > 0 && (
-                      <p className="text-xs text-amber-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> {activities.filter(a => !a.totalHours).length} activities missing hours</p>
-                    )}
-                  </div>
-                )}
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -583,92 +514,6 @@ export default function StudentDashboard() {
             </Card>
           </motion.div>
 
-          {/* Essays */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}>
-            <Card variant="bento">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
-                      <PenTool className="h-3.5 w-3.5 text-[#2563EB]" />
-                    </div>
-                    Essays
-                  </CardTitle>
-                  <Link href="/student/essays">
-                    <Button variant="ghost" size="sm" className="text-xs gap-1">View All <ArrowRight className="h-3 w-3" /></Button>
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                {loading ? (
-                  <Skeleton className="h-12 w-full skeleton-shimmer" />
-                ) : activeEssays.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-2">No essays in progress</p>
-                ) : (
-                  <div className="space-y-2">
-                    {activeEssays.map(essay => (
-                      <div key={essay.id} className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-muted/50 transition-colors">
-                        <span className="text-sm font-medium truncate">{essay.title}</span>
-                        <Badge variant="secondary" className={`text-[10px] ${
-                          essay.status === "DRAFT" ? "bg-muted text-muted-foreground" :
-                          essay.status === "UNDER_REVIEW" ? "bg-blue-100 text-blue-700" :
-                          essay.status === "REVISION_NEEDED" ? "bg-amber-100 text-amber-700" :
-                          "bg-emerald-100 text-emerald-700"
-                        }`}>
-                          {essay.status.replace("_", " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Recent Messages */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-            <Card variant="bento">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-accent">
-                      <MessageSquare className="h-3.5 w-3.5 text-[#2563EB]" />
-                    </div>
-                    Messages
-                  </CardTitle>
-                  <Link href="/student/messages">
-                    <Button variant="ghost" size="sm" className="text-xs gap-1">View All <ArrowRight className="h-3 w-3" /></Button>
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                {loading ? (
-                  <Skeleton className="h-12 w-full skeleton-shimmer" />
-                ) : messages.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-2">No messages yet</p>
-                ) : (
-                  <div className="space-y-2">
-                    {messages.slice(0, 3).map(msg => (
-                      <div key={msg.id} className="flex items-start gap-2.5 rounded-lg px-2 py-1.5 hover:bg-muted/50 transition-colors">
-                        <Avatar size="sm">
-                          {msg.sender?.image && <AvatarImage src={msg.sender.image} />}
-                          <AvatarFallback className="text-[10px]">{getInitials(msg.sender?.name)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-xs font-medium">{msg.sender?.name || "Unknown"}</p>
-                            <span className="text-[10px] text-muted-foreground">{formatTime(msg.createdAt)}</span>
-                            {!msg.isRead && <div className="h-1.5 w-1.5 rounded-full bg-[#2563EB]" />}
-                          </div>
-                          <p className="text-xs text-muted-foreground truncate">{msg.content}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
 
           {/* Next Meeting */}
           {nextMeeting && (
