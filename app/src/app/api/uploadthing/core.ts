@@ -10,16 +10,27 @@ export const ourFileRouter = {
     image: { maxFileSize: "4MB", maxFileCount: 1 },
   })
     .middleware(async () => {
-      const session = await auth()
-      if (!session?.user) throw new Error("Unauthorized")
-      return { userId: session.user.id }
+      try {
+        const session = await auth()
+        if (!session?.user) throw new Error("Unauthorized")
+        return { userId: session.user.id }
+      } catch (error) {
+        console.error("[UploadThing] profileImage middleware error:", error)
+        throw error
+      }
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      await db.user.update({
-        where: { id: metadata.userId },
-        data: { image: file.ufsUrl },
-      })
-      return { uploadedBy: metadata.userId, url: file.ufsUrl }
+      try {
+        const url = file.ufsUrl ?? file.url
+        await db.user.update({
+          where: { id: metadata.userId },
+          data: { image: url },
+        })
+        return { uploadedBy: metadata.userId, url }
+      } catch (error) {
+        console.error("[UploadThing] profileImage onUploadComplete error:", error)
+        throw error
+      }
     }),
 
   documentUploader: f({
