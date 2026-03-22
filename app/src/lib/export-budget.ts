@@ -7,6 +7,11 @@ interface IncomeSource {
   status: string
 }
 
+interface CustomExpense {
+  name: string
+  amount: number
+}
+
 interface Semester {
   name: string
   tuition: number
@@ -17,6 +22,7 @@ interface Semester {
   personal: number
   other: number
   incomeSources: IncomeSource[]
+  customExpenses?: CustomExpense[]
 }
 
 interface ExportData {
@@ -26,7 +32,9 @@ interface ExportData {
 }
 
 function getSemesterTotal(sem: Semester): number {
-  return sem.tuition + sem.housing + sem.food + sem.transportation + sem.books + sem.personal + sem.other
+  const base = sem.tuition + sem.housing + sem.food + sem.transportation + sem.books + sem.personal + sem.other
+  const custom = (sem.customExpenses ?? []).reduce((a, e) => a + e.amount, 0)
+  return base + custom
 }
 
 function getSemesterAid(sem: Semester): number {
@@ -36,25 +44,37 @@ function getSemesterAid(sem: Semester): number {
 export function exportBudgetToExcel({ semesters, totalScholarships, studentName }: ExportData) {
   const wb = XLSX.utils.book_new()
 
+  // Collect all custom expense names
+  const customExpenseNames = new Set<string>()
+  semesters.forEach((sem) => (sem.customExpenses ?? []).forEach((e) => customExpenseNames.add(e.name)))
+  const customNames = Array.from(customExpenseNames).sort()
+
   // Sheet 1: Semester Breakdown
-  const semesterRows = semesters.map((sem) => ({
-    Semester: sem.name,
-    Tuition: sem.tuition,
-    Housing: sem.housing,
-    Food: sem.food,
-    "Books & Supplies": sem.books,
-    Transportation: sem.transportation,
-    Personal: sem.personal,
-    Other: sem.other,
-    "Total Cost": getSemesterTotal(sem),
-    "Total Aid": getSemesterAid(sem),
-    "Net Cost": getSemesterTotal(sem) - getSemesterAid(sem),
-  }))
+  const semesterRows = semesters.map((sem) => {
+    const row: Record<string, string | number> = {
+      Semester: sem.name,
+      Tuition: sem.tuition,
+      Housing: sem.housing,
+      Food: sem.food,
+      "Books & Supplies": sem.books,
+      Transportation: sem.transportation,
+      Personal: sem.personal,
+      Other: sem.other,
+    }
+    for (const cName of customNames) {
+      const exp = (sem.customExpenses ?? []).find((e) => e.name === cName)
+      row[cName] = exp?.amount ?? 0
+    }
+    row["Total Cost"] = getSemesterTotal(sem)
+    row["Total Aid"] = getSemesterAid(sem)
+    row["Net Cost"] = getSemesterTotal(sem) - getSemesterAid(sem)
+    return row
+  })
 
   // Add totals row
   const totalCost = semesters.reduce((a, s) => a + getSemesterTotal(s), 0)
   const totalAid = semesters.reduce((a, s) => a + getSemesterAid(s), 0)
-  semesterRows.push({
+  const totalRow: Record<string, string | number> = {
     Semester: "TOTAL",
     Tuition: semesters.reduce((a, s) => a + s.tuition, 0),
     Housing: semesters.reduce((a, s) => a + s.housing, 0),
@@ -63,10 +83,17 @@ export function exportBudgetToExcel({ semesters, totalScholarships, studentName 
     Transportation: semesters.reduce((a, s) => a + s.transportation, 0),
     Personal: semesters.reduce((a, s) => a + s.personal, 0),
     Other: semesters.reduce((a, s) => a + s.other, 0),
-    "Total Cost": totalCost,
-    "Total Aid": totalAid,
-    "Net Cost": totalCost - totalAid,
-  })
+  }
+  for (const cName of customNames) {
+    totalRow[cName] = semesters.reduce((a, s) => {
+      const exp = (s.customExpenses ?? []).find((e) => e.name === cName)
+      return a + (exp?.amount ?? 0)
+    }, 0)
+  }
+  totalRow["Total Cost"] = totalCost
+  totalRow["Total Aid"] = totalAid
+  totalRow["Net Cost"] = totalCost - totalAid
+  semesterRows.push(totalRow)
 
   const ws1 = XLSX.utils.json_to_sheet(semesterRows)
 

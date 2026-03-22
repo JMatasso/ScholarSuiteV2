@@ -49,7 +49,7 @@ export async function POST(
         personal: data.personal ?? 0,
         other: data.other ?? 0,
       },
-      include: { incomeSources: true },
+      include: { incomeSources: true, customExpenses: true },
     });
 
     return NextResponse.json(semester, { status: 201 });

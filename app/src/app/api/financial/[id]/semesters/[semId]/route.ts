@@ -39,7 +39,7 @@ export async function PATCH(
     const semester = await db.financialSemester.update({
       where: { id: semId },
       data: updateData,
-      include: { incomeSources: true },
+      include: { incomeSources: true, customExpenses: true },
     });
 
     return NextResponse.json(semester);

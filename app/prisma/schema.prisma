@@ -1003,8 +1003,9 @@ model FinancialSemester {
   books          Float         @default(0)
   personal       Float         @default(0)
   other          Float         @default(0)
-  plan           FinancialPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  plan           FinancialPlan  @relation(fields: [planId], references: [id], onDelete: Cascade)
   incomeSources  IncomeSource[]
+  customExpenses CustomExpense[]
 }
 
 model IncomeSource {
@@ -1016,6 +1017,14 @@ model IncomeSource {
   status      String            @default("CONFIRMED")
   isRecurring Boolean           @default(false)
   semester    FinancialSemester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+}
+
+model CustomExpense {
+  id         String            @id @default(cuid())
+  semesterId String
+  name       String
+  amount     Float             @default(0)
+  semester   FinancialSemester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
 }
 
 // ─── ACTIVITIES ──────────────────────────────────────────────

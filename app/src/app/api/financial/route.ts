@@ -109,7 +109,7 @@ export async function GET(req: Request) {
       where: { userId },
       include: {
         semesters: {
-          include: { incomeSources: true },
+          include: { incomeSources: true, customExpenses: true },
           orderBy: { order: "asc" },
         },
       },
@@ -162,7 +162,7 @@ export async function GET(req: Request) {
             },
             include: {
               semesters: {
-                include: { incomeSources: true },
+                include: { incomeSources: true, customExpenses: true },
                 orderBy: { order: "asc" },
               },
             },
@@ -262,7 +262,7 @@ export async function POST(req: Request) {
       },
       include: {
         semesters: {
-          include: { incomeSources: true },
+          include: { incomeSources: true, customExpenses: true },
           orderBy: { order: "asc" },
         },
       },

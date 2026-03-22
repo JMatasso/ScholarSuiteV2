@@ -27,6 +27,12 @@ import {
   Download,
 } from "@/lib/icons"
 
+interface CustomExpense {
+  id: string
+  name: string
+  amount: number
+}
+
 interface IncomeSource {
   id: string
   name: string
@@ -50,6 +56,7 @@ interface Semester {
   personal: number
   other: number
   incomeSources: IncomeSource[]
+  customExpenses: CustomExpense[]
 }
 
 interface FinancialPlan {
@@ -89,7 +96,9 @@ const INCOME_TYPES = [
 ]
 
 function getSemesterTotal(sem: Semester): number {
-  return sem.tuition + sem.housing + sem.food + sem.transportation + sem.books + sem.personal + sem.other
+  const base = sem.tuition + sem.housing + sem.food + sem.transportation + sem.books + sem.personal + sem.other
+  const custom = (sem.customExpenses ?? []).reduce((a, e) => a + e.amount, 0)
+  return base + custom
 }
 
 function getSemesterAid(sem: Semester): number {
@@ -179,6 +188,13 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
   const [incomeRecurring, setIncomeRecurring] = useState(false)
   const [recurringTargets, setRecurringTargets] = useState<string[]>([])
 
+  // Custom expense form state
+  const [addExpenseOpen, setAddExpenseOpen] = useState(false)
+  const [expenseName, setExpenseName] = useState("")
+  const [expenseAmount, setExpenseAmount] = useState("")
+  const [expenseRecurring, setExpenseRecurring] = useState(true)
+  const [expenseTargets, setExpenseTargets] = useState<string[]>([])
+
   const semesters = plan.semesters
   const totalCost = semesters.reduce((a, s) => a + getSemesterTotal(s), 0)
   const totalAid = semesters.reduce((a, s) => a + getSemesterAid(s), 0)
@@ -187,6 +203,13 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
   const incomeSourceNames = useMemo(() => {
     const names = new Set<string>()
     semesters.forEach((s) => s.incomeSources.forEach((src) => names.add(src.name)))
+    return Array.from(names).sort()
+  }, [semesters])
+
+  // Build unique custom expense names across all semesters
+  const customExpenseNames = useMemo(() => {
+    const names = new Set<string>()
+    semesters.forEach((s) => (s.customExpenses ?? []).forEach((e) => names.add(e.name)))
     return Array.from(names).sort()
   }, [semesters])
 
@@ -331,6 +354,99 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
       if (refreshed?.id) onPlanUpdate(refreshed)
     }
   }, [plan, semesters, onPlanUpdate])
+
+  const resetExpenseForm = () => {
+    setExpenseName("")
+    setExpenseAmount("")
+    setExpenseRecurring(true)
+    setExpenseTargets([])
+    setAddExpenseOpen(false)
+  }
+
+  const handleAddExpense = async () => {
+    if (!expenseName.trim()) { toast.error("Enter an expense name"); return }
+    const amount = parseFloat(expenseAmount) || 0
+
+    setSaving(true)
+    try {
+      const targetSems = expenseRecurring && expenseTargets.length > 0
+        ? expenseTargets
+        : [semesters[0]?.id].filter(Boolean)
+
+      if (targetSems.length === 0) { toast.error("No semesters available"); return }
+
+      const primarySemId = targetSems[0]
+      const res = await fetch(`/api/financial/${plan.id}/semesters/${primarySemId}/expenses`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: expenseName.trim(),
+          amount,
+          applyToSemesterIds: expenseRecurring ? targetSems : undefined,
+        }),
+      })
+      if (!res.ok) throw new Error()
+
+      // Refresh plan
+      const planRes = await fetch("/api/financial")
+      const updatedPlan = await planRes.json()
+      if (updatedPlan?.id) onPlanUpdate(updatedPlan)
+
+      resetExpenseForm()
+      toast.success("Custom expense added")
+    } catch {
+      toast.error("Failed to add expense")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleUpdateExpense = useCallback(async (semId: string, expenseId: string, amount: number) => {
+    // Optimistic update
+    onPlanUpdate({
+      ...plan,
+      semesters: semesters.map((s) =>
+        s.id === semId
+          ? { ...s, customExpenses: (s.customExpenses ?? []).map((e) => e.id === expenseId ? { ...e, amount } : e) }
+          : s
+      ),
+    })
+
+    try {
+      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}/expenses`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expenseId, amount }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      toast.error("Failed to save — reverting")
+      const planRes = await fetch("/api/financial")
+      const refreshed = await planRes.json()
+      if (refreshed?.id) onPlanUpdate(refreshed)
+    }
+  }, [plan, semesters, onPlanUpdate])
+
+  const handleDeleteExpenseRow = async (expenseName: string) => {
+    setSaving(true)
+    try {
+      const res = await fetch(
+        `/api/financial/${plan.id}/semesters/${semesters[0].id}/expenses?name=${encodeURIComponent(expenseName)}`,
+        { method: "DELETE" }
+      )
+      if (!res.ok) throw new Error()
+
+      // Refresh plan
+      const planRes = await fetch("/api/financial")
+      const updatedPlan = await planRes.json()
+      if (updatedPlan?.id) onPlanUpdate(updatedPlan)
+      toast.success(`Removed "${expenseName}"`)
+    } catch {
+      toast.error("Failed to remove expense")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   // Shorten semester name for column headers
   const shortName = (name: string) => {
@@ -547,6 +663,16 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
                     className="bg-rose-700 text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-1.5"
                   >
                     Expenses Per Semester
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setExpenseTargets(semesters.map((s) => s.id))
+                        setAddExpenseOpen(true)
+                      }}
+                      className="ml-3 inline-flex items-center gap-1 rounded bg-white/20 px-2 py-0.5 text-[10px] font-medium hover:bg-white/30 transition-colors"
+                    >
+                      <Plus className="h-2.5 w-2.5" /> Add Expense
+                    </button>
                   </td>
                 </tr>
 
@@ -627,6 +753,49 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
                   labelCell={labelCell}
                   dataCell={dataCell}
                 />
+
+                {/* Custom expense rows */}
+                {customExpenseNames.map((eName) => {
+                  const total = semesters.reduce((sum, sem) => {
+                    const exp = (sem.customExpenses ?? []).find((e) => e.name === eName)
+                    return sum + (exp?.amount ?? 0)
+                  }, 0)
+
+                  return (
+                    <tr key={`custom-${eName}`} className="border-b border-gray-100 hover:bg-rose-50/20 group/row">
+                      <td className={cn(labelCell, "flex items-center gap-1")}>
+                        <span className="flex-1 truncate">{eName}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteExpenseRow(eName)}
+                          className="h-3.5 w-3.5 rounded flex items-center justify-center text-muted-foreground hover:text-rose-600 opacity-0 group-hover/row:opacity-100 transition-opacity shrink-0"
+                          disabled={saving}
+                          title={`Remove "${eName}" from all semesters`}
+                        >
+                          <Trash2 className="h-2.5 w-2.5" />
+                        </button>
+                      </td>
+                      {semesters.map((sem) => {
+                        const exp = (sem.customExpenses ?? []).find((e) => e.name === eName)
+                        return (
+                          <td key={sem.id} className={cn(dataCell)}>
+                            {exp ? (
+                              <CellEditor
+                                value={exp.amount}
+                                onSave={(val) => handleUpdateExpense(sem.id, exp.id, val)}
+                              />
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
+                          </td>
+                        )
+                      })}
+                      <td className={cn(dataCell, "font-semibold bg-gray-50/80")}>
+                        {total === 0 ? "-" : formatCurrency(total)}
+                      </td>
+                    </tr>
+                  )
+                })}
 
                 {/* Total Costs row */}
                 <tr className={totalRow}>
@@ -911,6 +1080,89 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
               disabled={saving || !incomeName.trim() || !incomeAmount}
             >
               {saving ? "Adding..." : "Add Income Source"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Add Custom Expense Dialog ──────────────────────────────── */}
+      <Dialog open={addExpenseOpen} onOpenChange={(open) => { if (!open) resetExpenseForm() }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Custom Expense</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Expense Name</label>
+              <Input
+                placeholder="e.g., Lab Fees, Parking, Insurance..."
+                value={expenseName}
+                onChange={(e) => setExpenseName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Amount per Semester</label>
+              <Input
+                type="number"
+                min={0}
+                step={100}
+                placeholder="$0"
+                value={expenseAmount}
+                onChange={(e) => setExpenseAmount(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={expenseRecurring}
+                  onChange={(e) => setExpenseRecurring(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                Apply to multiple semesters
+              </label>
+            </div>
+            {expenseRecurring && (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-muted-foreground">Select Semesters</label>
+                  <button
+                    type="button"
+                    onClick={() => setExpenseTargets(
+                      expenseTargets.length === semesters.length ? [] : semesters.map((s) => s.id)
+                    )}
+                    className="text-[10px] text-[#2563EB] hover:underline"
+                  >
+                    {expenseTargets.length === semesters.length ? "Deselect All" : "Select All"}
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto">
+                  {semesters.map((sem) => (
+                    <label key={sem.id} className="flex items-center gap-2 text-xs cursor-pointer p-1.5 rounded hover:bg-muted/50">
+                      <input
+                        type="checkbox"
+                        checked={expenseTargets.includes(sem.id)}
+                        onChange={(e) => {
+                          setExpenseTargets((prev) =>
+                            e.target.checked
+                              ? [...prev, sem.id]
+                              : prev.filter((id) => id !== sem.id)
+                          )
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      {sem.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            <Button
+              className="w-full bg-[#2563EB] hover:bg-[#2563EB]/90"
+              onClick={handleAddExpense}
+              disabled={saving || !expenseName.trim()}
+            >
+              {saving ? "Adding..." : "Add Expense"}
             </Button>
           </div>
         </DialogContent>
