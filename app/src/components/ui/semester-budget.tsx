@@ -1,6 +1,13 @@
 "use client"
 
-import { useState, useRef, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo } from "react"
+import {
+  DataSheetGrid,
+  floatColumn,
+  keyColumn,
+  textColumn,
+} from "react-datasheet-grid"
+import "react-datasheet-grid/dist/style.css"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,7 +30,6 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
   Plus,
-  Trash2,
   Download,
 } from "@/lib/icons"
 
@@ -95,6 +101,18 @@ const INCOME_TYPES = [
   "Other",
 ]
 
+const EXPENSE_FIELDS = [
+  { label: "Tuition & Fees", field: "tuition" },
+  { label: "Housing", field: "housing" },
+  { label: "Food", field: "food" },
+  { label: "Books & Supplies", field: "books" },
+  { label: "Transportation", field: "transportation" },
+  { label: "Personal / Misc", field: "personal" },
+  { label: "Other", field: "other" },
+] as const
+
+type GridRow = Record<string, number | string | null>
+
 function getSemesterTotal(sem: Semester): number {
   const base = sem.tuition + sem.housing + sem.food + sem.transportation + sem.books + sem.personal + sem.other
   const custom = (sem.customExpenses ?? []).reduce((a, e) => a + e.amount, 0)
@@ -103,70 +121,6 @@ function getSemesterTotal(sem: Semester): number {
 
 function getSemesterAid(sem: Semester): number {
   return sem.incomeSources.reduce((a, s) => a + s.amount, 0)
-}
-
-/* ------------------------------------------------------------------ */
-/*  Inline editable cell                                               */
-/* ------------------------------------------------------------------ */
-
-function CellEditor({
-  value,
-  onSave,
-  className,
-}: {
-  value: number
-  onSave: (value: number) => void
-  className?: string
-}) {
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const startEdit = () => {
-    setDraft(value === 0 ? "" : String(value))
-    setEditing(true)
-    setTimeout(() => inputRef.current?.select(), 0)
-  }
-
-  const commit = () => {
-    const parsed = parseFloat(draft) || 0
-    const rounded = Math.max(0, Math.round(parsed))
-    if (rounded !== value) onSave(rounded)
-    setEditing(false)
-  }
-
-  if (editing) {
-    return (
-      <input
-        ref={inputRef}
-        type="number"
-        min={0}
-        step={100}
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") commit()
-          if (e.key === "Escape") setEditing(false)
-        }}
-        className="w-full h-6 rounded border border-[#2563EB]/40 bg-white px-1.5 text-right text-[11px] outline-none focus:ring-1 focus:ring-[#2563EB]/50"
-        autoFocus
-      />
-    )
-  }
-
-  return (
-    <span
-      onClick={startEdit}
-      className={cn(
-        "cursor-pointer hover:text-[#2563EB] hover:underline underline-offset-2 transition-colors",
-        className
-      )}
-      title="Click to edit"
-    >
-      {value === 0 ? "-" : formatCurrency(value)}
-    </span>
-  )
 }
 
 /* ------------------------------------------------------------------ */
@@ -199,21 +153,276 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
   const totalCost = semesters.reduce((a, s) => a + getSemesterTotal(s), 0)
   const totalAid = semesters.reduce((a, s) => a + getSemesterAid(s), 0)
 
-  // Build unique income source names across all semesters
+  // Build unique names
   const incomeSourceNames = useMemo(() => {
     const names = new Set<string>()
     semesters.forEach((s) => s.incomeSources.forEach((src) => names.add(src.name)))
     return Array.from(names).sort()
   }, [semesters])
 
-  // Build unique custom expense names across all semesters
   const customExpenseNames = useMemo(() => {
     const names = new Set<string>()
     semesters.forEach((s) => (s.customExpenses ?? []).forEach((e) => names.add(e.name)))
     return Array.from(names).sort()
   }, [semesters])
 
-  // ── Handlers ─────────────────────────────────────────────────────
+  // Shorten semester name for column headers
+  const shortName = (name: string) =>
+    name
+      .replace("Freshman", "Fr.")
+      .replace("Sophomore", "So.")
+      .replace("Junior", "Jr.")
+      .replace("Senior", "Sr.")
+
+  // ── KPI values ──────────────────────────────────────────────────
+  const pctFunded = totalCost > 0
+    ? Math.round(((totalAid + totalScholarships) / totalCost) * 100)
+    : 0
+
+  // ══════════════════════════════════════════════════════════════════
+  //  GRID DATA: build rows for DataSheetGrid
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Expense rows ────────────────────────────────────────────────
+  const expenseRows: GridRow[] = useMemo(() => {
+    const rows: GridRow[] = EXPENSE_FIELDS.map(({ label, field }) => {
+      const row: GridRow = { _label: label, _field: field }
+      let total = 0
+      semesters.forEach((sem) => {
+        const val = sem[field as keyof Semester] as number
+        row[sem.id] = val || null
+        total += val
+      })
+      row._total = total || null
+      return row
+    })
+
+    customExpenseNames.forEach((eName) => {
+      const row: GridRow = { _label: eName, _field: `custom:${eName}` }
+      let total = 0
+      semesters.forEach((sem) => {
+        const exp = (sem.customExpenses ?? []).find((e) => e.name === eName)
+        const val = exp?.amount ?? 0
+        row[sem.id] = val || null
+        total += val
+      })
+      row._total = total || null
+      rows.push(row)
+    })
+
+    return rows
+  }, [semesters, customExpenseNames])
+
+  // ── Income rows ─────────────────────────────────────────────────
+  const incomeRows: GridRow[] = useMemo(() =>
+    incomeSourceNames.map((name) => {
+      const row: GridRow = { _label: name, _field: `income:${name}` }
+      let total = 0
+      semesters.forEach((sem) => {
+        const src = sem.incomeSources.find((s) => s.name === name)
+        row[sem.id] = src ? src.amount : null
+        total += src?.amount ?? 0
+      })
+      row._total = total || null
+      return row
+    }),
+    [semesters, incomeSourceNames]
+  )
+
+  // ── Summary rows (read-only) ───────────────────────────────────
+  const summaryRows: GridRow[] = useMemo(() => {
+    const totalIncomeRow: GridRow = { _label: "Total Income", _field: "_totalIncome" }
+    const totalCostRow: GridRow = { _label: "Total Costs", _field: "_totalCosts" }
+    const netRow: GridRow = { _label: "Surplus / Deficit", _field: "_net" }
+
+    let grandIncome = 0
+    let grandCost = 0
+
+    semesters.forEach((sem) => {
+      const aid = getSemesterAid(sem)
+      const cost = getSemesterTotal(sem)
+      totalIncomeRow[sem.id] = aid || null
+      totalCostRow[sem.id] = cost ? -cost : null
+      netRow[sem.id] = aid - cost
+      grandIncome += aid
+      grandCost += cost
+    })
+
+    totalIncomeRow._total = grandIncome || null
+    totalCostRow._total = grandCost ? -grandCost : null
+    netRow._total = grandIncome - grandCost
+
+    return [totalIncomeRow, totalCostRow, netRow]
+  }, [semesters])
+
+  // ══════════════════════════════════════════════════════════════════
+  //  GRID COLUMNS
+  // ══════════════════════════════════════════════════════════════════
+
+  const labelColumn = useMemo(() => ({
+    ...keyColumn("_label", textColumn),
+    title: " ",
+    disabled: true,
+    minWidth: 150,
+    grow: 0,
+    shrink: 0,
+  }), [])
+
+  const totalColumn = useMemo(() => ({
+    ...keyColumn("_total", floatColumn),
+    title: "Total",
+    disabled: true,
+    minWidth: 100,
+    grow: 0,
+    shrink: 0,
+  }), [])
+
+  const semesterColumns = useMemo(() =>
+    semesters.map((sem) => ({
+      ...keyColumn(sem.id, floatColumn),
+      title: shortName(sem.name),
+      minWidth: 95,
+      grow: 1,
+    })),
+    [semesters]
+  )
+
+  const editableColumns = useMemo(
+    () => [labelColumn, ...semesterColumns, totalColumn],
+    [labelColumn, semesterColumns, totalColumn]
+  )
+
+  const readOnlyColumns = useMemo(
+    () => [
+      labelColumn,
+      ...semesterColumns.map((c) => ({ ...c, disabled: true as const })),
+      totalColumn,
+    ],
+    [labelColumn, semesterColumns, totalColumn]
+  )
+
+  // ══════════════════════════════════════════════════════════════════
+  //  HANDLERS
+  // ══════════════════════════════════════════════════════════════════
+
+  const handleUpdateCost = useCallback(async (semId: string, field: string, value: number) => {
+    // Optimistic update
+    onPlanUpdate({
+      ...plan,
+      semesters: semesters.map((s) =>
+        s.id === semId ? { ...s, [field]: value } : s
+      ),
+    })
+
+    try {
+      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      toast.error("Failed to save — reverting")
+      const planRes = await fetch("/api/financial")
+      const refreshed = await planRes.json()
+      if (refreshed?.id) onPlanUpdate(refreshed)
+    }
+  }, [plan, semesters, onPlanUpdate])
+
+  const handleUpdateExpense = useCallback(async (semId: string, expenseId: string, amount: number) => {
+    onPlanUpdate({
+      ...plan,
+      semesters: semesters.map((s) =>
+        s.id === semId
+          ? { ...s, customExpenses: (s.customExpenses ?? []).map((e) => e.id === expenseId ? { ...e, amount } : e) }
+          : s
+      ),
+    })
+
+    try {
+      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}/expenses`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expenseId, amount }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      toast.error("Failed to save — reverting")
+      const planRes = await fetch("/api/financial")
+      const refreshed = await planRes.json()
+      if (refreshed?.id) onPlanUpdate(refreshed)
+    }
+  }, [plan, semesters, onPlanUpdate])
+
+  const handleUpdateIncome = useCallback(async (semId: string, sourceId: string, amount: number) => {
+    onPlanUpdate({
+      ...plan,
+      semesters: semesters.map((s) =>
+        s.id === semId
+          ? { ...s, incomeSources: s.incomeSources.map((src) => src.id === sourceId ? { ...src, amount } : src) }
+          : s
+      ),
+    })
+
+    try {
+      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}/income`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sourceId, amount }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      toast.error("Failed to save — reverting")
+      const planRes = await fetch("/api/financial")
+      const refreshed = await planRes.json()
+      if (refreshed?.id) onPlanUpdate(refreshed)
+    }
+  }, [plan, semesters, onPlanUpdate])
+
+  // ── Grid onChange handlers ──────────────────────────────────────
+
+  const handleExpenseGridChange = useCallback((newRows: GridRow[]) => {
+    for (let i = 0; i < newRows.length; i++) {
+      const oldRow = expenseRows[i]
+      const newRow = newRows[i]
+      if (!oldRow || !newRow) continue
+
+      for (const sem of semesters) {
+        const oldVal = (oldRow[sem.id] as number) ?? 0
+        const newVal = (newRow[sem.id] as number) ?? 0
+        if (oldVal !== newVal) {
+          const field = oldRow._field as string
+          if (field.startsWith("custom:")) {
+            const expName = field.slice(7)
+            const exp = (sem.customExpenses ?? []).find((e) => e.name === expName)
+            if (exp) handleUpdateExpense(sem.id, exp.id, newVal)
+          } else {
+            handleUpdateCost(sem.id, field, newVal)
+          }
+        }
+      }
+    }
+  }, [expenseRows, semesters, handleUpdateCost, handleUpdateExpense])
+
+  const handleIncomeGridChange = useCallback((newRows: GridRow[]) => {
+    for (let i = 0; i < newRows.length; i++) {
+      const oldRow = incomeRows[i]
+      const newRow = newRows[i]
+      if (!oldRow || !newRow) continue
+
+      for (const sem of semesters) {
+        const oldVal = (oldRow[sem.id] as number) ?? 0
+        const newVal = (newRow[sem.id] as number) ?? 0
+        if (oldVal !== newVal) {
+          const srcName = (oldRow._label as string)
+          const src = sem.incomeSources.find((s) => s.name === srcName)
+          if (src) handleUpdateIncome(sem.id, src.id, newVal)
+        }
+      }
+    }
+  }, [incomeRows, semesters, handleUpdateIncome])
+
+  // ── Term / Income / Expense dialogs ─────────────────────────────
 
   const handleAddTerm = async () => {
     const name = selectedPreset || customTermName.trim()
@@ -238,20 +447,6 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
       toast.success(`Added ${name}`)
     } catch {
       toast.error("Failed to add term")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleDeleteTerm = async (semId: string, semName: string) => {
-    setSaving(true)
-    try {
-      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}`, { method: "DELETE" })
-      if (!res.ok) throw new Error()
-      onPlanUpdate({ ...plan, semesters: semesters.filter((s) => s.id !== semId) })
-      toast.success(`Removed ${semName}`)
-    } catch {
-      toast.error("Failed to remove term")
     } finally {
       setSaving(false)
     }
@@ -308,53 +503,6 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
     }
   }
 
-  const handleDeleteIncome = async (semId: string, sourceId: string) => {
-    setSaving(true)
-    try {
-      const res = await fetch(
-        `/api/financial/${plan.id}/semesters/${semId}/income?sourceId=${sourceId}`,
-        { method: "DELETE" }
-      )
-      if (!res.ok) throw new Error()
-      onPlanUpdate({
-        ...plan,
-        semesters: semesters.map((s) =>
-          s.id === semId
-            ? { ...s, incomeSources: s.incomeSources.filter((i) => i.id !== sourceId) }
-            : s
-        ),
-      })
-      toast.success("Income source removed")
-    } catch {
-      toast.error("Failed to remove income source")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleUpdateCost = useCallback(async (semId: string, field: string, value: number) => {
-    onPlanUpdate({
-      ...plan,
-      semesters: semesters.map((s) =>
-        s.id === semId ? { ...s, [field]: value } : s
-      ),
-    })
-
-    try {
-      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [field]: value }),
-      })
-      if (!res.ok) throw new Error()
-    } catch {
-      toast.error("Failed to save — reverting")
-      const planRes = await fetch("/api/financial")
-      const refreshed = await planRes.json()
-      if (refreshed?.id) onPlanUpdate(refreshed)
-    }
-  }, [plan, semesters, onPlanUpdate])
-
   const resetExpenseForm = () => {
     setExpenseName("")
     setExpenseAmount("")
@@ -387,7 +535,6 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
       })
       if (!res.ok) throw new Error()
 
-      // Refresh plan
       const planRes = await fetch("/api/financial")
       const updatedPlan = await planRes.json()
       if (updatedPlan?.id) onPlanUpdate(updatedPlan)
@@ -401,88 +548,16 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
     }
   }
 
-  const handleUpdateExpense = useCallback(async (semId: string, expenseId: string, amount: number) => {
-    // Optimistic update
-    onPlanUpdate({
-      ...plan,
-      semesters: semesters.map((s) =>
-        s.id === semId
-          ? { ...s, customExpenses: (s.customExpenses ?? []).map((e) => e.id === expenseId ? { ...e, amount } : e) }
-          : s
-      ),
-    })
-
-    try {
-      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}/expenses`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ expenseId, amount }),
-      })
-      if (!res.ok) throw new Error()
-    } catch {
-      toast.error("Failed to save — reverting")
-      const planRes = await fetch("/api/financial")
-      const refreshed = await planRes.json()
-      if (refreshed?.id) onPlanUpdate(refreshed)
-    }
-  }, [plan, semesters, onPlanUpdate])
-
-  const handleDeleteExpenseRow = async (expenseName: string) => {
-    setSaving(true)
-    try {
-      const res = await fetch(
-        `/api/financial/${plan.id}/semesters/${semesters[0].id}/expenses?name=${encodeURIComponent(expenseName)}`,
-        { method: "DELETE" }
-      )
-      if (!res.ok) throw new Error()
-
-      // Refresh plan
-      const planRes = await fetch("/api/financial")
-      const updatedPlan = await planRes.json()
-      if (updatedPlan?.id) onPlanUpdate(updatedPlan)
-      toast.success(`Removed "${expenseName}"`)
-    } catch {
-      toast.error("Failed to remove expense")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  // Shorten semester name for column headers
-  const shortName = (name: string) => {
-    return name
-      .replace("Freshman", "Fr.")
-      .replace("Sophomore", "So.")
-      .replace("Junior", "Jr.")
-      .replace("Senior", "Sr.")
-  }
-
-  // ── Computed values per semester ────────────────────────────────
-
-  const semTotals = semesters.map(getSemesterTotal)
-  const semAids = semesters.map(getSemesterAid)
-  const semSurplus = semesters.map((_, i) => semAids[i] - semTotals[i])
-  const pctFunded = totalCost > 0
-    ? Math.round(((totalAid + totalScholarships) / totalCost) * 100)
-    : 0
-
-  // Column width
-  const colW = "min-w-[100px] w-[100px]"
-  const labelW = "min-w-[180px] w-[180px]"
-
-  // Styles
-  const sectionHeader = "bg-[#1E3A5F] text-white text-[11px] font-semibold uppercase tracking-wide"
-  const dataCell = "text-[11px] text-right px-2 py-1.5 border-r border-gray-200 last:border-r-0"
-  const labelCell = "text-[11px] font-medium px-3 py-1.5 border-r border-gray-200 bg-gray-50/80 sticky left-0 z-10"
-  const totalRow = "bg-[#1E3A5F]/90 text-white font-semibold"
-  const summaryTotalRow = "bg-[#1E3A5F] text-white font-bold"
+  // ══════════════════════════════════════════════════════════════════
+  //  RENDER
+  // ══════════════════════════════════════════════════════════════════
 
   return (
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          Click any dollar amount to edit. Semesters scroll horizontally.
+          Click any cell to edit. Use Tab/Enter to navigate. Copy-paste supported.
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -507,13 +582,12 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
       {/* ── Financial Goals KPIs ──────────────────────────────────── */}
       <Card variant="bento" className="overflow-hidden">
         <CardContent className="p-0">
-          <div className={cn(sectionHeader, "px-3 py-2 flex items-center justify-between")}>
+          <div className="bg-[#1E3A5F] text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-2 flex items-center justify-between">
             <span>Financial Goals</span>
             <span className="text-[10px] font-normal opacity-80">
               {pctFunded}% Funded
             </span>
           </div>
-          {/* Progress bar */}
           <div className="h-2 bg-gray-100">
             <div
               className={cn(
@@ -539,398 +613,150 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
         </CardContent>
       </Card>
 
-      {/* ── Spreadsheet ──────────────────────────────────────────── */}
+      {/* ── Income Section ─────────────────────────────────────────── */}
       <Card variant="bento" className="overflow-hidden">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-max border-collapse" style={{ minWidth: "100%" }}>
-              {/* ── Column Headers ── */}
-              <thead>
-                <tr className={sectionHeader}>
-                  <th className={cn(labelW, "px-3 py-2 text-left sticky left-0 z-20 bg-[#1E3A5F]")}>
-                    &nbsp;
-                  </th>
-                  {semesters.map((sem) => (
-                    <th key={sem.id} className={cn(colW, "px-2 py-2 text-center group relative")}>
-                      <span className="block truncate">{shortName(sem.name)}</span>
-                      {sem.isCustom && (
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteTerm(sem.id, sem.name)}
-                          className="absolute top-0.5 right-0.5 h-4 w-4 rounded bg-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-500"
-                          title={`Remove ${sem.name}`}
-                          disabled={saving}
-                        >
-                          <Trash2 className="h-2.5 w-2.5" />
-                        </button>
-                      )}
-                    </th>
-                  ))}
-                  <th className={cn(colW, "px-2 py-2 text-center bg-[#162d4a]")}>Total</th>
-                </tr>
-              </thead>
+          <div className="bg-emerald-700 text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span>Income & Scholarship Breakdown</span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (semesters.length > 0) setAddIncomeOpen(semesters[0].id)
+                }}
+                className="inline-flex items-center gap-1 rounded bg-white/20 px-2 py-0.5 text-[10px] font-medium hover:bg-white/30 transition-colors"
+              >
+                <Plus className="h-2.5 w-2.5" /> Add Source
+              </button>
+            </div>
+            {incomeSourceNames.length > 0 && (
+              <span className="text-[10px] font-normal opacity-80">
+                {formatCurrency(totalAid)} total
+              </span>
+            )}
+          </div>
+          {incomeSourceNames.length === 0 ? (
+            <div className="text-center text-xs text-muted-foreground py-6">
+              No income sources yet. Click &quot;Add Source&quot; to add scholarships, jobs, or other income.
+            </div>
+          ) : (
+            <div className="budget-grid income-grid">
+              <DataSheetGrid
+                value={incomeRows}
+                onChange={handleIncomeGridChange}
+                columns={editableColumns}
+                lockRows
+                gutterColumn={false}
+                rowHeight={32}
+                headerRowHeight={36}
+                disableContextMenu
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-              <tbody>
-                {/* ═══════════════ SECTION 1: Income Breakdown ═══════════════ */}
-                <tr>
-                  <td
-                    colSpan={semesters.length + 2}
-                    className="bg-emerald-700 text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-1.5"
-                  >
-                    Income & Scholarship Breakdown
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (semesters.length > 0) setAddIncomeOpen(semesters[0].id)
-                      }}
-                      className="ml-3 inline-flex items-center gap-1 rounded bg-white/20 px-2 py-0.5 text-[10px] font-medium hover:bg-white/30 transition-colors"
-                    >
-                      <Plus className="h-2.5 w-2.5" /> Add Source
-                    </button>
-                  </td>
-                </tr>
-
-                {incomeSourceNames.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={semesters.length + 2}
-                      className="text-center text-xs text-muted-foreground py-4 bg-emerald-50/30"
-                    >
-                      No income sources yet. Click &quot;Add Source&quot; to add scholarships, jobs, or other income.
-                    </td>
-                  </tr>
-                ) : (
-                  incomeSourceNames.map((sourceName) => (
-                    <tr key={sourceName} className="border-b border-gray-100 hover:bg-emerald-50/20 group/row">
-                      <td className={cn(labelCell, "text-emerald-800")}>
-                        {sourceName}
-                      </td>
-                      {semesters.map((sem) => {
-                        const source = sem.incomeSources.find((s) => s.name === sourceName)
-                        return (
-                          <td key={sem.id} className={cn(dataCell, "relative group/cell")}>
-                            {source ? (
-                              <div className="flex items-center justify-end gap-1">
-                                <span className="text-emerald-700 font-medium">
-                                  {formatCurrency(source.amount)}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteIncome(sem.id, source.id)}
-                                  className="h-3.5 w-3.5 rounded flex items-center justify-center text-muted-foreground hover:text-rose-600 opacity-0 group-hover/cell:opacity-100 transition-opacity shrink-0"
-                                  disabled={saving}
-                                >
-                                  <Trash2 className="h-2.5 w-2.5" />
-                                </button>
-                              </div>
-                            ) : (
-                              <span className="text-gray-300">-</span>
-                            )}
-                          </td>
-                        )
-                      })}
-                      <td className={cn(dataCell, "font-semibold text-emerald-700 bg-emerald-50/50")}>
-                        {formatCurrency(
-                          semesters.reduce((sum, sem) => {
-                            const src = sem.incomeSources.find((s) => s.name === sourceName)
-                            return sum + (src?.amount ?? 0)
-                          }, 0)
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-
-                {/* Total Income row */}
-                <tr className={totalRow}>
-                  <td className={cn(labelW, "px-3 py-1.5 sticky left-0 z-10 bg-[#1E3A5F]/90")}>
-                    Total Income
-                  </td>
-                  {semesters.map((sem, i) => (
-                    <td key={sem.id} className={cn(colW, "px-2 py-1.5 text-right text-[11px]")}>
-                      {formatCurrency(semAids[i])}
-                    </td>
-                  ))}
-                  <td className={cn(colW, "px-2 py-1.5 text-right text-[11px] bg-[#162d4a]")}>
-                    {formatCurrency(totalAid)}
-                  </td>
-                </tr>
-
-                {/* ═══════════════ SECTION 2: Expenses ═══════════════ */}
-                <tr>
-                  <td
-                    colSpan={semesters.length + 2}
-                    className="bg-rose-700 text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-1.5"
-                  >
-                    Expenses Per Semester
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setExpenseTargets(semesters.map((s) => s.id))
-                        setAddExpenseOpen(true)
-                      }}
-                      className="ml-3 inline-flex items-center gap-1 rounded bg-white/20 px-2 py-0.5 text-[10px] font-medium hover:bg-white/30 transition-colors"
-                    >
-                      <Plus className="h-2.5 w-2.5" /> Add Expense
-                    </button>
-                  </td>
-                </tr>
-
-                {/* Tuition & Fees */}
-                <ExpenseRow
-                  label="Tuition & Fees"
-                  semesters={semesters}
-                  field="tuition"
-                  onUpdateCost={handleUpdateCost}
-                  colW={colW}
-                  labelW={labelW}
-                  labelCell={labelCell}
-                  dataCell={dataCell}
-                />
-                {/* Housing */}
-                <ExpenseRow
-                  label="Housing"
-                  semesters={semesters}
-                  field="housing"
-                  onUpdateCost={handleUpdateCost}
-                  colW={colW}
-                  labelW={labelW}
-                  labelCell={labelCell}
-                  dataCell={dataCell}
-                />
-                {/* Food */}
-                <ExpenseRow
-                  label="Food"
-                  semesters={semesters}
-                  field="food"
-                  onUpdateCost={handleUpdateCost}
-                  colW={colW}
-                  labelW={labelW}
-                  labelCell={labelCell}
-                  dataCell={dataCell}
-                />
-                {/* Books & Supplies */}
-                <ExpenseRow
-                  label="Books & Supplies"
-                  semesters={semesters}
-                  field="books"
-                  onUpdateCost={handleUpdateCost}
-                  colW={colW}
-                  labelW={labelW}
-                  labelCell={labelCell}
-                  dataCell={dataCell}
-                />
-                {/* Transportation */}
-                <ExpenseRow
-                  label="Transportation"
-                  semesters={semesters}
-                  field="transportation"
-                  onUpdateCost={handleUpdateCost}
-                  colW={colW}
-                  labelW={labelW}
-                  labelCell={labelCell}
-                  dataCell={dataCell}
-                />
-                {/* Personal / Misc */}
-                <ExpenseRow
-                  label="Personal / Misc"
-                  semesters={semesters}
-                  field="personal"
-                  onUpdateCost={handleUpdateCost}
-                  colW={colW}
-                  labelW={labelW}
-                  labelCell={labelCell}
-                  dataCell={dataCell}
-                />
-                {/* Other */}
-                <ExpenseRow
-                  label="Other"
-                  semesters={semesters}
-                  field="other"
-                  onUpdateCost={handleUpdateCost}
-                  colW={colW}
-                  labelW={labelW}
-                  labelCell={labelCell}
-                  dataCell={dataCell}
-                />
-
-                {/* Custom expense rows */}
-                {customExpenseNames.map((eName) => {
-                  const total = semesters.reduce((sum, sem) => {
-                    const exp = (sem.customExpenses ?? []).find((e) => e.name === eName)
-                    return sum + (exp?.amount ?? 0)
-                  }, 0)
-
-                  return (
-                    <tr key={`custom-${eName}`} className="border-b border-gray-100 hover:bg-rose-50/20 group/row">
-                      <td className={cn(labelCell, "flex items-center gap-1")}>
-                        <span className="flex-1 truncate">{eName}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteExpenseRow(eName)}
-                          className="h-3.5 w-3.5 rounded flex items-center justify-center text-muted-foreground hover:text-rose-600 opacity-0 group-hover/row:opacity-100 transition-opacity shrink-0"
-                          disabled={saving}
-                          title={`Remove "${eName}" from all semesters`}
-                        >
-                          <Trash2 className="h-2.5 w-2.5" />
-                        </button>
-                      </td>
-                      {semesters.map((sem) => {
-                        const exp = (sem.customExpenses ?? []).find((e) => e.name === eName)
-                        return (
-                          <td key={sem.id} className={cn(dataCell)}>
-                            {exp ? (
-                              <CellEditor
-                                value={exp.amount}
-                                onSave={(val) => handleUpdateExpense(sem.id, exp.id, val)}
-                              />
-                            ) : (
-                              <span className="text-gray-300">-</span>
-                            )}
-                          </td>
-                        )
-                      })}
-                      <td className={cn(dataCell, "font-semibold bg-gray-50/80")}>
-                        {total === 0 ? "-" : formatCurrency(total)}
-                      </td>
-                    </tr>
-                  )
-                })}
-
-                {/* Total Costs row */}
-                <tr className={totalRow}>
-                  <td className={cn(labelW, "px-3 py-1.5 sticky left-0 z-10 bg-[#1E3A5F]/90")}>
-                    Total Costs
-                  </td>
-                  {semesters.map((sem, i) => (
-                    <td key={sem.id} className={cn(colW, "px-2 py-1.5 text-right text-[11px]")}>
-                      ({formatCurrency(semTotals[i])})
-                    </td>
-                  ))}
-                  <td className={cn(colW, "px-2 py-1.5 text-right text-[11px] bg-[#162d4a]")}>
-                    ({formatCurrency(totalCost)})
-                  </td>
-                </tr>
-
-                {/* ═══════════════ SECTION 3: Surplus/Deficit ═══════════════ */}
-                <tr>
-                  <td
-                    colSpan={semesters.length + 2}
-                    className="bg-[#1E3A5F] text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-1.5"
-                  >
-                    Surplus / Deficit Per Semester
-                  </td>
-                </tr>
-
-                {/* Total Income */}
-                <tr className="border-b border-gray-100">
-                  <td className={cn(labelCell, "font-semibold")}>Total Income</td>
-                  {semesters.map((sem, i) => (
-                    <td key={sem.id} className={cn(dataCell, "font-medium text-emerald-700")}>
-                      {formatCurrency(semAids[i])}
-                    </td>
-                  ))}
-                  <td className={cn(dataCell, "font-semibold text-emerald-700 bg-gray-50/80")}>
-                    {formatCurrency(totalAid)}
-                  </td>
-                </tr>
-
-                {/* Cost of Attendance */}
-                <tr className="border-b border-gray-100">
-                  <td className={cn(labelCell, "font-semibold")}>Cost of Attendance</td>
-                  {semesters.map((sem, i) => (
-                    <td key={sem.id} className={cn(dataCell, "font-medium")}>
-                      ({formatCurrency(semTotals[i])})
-                    </td>
-                  ))}
-                  <td className={cn(dataCell, "font-semibold bg-gray-50/80")}>
-                    ({formatCurrency(totalCost)})
-                  </td>
-                </tr>
-
-                {/* Amount Needed / Surplus */}
-                <tr className={summaryTotalRow}>
-                  <td className={cn(labelW, "px-3 py-2 sticky left-0 z-10 bg-[#1E3A5F] text-[11px]")}>
-                    Amount Needed
-                  </td>
-                  {semesters.map((sem, i) => {
-                    const val = semSurplus[i]
-                    return (
-                      <td
-                        key={sem.id}
-                        className={cn(
-                          colW,
-                          "px-2 py-2 text-right text-[11px]",
-                          val >= 0 ? "text-emerald-300" : "text-rose-300"
-                        )}
-                      >
-                        {val >= 0 ? formatCurrency(val) : `(${formatCurrency(Math.abs(val))})`}
-                      </td>
-                    )
-                  })}
-                  <td
-                    className={cn(
-                      colW,
-                      "px-2 py-2 text-right text-[11px] bg-[#162d4a]",
-                      totalAid - totalCost >= 0 ? "text-emerald-300" : "text-rose-300"
-                    )}
-                  >
-                    {totalAid - totalCost >= 0
-                      ? formatCurrency(totalAid - totalCost)
-                      : `(${formatCurrency(Math.abs(totalAid - totalCost))})`}
-                  </td>
-                </tr>
-
-                {/* Per-semester funding bars */}
-                <tr className="bg-gray-50">
-                  <td className={cn(labelW, "px-3 py-2 sticky left-0 z-10 bg-gray-50 text-[10px] text-muted-foreground font-medium")}>
-                    % Funded
-                  </td>
-                  {semesters.map((sem, i) => {
-                    const pct = semTotals[i] > 0 ? Math.round((semAids[i] / semTotals[i]) * 100) : 0
-                    return (
-                      <td key={sem.id} className={cn(colW, "px-2 py-2 border-r border-gray-200")}>
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full rounded-full transition-all",
-                                pct >= 100 ? "bg-emerald-500" : pct >= 50 ? "bg-[#2563EB]" : "bg-amber-500"
-                              )}
-                              style={{ width: `${Math.min(pct, 100)}%` }}
-                            />
-                          </div>
-                          <span className="text-[9px] text-muted-foreground w-7 text-right shrink-0">
-                            {pct}%
-                          </span>
-                        </div>
-                      </td>
-                    )
-                  })}
-                  <td className={cn(colW, "px-2 py-2 bg-gray-50")}>
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                          className={cn(
-                            "h-full rounded-full transition-all",
-                            pctFunded >= 100 ? "bg-emerald-500" : pctFunded >= 50 ? "bg-[#2563EB]" : "bg-amber-500"
-                          )}
-                          style={{ width: `${Math.min(pctFunded, 100)}%` }}
-                        />
-                      </div>
-                      <span className="text-[9px] text-muted-foreground w-7 text-right shrink-0">
-                        {pctFunded}%
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      {/* ── Expense Section ────────────────────────────────────────── */}
+      <Card variant="bento" className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="bg-rose-700 text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span>Expenses Per Semester</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setExpenseTargets(semesters.map((s) => s.id))
+                  setAddExpenseOpen(true)
+                }}
+                className="inline-flex items-center gap-1 rounded bg-white/20 px-2 py-0.5 text-[10px] font-medium hover:bg-white/30 transition-colors"
+              >
+                <Plus className="h-2.5 w-2.5" /> Add Expense
+              </button>
+            </div>
+            <span className="text-[10px] font-normal opacity-80">
+              {formatCurrency(totalCost)} total
+            </span>
+          </div>
+          <div className="budget-grid expense-grid">
+            <DataSheetGrid
+              value={expenseRows}
+              onChange={handleExpenseGridChange}
+              columns={editableColumns}
+              lockRows
+              gutterColumn={false}
+              rowHeight={32}
+              headerRowHeight={36}
+              disableContextMenu
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Add Term Dialog ──────────────────────────────────────── */}
+      {/* ── Summary Section ────────────────────────────────────────── */}
+      <Card variant="bento" className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="bg-[#1E3A5F] text-white text-[11px] font-semibold uppercase tracking-wide px-3 py-2">
+            Surplus / Deficit Per Semester
+          </div>
+          <div className="budget-grid summary-grid">
+            <DataSheetGrid
+              value={summaryRows}
+              columns={readOnlyColumns}
+              lockRows
+              gutterColumn={false}
+              rowHeight={34}
+              headerRowHeight={36}
+              disableContextMenu
+            />
+          </div>
+
+          {/* Per-semester funding bars */}
+          <div className="flex items-center border-t px-3 py-2 bg-gray-50 gap-4 overflow-x-auto">
+            <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap min-w-[140px]">
+              % Funded
+            </span>
+            {semesters.map((sem) => {
+              const cost = getSemesterTotal(sem)
+              const aid = getSemesterAid(sem)
+              const pct = cost > 0 ? Math.round((aid / cost) * 100) : 0
+              return (
+                <div key={sem.id} className="flex items-center gap-1.5 min-w-[85px] flex-1">
+                  <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        pct >= 100 ? "bg-emerald-500" : pct >= 50 ? "bg-[#2563EB]" : "bg-amber-500"
+                      )}
+                      style={{ width: `${Math.min(pct, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] text-muted-foreground w-7 text-right shrink-0">
+                    {pct}%
+                  </span>
+                </div>
+              )
+            })}
+            <div className="flex items-center gap-1.5 min-w-[90px]">
+              <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    pctFunded >= 100 ? "bg-emerald-500" : pctFunded >= 50 ? "bg-[#2563EB]" : "bg-amber-500"
+                  )}
+                  style={{ width: `${Math.min(pctFunded, 100)}%` }}
+                />
+              </div>
+              <span className="text-[9px] text-muted-foreground w-7 text-right shrink-0">
+                {pctFunded}%
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── DIALOGS ────────────────────────────────────────────────── */}
+
+      {/* Add Term Dialog */}
       <Dialog open={addTermOpen} onOpenChange={setAddTermOpen}>
         <DialogContent>
           <DialogHeader>
@@ -970,14 +796,13 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
         </DialogContent>
       </Dialog>
 
-      {/* ── Add Income Dialog ────────────────────────────────────── */}
+      {/* Add Income Dialog */}
       <Dialog open={addIncomeOpen !== null} onOpenChange={(open) => { if (!open) resetIncomeForm() }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Income Source</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
-            {/* Semester selector */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Add to Semester</label>
               <Select value={addIncomeOpen || ""} onValueChange={(v) => setAddIncomeOpen(v)}>
@@ -1085,7 +910,7 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
         </DialogContent>
       </Dialog>
 
-      {/* ── Add Custom Expense Dialog ──────────────────────────────── */}
+      {/* Add Custom Expense Dialog */}
       <Dialog open={addExpenseOpen} onOpenChange={(open) => { if (!open) resetExpenseForm() }}>
         <DialogContent>
           <DialogHeader>
@@ -1167,6 +992,47 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Grid custom styles ─────────────────────────────────────── */}
+      <style>{`
+        .budget-grid {
+          --dsg-border-color: #e5e7eb;
+          --dsg-selection-border-color: #2563EB;
+          --dsg-cell-background-color: white;
+          --dsg-cell-disabled-background-color: #f9fafb;
+          --dsg-header-text-color: #1E3A5F;
+          font-size: 12px;
+        }
+        .budget-grid .dsg-container {
+          border: none;
+          border-radius: 0;
+        }
+        .budget-grid .dsg-cell {
+          padding: 0 8px;
+        }
+        .budget-grid .dsg-cell-header {
+          font-weight: 600;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.02em;
+          background: #f1f5f9;
+          color: #1E3A5F;
+        }
+        .income-grid .dsg-cell:not(.dsg-cell-header):not(.dsg-cell-disabled) {
+          color: #047857;
+        }
+        .expense-grid .dsg-cell:not(.dsg-cell-header):not(.dsg-cell-disabled) {
+          color: #1a1a1a;
+        }
+        .summary-grid .dsg-cell:not(.dsg-cell-header) {
+          font-weight: 600;
+        }
+        .summary-grid .dsg-row:last-child .dsg-cell {
+          background: #1E3A5F;
+          color: white;
+          font-weight: 700;
+        }
+      `}</style>
     </div>
   )
 }
@@ -1209,48 +1075,5 @@ function KpiCell({
       <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
       <p className={cn("text-lg font-bold mt-0.5", toneClass)}>{display}</p>
     </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  Expense Row                                                        */
-/* ------------------------------------------------------------------ */
-
-function ExpenseRow({
-  label,
-  semesters,
-  field,
-  onUpdateCost,
-  colW,
-  labelW,
-  labelCell,
-  dataCell,
-}: {
-  label: string
-  semesters: Semester[]
-  field: keyof Semester
-  onUpdateCost: (semId: string, field: string, value: number) => void
-  colW: string
-  labelW: string
-  labelCell: string
-  dataCell: string
-}) {
-  const total = semesters.reduce((sum, sem) => sum + (sem[field] as number), 0)
-
-  return (
-    <tr className="border-b border-gray-100 hover:bg-rose-50/20">
-      <td className={cn(labelCell)}>{label}</td>
-      {semesters.map((sem) => (
-        <td key={sem.id} className={cn(dataCell)}>
-          <CellEditor
-            value={sem[field] as number}
-            onSave={(val) => onUpdateCost(sem.id, field as string, val)}
-          />
-        </td>
-      ))}
-      <td className={cn(dataCell, "font-semibold bg-gray-50/80")}>
-        {total === 0 ? "-" : formatCurrency(total)}
-      </td>
-    </tr>
   )
 }
