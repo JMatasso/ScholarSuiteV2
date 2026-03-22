@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { toast } from "sonner"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,10 +16,12 @@ import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import {
   Plus, Trash2, Edit, BookOpen, GraduationCap, Award, Settings,
 } from "@/lib/icons"
+import { TranscriptUploadSection } from "@/components/transcript-upload"
 import {
   GRADE_OPTIONS, COURSE_TYPE_LABELS, SUBJECT_OPTIONS,
   type CourseType, type CourseStatus, type WeightedScale,
 } from "@/lib/gpa"
+import { AP_COURSES, IB_COURSES, detectSubject } from "@/lib/course-catalog"
 
 // ── Types ──
 
@@ -154,6 +156,66 @@ function CourseRow({
   )
 }
 
+// ── Course Name Autocomplete ──
+
+function CourseAutocomplete({
+  value, onChange, courseType,
+}: {
+  value: string
+  onChange: (name: string, autoSubject?: string) => void
+  courseType: CourseType
+}) {
+  const [focused, setFocused] = useState(false)
+  const [query, setQuery] = useState(value)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => { setQuery(value) }, [value])
+
+  const catalog = courseType === "AP" ? AP_COURSES : courseType === "IB" ? IB_COURSES : []
+  const suggestions = catalog.filter(
+    (c) => c.toLowerCase().includes(query.toLowerCase()) && c !== query
+  ).slice(0, 8)
+  const showSuggestions = focused && query.length > 0 && suggestions.length > 0
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setFocused(false)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <Input
+        placeholder={courseType === "AP" ? "Start typing AP course name..." : courseType === "IB" ? "Start typing IB course name..." : "e.g. English 10"}
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); onChange(e.target.value) }}
+        onFocus={() => setFocused(true)}
+      />
+      {showSuggestions && (
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
+          {suggestions.map((s) => (
+            <button
+              key={s}
+              type="button"
+              className="w-full px-3 py-2 text-left text-sm hover:bg-muted/50 transition-colors"
+              onMouseDown={(e) => {
+                e.preventDefault()
+                setQuery(s)
+                onChange(s, detectSubject(s))
+                setFocused(false)
+              }}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Add/Edit Course Dialog ──
 
 function CourseDialog({
@@ -182,16 +244,25 @@ function CourseDialog({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <label className="text-xs font-medium text-muted-foreground">Course Name</label>
-            <Input
-              placeholder="e.g. AP Calculus BC"
+            <CourseAutocomplete
               value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              courseType={form.type}
+              onChange={(name, autoSubject) => setForm((f) => ({
+                ...f,
+                name,
+                ...(autoSubject ? { subject: autoSubject } : {}),
+              }))}
             />
+            {(isAP || isIB) && (
+              <p className="text-[11px] text-muted-foreground">
+                Start typing to see official {isAP ? "AP" : "IB"} course suggestions
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">Type</label>
-            <Select value={form.type} onValueChange={(v) => v && setForm((f) => ({ ...f, type: v as CourseType }))}>
+            <Select value={form.type} onValueChange={(v) => v && setForm((f) => ({ ...f, type: v as CourseType, name: "" }))}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {Object.entries(COURSE_TYPE_LABELS).map(([k, v]) => (
@@ -393,15 +464,23 @@ export default function AcademicsPage() {
   const [scaleOpen, setScaleOpen] = useState(false)
   const [scale, setScale] = useState<WeightedScale>("5.0")
 
+  // Transcript state
+  const [transcripts, setTranscripts] = useState<import("@/components/transcript-upload").TranscriptUploadData[]>([])
+
   const fetchData = useCallback(async () => {
     try {
-      const [coursesRes, gpaRes] = await Promise.all([
+      const [coursesRes, gpaRes, transcriptRes] = await Promise.all([
         fetch("/api/academics/courses"),
         fetch("/api/academics/gpa"),
+        fetch("/api/academics/transcript"),
       ])
       if (coursesRes.ok) {
         const data: AcademicYear[] = await coursesRes.json()
         setYears(data.length > 0 ? data : [])
+      }
+      if (transcriptRes.ok) {
+        const data = await transcriptRes.json()
+        setTranscripts(Array.isArray(data) ? data : [])
       }
       if (gpaRes.ok) {
         const data: GpaSummary = await gpaRes.json()
@@ -571,6 +650,9 @@ export default function AcademicsPage() {
           saving={saving}
         />
       )}
+
+      {/* Transcript Upload Section */}
+      <TranscriptUploadSection transcripts={transcripts} onDataChanged={fetchData} />
 
       {/* GPA Scale Dialog */}
       <Dialog open={scaleOpen} onOpenChange={setScaleOpen}>
