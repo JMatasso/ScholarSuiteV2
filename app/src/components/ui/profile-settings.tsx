@@ -38,8 +38,9 @@ export function ProfileSettings() {
       setCropOpen(false)
       setCropSrc(null)
     },
-    onUploadError: () => {
-      toast.error("Failed to upload photo")
+    onUploadError: (error) => {
+      console.error("Profile photo upload error:", error)
+      toast.error(`Failed to upload photo: ${error.message}`)
       setUploadingPhoto(false)
     },
   })
@@ -102,8 +103,14 @@ export function ProfileSettings() {
 
   const handleCropComplete = useCallback(async (blob: Blob) => {
     setUploadingPhoto(true)
-    const file = new File([blob], "profile-photo.jpg", { type: "image/jpeg" })
-    await startUpload([file])
+    try {
+      const file = new File([blob], "profile-photo.jpg", { type: "image/jpeg" })
+      await startUpload([file])
+    } catch (err) {
+      console.error("Profile photo upload failed:", err)
+      toast.error("Failed to upload photo")
+      setUploadingPhoto(false)
+    }
   }, [startUpload])
 
   // Password requirement checks
