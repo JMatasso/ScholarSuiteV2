@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
+import { toast } from "sonner"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { TrendingUp, RefreshCw } from "@/lib/icons"
+import { TrendingUp, RefreshCw, Save, Trash2, FolderOpen } from "@/lib/icons"
 import {
   GRADE_OPTIONS, COURSE_TYPE_LABELS,
   calculateGpa, calculateWhatIfGpa,
@@ -22,6 +24,15 @@ interface SimCourse {
   grade: string | null
   yearLabel: string
   semester: string
+}
+
+interface SavedPlan {
+  id: string
+  name: string
+  grades: Record<string, string>
+  resultUw: number | null
+  resultW: number | null
+  updatedAt: string
 }
 
 interface GpaSimulatorProps {
@@ -74,8 +85,25 @@ export function GpaSimulator({ years, weightedScale }: GpaSimulatorProps) {
 
   // Hypothetical grades keyed by course id
   const [hypotheticals, setHypotheticals] = useState<Record<string, string>>({})
+  const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([])
+  const [activePlanId, setActivePlanId] = useState<string | null>(null)
+  const [planName, setPlanName] = useState("")
+  const [saving, setSaving] = useState(false)
 
   const hasAnyHypothetical = Object.values(hypotheticals).some(Boolean)
+
+  // Fetch saved plans on mount
+  const fetchPlans = useCallback(async () => {
+    try {
+      const res = await fetch("/api/academics/gpa-plans")
+      if (res.ok) {
+        const data = await res.json()
+        setSavedPlans(Array.isArray(data) ? data : [])
+      }
+    } catch { /* ignore */ }
+  }, [])
+
+  useEffect(() => { fetchPlans() }, [fetchPlans])
 
   // Build the full course list with hypothetical grades merged in
   const mergedCourses = useMemo(() => {
@@ -99,6 +127,7 @@ export function GpaSimulator({ years, weightedScale }: GpaSimulatorProps) {
 
   const setGrade = (courseId: string, grade: string) => {
     setHypotheticals((prev) => ({ ...prev, [courseId]: grade }))
+    setActivePlanId(null) // mark as modified
   }
 
   const fillAllWith = (grade: string) => {
@@ -107,11 +136,83 @@ export function GpaSimulator({ years, weightedScale }: GpaSimulatorProps) {
       filled[c.id] = grade
     }
     setHypotheticals(filled)
+    setActivePlanId(null)
   }
 
-  const reset = () => setHypotheticals({})
+  const reset = () => {
+    setHypotheticals({})
+    setActivePlanId(null)
+    setPlanName("")
+  }
 
-  if (ungradedCourses.length === 0) return null
+  const handleSave = async () => {
+    const name = planName.trim() || "Untitled Plan"
+    setSaving(true)
+    try {
+      if (activePlanId) {
+        // Update existing plan
+        const res = await fetch(`/api/academics/gpa-plans/${activePlanId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            grades: hypotheticals,
+            resultUw: whatIfGpa.unweighted,
+            resultW: whatIfGpa.weighted,
+          }),
+        })
+        if (!res.ok) throw new Error()
+        toast.success("Plan updated")
+      } else {
+        // Create new plan
+        const res = await fetch("/api/academics/gpa-plans", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            grades: hypotheticals,
+            resultUw: whatIfGpa.unweighted,
+            resultW: whatIfGpa.weighted,
+          }),
+        })
+        if (!res.ok) throw new Error()
+        const plan = await res.json()
+        setActivePlanId(plan.id)
+        toast.success("Plan saved")
+      }
+      await fetchPlans()
+    } catch {
+      toast.error("Failed to save plan")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleLoad = (plan: SavedPlan) => {
+    const grades = (typeof plan.grades === "object" && plan.grades !== null)
+      ? plan.grades as Record<string, string>
+      : {}
+    setHypotheticals(grades)
+    setActivePlanId(plan.id)
+    setPlanName(plan.name)
+  }
+
+  const handleDelete = async (planId: string) => {
+    try {
+      const res = await fetch(`/api/academics/gpa-plans/${planId}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      if (activePlanId === planId) {
+        setActivePlanId(null)
+        setPlanName("")
+      }
+      toast.success("Plan deleted")
+      await fetchPlans()
+    } catch {
+      toast.error("Failed to delete plan")
+    }
+  }
+
+  if (ungradedCourses.length === 0 && savedPlans.length === 0) return null
 
   const gpaDelta = hasAnyHypothetical
     ? whatIfGpa.weighted - currentGpa.weighted
@@ -146,8 +247,45 @@ export function GpaSimulator({ years, weightedScale }: GpaSimulatorProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Assign hypothetical grades to your planned and in-progress courses to see how they&apos;d affect your GPA.
+          Assign hypothetical grades to your planned and in-progress courses to see how they&apos;d affect your GPA. Save plans to compare different scenarios.
         </p>
+
+        {/* Saved plans bar */}
+        {savedPlans.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide flex items-center gap-1.5">
+              <FolderOpen className="h-3.5 w-3.5" /> Saved Plans
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {savedPlans.map((p) => (
+                <div
+                  key={p.id}
+                  className={`group flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition-colors cursor-pointer ${
+                    activePlanId === p.id
+                      ? "border-[#2563EB] bg-blue-50/50 text-[#2563EB]"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={() => handleLoad(p)}
+                  >
+                    <span className="font-medium">{p.name}</span>
+                    {p.resultW != null && (
+                      <span className="text-xs text-muted-foreground">W: {p.resultW.toFixed(2)}</span>
+                    )}
+                  </button>
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-rose-600"
+                    onClick={(e) => { e.stopPropagation(); handleDelete(p.id) }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* What-if results banner */}
         {hasAnyHypothetical && (
@@ -156,7 +294,7 @@ export function GpaSimulator({ years, weightedScale }: GpaSimulatorProps) {
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Current Weighted</p>
               <p className="text-lg font-semibold text-[#1E3A5F]">{currentGpa.weighted.toFixed(3)}</p>
             </div>
-            <div className="text-muted-foreground text-lg">→</div>
+            <div className="text-muted-foreground text-lg">&rarr;</div>
             <div>
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Projected With What-If</p>
               <p className="text-lg font-semibold text-[#2563EB]">{whatIfGpa.weighted.toFixed(3)}</p>
@@ -168,55 +306,87 @@ export function GpaSimulator({ years, weightedScale }: GpaSimulatorProps) {
         )}
 
         {/* Course grade assignment table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Course</th>
-                <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Year</th>
-                <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Type</th>
-                <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide text-center">Credits</th>
-                <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Hypothetical Grade</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ungradedCourses.map((c) => (
-                <tr key={c.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors">
-                  <td className="py-2.5 px-3 text-sm font-medium">{c.name}</td>
-                  <td className="py-2.5 px-3 text-sm text-muted-foreground">{c.yearLabel}</td>
-                  <td className="py-2.5 px-3">
-                    <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
-                      {COURSE_TYPE_LABELS[c.type]}
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-3 text-sm text-center">{c.credits}</td>
-                  <td className="py-2.5 px-3">
-                    <Select
-                      value={hypotheticals[c.id] || "__none__"}
-                      onValueChange={(v) => v && setGrade(c.id, v === "__none__" ? "" : v)}
-                    >
-                      <SelectTrigger className="w-28 h-8 text-sm">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">--</SelectItem>
-                        {GRADE_OPTIONS.filter((g) => g.value !== "P" && g.value !== "W").map((g) => (
-                          <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
+        {ungradedCourses.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Course</th>
+                  <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Year</th>
+                  <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Type</th>
+                  <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide text-center">Credits</th>
+                  <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Hypothetical Grade</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {ungradedCourses.map((c) => (
+                  <tr key={c.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors">
+                    <td className="py-2.5 px-3 text-sm font-medium">{c.name}</td>
+                    <td className="py-2.5 px-3 text-sm text-muted-foreground">{c.yearLabel}</td>
+                    <td className="py-2.5 px-3">
+                      <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
+                        {COURSE_TYPE_LABELS[c.type]}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-sm text-center">{c.credits}</td>
+                    <td className="py-2.5 px-3">
+                      <Select
+                        value={hypotheticals[c.id] || "__none__"}
+                        onValueChange={(v) => v && setGrade(c.id, v === "__none__" ? "" : v)}
+                      >
+                        <SelectTrigger className="w-28 h-8 text-sm">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">--</SelectItem>
+                          {GRADE_OPTIONS.filter((g) => g.value !== "P" && g.value !== "W").map((g) => (
+                            <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Save plan bar */}
+        {hasAnyHypothetical && (
+          <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50/50 px-4 py-3">
+            <Input
+              placeholder="Plan name (e.g. Best Case, Realistic)"
+              value={planName}
+              onChange={(e) => setPlanName(e.target.value)}
+              className="h-8 max-w-xs text-sm"
+            />
+            <Button
+              size="sm"
+              className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5"
+              disabled={saving}
+              onClick={handleSave}
+            >
+              <Save className="h-3.5 w-3.5" />
+              {activePlanId ? "Update Plan" : "Save Plan"}
+            </Button>
+            {activePlanId && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setActivePlanId(null); setPlanName("") }}
+              >
+                Save as New
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Unweighted comparison */}
         {hasAnyHypothetical && (
           <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
-            <span>Unweighted: {currentGpa.unweighted.toFixed(3)} → <span className="font-medium text-foreground">{whatIfGpa.unweighted.toFixed(3)}</span></span>
-            <span>·</span>
+            <span>Unweighted: {currentGpa.unweighted.toFixed(3)} &rarr; <span className="font-medium text-foreground">{whatIfGpa.unweighted.toFixed(3)}</span></span>
+            <span>&middot;</span>
             <span>Total courses in projection: {whatIfGpa.courseCount}</span>
           </div>
         )}

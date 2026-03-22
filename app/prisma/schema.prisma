@@ -113,6 +113,7 @@ model User {
   recommenders      Recommender[]
   academicYears    AcademicYear[]
   transcriptUploads TranscriptUpload[]
+  gpaPlans         GpaPlan[]
 }
 
 model Account {
@@ -1636,4 +1637,18 @@ model CollegeCreditPolicy {
 
   @@index([collegeId])
   @@index([courseName])
+}
+
+model GpaPlan {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String   // "Best Case", "Realistic", etc.
+  grades    Json     // { [courseId]: "A", ... } — hypothetical grade map
+  resultUw  Float?   // snapshot of calculated unweighted GPA
+  resultW   Float?   // snapshot of calculated weighted GPA
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

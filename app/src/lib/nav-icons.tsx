@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from "react"
+import type { ComponentType } from "react"
 import {
   LayoutDashboard,
   CalendarDays,
@@ -39,7 +39,8 @@ import {
   User,
 } from "@/lib/icons"
 
-type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { className?: string }>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type IconComponent = ComponentType<any>
 
 const iconMap: Record<string, IconComponent> = {
   LayoutDashboard,
