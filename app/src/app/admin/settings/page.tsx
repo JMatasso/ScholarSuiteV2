@@ -4,7 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Shield } from "lucide-react"
+import { Shield, Sparkles, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
@@ -16,6 +16,7 @@ const tabItems = [
   { id: "Email", label: "Email" },
   { id: "Security", label: "Security" },
   { id: "Privacy", label: "Privacy Controls" },
+  { id: "AI", label: "AI Features" },
   { id: "API", label: "API" },
 ]
 type Tab = typeof tabItems[number]["id"]
@@ -354,6 +355,52 @@ export default function SettingsPage() {
                 "privacy:allowStudentHideCohortProfile": get("privacy:allowStudentHideCohortProfile", "true"),
                 "privacy:allowParentHideContactFromCounselors": get("privacy:allowParentHideContactFromCounselors", "true"),
                 "privacy:allowParentEmailOnlyComms": get("privacy:allowParentEmailOnlyComms", "true"),
+              })}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        )}
+
+        {activeTab === "AI" && (
+          <div className="flex flex-col gap-6 max-w-lg">
+            <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 mb-2">
+              <AlertTriangle className="size-4 shrink-0" />
+              AI features use the Anthropic API and will incur usage charges when enabled. Estimated cost: ~$0.02 per student per match refresh.
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide mb-4">Scholarship Matching</h3>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={get("feature:aiMatching", "false") === "true"}
+                    onChange={e => set("feature:aiMatching", String(e.target.checked))}
+                    className="size-4 rounded border-input mt-0.5"
+                    id="ai-matching"
+                  />
+                  <div>
+                    <label htmlFor="ai-matching" className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-[#2563EB]" />
+                      AI-Enhanced Matching
+                    </label>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      When enabled, the matching engine runs a second AI-powered pass on the top 50 rule-based matches per student. Claude evaluates how well each student&apos;s activities, goals, and interests align with the scholarship&apos;s description — catching nuanced fits that structured fields miss.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Scores are cached for 7 days. AI scoring runs in the background and does not slow down the initial match results.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              className="w-fit"
+              disabled={saving}
+              onClick={() => handleSave({
+                "feature:aiMatching": get("feature:aiMatching", "false"),
               })}
             >
               {saving ? "Saving..." : "Save Changes"}

@@ -2,15 +2,21 @@ import { NextRequest, NextResponse } from "next/server"
 import { withAuth } from "@/lib/api-middleware"
 import { db } from "@/lib/db"
 import { computeMatchScore, getMissingFields } from "@/lib/scholarship-matcher"
+import { runAIScoring } from "@/lib/ai-match-scorer"
+import { isAIMatchingEnabled } from "@/lib/feature-flags"
 
 /**
  * POST /api/scholarships/match
  * Recompute scholarship matches for the current student.
+ * Stage 1: rule engine, Stage 2: AI semantic scoring (top 50).
  */
-export const POST = withAuth(async (session) => {
+export const POST = withAuth(async (session, request: NextRequest) => {
   if (session.user.role !== "STUDENT") {
     return NextResponse.json({ error: "Students only" }, { status: 403 })
   }
+
+  const { searchParams } = new URL(request.url)
+  const includeAi = searchParams.get("includeAi") !== "false" // default true
 
   const profile = await db.studentProfile.findUnique({
     where: { userId: session.user.id },
@@ -41,7 +47,7 @@ export const POST = withAuth(async (session) => {
     include: { tags: true },
   })
 
-  // Compute matches (score each scholarship once)
+  // Stage 1: Rule engine scoring
   const allScored = scholarships.map((s) => ({
     ...computeMatchScore(s, profile),
     scholarship: s,
@@ -109,6 +115,27 @@ export const POST = withAuth(async (session) => {
 
   await Promise.all(upsertPromises)
 
+  // Stage 2: AI semantic scoring (non-blocking — runs after rule results are saved)
+  // Gated by admin feature flag — defaults to OFF
+  let aiScoringStarted = false
+  const aiEnabled = includeAi && results.length > 0 && process.env.ANTHROPIC_API_KEY
+    ? await isAIMatchingEnabled()
+    : false
+
+  if (aiEnabled) {
+    aiScoringStarted = true
+    // Run AI scoring in the background — don't block the response
+    runAIScoring(
+      session.user.id,
+      results.map((r) => ({
+        scholarshipId: r.scholarshipId,
+        ruleScore: r.score,
+        scholarship: r.scholarship,
+      })),
+      50
+    ).catch((err) => console.error("AI scoring failed:", err))
+  }
+
   return NextResponse.json({
     matches: results.map((r) => ({
       id: `${r.scholarshipId}-${session.user.id}`,
@@ -121,12 +148,14 @@ export const POST = withAuth(async (session) => {
     missingFields,
     total: scholarships.length,
     matched: results.length,
+    aiScoringStarted,
   })
 })
 
 /**
  * GET /api/scholarships/match
  * Fetch pre-computed matches for the current student.
+ * Returns combined scores (AI + rule) when available, falls back to rule score.
  */
 export const GET = withAuth(async (session, request: NextRequest) => {
   if (session.user.role !== "STUDENT") {
@@ -159,7 +188,10 @@ export const GET = withAuth(async (session, request: NextRequest) => {
         include: { tags: true },
       },
     },
-    orderBy: { score: "desc" },
+    orderBy: [
+      { combinedScore: { sort: "desc", nulls: "last" } },
+      { score: "desc" },
+    ],
     take: 100,
   })
 
@@ -174,6 +206,9 @@ export const GET = withAuth(async (session, request: NextRequest) => {
       id: m.id,
       scholarshipId: m.scholarshipId,
       score: m.score,
+      aiScore: m.aiScore,
+      aiReason: m.aiReason,
+      combinedScore: m.combinedScore,
       reasons: m.reasons,
       scholarship: m.scholarship,
     })),

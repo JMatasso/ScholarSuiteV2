@@ -401,6 +401,10 @@ model ScholarshipMatch {
   score         Float
   reasons       String[]
   isExcluded    Boolean     @default(false)
+  aiScore       Float?
+  aiReason      String?
+  combinedScore Float?
+  aiScoredAt    DateTime?
   scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
   createdAt     DateTime    @default(now())
   @@unique([scholarshipId, studentId])
@@ -759,20 +763,22 @@ enum EssayStatus {
 }
 
 model Essay {
-  id            String                  @id @default(cuid())
-  userId        String
-  applicationId String?
-  title         String
-  content       String?
-  status        EssayStatus             @default(DRAFT)
-  promptId      String?
-  user          User                    @relation(fields: [userId], references: [id])
-  application   ScholarshipApplication? @relation(fields: [applicationId], references: [id])
-  prompt        EssayPrompt?            @relation(fields: [promptId], references: [id])
-  versions      EssayVersion[]
-  reviews       EssayReview[]
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
+  id             String                  @id @default(cuid())
+  userId         String
+  applicationId  String?
+  title          String
+  content        String?
+  status         EssayStatus             @default(DRAFT)
+  promptId       String?
+  externalUrl    String?
+  attachmentName String?
+  user           User                    @relation(fields: [userId], references: [id])
+  application    ScholarshipApplication? @relation(fields: [applicationId], references: [id])
+  prompt         EssayPrompt?            @relation(fields: [promptId], references: [id])
+  versions       EssayVersion[]
+  reviews        EssayReview[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
 }
 
 model EssayVersion {

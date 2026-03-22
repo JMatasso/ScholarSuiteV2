@@ -8,6 +8,8 @@
 
 import { db } from "@/lib/db"
 import { computeMatchScore } from "@/lib/scholarship-matcher"
+import { runAIScoring } from "@/lib/ai-match-scorer"
+import { isAIMatchingEnabled } from "@/lib/feature-flags"
 
 interface RecomputeResult {
   scholarshipId: string
@@ -138,6 +140,47 @@ export async function recomputeMatchesForScholarships(
       newlyEligible,
       notificationsCreated: notifications.length,
     })
+  }
+
+  // Stage 2: Trigger AI scoring for students who have matches with changed scholarships
+  // Gated by admin feature flag — defaults to OFF
+  const aiEnabled = process.env.ANTHROPIC_API_KEY && scholarshipIds.length > 0
+    ? await isAIMatchingEnabled()
+    : false
+
+  if (aiEnabled) {
+    // Get unique students who matched, and kick off AI scoring in background
+    const affectedStudents = new Set<string>()
+    for (const student of students) {
+      affectedStudents.add(student.userId)
+    }
+
+    for (const studentId of affectedStudents) {
+      // Fetch this student's top matches for the changed scholarships
+      const studentMatches = await db.scholarshipMatch.findMany({
+        where: {
+          studentId,
+          scholarshipId: { in: scholarshipIds },
+          isExcluded: false,
+          score: { gt: 0 },
+        },
+        include: { scholarship: { include: { tags: true } } },
+        orderBy: { score: "desc" },
+        take: 50,
+      })
+
+      if (studentMatches.length > 0) {
+        runAIScoring(
+          studentId,
+          studentMatches.map((m) => ({
+            scholarshipId: m.scholarshipId,
+            ruleScore: m.score,
+            scholarship: m.scholarship,
+          })),
+          50
+        ).catch((err) => console.error(`AI scoring failed for student ${studentId}:`, err))
+      }
+    }
   }
 
   return results
