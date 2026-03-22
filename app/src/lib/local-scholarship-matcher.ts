@@ -80,7 +80,8 @@ export async function autoMatchLocalScholarship(scholarshipId: string) {
       data: {
         userId: student.userId,
         scholarshipId,
-        status: "NOT_STARTED",
+        progress: "NOT_STARTED",
+        status: "PENDING",
       },
     })
 
@@ -154,7 +155,8 @@ export async function autoMatchStudentToLocalScholarships(userId: string, county
       data: {
         userId,
         scholarshipId: scholarship.id,
-        status: "NOT_STARTED",
+        progress: "NOT_STARTED",
+        status: "PENDING",
       },
     })
 

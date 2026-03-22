@@ -6,6 +6,7 @@ const statusConfig = {
   NOT_STARTED: { label: "Not Started", color: "bg-muted text-foreground ring-gray-300" },
   IN_PROGRESS: { label: "In Progress", color: "bg-accent text-blue-700 ring-blue-300" },
   SUBMITTED: { label: "Submitted", color: "bg-purple-50 text-purple-700 ring-purple-300" },
+  PENDING: { label: "Pending", color: "bg-muted text-foreground ring-gray-300" },
   AWARDED: { label: "Awarded", color: "bg-green-50 text-green-700 ring-green-300" },
   DENIED: { label: "Denied", color: "bg-red-50 text-red-700 ring-red-300" },
 

@@ -82,7 +82,8 @@ export async function POST(req: NextRequest) {
             data: {
               userId: nr.userId,
               scholarshipId,
-              status: "NOT_STARTED",
+              progress: "NOT_STARTED",
+              status: "PENDING",
             },
           }).catch(() => {}) // Ignore duplicates
         }

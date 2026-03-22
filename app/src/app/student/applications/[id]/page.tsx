@@ -25,6 +25,7 @@ import {
 
 interface ApplicationDetail {
   id: string
+  progress: string
   status: string
   amountAwarded: number | null
   isRecurring: boolean
@@ -53,15 +54,20 @@ interface ApplicationDetail {
   essays: Array<{ id: string; title: string; status: string }>
 }
 
-const statusConfig: Record<string, { label: string; color: string }> = {
+const progressConfig: Record<string, { label: string; color: string }> = {
   NOT_STARTED: { label: "Not Started", color: "bg-muted text-foreground border-border" },
   IN_PROGRESS: { label: "In Progress", color: "bg-blue-100 text-blue-700 border-blue-200" },
   SUBMITTED: { label: "Submitted", color: "bg-amber-100 text-amber-700 border-amber-200" },
+}
+
+const statusConfig: Record<string, { label: string; color: string }> = {
+  PENDING: { label: "Pending", color: "bg-muted text-foreground border-border" },
   AWARDED: { label: "Awarded", color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   DENIED: { label: "Denied", color: "bg-rose-100 text-rose-700 border-rose-200" },
 }
 
-const statusOrder = ["NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "AWARDED", "DENIED"]
+const progressOrder = ["NOT_STARTED", "IN_PROGRESS", "SUBMITTED"]
+const statusOrder = ["PENDING", "AWARDED", "DENIED"]
 
 function formatAmount(amount: number | null): string {
   if (!amount) return "—"
@@ -93,6 +99,21 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
       })
       .catch(() => setLoading(false))
   }, [id])
+
+  const handleProgressChange = async (newProgress: string) => {
+    try {
+      const res = await fetch(`/api/applications/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ progress: newProgress }),
+      })
+      if (!res.ok) throw new Error()
+      setApp((prev) => prev ? { ...prev, progress: newProgress } : prev)
+      toast.success(`Progress updated to ${progressConfig[newProgress]?.label}`)
+    } catch {
+      toast.error("Failed to update progress")
+    }
+  }
 
   const handleStatusChange = async (newStatus: string) => {
     try {
@@ -149,7 +170,8 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
   }
 
   const s = app.scholarship
-  const config = statusConfig[app.status] || statusConfig.NOT_STARTED
+  const pConfig = progressConfig[app.progress] || progressConfig.NOT_STARTED
+  const sConfig = statusConfig[app.status] || statusConfig.PENDING
 
   return (
     <div className="space-y-6">
@@ -192,15 +214,26 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                     )}
                   </div>
                 </div>
-                <select
-                  value={app.status}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                  className={cn("h-8 rounded-full border px-3 text-xs font-medium outline-none cursor-pointer", config.color)}
-                >
-                  {statusOrder.map((status) => (
-                    <option key={status} value={status}>{statusConfig[status].label}</option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={app.progress}
+                    onChange={(e) => handleProgressChange(e.target.value)}
+                    className={cn("h-8 rounded-full border px-3 text-xs font-medium outline-none cursor-pointer", pConfig.color)}
+                  >
+                    {progressOrder.map((p) => (
+                      <option key={p} value={p}>{progressConfig[p].label}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={app.status}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className={cn("h-8 rounded-full border px-3 text-xs font-medium outline-none cursor-pointer", sConfig.color)}
+                  >
+                    {statusOrder.map((s) => (
+                      <option key={s} value={s}>{statusConfig[s].label}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -44,11 +44,10 @@ export const GET = withAuth(async (session) => {
       _count: { status: true },
     }),
 
-    // 3. Scholarship applications grouped by status
-    db.scholarshipApplication.groupBy({
-      by: ["status"],
+    // 3. Scholarship applications grouped by status + progress
+    db.scholarshipApplication.findMany({
       where: { userId },
-      _count: { status: true },
+      select: { progress: true, status: true },
     }),
 
     // 4. Total awarded amount
@@ -96,17 +95,14 @@ export const GET = withAuth(async (session) => {
   )
 
   // --- Scholarship apps summary ---
+  const scholarshipTotal = scholarshipAppsByStatus.length
+  const scholarshipActive = scholarshipAppsByStatus.filter(
+    (a) => a.progress === "IN_PROGRESS" || a.progress === "SUBMITTED"
+  ).length
   const scholarshipStatusMap: Record<string, number> = {}
   for (const row of scholarshipAppsByStatus) {
-    scholarshipStatusMap[row.status] = row._count.status
+    scholarshipStatusMap[row.status] = (scholarshipStatusMap[row.status] ?? 0) + 1
   }
-  const scholarshipTotal = Object.values(scholarshipStatusMap).reduce(
-    (sum, n) => sum + n,
-    0
-  )
-  const scholarshipActive =
-    (scholarshipStatusMap["IN_PROGRESS"] ?? 0) +
-    (scholarshipStatusMap["SUBMITTED"] ?? 0)
 
   // --- Academic summary ---
   const totalCourses = allCourses.length

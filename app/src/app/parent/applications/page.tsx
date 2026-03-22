@@ -145,7 +145,7 @@ export default function ApplicationsPage() {
                         {app.scholarship?.name ?? "—"}
                       </TableCell>
                       <TableCell>
-                        <StatusBadge status={app.status as "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "AWARDED" | "DENIED"} />
+                        <StatusBadge status={app.status as "PENDING" | "AWARDED" | "DENIED"} />
                       </TableCell>
                       <TableCell className="text-foreground">
                         {app.scholarship?.amount

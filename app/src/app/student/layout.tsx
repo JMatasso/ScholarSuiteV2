@@ -57,11 +57,11 @@ const navGroups = [
     label: "Academics",
     items: [
       { name: "Course Planner", href: "/student/academics", icon3d: "BookOpen" },
+      { name: "Documents", href: "/student/documents", icon3d: "FolderOpen" },
+      { name: "Activity Brag Sheet", href: "/student/activities", icon3d: "Activity" },
       { name: "Essays", href: "/student/essays", icon3d: "PenTool", beta: true },
       { name: "Letters of Rec", href: "/student/letters", icon3d: "Mail", beta: true },
       { name: "Resume", href: "/student/resume", icon3d: "FileText", beta: true },
-      { name: "Documents", href: "/student/documents", icon3d: "FolderOpen" },
-      { name: "Activities", href: "/student/activities", icon3d: "Activity" },
     ],
   },
 ]

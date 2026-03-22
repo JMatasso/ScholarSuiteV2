@@ -82,10 +82,9 @@ export const GET = withRole("ADMIN", async () => {
   // Compute at-risk count
   const atRiskCount = statusCounts.find(s => s.status === "AT_RISK")?._count?.status ?? 0
 
-  // Active applications (IN_PROGRESS + SUBMITTED)
+  // Active applications (PENDING — not yet awarded or denied)
   const activeApps =
-    (applicationsByStatus.find(a => a.status === "IN_PROGRESS")?._count?.status ?? 0) +
-    (applicationsByStatus.find(a => a.status === "SUBMITTED")?._count?.status ?? 0)
+    (applicationsByStatus.find(a => a.status === "PENDING")?._count?.status ?? 0)
 
   // Awarded amount
   const awardedAmount = awardedAgg._sum.amountAwarded ?? 0
@@ -101,9 +100,7 @@ export const GET = withRole("ADMIN", async () => {
 
   // Format pipeline data
   const statusLabels: Record<string, string> = {
-    NOT_STARTED: "Not Started",
-    IN_PROGRESS: "In Progress",
-    SUBMITTED: "Submitted",
+    PENDING: "Pending",
     AWARDED: "Awarded",
     DENIED: "Denied",
   }

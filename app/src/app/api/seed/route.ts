@@ -189,7 +189,8 @@ export async function POST(req: NextRequest) {
           data: {
             userId: students[0].id,
             scholarshipId: scholarships[0].id,
-            status: "IN_PROGRESS",
+            progress: "IN_PROGRESS",
+            status: "PENDING",
             checklists: {
               create: [
                 { title: "Complete personal statement", isCompleted: true, order: 1 },
@@ -204,7 +205,8 @@ export async function POST(req: NextRequest) {
           data: {
             userId: students[0].id,
             scholarshipId: scholarships[1].id,
-            status: "SUBMITTED",
+            progress: "SUBMITTED",
+            status: "PENDING",
           },
         }),
       ])

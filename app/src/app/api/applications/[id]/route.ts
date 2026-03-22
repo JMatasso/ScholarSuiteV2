@@ -79,6 +79,7 @@ export async function PATCH(
     }
 
     const updateData: Record<string, unknown> = {}
+    if (data.progress !== undefined) updateData.progress = data.progress
     if (data.status !== undefined) updateData.status = data.status
     if (data.notes !== undefined) updateData.notes = data.notes
     if (data.amountAwarded !== undefined) updateData.amountAwarded = data.amountAwarded

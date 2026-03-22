@@ -431,19 +431,24 @@ model ScholarshipNotifyRequest {
 
 // ─── APPLICATIONS ────────────────────────────────────────────
 
-enum ApplicationStatus {
+enum ApplicationProgress {
   NOT_STARTED
   IN_PROGRESS
   SUBMITTED
+}
+
+enum ApplicationStatus {
+  PENDING
   AWARDED
   DENIED
 }
 
 model ScholarshipApplication {
-  id            String            @id @default(cuid())
+  id            String              @id @default(cuid())
   userId        String
   scholarshipId String
-  status        ApplicationStatus @default(NOT_STARTED)
+  progress      ApplicationProgress @default(NOT_STARTED)
+  status        ApplicationStatus   @default(PENDING)
   amountAwarded Float?
   isRecurring   Boolean           @default(false)
   gpaRequirement Float?
