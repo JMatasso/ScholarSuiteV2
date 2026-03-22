@@ -17,17 +17,24 @@ export {
   ArrowUp01Icon as ArrowUp,
   ArrowDown01Icon as ArrowDown,
   ArrowUpDownIcon as ArrowUpDown,
-  ChevronDownIcon as ChevronDown,
-  ChevronDownIcon as ChevronDownIcon,
-  ChevronUpIcon as ChevronUpIcon,
+  ArrowDown01Icon as ChevronDown,
+  ArrowDown01Icon as ChevronDownIcon,
+  ArrowUp01Icon as ChevronUp,
+  ArrowUp01Icon as ChevronUpIcon,
   ArrowLeft01Icon as ChevronLeft,
   ArrowLeft01Icon as ChevronLeftIcon,
   ArrowRight01Icon as ChevronRight,
   ArrowRight01Icon as ChevronRightIcon,
   UnfoldMoreIcon as ChevronsUpDown,
-  ExternalLinkIcon as ExternalLink,
+  LinkSquare02Icon as ExternalLink,
+  LinkSquare02Icon as ExternalLinkIcon,
   GlobeIcon as Globe,
   LinkSquare01Icon as Link,
+  Link04Icon as Link2,
+  Layers01Icon as Layers,
+  SlidersHorizontalIcon as SlidersHorizontal,
+  CircleArrowUp01Icon as ArrowUpCircle,
+  Login01Icon as ArrowRightFromLine,
 
   // ── Actions ──
   Search01Icon as Search,
@@ -35,24 +42,31 @@ export {
   PlusSignIcon as Plus,
   Tick02Icon as Check,
   Tick02Icon as CheckIcon,
+  TickDouble01Icon as CheckCheck,
   Cancel01Icon as X,
   Cancel01Icon as XIcon,
   Cancel01Icon as XCircle,
+  Cancel01Icon as XOctagon,
   Copy01Icon as Copy,
-  Pencil02Icon as Pencil,
+  PencilIcon as Pencil,
+  PencilEdit02Icon as Edit,
   PencilEdit02Icon as Edit3,
   Delete02Icon as Trash2,
   Download04Icon as Download,
   Upload04Icon as Upload,
-  Save01Icon as Save,
+  FloppyDiskIcon as Save,
   RefreshIcon as RefreshCw,
   Loading03Icon as Loader2,
   Loading03Icon as Loader2Icon,
   MoreHorizontalIcon as MoreHorizontal,
+  MoreHorizontalIcon as MoreHorizontalIcon,
   ViewIcon as Eye,
   ViewOffSlashIcon as EyeOff,
-  GripVerticalIcon as GripVertical,
+  Drag01Icon as GripVertical,
   DragDropVerticalIcon as FolderKanban,
+  FilterIcon as Filter,
+  SquareIcon as Square,
+  PlayIcon as Play,
 
   // ── Communication ──
   Mail01Icon as Mail,
@@ -61,6 +75,7 @@ export {
   MessageAdd01Icon as MessageSquarePlus,
   BubbleChatIcon as MessageCircle,
   Notification03Icon as Bell,
+  NotificationOff01Icon as BellOff,
   Megaphone01Icon as Megaphone,
   Mic01Icon as Mic,
   MicOff01Icon as MicOff,
@@ -68,24 +83,33 @@ export {
   TelephoneIcon as Phone,
   CallOutgoing01Icon as PhoneCall,
   CallBlockedIcon as PhoneOff,
+  Flag01Icon as Flag,
 
   // ── Content & Files ──
+  File02Icon as File,
   File02Icon as FileText,
   FileExportIcon as FileBarChart,
+  FileDownloadIcon as FileDown,
   FileRemoveIcon as FileX,
   Folder02Icon as FolderOpen,
+  FolderImportIcon as FolderInput,
   Note01Icon as ClipboardList,
+  ClipboardIcon as ClipboardCheck,
   PenTool01Icon as PenTool,
   Attachment01Icon as Paperclip,
   ImageAdd01Icon as ImagePlus,
-  Pin01Icon as Pin,
+  PinLocation01Icon as Pin,
+  Location01Icon as MapPin,
+  StickyNote01Icon as StickyNote,
+  AddToListIcon as ListPlus,
 
   // ── Status & Feedback ──
   CheckmarkCircle02Icon as CheckCircle,
   CheckmarkCircle02Icon as CheckCircle2,
   CheckmarkCircle02Icon as CircleCheckIcon,
   CheckmarkSquare02Icon as CheckSquare,
-  BadgeCheckIcon as BadgeCheck,
+  CheckmarkBadge01Icon as BadgeCheck,
+  CheckmarkBadge01Icon as BadgeCheckIcon,
   AlertCircleIcon as AlertCircle,
   Alert02Icon as AlertTriangle,
   Alert02Icon as TriangleAlertIcon,
@@ -99,11 +123,15 @@ export {
   Dollar02Icon as DollarSign,
   Briefcase01Icon as Briefcase,
   Analytics02Icon as Activity,
+  BarChartIcon as BarChart3,
   ChartHistogramIcon as TrendingUp,
   ChartDecreaseIcon as TrendingDown,
   Target02Icon as Target,
-  ShieldCheckIcon as Shield,
+  Shield01Icon as Shield,
+  Shield01Icon as ShieldCheck,
   LockIcon as Lock,
+  PercentIcon as Percent,
+  ReceiptDollarIcon as Receipt,
 
   // ── Education ──
   GraduationScrollIcon as GraduationCap,
@@ -111,9 +139,12 @@ export {
   School01Icon as School,
   Building04Icon as Building2,
   Award02Icon as Award,
-  Trophy01Icon as Trophy,
+  Award02Icon as Trophy,
   CrownIcon as Crown,
   Medal01Icon as Medal,
+  BrainIcon as Brain,
+  CompassIcon as Compass,
+  TestTube01Icon as TestTube,
 
   // ── Calendar & Time ──
   Calendar03Icon as Calendar,
@@ -127,6 +158,8 @@ export {
   // ── People ──
   User02Icon as User,
   UserAdd01Icon as UserPlus,
+  UserCheck01Icon as UserCheck,
+  UserMinus01Icon as UserMinus,
   UserMultiple02Icon as Users,
   UserCircle02Icon as CircleUserRound,
 
@@ -137,11 +170,13 @@ export {
   Sun03Icon as Sun,
   ComputerIcon as Monitor,
   ComputerPhoneSyncIcon as MonitorUp,
+  ComputerIcon as MonitorIcon,
+  Bookmark02Icon as Bookmark,
 
   // ── AI & Creative ──
   SparklesIcon as Sparkles,
   AiChat02Icon as Bot,
-  Lightbulb02Icon as Lightbulb,
+  BulbIcon as Lightbulb,
   Rocket01Icon as Rocket,
   PaintBrush04Icon as Palette,
   StarIcon as Star,
@@ -151,17 +186,22 @@ export {
   TestTube01Icon as FlaskConical,
   Task01Icon as ListTodo,
   TaskDone01Icon as ListChecks,
+  ThumbsUpIcon as ThumbsUp,
+  ZapIcon as Zap,
+  FlashIcon as Bolt,
+
+  // ── System ──
+  Settings02Icon as Settings,
+  Logout01Icon as LogOut,
+  LifebuoyIcon as LifeBuoy,
+  ComputerTerminal01Icon as Terminal,
 
   // ── Misc ──
   SortingUpIcon as FileUp,
-  MonitorIcon as MonitorIcon,
+  FilterHorizontalIcon as FilterHorizontal,
 } from "hugeicons-react"
 
-// Re-export the LucideIcon type equivalent for Hugeicons
-// Hugeicons components accept the same props pattern as lucide
-export type { HugeiconsProps as LucideProps } from "hugeicons-react"
-
 // Type alias for icon components
-import type { FC } from "react"
-import type { HugeiconsProps } from "hugeicons-react"
-export type LucideIcon = FC<HugeiconsProps>
+import type { FC, SVGProps } from "react"
+export type LucideIcon = FC<SVGProps<SVGSVGElement> & { size?: number | string }>
+export type LucideProps = SVGProps<SVGSVGElement> & { size?: number | string }

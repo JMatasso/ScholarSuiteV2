@@ -150,7 +150,11 @@ export default function TasksPage() {
     }
   }
 
-  const trackTasks = tasks.filter((t) => t.track === activeTrack)
+  const trackTasks = activeTrack === "COLLEGE_PREP"
+    ? tasks.filter((t) => t.track === "COLLEGE_PREP" || t.track === "COLLEGE_APP")
+    : activeTrack === "GENERAL"
+    ? tasks.filter((t) => t.track === "GENERAL" || t.track === "FINANCIAL" || t.track === "ACADEMIC")
+    : tasks.filter((t) => t.track === activeTrack)
 
   const filteredTasks = trackTasks.filter((t) => {
     if (filterStatus === "pending" && t.status === "DONE") return false
@@ -192,17 +196,22 @@ export default function TasksPage() {
       </div>
 
       {/* Track Tabs */}
-      <Tabs value={activeTrack} onValueChange={(v) => { setActiveTrack(v as "COLLEGE_PREP" | "SCHOLARSHIP"); setSelectedTask(null) }}>
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs value={activeTrack} onValueChange={(v) => { setActiveTrack(v); setSelectedTask(null) }}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="SCHOLARSHIP" className="gap-2">
+            <Award className="h-4 w-4" />
+            Scholarships
+            <span className="ml-1 text-xs text-muted-foreground">{scholarshipCompleted}/{scholarshipTasks.length}</span>
+          </TabsTrigger>
           <TabsTrigger value="COLLEGE_PREP" className="gap-2">
             <GraduationCap className="h-4 w-4" />
             College Prep
             <span className="ml-1 text-xs text-muted-foreground">{collegeCompleted}/{collegeTasks.length}</span>
           </TabsTrigger>
-          <TabsTrigger value="SCHOLARSHIP" className="gap-2">
-            <Award className="h-4 w-4" />
-            Scholarships
-            <span className="ml-1 text-xs text-muted-foreground">{scholarshipCompleted}/{scholarshipTasks.length}</span>
+          <TabsTrigger value="GENERAL" className="gap-2">
+            <ListTodo className="h-4 w-4" />
+            General
+            <span className="ml-1 text-xs text-muted-foreground">{generalCompleted}/{generalTasks.length}</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -273,7 +282,10 @@ export default function TasksPage() {
                             <p className={cn("text-sm font-medium", task.status === "DONE" && "line-through text-muted-foreground")}>
                               {task.title}
                             </p>
-                            {task.documentFolder && (
+                            {task.requiresUpload && (
+                              <Upload className="h-3 w-3 text-blue-500 shrink-0" />
+                            )}
+                            {task.documentFolder && !task.requiresUpload && (
                               <FolderOpen className="h-3 w-3 text-blue-500 shrink-0" />
                             )}
                           </div>
@@ -364,6 +376,14 @@ export default function TasksPage() {
                     <CheckSquare className="h-4 w-4" />
                     {selectedTask.status === "DONE" ? "Mark as In Progress" : "Mark as Complete"}
                   </Button>
+
+                  {/* Upload requirement notice */}
+                  {selectedTask.requiresUpload && selectedTask.status !== "DONE" && (
+                    <div className="flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+                      <Upload className="h-4 w-4 text-amber-600 shrink-0" />
+                      <p className="text-xs text-amber-700">This task requires a document upload before it can be completed.</p>
+                    </div>
+                  )}
 
                   {/* Document upload section (if task has a linked folder) */}
                   {selectedTask.documentFolder && (

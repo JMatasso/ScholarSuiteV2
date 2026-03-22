@@ -128,17 +128,20 @@ export async function POST(req: Request) {
     }
 
     await db.task.createMany({
-      data: missingItems.map((item) => ({
-        userId: studentId,
-        title: item.title,
-        description: item.description,
-        phase: item.phase as "INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL",
-        track: (item.track || "SCHOLARSHIP") as "SCHOLARSHIP" | "COLLEGE_PREP" | "COLLEGE_APP" | "FINANCIAL" | "ACADEMIC" | "GENERAL",
-        priority: item.priority as "LOW" | "MEDIUM" | "HIGH",
-        documentFolder: item.documentFolder || null,
-        requiresUpload: item.requiresUpload || false,
-        templateId: templateId,
-      })),
+      data: missingItems.map((item) => {
+        const rec = item as { title: string; description: string; phase: string; track?: string; priority: string; documentFolder?: string; requiresUpload?: boolean; order: number }
+        return {
+          userId: studentId,
+          title: rec.title,
+          description: rec.description,
+          phase: rec.phase as "INTRODUCTION" | "PHASE_1" | "PHASE_2" | "ONGOING" | "FINAL",
+          track: (rec.track || "SCHOLARSHIP") as "SCHOLARSHIP" | "COLLEGE_PREP" | "COLLEGE_APP" | "FINANCIAL" | "ACADEMIC" | "GENERAL",
+          priority: rec.priority as "LOW" | "MEDIUM" | "HIGH",
+          documentFolder: rec.documentFolder || null,
+          requiresUpload: rec.requiresUpload || false,
+          templateId: templateId,
+        }
+      }),
     })
 
     return NextResponse.json({
