@@ -142,6 +142,13 @@ export function JourneyTimeline({
                     {info?.shortLabel ?? stage}
                   </p>
 
+                  {/* Caption (phase name) */}
+                  {info?.caption && (
+                    <p className="mt-0.5 text-[10px] italic text-muted-foreground">
+                      {info.caption}
+                    </p>
+                  )}
+
                   {/* Grade range */}
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
                     {info?.gradeRange}
@@ -244,6 +251,11 @@ export function JourneyTimeline({
                     )}
                   >
                     {info?.shortLabel}
+                    {info?.caption && (
+                      <span className="ml-1.5 font-normal italic text-muted-foreground">
+                        — {info.caption}
+                      </span>
+                    )}
                   </p>
                   <p className="text-[10px] text-muted-foreground">{info?.gradeRange}</p>
                 </div>
