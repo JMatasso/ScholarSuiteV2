@@ -14,6 +14,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
+import { NavIcon } from "@/lib/nav-icons"
 import {
   ArrowLeft,
   MessageSquare,
@@ -205,6 +206,7 @@ export default function ParentLayout({
                     return (
                       <motion.div key={item.href} initial={{ x: -40, opacity: 0 }} animate={mobileOpen ? { x: 0, opacity: 1, transition: { delay: 0.05 + idx * 0.04, type: "spring", stiffness: 260, damping: 24 } } : { x: -40, opacity: 0 }}>
                         <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", isActive ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
+                          <NavIcon name={item.icon3d} className={cn("h-4 w-4 shrink-0", isActive ? "text-[#2563EB]" : "text-muted-foreground")} />
                           {item.name}
                         </Link>
                       </motion.div>
@@ -237,8 +239,9 @@ export default function ParentLayout({
                   const idx = i++;
                   return (
                     <motion.div key={item.href} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.03 } }}>
-                      <Link href={item.href} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", isActive ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
-                        {item.name}
+                      <Link href={item.href} className={cn("group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", isActive ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground", collapsed && "justify-center")}>
+                        <NavIcon name={item.icon3d} className={cn("h-4 w-4 shrink-0", isActive ? "text-[#2563EB]" : "text-muted-foreground")} />
+                        {!collapsed && item.name}
                       </Link>
                     </motion.div>
                   );

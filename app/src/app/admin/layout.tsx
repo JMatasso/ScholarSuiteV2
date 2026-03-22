@@ -25,6 +25,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { signOut, useSession } from "next-auth/react"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
+import { NavIcon } from "@/lib/nav-icons"
 
 interface NavItem {
   label: string
@@ -192,7 +193,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     const idx = i++
                     return (
                       <motion.div key={item.href} initial={{ x: -40, opacity: 0 }} animate={mobileOpen ? { x: 0, opacity: 1, transition: { delay: 0.05 + idx * 0.03, type: "spring", stiffness: 260, damping: 24 } } : { x: -40, opacity: 0 }}>
-                        <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all", active ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
+                        <Link href={item.href} onClick={() => setMobileOpen(false)} className={cn("flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", active ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
+                          <NavIcon name={item.icon3d} className={cn("h-4 w-4 shrink-0", active ? "text-[#2563EB]" : "text-muted-foreground")} />
                           {item.label}
                         </Link>
                       </motion.div>
@@ -225,8 +227,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   const idx = i++
                   return (
                     <motion.div key={item.href} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.02 } }}>
-                      <Link href={item.href} className={cn("flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all", active ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")}>
-                        {item.label}
+                      <Link href={item.href} className={cn("flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all", active ? "bg-accent text-secondary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground", collapsed && "justify-center")}>
+                        <NavIcon name={item.icon3d} className={cn("h-4 w-4 shrink-0", active ? "text-[#2563EB]" : "text-muted-foreground")} />
+                        {!collapsed && <span>{item.label}</span>}
                       </Link>
                     </motion.div>
                   )

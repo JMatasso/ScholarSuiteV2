@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
+import { NavIcon } from "@/lib/nav-icons"
 import {
   MessageSquare,
   Video,
@@ -216,20 +217,25 @@ export default function StudentLayout({
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                        collapsed && !isMobile && "justify-center px-2",
                         active
                           ? "bg-accent text-secondary-foreground"
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                       )}
+                      title={collapsed && !isMobile ? item.name : undefined}
                     >
-                      <span className="flex items-center gap-1.5">
-                        {item.name}
-                        {"beta" in item && item.beta && (
-                          <span className="rounded bg-amber-100 px-1 py-px text-[9px] font-bold uppercase leading-tight text-amber-700">
-                            Beta
-                          </span>
-                        )}
-                      </span>
+                      <NavIcon name={item.icon3d} className={cn("h-4 w-4 shrink-0", active ? "text-[#2563EB]" : "text-muted-foreground")} />
+                      {(!collapsed || isMobile) && (
+                        <span className="flex items-center gap-1.5">
+                          {item.name}
+                          {"beta" in item && item.beta && (
+                            <span className="rounded bg-amber-100 px-1 py-px text-[9px] font-bold uppercase leading-tight text-amber-700">
+                              Beta
+                            </span>
+                          )}
+                        </span>
+                      )}
                     </Link>
                   </motion.div>
                 )
