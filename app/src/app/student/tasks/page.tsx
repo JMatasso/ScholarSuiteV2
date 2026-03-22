@@ -6,25 +6,22 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs } from "@/components/ui/vercel-tabs"
 import {
   CheckSquare,
   Calendar,
   Filter,
-  ListTodo,
-  GraduationCap,
-  Award,
   FolderOpen,
   Upload,
   X,
   FileText,
   Download,
-  Trash2,
   ChevronRight,
 } from "@/lib/icons"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 import { UploadButton } from "@/lib/uploadthing"
+import { JOURNEY_STAGE_LABELS, JOURNEY_STAGES_ORDERED, JOURNEY_STAGE_TO_TASK_PHASES } from "@/lib/constants"
 
 interface Task {
   id: string
@@ -93,7 +90,7 @@ function formatFileSize(bytes: number | null): string {
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTrack, setActiveTrack] = useState<string>("SCHOLARSHIP")
+  const [activeStage, setActiveStage] = useState<string>("EARLY_EXPLORATION")
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "completed">("all")
   const [filterPriority, setFilterPriority] = useState<"all" | "HIGH" | "MEDIUM" | "LOW">("all")
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -101,10 +98,16 @@ export default function TasksPage() {
   const [docsLoading, setDocsLoading] = useState(false)
 
   useEffect(() => {
-    fetch("/api/tasks")
-      .then((res) => res.json())
-      .then((data) => { setTasks(Array.isArray(data) ? data : []); setLoading(false) })
-      .catch(() => setLoading(false))
+    Promise.all([
+      fetch("/api/tasks").then((r) => r.json()).catch(() => []),
+      fetch("/api/timeline").then((r) => r.json()).catch(() => null),
+    ]).then(([taskData, tl]) => {
+      setTasks(Array.isArray(taskData) ? taskData : [])
+      if (tl?.journeyStage && JOURNEY_STAGES_ORDERED.includes(tl.journeyStage)) {
+        setActiveStage(tl.journeyStage)
+      }
+      setLoading(false)
+    })
   }, [])
 
   // Fetch documents for selected task's folder
@@ -150,29 +153,33 @@ export default function TasksPage() {
     }
   }
 
-  const trackTasks = activeTrack === "COLLEGE_PREP"
-    ? tasks.filter((t) => t.track === "COLLEGE_PREP" || t.track === "COLLEGE_APP")
-    : activeTrack === "GENERAL"
-    ? tasks.filter((t) => t.track === "GENERAL" || t.track === "FINANCIAL" || t.track === "ACADEMIC")
-    : tasks.filter((t) => t.track === activeTrack)
+  // Filter tasks by journey stage (using phase mapping)
+  const stagePhases = JOURNEY_STAGE_TO_TASK_PHASES[activeStage] || []
+  const stageTasks = tasks.filter((t) => stagePhases.includes(t.phase))
 
-  const filteredTasks = trackTasks.filter((t) => {
+  const filteredTasks = stageTasks.filter((t) => {
     if (filterStatus === "pending" && t.status === "DONE") return false
     if (filterStatus === "completed" && t.status !== "DONE") return false
     if (filterPriority !== "all" && t.priority !== filterPriority) return false
     return true
   })
 
-  const collegeTasks = tasks.filter((t) => t.track === "COLLEGE_PREP" || t.track === "COLLEGE_APP")
-  const scholarshipTasks = tasks.filter((t) => t.track === "SCHOLARSHIP")
-  const generalTasks = tasks.filter((t) => t.track === "GENERAL" || t.track === "FINANCIAL" || t.track === "ACADEMIC")
-  const collegeCompleted = collegeTasks.filter((t) => t.status === "DONE").length
-  const scholarshipCompleted = scholarshipTasks.filter((t) => t.status === "DONE").length
-  const generalCompleted = generalTasks.filter((t) => t.status === "DONE").length
+  // Compute counts per stage for tab labels
+  const stageCounts = JOURNEY_STAGES_ORDERED.reduce((acc, stage) => {
+    const phases = JOURNEY_STAGE_TO_TASK_PHASES[stage] || []
+    const all = tasks.filter((t) => phases.includes(t.phase))
+    acc[stage] = { total: all.length, completed: all.filter((t) => t.status === "DONE").length }
+    return acc
+  }, {} as Record<string, { total: number; completed: number }>)
 
-  const totalTasks = trackTasks.length
-  const completedCount = trackTasks.filter((t) => t.status === "DONE").length
+  const totalTasks = stageTasks.length
+  const completedCount = stageTasks.filter((t) => t.status === "DONE").length
   const progressPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
+
+  const stageTabs = JOURNEY_STAGES_ORDERED.map((stage) => ({
+    id: stage,
+    label: `${JOURNEY_STAGE_LABELS[stage]?.shortLabel ?? stage}  ${stageCounts[stage]?.completed ?? 0}/${stageCounts[stage]?.total ?? 0}`,
+  }))
 
   if (loading) {
     return <div className="flex items-center justify-center py-16"><LoaderOne /></div>
@@ -195,26 +202,12 @@ export default function TasksPage() {
         </div>
       </div>
 
-      {/* Track Tabs */}
-      <Tabs value={activeTrack} onValueChange={(v) => { setActiveTrack(v); setSelectedTask(null) }}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="SCHOLARSHIP" className="gap-2">
-            <Award className="h-4 w-4" />
-            Scholarships
-            <span className="ml-1 text-xs text-muted-foreground">{scholarshipCompleted}/{scholarshipTasks.length}</span>
-          </TabsTrigger>
-          <TabsTrigger value="COLLEGE_PREP" className="gap-2">
-            <GraduationCap className="h-4 w-4" />
-            College Prep
-            <span className="ml-1 text-xs text-muted-foreground">{collegeCompleted}/{collegeTasks.length}</span>
-          </TabsTrigger>
-          <TabsTrigger value="GENERAL" className="gap-2">
-            <ListTodo className="h-4 w-4" />
-            General
-            <span className="ml-1 text-xs text-muted-foreground">{generalCompleted}/{generalTasks.length}</span>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      {/* Stage Tabs */}
+      <Tabs
+        tabs={stageTabs}
+        activeTab={activeStage}
+        onTabChange={(v) => { setActiveStage(v); setSelectedTask(null) }}
+      />
 
       {/* Filter bar */}
       <Card variant="bento">

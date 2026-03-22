@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { JourneyTimeline } from "@/components/ui/journey-timeline"
-import { JOURNEY_STAGE_LABELS } from "@/lib/constants"
+import { JOURNEY_STAGE_LABELS, JOURNEY_STAGE_TO_TASK_PHASES } from "@/lib/constants"
 import {
   FileText,
   PenTool,
@@ -155,8 +155,13 @@ export default function StudentDashboard() {
     })
   }, [])
 
-  // Task stats
-  const activeTasks = tasks.filter(t => t.status !== "DONE")
+  // Task stats — scoped to the student's current journey stage
+  const currentStage = timelineData?.journeyStage || "EARLY_EXPLORATION"
+  const currentPhases = JOURNEY_STAGE_TO_TASK_PHASES[currentStage] || []
+  const stageTasks = currentPhases.length > 0
+    ? tasks.filter(t => currentPhases.includes(t.phase))
+    : tasks
+  const activeTasks = stageTasks.filter(t => t.status !== "DONE")
   const overdueTasks = activeTasks.filter(t => t.dueDate && daysUntil(t.dueDate)! < 0)
   const urgentTasks = activeTasks
     .sort((a, b) => {
@@ -165,9 +170,10 @@ export default function StudentDashboard() {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
     })
     .slice(0, 6)
-  const taskCompletion = tasks.length > 0
-    ? Math.round((tasks.filter(t => t.status === "DONE").length / tasks.length) * 100)
+  const taskCompletion = stageTasks.length > 0
+    ? Math.round((stageTasks.filter(t => t.status === "DONE").length / stageTasks.length) * 100)
     : 0
+  const stageLabel = JOURNEY_STAGE_LABELS[currentStage]?.shortLabel || "Current Stage"
 
   // Most urgent deadline across everything
   const allDeadlines = [
@@ -299,7 +305,7 @@ export default function StudentDashboard() {
                     <div className="flex size-7 items-center justify-center rounded-lg bg-amber-50">
                       <CheckSquare className="h-3.5 w-3.5 text-amber-600" />
                     </div>
-                    My Tasks
+                    {stageLabel} Tasks
                     <span className="text-xs font-normal text-muted-foreground ml-1">{taskCompletion}% complete</span>
                   </CardTitle>
                   <Link href="/student/tasks">
