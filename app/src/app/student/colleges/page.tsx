@@ -27,6 +27,7 @@ import {
 import { DiscoverTab } from "@/components/colleges/discover-tab"
 import { MyCollegesTab } from "@/components/colleges/my-colleges-tab"
 import { ApplicationsTab } from "@/components/colleges/applications-tab"
+import { DeadlinesTab } from "@/components/colleges/deadlines-tab"
 import { DecisionsTab } from "@/components/colleges/decisions-tab"
 import LoaderOne from "@/components/ui/loader-one"
 
@@ -52,7 +53,7 @@ const APP_TYPES = [
 
 const DECISION_STATUSES = ["ACCEPTED", "WAITLISTED", "DENIED", "DEFERRED"]
 
-type TabId = "discover" | "my-colleges" | "applications" | "decisions"
+type TabId = "discover" | "my-colleges" | "applications" | "deadlines" | "decisions"
 
 interface StudentProfile {
   satScore: number | null
@@ -262,6 +263,7 @@ export default function CollegesPage() {
     { id: "discover", label: "Discover" },
     { id: "my-colleges", label: "My Colleges" },
     { id: "applications", label: "Applications" },
+    { id: "deadlines", label: "Deadlines" },
     { id: "decisions", label: "Decisions" },
   ]
 
@@ -315,6 +317,9 @@ export default function CollegesPage() {
           onRefresh={fetchApps}
           onAddOpen={() => { resetForm(); setAddOpen(true) }}
         />
+      )}
+      {activeTab === "deadlines" && (
+        <DeadlinesTab apps={apps} />
       )}
       {activeTab === "decisions" && (
         <DecisionsTab
