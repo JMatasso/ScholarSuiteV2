@@ -11,12 +11,12 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy schema first so changes to it bust the prisma generate cache
-COPY prisma ./prisma
-RUN npx prisma generate
-
-# Copy the rest of the app
+# Copy the full app source
 COPY . .
+
+# Generate Prisma client after all source is in place
+# (output goes to src/generated/prisma, so must run after COPY)
+RUN npx prisma generate
 
 ARG DATABASE_URL
 ARG NEXT_PUBLIC_APP_URL
@@ -43,6 +43,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
 
 USER nextjs
 
