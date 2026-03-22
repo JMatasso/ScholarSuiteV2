@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { MessageLoading } from "@/components/ui/message-loading";
+import { MessageLoading } from "@/components/ui/message-loading"
 
 interface ChatBubbleProps {
   variant?: "sent" | "received"
@@ -20,15 +21,18 @@ export function ChatBubble({
   children,
 }: ChatBubbleProps) {
   return (
-    <div
+    <motion.div
       className={cn(
-        "flex items-start gap-2 mb-4",
+        "flex items-end gap-2.5",
         variant === "sent" && "flex-row-reverse",
         className,
       )}
+      initial={{ opacity: 0, y: 12, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
-    </div>
+    </motion.div>
   )
 }
 
@@ -48,15 +52,15 @@ export function ChatBubbleMessage({
   return (
     <div
       className={cn(
-        "rounded-lg p-3 text-sm leading-relaxed",
+        "px-4 py-2.5 text-sm leading-relaxed",
         variant === "sent"
-          ? "bg-primary text-primary-foreground"
-          : "bg-muted",
+          ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
+          : "bg-muted rounded-2xl rounded-bl-md",
         className
       )}
     >
       {isLoading ? (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center py-0.5">
           <MessageLoading />
         </div>
       ) : (
@@ -78,7 +82,7 @@ export function ChatBubbleAvatar({
   className,
 }: ChatBubbleAvatarProps) {
   return (
-    <Avatar className={cn("h-8 w-8", className)}>
+    <Avatar className={cn("h-8 w-8 shrink-0", className)}>
       {src && <AvatarImage src={src} />}
       <AvatarFallback>{fallback}</AvatarFallback>
     </Avatar>

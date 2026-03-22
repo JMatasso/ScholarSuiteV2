@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -144,78 +144,79 @@ export default function MessagesPage() {
           </div>
 
           {/* Messages area */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          <div className="flex-1 overflow-y-auto px-5 py-4">
             {chatMessages.length === 0 && (
               <p className="text-center text-sm text-muted-foreground py-8">
                 No messages yet. Send a message to start the conversation.
               </p>
             )}
-            {chatMessages.map((msg) => {
-              const isMine = msg.senderId === currentUserId;
-              const senderName = msg.sender.name ?? "Unknown";
-              const isRead = msg.read ?? msg.isRead ?? false;
+            <AnimatePresence initial={false}>
+              <div className="flex flex-col gap-3">
+                {chatMessages.map((msg, idx) => {
+                  const isMine = msg.senderId === currentUserId;
+                  const senderName = msg.sender.name ?? "Unknown";
+                  const isRead = msg.read ?? msg.isRead ?? false;
+                  const prevMsg = chatMessages[idx - 1];
+                  const sameSender = prevMsg?.senderId === msg.senderId;
 
-              return (
-                <div
-                  key={msg.id}
-                  className={cn(
-                    "flex gap-3",
-                    isMine ? "flex-row-reverse" : ""
-                  )}
-                >
-                  <Avatar size="sm" className="shrink-0 mt-1">
-                    {msg.sender.image && <AvatarImage src={msg.sender.image} alt={senderName} />}
-                    <AvatarFallback
+                  return (
+                    <motion.div
+                      key={msg.id}
                       className={cn(
-                        "text-xs font-semibold",
-                        isMine
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-purple-100 text-purple-700"
+                        "flex items-end gap-2.5",
+                        isMine ? "flex-row-reverse" : "",
+                        !sameSender && idx > 0 ? "mt-3" : ""
                       )}
+                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      {isMine
-                        ? getInitials(senderName)
-                        : consultantInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div
-                    className={cn(
-                      "max-w-[70%]",
-                      isMine ? "text-right" : ""
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "inline-block rounded-2xl px-4 py-2.5 text-sm",
-                        isMine
-                          ? "bg-primary text-primary-foreground rounded-br-md"
-                          : "bg-muted text-foreground rounded-bl-md"
+                      {!isMine && !sameSender && (
+                        <Avatar size="sm" className="shrink-0">
+                          {msg.sender.image && <AvatarImage src={msg.sender.image} alt={senderName} />}
+                          <AvatarFallback
+                            className="text-xs font-semibold bg-purple-100 text-purple-700"
+                          >
+                            {consultantInitials}
+                          </AvatarFallback>
+                        </Avatar>
                       )}
-                    >
-                      <p className="text-left">{msg.content}</p>
-                      {msg.imageUrl && (
-                        <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isMine} />
-                      )}
-                    </div>
-                    <div
-                      className={cn(
-                        "mt-1 flex items-center gap-1 text-[11px] text-muted-foreground",
-                        isMine ? "justify-end" : ""
-                      )}
-                    >
-                      <span>{formatTime(msg.createdAt)}</span>
-                      {isMine &&
-                        (isRead ? (
-                          <CheckCheck className="size-3 text-blue-500" />
-                        ) : (
-                          <Check className="size-3" />
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
+                      {!isMine && sameSender && <div className="w-8 shrink-0" />}
+                      <div className={cn("flex flex-col max-w-[70%]", isMine ? "items-end" : "items-start")}>
+                        <div
+                          className={cn(
+                            "px-4 py-2.5 text-sm leading-relaxed",
+                            isMine
+                              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
+                              : "bg-muted text-foreground rounded-2xl rounded-bl-md"
+                          )}
+                        >
+                          <p>{msg.content}</p>
+                          {msg.imageUrl && (
+                            <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isMine} />
+                          )}
+                        </div>
+                        <div
+                          className={cn(
+                            "mt-1 flex items-center gap-1 text-[10px] text-muted-foreground px-1",
+                            isMine ? "justify-end" : ""
+                          )}
+                        >
+                          <span>{formatTime(msg.createdAt)}</span>
+                          {isMine &&
+                            (isRead ? (
+                              <CheckCheck className="size-3 text-blue-500" />
+                            ) : (
+                              <Check className="size-3" />
+                            ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+            </AnimatePresence>
           </div>
 
           {/* Message input */}

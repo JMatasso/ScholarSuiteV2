@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
@@ -417,40 +418,55 @@ export default function MessagesPage() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-6 py-6 bg-background">
-            <div className="flex flex-col gap-5">
-              {chatMessages.map((msg) => {
-                const isOwn = msg.senderId === currentUserId
-                return (
-                  <div key={msg.id} className={cn("flex gap-2.5 max-w-[70%]", isOwn ? "ml-auto flex-row-reverse" : "")}>
-                    {!isOwn && (
-                      <Avatar size="sm" className="shrink-0 mt-0.5">
-                        {activeConversation?.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={activeConversation.partnerName} />}
-                        <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                          {activeConversation?.partnerInitials ?? "?"}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div className={cn("flex flex-col", isOwn ? "items-end" : "items-start")}>
-                      <div className={cn(
-                        "px-4 py-2.5 text-sm leading-relaxed shadow-sm",
-                        isOwn
-                          ? "bg-[#1E3A5F] text-white rounded-2xl rounded-br-md"
-                          : "bg-card text-foreground rounded-2xl rounded-bl-md ring-1 ring-gray-200/60"
-                      )}>
-                        {msg.content}
-                        {msg.imageUrl && (
-                          <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isOwn} />
-                        )}
+            <AnimatePresence initial={false}>
+              <div className="flex flex-col gap-3">
+                {chatMessages.map((msg, idx) => {
+                  const isOwn = msg.senderId === currentUserId
+                  const prevMsg = chatMessages[idx - 1]
+                  const sameSender = prevMsg?.senderId === msg.senderId
+                  return (
+                    <motion.div
+                      key={msg.id}
+                      className={cn(
+                        "flex items-end gap-2.5 max-w-[70%]",
+                        isOwn ? "ml-auto flex-row-reverse" : "",
+                        !sameSender && idx > 0 ? "mt-3" : ""
+                      )}
+                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {!isOwn && !sameSender && (
+                        <Avatar size="sm" className="shrink-0">
+                          {activeConversation?.partnerImage && <AvatarImage src={activeConversation.partnerImage} alt={activeConversation.partnerName} />}
+                          <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                            {activeConversation?.partnerInitials ?? "?"}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      {!isOwn && sameSender && <div className="w-8 shrink-0" />}
+                      <div className={cn("flex flex-col", isOwn ? "items-end" : "items-start")}>
+                        <div className={cn(
+                          "px-4 py-2.5 text-sm leading-relaxed",
+                          isOwn
+                            ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
+                            : "bg-muted text-foreground rounded-2xl rounded-bl-md"
+                        )}>
+                          {msg.content}
+                          {msg.imageUrl && (
+                            <MessageAttachmentDisplay imageUrl={msg.imageUrl} isOwn={isOwn} />
+                          )}
+                        </div>
+                        <span className="mt-1 text-[10px] text-muted-foreground px-1">
+                          {formatTime(msg.createdAt)}
+                        </span>
                       </div>
-                      <span className="mt-1.5 text-[10px] text-muted-foreground px-1">
-                        {formatTime(msg.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-              <div ref={messagesEndRef} />
-            </div>
+                    </motion.div>
+                  )
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+            </AnimatePresence>
           </div>
 
           {/* Input */}
