@@ -55,11 +55,21 @@ interface GpaSummary {
 }
 
 const YEAR_LABELS = ["Freshman", "Sophomore", "Junior", "Senior"]
-const SEMESTER_OPTIONS = [
-  { value: "Fall", label: "Fall" },
-  { value: "Spring", label: "Spring" },
-  { value: "Full Year", label: "Full Year" },
-]
+interface SemesterTab {
+  id: string
+  label: string
+  year: number
+  semester: string
+}
+
+function buildSemesterTabs(): SemesterTab[] {
+  const tabs: SemesterTab[] = []
+  YEAR_LABELS.forEach((label, i) => {
+    tabs.push({ id: `${i + 1}-Fall`, label: `${label} Fall`, year: i + 1, semester: "Fall" })
+    tabs.push({ id: `${i + 1}-Spring`, label: `${label} Spring`, year: i + 1, semester: "Spring" })
+  })
+  return tabs
+}
 const STATUS_OPTIONS: { value: CourseStatus; label: string }[] = [
   { value: "PLANNED", label: "Planned" },
   { value: "IN_PROGRESS", label: "In Progress" },
@@ -140,7 +150,6 @@ function CourseRow({
       </td>
       <td className="py-2.5 px-3 text-sm text-muted-foreground">{course.subject}</td>
       <td className="py-2.5 px-3 text-sm text-center">{course.credits}</td>
-      <td className="py-2.5 px-3 text-sm text-muted-foreground">{course.semester}</td>
       <td className="py-2.5 px-3 text-sm font-medium">{course.grade ?? "--"}</td>
       <td className="py-2.5 px-3">
         <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${statusColors[course.status]}`}>
@@ -295,18 +304,6 @@ function CourseDialog({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Semester</label>
-            <Select value={form.semester} onValueChange={(v) => v && setForm((f) => ({ ...f, semester: v }))}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {SEMESTER_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">Grade</label>
             <Select value={form.grade ?? "__none__"} onValueChange={(v) => setForm((f) => ({ ...f, grade: v === "__none__" ? null : v }))}>
               <SelectTrigger className="w-full"><SelectValue placeholder="Not graded" /></SelectTrigger>
@@ -371,34 +368,28 @@ function CourseDialog({
   )
 }
 
-// ── Year Section Component ──
+// ── Semester Section Component ──
 
-function YearSection({
-  academicYear, yearGpa, onAddCourse, onEditCourse, onDeleteCourse,
+function SemesterSection({
+  academicYear, semester, semesterLabel, onAddCourse, onEditCourse, onDeleteCourse,
 }: {
   academicYear: AcademicYear
-  yearGpa: { unweighted: number; weighted: number } | null
-  onAddCourse: (yearId: string) => void
+  semester: string
+  semesterLabel: string
+  onAddCourse: (yearId: string, semester: string) => void
   onEditCourse: (course: Course) => void
   onDeleteCourse: (courseId: string) => void
 }) {
-  const courses = academicYear.courses
+  const courses = academicYear.courses.filter((c) => c.semester === semester)
 
   return (
     <Card variant="bento">
       <CardHeader className="flex-row items-center justify-between">
-        <div className="flex items-center gap-3">
-          <CardTitle>{academicYear.label}</CardTitle>
-          {yearGpa && (
-            <span className="text-xs text-muted-foreground">
-              UW: {yearGpa.unweighted.toFixed(2)} | W: {yearGpa.weighted.toFixed(2)}
-            </span>
-          )}
-        </div>
+        <CardTitle>{semesterLabel}</CardTitle>
         <Button
           size="sm"
           className="bg-[#2563EB] hover:bg-[#2563EB]/90 gap-1.5"
-          onClick={() => onAddCourse(academicYear.id)}
+          onClick={() => onAddCourse(academicYear.id, semester)}
         >
           <Plus className="h-4 w-4" /> Add Course
         </Button>
@@ -411,7 +402,7 @@ function YearSection({
             </div>
             <p className="text-sm font-medium text-[#1E3A5F]">No courses yet</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Click &quot;Add Course&quot; to start building your {academicYear.label} schedule.
+              Click &quot;Add Course&quot; to start building your {semesterLabel} schedule.
             </p>
           </div>
         ) : (
@@ -423,7 +414,6 @@ function YearSection({
                   <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Type</th>
                   <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Subject</th>
                   <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide text-center">Credits</th>
-                  <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Semester</th>
                   <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Grade</th>
                   <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Status</th>
                   <th className="py-2 px-3 text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide">Actions</th>
@@ -454,11 +444,12 @@ export default function AcademicsPage() {
   const [gpa, setGpa] = useState<GpaSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState("1")
+  const [activeTab, setActiveTab] = useState("1-Fall")
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogYearId, setDialogYearId] = useState<string | null>(null)
+  const [dialogSemester, setDialogSemester] = useState<string>("Fall")
   const [editingCourse, setEditingCourse] = useState<(typeof emptyCourse & { id?: string }) | null>(null)
 
   // Scale dialog
@@ -507,13 +498,16 @@ export default function AcademicsPage() {
         courses: [],
       }))
 
-  const tabs = displayYears.map((y) => ({ id: String(y.year), label: y.label }))
+  const semesterTabs = buildSemesterTabs()
+  const tabs = semesterTabs.map((t) => ({ id: t.id, label: t.label }))
 
-  const activeYear = displayYears.find((y) => String(y.year) === activeTab) ?? displayYears[0]
+  const activeSemesterTab = semesterTabs.find((t) => t.id === activeTab) ?? semesterTabs[0]
+  const activeYear = displayYears.find((y) => y.year === activeSemesterTab.year) ?? displayYears[0]
 
-  const handleAddCourse = (yearId: string) => {
+  const handleAddCourse = (yearId: string, semester: string) => {
     setDialogYearId(yearId)
-    setEditingCourse({ ...emptyCourse })
+    setDialogSemester(semester)
+    setEditingCourse({ ...emptyCourse, semester })
     setDialogOpen(true)
   }
 
@@ -556,7 +550,7 @@ export default function AcademicsPage() {
           body: JSON.stringify({
             year: year.year,
             label: year.label,
-            courses: [data],
+            courses: [{ ...data, semester: dialogSemester }],
           }),
         })
         if (!res.ok) throw new Error("Failed to add course")
@@ -598,8 +592,6 @@ export default function AcademicsPage() {
     }
   }
 
-  const yearGpa = gpa?.byYear.find((y) => String(y.year) === activeTab) ?? null
-
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -624,15 +616,18 @@ export default function AcademicsPage() {
         <Card variant="bento"><CardContent className="py-8"><Skeleton className="h-48 w-full" /></CardContent></Card>
       ) : (
         <>
-          <VercelTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={(id) => setActiveTab(id)}
-          />
+          <div className="overflow-x-auto -mx-6 px-6">
+            <VercelTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={(id) => setActiveTab(id)}
+            />
+          </div>
           {activeYear && (
-            <YearSection
+            <SemesterSection
               academicYear={activeYear}
-              yearGpa={yearGpa}
+              semester={activeSemesterTab.semester}
+              semesterLabel={activeSemesterTab.label}
               onAddCourse={handleAddCourse}
               onEditCourse={handleEditCourse}
               onDeleteCourse={handleDeleteCourse}
