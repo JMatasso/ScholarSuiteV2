@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserProfileSidebar } from "@/components/ui/menu";
-import { ThemeSelect } from "@/components/ui/theme-select";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { NotificationDropdown } from "@/components/ui/notification-dropdown";
 import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
@@ -274,7 +274,7 @@ export default function ParentLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            <ThemeSelect />
+            <ThemeToggle />
 
             {/* Messages */}
             <Link href="/parent/messages" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">

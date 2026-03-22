@@ -42,7 +42,7 @@ import {
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UserProfileSidebar } from "@/components/ui/menu"
-import { ThemeSelect } from "@/components/ui/theme-select"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { signOut, useSession } from "next-auth/react"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
@@ -284,7 +284,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <ThemeSelect />
+            <ThemeToggle />
             <NotificationDropdown />
             <div className="relative" ref={profileRef}>
               <button

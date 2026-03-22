@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UserProfileSidebar } from "@/components/ui/menu"
-import { ThemeSelect } from "@/components/ui/theme-select"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NotificationDropdown } from "@/components/ui/notification-dropdown"
 import { ChatWidget } from "@/components/chat/chat-widget"
 import { AnimatedLogo } from "@/components/ui/animated-logo"
@@ -355,7 +355,7 @@ export default function StudentLayout({
           </div>
 
           <div className="flex items-center gap-2">
-            <ThemeSelect />
+            <ThemeToggle />
 
             {/* Messages */}
             <Link href="/student/messages" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
