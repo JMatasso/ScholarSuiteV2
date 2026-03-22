@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import Link from "next/link"
 import { Plus, Video, Clock, Calendar, MapPin, Users, X, UserPlus } from "lucide-react"
 import { toast } from "sonner"
@@ -477,9 +477,10 @@ export default function MeetingsPage() {
 
       {/* Add Participants Dialog */}
       <Dialog open={addParticipantsDialogOpen} onOpenChange={setAddParticipantsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Participants</DialogTitle>
+            <DialogDescription>Search and select users to add to this meeting.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <AsyncMultiSelect<UserOption>

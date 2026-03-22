@@ -425,7 +425,7 @@ export default function ScholarshipsPage() {
       )}
 
       <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) setEditingScholarship(null) }}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Scholarship</DialogTitle>
             <DialogDescription>Update scholarship details below.</DialogDescription>

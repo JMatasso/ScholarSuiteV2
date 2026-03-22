@@ -214,7 +214,7 @@ export function BragSheetFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editEntry ? "Edit Entry" : "Add Entry"}</DialogTitle>
           <DialogDescription>

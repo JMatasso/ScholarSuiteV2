@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ActionMenu } from "@/components/ui/action-menu"
@@ -461,9 +461,10 @@ export default function CohortsPage() {
       {/*  Create / Edit Cohort Dialog                                  */}
       {/* ------------------------------------------------------------ */}
       <Dialog open={cohortDialogOpen} onOpenChange={setCohortDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingCohort ? "Edit Cohort" : "Create Cohort"}</DialogTitle>
+            <DialogDescription>{editingCohort ? "Update cohort details below." : "Set up a new cohort to group students together."}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -515,9 +516,10 @@ export default function CohortsPage() {
       {/*  Add Members Dialog                                           */}
       {/* ------------------------------------------------------------ */}
       <Dialog open={membersDialogOpen} onOpenChange={setMembersDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Members to {membersCohort?.name}</DialogTitle>
+            <DialogDescription>Search and select students to add to this cohort.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <AsyncMultiSelect<Student>
@@ -569,9 +571,10 @@ export default function CohortsPage() {
       {/*  Assign Task Dialog                                           */}
       {/* ------------------------------------------------------------ */}
       <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Assign Task to {taskCohort?.name}</DialogTitle>
+            <DialogDescription>Create a task that will be assigned to all members in this cohort.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -641,9 +644,10 @@ export default function CohortsPage() {
       {/*  Send Announcement Dialog                                     */}
       {/* ------------------------------------------------------------ */}
       <Dialog open={announceDialogOpen} onOpenChange={setAnnounceDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Send Announcement to {announceCohort?.name}</DialogTitle>
+            <DialogDescription>Write an announcement to send to all members of this cohort.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">

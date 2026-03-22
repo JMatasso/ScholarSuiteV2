@@ -531,7 +531,7 @@ export default function ApplicationsPage() {
 
       {/* Add Scholarship Dialog */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Scholarship</DialogTitle>
           </DialogHeader>

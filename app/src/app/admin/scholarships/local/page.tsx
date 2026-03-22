@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { SearchInput } from "@/components/ui/search-input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import LoaderOne from "@/components/ui/loader-one"
 import { cn } from "@/lib/utils"
@@ -331,11 +331,12 @@ export default function LocalScholarshipsPage() {
 
       {/* Add / Edit Dialog */}
       <Dialog open={addOpen} onOpenChange={o => { if (!o) { setAddOpen(false); setEditId(null) } }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editId ? "Edit Local Scholarship" : "Add Local Scholarship"}</DialogTitle>
+            <DialogDescription>{editId ? "Update this scholarship's details." : "Create a new local scholarship entry."}</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3 max-h-[60vh] overflow-y-auto py-1">
+          <div className="grid gap-3 py-1">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Provider</label>
               <div className="relative">
@@ -415,9 +416,10 @@ export default function LocalScholarshipsPage() {
 
       {/* Start New Cycle Dialog */}
       <Dialog open={cycleOpen} onOpenChange={setCycleOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Start New Cycle</DialogTitle>
+            <DialogDescription>Roll over confirmed scholarships to begin a new application cycle.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">

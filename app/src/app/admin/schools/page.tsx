@@ -12,7 +12,7 @@ import { ActionMenu } from "@/components/ui/action-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -287,8 +287,11 @@ export default function AdminSchoolsPage() {
 
       {/* Add School Dialog */}
       <Dialog open={addOpen} onOpenChange={v => { if (!v) handleCloseDialog() }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{editingSchool ? "Edit School" : "Add School"}</DialogTitle></DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingSchool ? "Edit School" : "Add School"}</DialogTitle>
+            <DialogDescription>{editingSchool ? "Update the school details below." : "Fill in the details to add a new school."}</DialogDescription>
+          </DialogHeader>
           <div className="grid gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Name *</label>
@@ -343,8 +346,11 @@ export default function AdminSchoolsPage() {
 
       {/* NCES Import Dialog */}
       <Dialog open={ncesOpen} onOpenChange={v => { setNcesOpen(v); if (!v) { setNcesResults([]); setNcesSelected(new Set()); setNcesSearched(false) } }}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle>Import from NCES Database</DialogTitle></DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import from NCES Database</DialogTitle>
+            <DialogDescription>Search for schools in the NCES database and import them.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <div className="flex gap-2">
               <Select value={ncesState} onValueChange={(v) => setNcesState(v || "")}>

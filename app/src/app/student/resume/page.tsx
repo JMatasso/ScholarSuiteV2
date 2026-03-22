@@ -192,7 +192,7 @@ export default function ResumePage() {
 
       {/* AI Enhance Dialog */}
       <Dialog open={enhanceOpen} onOpenChange={setEnhanceOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[#2563EB]" /> AI Enhance</DialogTitle>
             <DialogDescription>Select activities and choose an enhancement mode.</DialogDescription>

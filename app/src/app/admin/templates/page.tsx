@@ -263,7 +263,7 @@ export default function TemplatesPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) { setShowForm(false); setEditingItem(null) } }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingItem ? "Edit Template Task" : "Add Template Task"}</DialogTitle>
           </DialogHeader>
