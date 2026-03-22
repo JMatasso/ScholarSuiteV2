@@ -48,16 +48,15 @@ const navGroups = [
       { name: "AI Assistant", href: "/student/assistant", icon: Bot },
       { name: "Tasks", href: "/student/tasks", icon: CheckSquare },
       { name: "Calendar", href: "/student/calendar", icon: CalendarDays },
-      { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
       { name: "Learning", href: "/student/learning", icon: BookOpen },
     ],
   },
   {
     label: "Scholarships",
     items: [
+      { name: "Overview", href: "/student/overview", icon: Trophy },
       { name: "Discovery", href: "/student/scholarships", icon: Search },
       { name: "Applications", href: "/student/applications", icon: FileText },
-      { name: "Overview", href: "/student/overview", icon: Trophy },
     ],
   },
   {
@@ -66,6 +65,7 @@ const navGroups = [
       { name: "My Colleges", href: "/student/colleges/list", icon: Star },
       { name: "Applications", href: "/student/colleges/applications", icon: GraduationCap },
       { name: "Visits", href: "/student/colleges/visits", icon: CalendarDays },
+      { name: "Financial Plan", href: "/student/financial", icon: DollarSign },
     ],
   },
   {

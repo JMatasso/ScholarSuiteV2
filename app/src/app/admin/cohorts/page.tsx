@@ -408,7 +408,7 @@ export default function CohortsPage() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     transition={{ duration: 0.25 }}
-                    className="mt-2 rounded-xl bg-white p-4 overflow-hidden transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
+                    className="mt-2 rounded-xl bg-card p-4 overflow-hidden transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] transition-all duration-300 hover:[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_4px_8px_rgba(0,0,0,.07),0_16px_32px_rgba(0,0,0,.07)]"
                   >
                     <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
                       Members ({cohort.members.length})
@@ -468,7 +468,7 @@ export default function CohortsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Name *</label>
+              <label className="text-sm font-medium text-foreground">Name *</label>
               <Input
                 placeholder="e.g. Spring 2026 Cohort"
                 value={form.name}
@@ -476,7 +476,7 @@ export default function CohortsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Description</label>
+              <label className="text-sm font-medium text-foreground">Description</label>
               <Textarea
                 placeholder="Brief description of this cohort..."
                 rows={3}
@@ -485,7 +485,7 @@ export default function CohortsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Color</label>
+              <label className="text-sm font-medium text-foreground">Color</label>
               <div className="flex gap-2">
                 {colorOptions.map((c) => (
                   <button
@@ -578,7 +578,7 @@ export default function CohortsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Title *</label>
+              <label className="text-sm font-medium text-foreground">Title *</label>
               <Input
                 placeholder="Task title"
                 value={taskForm.title}
@@ -586,7 +586,7 @@ export default function CohortsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Description</label>
+              <label className="text-sm font-medium text-foreground">Description</label>
               <Textarea
                 placeholder="Optional description..."
                 rows={3}
@@ -596,7 +596,7 @@ export default function CohortsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Priority</label>
+                <label className="text-sm font-medium text-foreground">Priority</label>
                 <Select value={taskForm.priority} onValueChange={(v) => setTaskForm((p) => ({ ...p, priority: v || "MEDIUM" }))}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Priority" />
@@ -610,7 +610,7 @@ export default function CohortsPage() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Due Date</label>
+                <label className="text-sm font-medium text-foreground">Due Date</label>
                 <Input
                   type="date"
                   value={taskForm.dueDate}
@@ -651,7 +651,7 @@ export default function CohortsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Title *</label>
+              <label className="text-sm font-medium text-foreground">Title *</label>
               <Input
                 placeholder="Announcement title"
                 value={announceForm.title}
@@ -659,7 +659,7 @@ export default function CohortsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Content *</label>
+              <label className="text-sm font-medium text-foreground">Content *</label>
               <Textarea
                 placeholder="Write your announcement..."
                 rows={5}

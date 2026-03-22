@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { DataTable, SortableHeader } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
-import { Plus, Upload, ExternalLink, Pencil, Trash2, Globe, Loader2 } from "lucide-react"
+import { Plus, Upload, ExternalLink, Pencil, Trash2, Globe, Loader2, Award, CalendarClock, DollarSign, CheckCircle } from "lucide-react"
+import { StatCard } from "@/components/ui/stat-card"
 import Link from "next/link"
 import { ActionMenu } from "@/components/ui/action-menu"
 import { ScholarshipUrlImportDialog } from "@/components/scholarship-url-import-dialog"
@@ -168,6 +169,14 @@ export default function ScholarshipsPage() {
     if (csvInputRef.current) csvInputRef.current.value = ""
   }
 
+  const stats = React.useMemo(() => {
+    const total = scholarships.length
+    const active = scholarships.filter(s => s.isActive).length
+    const withDeadline = scholarships.filter(s => s.deadline && new Date(s.deadline) > new Date()).length
+    const totalAmount = scholarships.reduce((sum, s) => sum + (s.amount || 0), 0)
+    return { total, active, withDeadline, totalAmount }
+  }, [scholarships])
+
   const filtered = scholarships.filter(s => {
     if (statusFilter === "active" && !s.isActive) return false
     if (statusFilter === "inactive" && s.isActive) return false
@@ -213,7 +222,7 @@ export default function ScholarshipsPage() {
         <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ${
           row.original.isActive
             ? "bg-green-50 text-green-700 ring-1 ring-inset ring-green-300"
-            : "bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-300"
+            : "bg-muted text-muted-foreground ring-1 ring-inset ring-gray-300"
         }`}>
           {row.original.isActive ? "Active" : "Inactive"}
         </span>
@@ -262,7 +271,7 @@ export default function ScholarshipsPage() {
           ERROR: "bg-red-100 text-red-700 ring-red-300",
         }
         return (
-          <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${styles[status] || "bg-gray-100 text-gray-600 ring-gray-300"}`}>
+          <span className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ring-1 ring-inset ${styles[status] || "bg-muted text-muted-foreground ring-gray-300"}`}>
             {status.replace("_", " ")}
           </span>
         )
@@ -318,8 +327,17 @@ export default function ScholarshipsPage() {
         }
       />
 
+      {!loading && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard title="Total Scholarships" value={stats.total} icon={Award} index={0} />
+          <StatCard title="Active" value={stats.active} description={`${stats.total - stats.active} inactive`} icon={CheckCircle} index={1} />
+          <StatCard title="Open Deadlines" value={stats.withDeadline} description="with future deadlines" icon={CalendarClock} index={2} />
+          <StatCard title="Total Value" value={`$${stats.totalAmount.toLocaleString()}`} description="combined award amounts" icon={DollarSign} index={3} />
+        </div>
+      )}
+
       {showAddForm && (
-        <form onSubmit={handleAddScholarship} className="rounded-xl bg-white p-5 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
+        <form onSubmit={handleAddScholarship} className="rounded-xl bg-card p-5 transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]">
           <h3 className="mb-4 text-sm font-semibold text-foreground">Add New Scholarship</h3>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -432,7 +450,7 @@ export default function ScholarshipsPage() {
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <label className="block text-xs font-medium text-foreground mb-1">Name *</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Name *</label>
               <Input
                 value={editForm.name}
                 onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
@@ -441,7 +459,7 @@ export default function ScholarshipsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1">Provider</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Provider</label>
                 <Input
                   value={editForm.provider}
                   onChange={e => setEditForm(p => ({ ...p, provider: e.target.value }))}
@@ -449,7 +467,7 @@ export default function ScholarshipsPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1">Amount ($)</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Amount ($)</label>
                 <Input
                   type="number"
                   value={editForm.amount}
@@ -461,7 +479,7 @@ export default function ScholarshipsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1">Deadline</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Deadline</label>
                 <Input
                   type="date"
                   value={editForm.deadline}
@@ -470,7 +488,7 @@ export default function ScholarshipsPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Status</label>
                 <select
                   value={editForm.isActive ? "active" : "inactive"}
                   onChange={e => setEditForm(p => ({ ...p, isActive: e.target.value === "active" }))}
@@ -482,7 +500,7 @@ export default function ScholarshipsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-foreground mb-1">URL</label>
+              <label className="block text-sm font-medium text-foreground mb-1">URL</label>
               <Input
                 type="url"
                 value={editForm.url}
@@ -492,7 +510,7 @@ export default function ScholarshipsPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Tags</label>
               <Input
                 value={editForm.tags}
                 disabled

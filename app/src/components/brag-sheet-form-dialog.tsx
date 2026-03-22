@@ -234,7 +234,7 @@ export function BragSheetFormDialog({
         <div className="space-y-4 py-2">
           {/* Title */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Title *</label>
+            <label className="text-sm font-medium text-foreground">Title *</label>
             <Input
               placeholder="e.g., Debate Team, National Honor Society"
               value={form.title}
@@ -245,7 +245,7 @@ export function BragSheetFormDialog({
           {/* Organization + Role */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Organization</label>
+              <label className="text-sm font-medium text-foreground">Organization</label>
               <Input
                 placeholder="e.g., Lincoln High School"
                 value={form.organization}
@@ -253,7 +253,7 @@ export function BragSheetFormDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Your Role</label>
+              <label className="text-sm font-medium text-foreground">Your Role</label>
               <Input
                 placeholder="e.g., Captain, President"
                 value={form.role}
@@ -264,7 +264,7 @@ export function BragSheetFormDialog({
 
           {/* Category */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Category</label>
+            <label className="text-sm font-medium text-foreground">Category</label>
             <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v as CategoryKey }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
@@ -279,7 +279,7 @@ export function BragSheetFormDialog({
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">What did you do?</label>
+            <label className="text-sm font-medium text-foreground">What did you do?</label>
             <Textarea
               placeholder="Describe your role and what you contributed..."
               rows={2}
@@ -290,7 +290,7 @@ export function BragSheetFormDialog({
 
           {/* Impact Statement */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Impact (optional but recommended)</label>
+            <label className="text-sm font-medium text-foreground">Impact (optional but recommended)</label>
             <Textarea
               placeholder="What was the result? Use numbers if you can — e.g., 'Raised $2,000 for local food bank'"
               rows={2}
@@ -301,7 +301,7 @@ export function BragSheetFormDialog({
 
           {/* Skills */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Skills you gained</label>
+            <label className="text-sm font-medium text-foreground">Skills you gained</label>
             {form.skillsGained.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-1.5">
                 {form.skillsGained.map((skill) => (
@@ -325,7 +325,7 @@ export function BragSheetFormDialog({
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Start Date</label>
+              <label className="text-sm font-medium text-foreground">Start Date</label>
               <Input
                 type="date"
                 value={form.startDate}
@@ -333,7 +333,7 @@ export function BragSheetFormDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">End Date</label>
+              <label className="text-sm font-medium text-foreground">End Date</label>
               <Input
                 type="date"
                 value={form.endDate}
@@ -350,10 +350,10 @@ export function BragSheetFormDialog({
                 checked={form.isOngoing}
                 onCheckedChange={(v) => setForm((f) => ({ ...f, isOngoing: v, endDate: v ? "" : f.endDate }))}
               />
-              <label className="text-xs font-medium text-muted-foreground">Still doing this</label>
+              <label className="text-sm font-medium text-foreground">Still doing this</label>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Hours / Week</label>
+              <label className="text-sm font-medium text-foreground">Hours / Week</label>
               <Input
                 type="number"
                 placeholder="e.g., 5"
@@ -370,14 +370,14 @@ export function BragSheetFormDialog({
                 checked={form.isLeadership}
                 onCheckedChange={(v) => setForm((f) => ({ ...f, isLeadership: v }))}
               />
-              <label className="text-xs font-medium text-muted-foreground">Leadership Role</label>
+              <label className="text-sm font-medium text-foreground">Leadership Role</label>
             </div>
             <div className="flex items-center gap-3">
               <Switch
                 checked={form.isAward}
                 onCheckedChange={(v) => setForm((f) => ({ ...f, isAward: v }))}
               />
-              <label className="text-xs font-medium text-muted-foreground">Award / Honor</label>
+              <label className="text-sm font-medium text-foreground">Award / Honor</label>
             </div>
           </div>
         </div>

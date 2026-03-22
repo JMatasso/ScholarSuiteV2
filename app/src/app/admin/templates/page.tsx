@@ -49,7 +49,7 @@ const phaseColors: Record<string, string> = {
 const priorityColors: Record<string, string> = {
   HIGH: "bg-rose-100 text-rose-700",
   MEDIUM: "bg-amber-100 text-amber-700",
-  LOW: "bg-gray-100 text-gray-600",
+  LOW: "bg-muted text-muted-foreground",
 }
 
 const emptyForm = {
@@ -190,7 +190,7 @@ export default function TemplatesPage() {
             {template.items.length} tasks in template
           </span>
           {Object.entries(itemsByPhase).map(([phase, items]) => (
-            <span key={phase} className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${phaseColors[phase] || "bg-gray-100 text-gray-600"}`}>
+            <span key={phase} className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${phaseColors[phase] || "bg-muted text-muted-foreground"}`}>
               {phaseLabels[phase]}: {items.length}
             </span>
           ))}
@@ -207,7 +207,7 @@ export default function TemplatesPage() {
             const items = itemsByPhase[phase]
             if (!items || items.length === 0) return null
             return (
-              <div key={phase} className="rounded-xl bg-white ring-1 ring-foreground/10 overflow-hidden">
+              <div key={phase} className="rounded-xl bg-card ring-1 ring-foreground/10 overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 border-b border-border/50 bg-muted/30">
                   <div className="flex items-center gap-2">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${phaseColors[phase]}`}>
@@ -269,16 +269,16 @@ export default function TemplatesPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Title *</label>
+              <label className="text-sm font-medium text-foreground">Title *</label>
               <Input required value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Description</label>
+              <label className="text-sm font-medium text-foreground">Description</label>
               <Input value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Phase</label>
+                <label className="text-sm font-medium text-foreground">Phase</label>
                 <select value={form.phase} onChange={e => setForm(p => ({ ...p, phase: e.target.value }))}
                   className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
                   <option value="INTRODUCTION">Introduction</option>
@@ -289,7 +289,7 @@ export default function TemplatesPage() {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Priority</label>
+                <label className="text-sm font-medium text-foreground">Priority</label>
                 <select value={form.priority} onChange={e => setForm(p => ({ ...p, priority: e.target.value }))}
                   className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
                   <option value="LOW">Low</option>
@@ -299,7 +299,7 @@ export default function TemplatesPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Linked Document Folder</label>
+              <label className="text-sm font-medium text-foreground">Linked Document Folder</label>
               <select value={form.documentFolder} onChange={e => setForm(p => ({ ...p, documentFolder: e.target.value }))}
                 className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
                 <option value="">None</option>

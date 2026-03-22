@@ -67,6 +67,15 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: "Communication",
+    items: [
+      { label: "Messages", href: "/admin/messages", icon: MessageSquare },
+      { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
+      { label: "Meetings", href: "/admin/meetings", icon: Video },
+      { label: "Essays", href: "/admin/essays", icon: PenTool },
+    ],
+  },
+  {
     title: "People",
     items: [
       { label: "Students", href: "/admin/students", icon: Users },
@@ -75,7 +84,6 @@ const navGroups: NavGroup[] = [
       { label: "Cohorts", href: "/admin/cohorts", icon: Layers },
       { label: "Schools", href: "/admin/schools", icon: School },
       { label: "Colleges", href: "/admin/colleges", icon: Building2 },
-      { label: "Reviews", href: "/admin/reviews", icon: ClipboardCheck },
     ],
   },
   {
@@ -86,21 +94,13 @@ const navGroups: NavGroup[] = [
       { label: "Providers", href: "/admin/scholarships/providers", icon: Building2 },
       { label: "Task Templates", href: "/admin/templates", icon: ListTodo },
       { label: "Learning", href: "/admin/learning", icon: BookOpen },
-      { label: "Essays", href: "/admin/essays", icon: PenTool },
-    ],
-  },
-  {
-    title: "Communication",
-    items: [
-      { label: "Messages", href: "/admin/messages", icon: MessageSquare },
-      { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
-      { label: "Meetings", href: "/admin/meetings", icon: Video },
     ],
   },
   {
     title: "Business",
     items: [
       { label: "CRM", href: "/admin/crm", icon: Briefcase },
+      { label: "Reviews", href: "/admin/reviews", icon: ClipboardCheck },
       { label: "Reports", href: "/admin/reports", icon: FileBarChart },
       { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
       { label: "Financial", href: "/admin/financial", icon: DollarSign },
@@ -285,6 +285,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
+
+            {/* Messages */}
+            <Link href="/admin/messages" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <MessageSquare className="h-4 w-4" />
+            </Link>
+
+            {/* Meetings */}
+            <Link href="/admin/meetings" className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <Video className="h-4 w-4" />
+            </Link>
+
             <NotificationDropdown />
             <div className="relative" ref={profileRef}>
               <button

@@ -294,43 +294,43 @@ export default function AdminSchoolsPage() {
           </DialogHeader>
           <div className="grid gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Name *</label>
+              <label className="text-sm font-medium text-foreground">Name *</label>
               <Input value={addForm.name} onChange={e => setAddForm(p => ({ ...p, name: e.target.value }))} placeholder="School name" />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Address</label>
+                <label className="text-sm font-medium text-foreground">Address</label>
                 <Input value={addForm.address} onChange={e => setAddForm(p => ({ ...p, address: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">City</label>
+                <label className="text-sm font-medium text-foreground">City</label>
                 <Input value={addForm.city} onChange={e => setAddForm(p => ({ ...p, city: e.target.value }))} />
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">State</label>
+                <label className="text-sm font-medium text-foreground">State</label>
                 <Select value={addForm.state} onValueChange={v => setAddForm(p => ({ ...p, state: v || "" }))}>
                   <SelectTrigger><SelectValue placeholder="State" /></SelectTrigger>
                   <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Zip Code</label>
+                <label className="text-sm font-medium text-foreground">Zip Code</label>
                 <Input value={addForm.zipCode} onChange={e => setAddForm(p => ({ ...p, zipCode: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Phone</label>
+                <label className="text-sm font-medium text-foreground">Phone</label>
                 <Input value={addForm.phone} onChange={e => setAddForm(p => ({ ...p, phone: e.target.value }))} />
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Email</label>
+                <label className="text-sm font-medium text-foreground">Email</label>
                 <Input type="email" value={addForm.email} onChange={e => setAddForm(p => ({ ...p, email: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Website</label>
+                <label className="text-sm font-medium text-foreground">Website</label>
                 <Input value={addForm.website} onChange={e => setAddForm(p => ({ ...p, website: e.target.value }))} placeholder="https://..." />
               </div>
             </div>

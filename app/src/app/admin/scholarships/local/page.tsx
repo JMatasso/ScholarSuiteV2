@@ -13,8 +13,9 @@ import LoaderOne from "@/components/ui/loader-one"
 import { cn } from "@/lib/utils"
 import {
   Plus, RefreshCw, Check, X, Pencil, Trash2, Loader2, ChevronDown,
-  MapPin, DollarSign, Calendar, Building2, AlertTriangle,
+  MapPin, DollarSign, Calendar, Building2, AlertTriangle, CheckCircle, Clock, Users,
 } from "lucide-react"
+import { StatCard } from "@/components/ui/stat-card"
 
 interface Provider { id: string; name: string; type: string; county: string | null; state: string | null }
 
@@ -33,7 +34,7 @@ const CYCLE_COLORS: Record<string, { dot: string; badge: string; label: string }
   CONFIRMED: { dot: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700 border-emerald-200", label: "Confirmed" },
   PENDING_CONFIRMATION: { dot: "bg-amber-500", badge: "bg-amber-100 text-amber-700 border-amber-200", label: "Pending" },
   NOT_RENEWED: { dot: "bg-rose-500", badge: "bg-rose-100 text-rose-700 border-rose-200", label: "Not Renewed" },
-  UNKNOWN: { dot: "bg-gray-400", badge: "bg-gray-100 text-gray-600 border-gray-200", label: "Unknown" },
+  UNKNOWN: { dot: "bg-gray-400", badge: "bg-muted text-muted-foreground border-border", label: "Unknown" },
 }
 
 const COUNTIES = [
@@ -209,13 +210,22 @@ export default function LocalScholarshipsPage() {
         }
       />
 
+      {!loading && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard title="Total Local" value={scholarships.length} icon={MapPin} index={0} />
+          <StatCard title="Confirmed" value={counts.CONFIRMED} description={`${counts.PENDING_CONFIRMATION} pending`} icon={CheckCircle} index={1} />
+          <StatCard title="Total Value" value={`$${scholarships.reduce((s, x) => s + (x.amount || 0), 0).toLocaleString()}`} icon={DollarSign} index={2} />
+          <StatCard title="Students Matched" value={scholarships.reduce((s, x) => s + (x._count?.applications || 0), 0)} description="auto-matched applications" icon={Users} index={3} />
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative">
           <select
             value={county}
             onChange={e => setCounty(e.target.value)}
-            className="h-8 rounded-lg border border-gray-200 bg-white pl-8 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none"
+            className="h-8 rounded-lg border border-border bg-card pl-8 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none"
           >
             {COUNTIES.map(c => <option key={c}>{c}</option>)}
           </select>
@@ -223,14 +233,14 @@ export default function LocalScholarshipsPage() {
           <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
         </div>
         <SearchInput value={search} onValueChange={setSearch} placeholder="Search scholarships..." className="w-64" />
-        <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-0.5">
+        <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-0.5">
           {(["ALL", "CONFIRMED", "PENDING_CONFIRMATION", "NOT_RENEWED", "UNKNOWN"] as CycleStatus[]).map(s => (
             <button
               key={s}
               onClick={() => setCycleFilter(s)}
               className={cn(
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                cycleFilter === s ? "bg-[#1E3A5F] text-white" : "text-muted-foreground hover:text-[#1A1A1A]"
+                cycleFilter === s ? "bg-[#1E3A5F] text-white" : "text-muted-foreground hover:text-foreground"
               )}
             >
               {s === "ALL" ? "All" : CYCLE_COLORS[s]?.label ?? s}
@@ -240,7 +250,7 @@ export default function LocalScholarshipsPage() {
       </div>
 
       {/* Summary bar */}
-      <div className="flex items-center gap-6 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm">
+      <div className="flex items-center gap-6 rounded-lg border border-border bg-card px-4 py-2.5 text-sm">
         {Object.entries(counts).map(([key, val]) => (
           <span key={key} className="flex items-center gap-1.5">
             <span className={cn("h-2 w-2 rounded-full", CYCLE_COLORS[key]?.dot ?? "bg-gray-400")} />
@@ -251,14 +261,14 @@ export default function LocalScholarshipsPage() {
       </div>
 
       {/* Tab toggle */}
-      <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-0.5 w-fit">
+      <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-0.5 w-fit">
         {([["active", "Active Scholarships"], ["pending", "Pending Submissions"]] as [Tab, string][]).map(([t, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-              tab === t ? "bg-[#1E3A5F] text-white" : "text-muted-foreground hover:text-[#1A1A1A]"
+              tab === t ? "bg-[#1E3A5F] text-white" : "text-muted-foreground hover:text-foreground"
             )}
           >
             {label}
@@ -267,8 +277,8 @@ export default function LocalScholarshipsPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-gray-200 bg-white overflow-x-auto">
-        <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 border-b border-gray-100 bg-gray-50/60 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[800px]">
+      <div className="rounded-lg border border-border bg-card overflow-x-auto">
+        <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 border-b border-border bg-muted/50/60 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[800px]">
           <span>Name</span><span>Provider</span><span>County</span><span>Amount</span>
           <span>Deadline</span><span>Cycle Status</span><span className="text-center">Apps</span><span>Actions</span>
         </div>
@@ -281,8 +291,8 @@ export default function LocalScholarshipsPage() {
           </div>
         ) : (
           scholarships.map(s => (
-            <div key={s.id} className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 items-center border-b border-gray-50 px-4 py-2.5 text-sm hover:bg-gray-50/50 transition-colors min-w-[800px]">
-              <span className="font-medium text-[#1A1A1A] truncate">{s.name}</span>
+            <div key={s.id} className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_1fr_0.5fr_auto] gap-2 items-center border-b border-border px-4 py-2.5 text-sm hover:bg-muted/50/50 transition-colors min-w-[800px]">
+              <span className="font-medium text-foreground truncate">{s.name}</span>
               <span className="text-muted-foreground truncate">{s.providerOrg?.name ?? s.provider ?? "--"}</span>
               <span className="text-muted-foreground">{s.county ?? "--"}</span>
               <span className="font-medium">{fmtAmount(s)}</span>
@@ -293,7 +303,7 @@ export default function LocalScholarshipsPage() {
                     {CYCLE_COLORS[s.cycleStatus].label}
                   </span>
                 ) : (
-                  <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-600 border-gray-200">Unknown</span>
+                  <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground border-border">Unknown</span>
                 )}
               </span>
               <span className="text-center text-muted-foreground">{s._count?.applications ?? 0}</span>
@@ -338,7 +348,7 @@ export default function LocalScholarshipsPage() {
           </DialogHeader>
           <div className="grid gap-3 py-1">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Provider</label>
+              <label className="text-sm font-medium text-foreground">Provider</label>
               <div className="relative">
                 <select
                   value={form.providerId}
@@ -346,7 +356,7 @@ export default function LocalScholarshipsPage() {
                     const p = providers.find(p => p.id === e.target.value)
                     setForm(f => ({ ...f, providerId: e.target.value, providerName: p?.name ?? "", county: p?.county ?? f.county, state: p?.state ?? f.state }))
                   }}
-                  className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none"
+                  className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] appearance-none"
                 >
                   <option value="">-- Select or type below --</option>
                   {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -358,38 +368,38 @@ export default function LocalScholarshipsPage() {
               )}
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Name *</label>
+              <label className="text-sm font-medium text-foreground">Name *</label>
               <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Scholarship name" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Amount</label>
+                <label className="text-sm font-medium text-foreground">Amount</label>
                 <Input type="number" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="Min amount" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Amount Max</label>
+                <label className="text-sm font-medium text-foreground">Amount Max</label>
                 <Input type="number" value={form.amountMax} onChange={e => setForm(f => ({ ...f, amountMax: e.target.value }))} placeholder="Max amount" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Deadline</label>
+              <label className="text-sm font-medium text-foreground">Deadline</label>
               <Input type="date" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Description</label>
+              <label className="text-sm font-medium text-foreground">Description</label>
               <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} placeholder="Brief description..." />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Application URL</label>
+              <label className="text-sm font-medium text-foreground">Application URL</label>
               <Input value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} placeholder="https://..." />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">County</label>
+                <label className="text-sm font-medium text-foreground">County</label>
                 <Input value={form.county} onChange={e => setForm(f => ({ ...f, county: e.target.value }))} placeholder="County" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">State</label>
+                <label className="text-sm font-medium text-foreground">State</label>
                 <Input value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value }))} placeholder="State" />
               </div>
             </div>
@@ -423,7 +433,7 @@ export default function LocalScholarshipsPage() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Cycle Year</label>
+              <label className="text-sm font-medium text-foreground">Cycle Year</label>
               <Input value={cycleYear} onChange={e => setCycleYear(e.target.value)} placeholder="e.g. 2027-2028" />
             </div>
             <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/30 p-3">
