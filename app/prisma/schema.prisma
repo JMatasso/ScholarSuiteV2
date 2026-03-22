@@ -111,6 +111,8 @@ model User {
   prospect  Prospect?
   chatConversations ChatConversation[]
   recommenders      Recommender[]
+  academicYears    AcademicYear[]
+  transcriptUploads TranscriptUpload[]
 }
 
 model Account {
@@ -167,6 +169,7 @@ model StudentProfile {
 
   gpa               Float?
   gpaType           String?
+  weightedGpaScale  String?          // "5.0", "6.0", or null for unweighted-only
   classRank         String?
   classSize         String?
   gradeLevel        Int?
@@ -1546,4 +1549,91 @@ model RecommenderScholarshipApp {
   scholarshipApp  ScholarshipApplication @relation(fields: [scholarshipAppId], references: [id], onDelete: Cascade)
 
   @@unique([recommenderId, scholarshipAppId])
+}
+
+// ─── ACADEMICS & COURSE PLANNER ─────────────────────────────
+
+enum CourseType {
+  REGULAR
+  HONORS
+  AP
+  IB
+  DUAL_CREDIT
+}
+
+enum CourseStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TranscriptStatus {
+  UPLOADED
+  PROCESSING
+  REVIEW
+  CONFIRMED
+  ERROR
+}
+
+model AcademicYear {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year      Int      // grade level: 9, 10, 11, 12
+  label     String   // "Freshman", "Sophomore", "Junior", "Senior"
+  courses   Course[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, year])
+}
+
+model Course {
+  id             String       @id @default(cuid())
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  name           String
+  type           CourseType   @default(REGULAR)
+  credits        Float        @default(1.0)
+  semester       String?      // "Fall", "Spring", "Full Year"
+  grade          String?      // "A", "A-", "B+", etc. — null if planned
+  status         CourseStatus @default(PLANNED)
+  apScore        Int?         // 1-5 for AP courses
+  ibScore        Int?         // 1-7 for IB courses
+  subject        String?      // "Math", "English", "Science", etc.
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model TranscriptUpload {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId    String?          // link to Document record for the file
+  semester      String           // "Fall 2025", "Spring 2026"
+  gradeLevel    Int?
+  extractedGpa  Float?           // GPA as read from transcript
+  extractedWGpa Float?           // weighted GPA as read from transcript
+  extractedRank String?          // "15/350" as read
+  status        TranscriptStatus @default(UPLOADED)
+  rawExtraction Json?            // full AI extraction result
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model CollegeCreditPolicy {
+  id               String     @id @default(cuid())
+  collegeId        String?
+  collegeName      String
+  courseType        CourseType // AP, IB, DUAL_CREDIT
+  courseName       String     // "Calculus BC", "Biology"
+  minScore         Int?       // minimum score required
+  creditsAwarded   Float?     // college credits earned
+  equivalentCourse String?    // "MATH 151"
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([collegeId])
+  @@index([courseName])
 }

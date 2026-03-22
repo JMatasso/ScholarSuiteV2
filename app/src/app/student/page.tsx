@@ -18,14 +18,16 @@ import {
   Calendar,
   Video,
   Activity,
-  AlertTriangle,
   ChevronLeft,
   ChevronRight,
   MessageSquare,
-  Target,
   Sparkles,
+  GraduationCap,
+  TrendingUp,
+  DollarSign,
 } from "@/lib/icons"
 import Link from "next/link"
+import { toast } from "sonner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { formatDate, formatTime, getInitials } from "@/lib/format"
 import { CompletionBanner } from "@/components/ui/completion-banner"
@@ -77,6 +79,22 @@ interface Message {
   isRead: boolean
 }
 
+interface StudentSnapshot {
+  gradeLevel: number | null
+  graduationYear: number | null
+  journeyStage: string | null
+  semester: string
+  gpa: { unweighted: number | null; weighted: number | null; scale: string }
+  classRank: string | null
+  classSize: string | null
+  satScore: number | null
+  actScore: number | null
+  intendedMajor: string | null
+  collegeApps: { total: number; submitted: number; accepted: number; committed: string | null }
+  scholarshipApps: { total: number; active: number; awarded: number; totalAwarded: number }
+  academicSummary: { totalCourses: number; apCourses: number; honorsCourses: number; completedCredits: number }
+}
+
 function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null
   const diff = new Date(dateStr).getTime() - new Date().getTime()
@@ -95,6 +113,18 @@ function getIncompleteSections(flags: Record<string, boolean> | null): Array<{ l
   return sections
 }
 
+function SnapshotStat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-lg bg-muted/40 px-3 py-2 text-center">
+      <p className="text-lg font-bold text-secondary-foreground leading-tight">
+        {value}
+        {sub && <span className="text-xs font-normal text-muted-foreground ml-0.5">{sub}</span>}
+      </p>
+      <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+    </div>
+  )
+}
+
 export default function StudentDashboard() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [applications, setApplications] = useState<Application[]>([])
@@ -102,6 +132,7 @@ export default function StudentDashboard() {
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [timelineData, setTimelineData] = useState<{ journeyStage: string; tasksByStage: Record<string, { total: number; completed: number }> } | null>(null)
+  const [snapshot, setSnapshot] = useState<StudentSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState<string | null>(null)
   const [bannerDismissed, setBannerDismissed] = useState(false)
@@ -144,13 +175,15 @@ export default function StudentDashboard() {
       fetch("/api/meetings").then(r => r.json()).catch(() => []),
       fetch("/api/messages").then(r => r.json()).catch(() => []),
       fetch("/api/timeline").then(r => r.json()).catch(() => null),
-    ]).then(([t, a, c, m, msg, tl]) => {
+      fetch("/api/students/snapshot").then(r => r.json()).catch(() => null),
+    ]).then(([t, a, c, m, msg, tl, snap]) => {
       setTasks(Array.isArray(t) ? t : [])
       setApplications(Array.isArray(a) ? a : [])
       setCollegeApps(Array.isArray(c) ? c : [])
       setMeetings(Array.isArray(m) ? m : [])
       setMessages(Array.isArray(msg) ? msg : [])
       setTimelineData(tl && tl.journeyStage ? tl : null)
+      setSnapshot(snap && snap.semester ? snap : null)
       setLoading(false)
     })
   }, [])
@@ -184,6 +217,18 @@ export default function StudentDashboard() {
   ].sort((a, b) => a.days - b.days)
 
   const urgentDeadline = allDeadlines[0]
+
+  // Fire a toast for the most urgent deadline (once per session)
+  useEffect(() => {
+    if (!loading && urgentDeadline && !sessionStorage.getItem("deadline-toast-shown")) {
+      const typeLabel = urgentDeadline.type === "college" ? "application" : "scholarship"
+      const dayLabel = urgentDeadline.days === 1 ? "1 day" : `${urgentDeadline.days} days`
+      toast.warning(`${urgentDeadline.name} ${typeLabel} deadline in ${dayLabel}`, {
+        duration: 6000,
+      })
+      sessionStorage.setItem("deadline-toast-shown", "true")
+    }
+  }, [loading, urgentDeadline])
 
   // Next meeting
   const now = new Date()
@@ -241,56 +286,110 @@ export default function StudentDashboard() {
         </p>
       </motion.div>
 
-      {urgentDeadline && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className={`flex items-center gap-3 rounded-xl px-4 py-3 ${urgentDeadline.days <= 3 ? "bg-rose-50 ring-1 ring-rose-200" : "bg-amber-50 ring-1 ring-amber-200"}`}
-        >
-          <AlertTriangle className={`h-4 w-4 ${urgentDeadline.days <= 3 ? "text-rose-600" : "text-amber-600"}`} />
-          <span className={`text-sm font-medium ${urgentDeadline.days <= 3 ? "text-rose-800" : "text-amber-800"}`}>
-            {urgentDeadline.name} {urgentDeadline.type === "college" ? "application" : "scholarship"} deadline in {urgentDeadline.days} day{urgentDeadline.days !== 1 ? "s" : ""}
-          </span>
+      {/* Student Snapshot */}
+      {(snapshot || loading) && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <Card variant="bento">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-[#1E3A5F]/10">
+                  <GraduationCap className="h-3.5 w-3.5 text-[#1E3A5F]" />
+                </div>
+                Student Snapshot
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-4">
+              {loading || !snapshot ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-8 w-full skeleton-shimmer" />
+                  <Skeleton className="h-20 w-full skeleton-shimmer" />
+                  <Skeleton className="h-16 w-full skeleton-shimmer" />
+                </div>
+              ) : (
+                <>
+                  {/* Row 1: Badges */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                      {snapshot.semester}
+                    </Badge>
+                    {snapshot.journeyStage && JOURNEY_STAGE_LABELS[snapshot.journeyStage] && (
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-amber-200">
+                        {JOURNEY_STAGE_LABELS[snapshot.journeyStage].shortLabel}
+                      </Badge>
+                    )}
+                    {snapshot.gradeLevel && (
+                      <Badge variant="secondary" className="bg-gray-100 text-gray-600 border-gray-200">
+                        Grade {snapshot.gradeLevel}
+                      </Badge>
+                    )}
+                    {snapshot.intendedMajor && (
+                      <Badge variant="secondary" className="bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/20">
+                        {snapshot.intendedMajor}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Row 2: Academic Stats Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    <SnapshotStat label="Unweighted GPA" value={snapshot.gpa.unweighted?.toFixed(2) ?? "--"} />
+                    <SnapshotStat label="Weighted GPA" value={snapshot.gpa.weighted?.toFixed(2) ?? "--"} sub={`/ ${snapshot.gpa.scale}`} />
+                    <SnapshotStat label="Class Rank" value={snapshot.classRank && snapshot.classSize ? `${snapshot.classRank}/${snapshot.classSize}` : "--"} />
+                    <SnapshotStat label="SAT" value={snapshot.satScore?.toLocaleString() ?? "--"} />
+                    <SnapshotStat label="ACT" value={snapshot.actScore?.toString() ?? "--"} />
+                  </div>
+
+                  {/* Row 3: College + Scholarship Summaries */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="rounded-xl bg-blue-50/50 ring-1 ring-blue-100 p-3 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
+                        <span className="text-xs font-semibold text-blue-800">College Applications</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-blue-700">
+                        <span><strong>{snapshot.collegeApps.submitted}</strong> submitted</span>
+                        <span className="text-emerald-700"><strong>{snapshot.collegeApps.accepted}</strong> accepted</span>
+                        {snapshot.collegeApps.committed && (
+                          <span className="text-emerald-700 font-semibold">{snapshot.collegeApps.committed}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="rounded-xl bg-emerald-50/50 ring-1 ring-emerald-100 p-3 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-3.5 w-3.5 text-emerald-600" />
+                        <span className="text-xs font-semibold text-emerald-800">Scholarships</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-emerald-700">
+                        <span><strong>{snapshot.scholarshipApps.active}</strong> active</span>
+                        <span><strong>{snapshot.scholarshipApps.awarded}</strong> awarded</span>
+                        {snapshot.scholarshipApps.totalAwarded > 0 && (
+                          <span className="font-semibold">${snapshot.scholarshipApps.totalAwarded.toLocaleString()}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
         </motion.div>
       )}
 
-      {/* Journey Stage + Timeline — clickable → Learning Hub */}
-      {timelineData && (() => {
-        const stageInfo = JOURNEY_STAGE_LABELS[timelineData.journeyStage]
-        return (
-          <Link href="/student/learning" className="block group">
-            {stageInfo && (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
-                <Card variant="bento" className="border-[#2563EB]/20 bg-accent/30 transition-shadow group-hover:shadow-md">
-                  <CardContent className="pt-0">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10 ring-2 ring-[#2563EB]/20">
-                        <Target className="h-5 w-5 text-[#2563EB]" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-secondary-foreground">{stageInfo.label}</p>
-                        <p className="text-xs text-muted-foreground">{stageInfo.description}</p>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[#2563EB] transition-colors" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mt-4">
-              <Card variant="bento" className="transition-shadow group-hover:shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm">4-Year Journey</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <JourneyTimeline
-                    currentStage={timelineData.journeyStage}
-                    taskCounts={timelineData.tasksByStage}
-                  />
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Link>
-        )
-      })()}
+      {/* 4-Year Journey Timeline */}
+      {timelineData && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <Card variant="bento">
+            <CardHeader>
+              <CardTitle className="text-sm">4-Year Journey</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <JourneyTimeline
+                currentStage={timelineData.journeyStage}
+                taskCounts={timelineData.tasksByStage}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Main Grid: Left (tasks + colleges + brag sheet) / Right (calendar + essays + scholarships + meeting) */}
       <div className="grid gap-6 lg:grid-cols-5">
