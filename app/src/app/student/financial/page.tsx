@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "motion/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Tabs as VercelTabs } from "@/components/ui/vercel-tabs"
 import { Skeleton } from "@/components/ui/skeleton"
+import { CollegeAutocomplete, type CollegeResult } from "@/components/ui/college-autocomplete"
 import { formatCurrency } from "@/lib/format"
 import { formatTuition } from "@/lib/college-utils"
 import { LearnMoreBanner } from "@/components/ui/learn-more-banner"
@@ -19,6 +21,9 @@ import {
   GraduationCap,
   Award,
   Receipt,
+  Plus,
+  RefreshCw,
+  Loader2,
 } from "@/lib/icons"
 
 interface IncomeSource {
@@ -89,8 +94,9 @@ export default function FinancialPlanPage() {
   const [awardedScholarships, setAwardedScholarships] = useState<ScholarshipApp[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("college-costs")
+  const [creating, setCreating] = useState(false)
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     Promise.all([
       fetch("/api/financial").then((res) => res.json()).catch(() => null),
       fetch("/api/college-applications").then((res) => res.json()).catch(() => []),
@@ -110,6 +116,46 @@ export default function FinancialPlanPage() {
         setLoading(false)
       })
   }, [])
+
+  useEffect(() => { loadData() }, [loadData])
+
+  const createPlanFromCollege = async (collegeId: string, collegeName: string) => {
+    setCreating(true)
+    try {
+      const res = await fetch("/api/financial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collegeId }),
+      })
+      if (!res.ok) throw new Error()
+      const newPlan = await res.json()
+      setPlan(newPlan)
+      toast.success(`Budget created from ${collegeName}`)
+    } catch {
+      toast.error("Failed to create budget")
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const createBlankPlan = async () => {
+    setCreating(true)
+    try {
+      const res = await fetch("/api/financial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blank: true }),
+      })
+      if (!res.ok) throw new Error()
+      const newPlan = await res.json()
+      setPlan(newPlan)
+      toast.success("Blank budget created — fill in your costs manually")
+    } catch {
+      toast.error("Failed to create budget")
+    } finally {
+      setCreating(false)
+    }
+  }
 
   // Prepare scholarship award data for the offset component
   const awardItems = awardedScholarships.map((a) => ({
@@ -254,15 +300,22 @@ export default function FinancialPlanPage() {
       {activeTab === "budget" && (
         <div className="space-y-6 mt-4">
           {!hasFinancialPlan ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <DollarSign className="h-10 w-10 mb-3 opacity-40" />
-              <p className="text-sm font-medium text-foreground">No semester budget yet</p>
-              <p className="text-xs mt-1 max-w-xs text-center">
-                Once you have an accepted college with cost data, your budget will be generated automatically.
-              </p>
-            </div>
+            <BudgetSetup
+              collegeApps={collegeApps}
+              creating={creating}
+              onSelectCollege={createPlanFromCollege}
+              onCreateBlank={createBlankPlan}
+            />
           ) : (
-            <SemesterBudget plan={plan} onPlanUpdate={setPlan} totalScholarships={totalScholarships} />
+            <>
+              <SemesterBudget plan={plan} onPlanUpdate={setPlan} totalScholarships={totalScholarships} />
+              <BudgetSchoolSwitcher
+                collegeApps={collegeApps}
+                creating={creating}
+                onSelectCollege={createPlanFromCollege}
+                onCreateBlank={createBlankPlan}
+              />
+            </>
           )}
         </div>
       )}
@@ -310,3 +363,209 @@ function SummaryCard({
     </motion.div>
   )
 }
+
+// ─── Budget Setup (Empty State) ─────────────────────────────
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function BudgetSetup({
+  collegeApps,
+  creating,
+  onSelectCollege,
+  onCreateBlank,
+}: {
+  collegeApps: CollegeApp[]
+  creating: boolean
+  onSelectCollege: (collegeId: string, name: string) => void
+  onCreateBlank: () => void
+}) {
+  // Filter college apps that have cost data
+  const appsWithCosts = collegeApps.filter(
+    (a) => a.college?.inStateTuition != null || a.college?.outOfStateTuition != null
+  )
+
+  return (
+    <Card variant="bento">
+      <CardContent className="pt-6">
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1E3A5F]/10 mb-4">
+            <DollarSign className="h-7 w-7 text-[#1E3A5F]" />
+          </div>
+          <h3 className="text-lg font-semibold text-secondary-foreground">
+            Create Your Semester Budget
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-md">
+            Choose a school to auto-fill costs, or start with a blank budget and enter costs manually.
+            You can always switch schools or edit costs later.
+          </p>
+        </div>
+
+        {/* Quick picks from college list */}
+        {appsWithCosts.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+              Your Colleges
+            </h4>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {appsWithCosts.map((app) => {
+                const tuition = app.college?.inStateTuition ?? app.college?.outOfStateTuition ?? 0
+                return (
+                  <button
+                    key={app.id}
+                    type="button"
+                    disabled={creating}
+                    onClick={() => onSelectCollege(app.college?.id, app.universityName)}
+                    className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 text-left transition-all hover:border-[#2563EB]/30 hover:shadow-sm disabled:opacity-50"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent">
+                      <GraduationCap className="h-5 w-5 text-[#1E3A5F]" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{app.universityName}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-muted-foreground">
+                          {formatCurrency(tuition)}/yr
+                        </span>
+                        {app.status === "ACCEPTED" && (
+                          <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                            Accepted
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Search any school */}
+        <div className="mb-4">
+          <h4 className="text-xs font-semibold text-[#1E3A5F] uppercase tracking-wide mb-3">
+            Search Any School
+          </h4>
+          <CollegeAutocomplete
+            onSelect={(college: CollegeResult) => {
+              if (college.id) onSelectCollege(college.id, college.name)
+            }}
+            placeholder="Search for a college to base your budget on..."
+            disabled={creating}
+          />
+        </div>
+
+        {/* Blank budget option */}
+        <div className="flex items-center gap-3 pt-4 border-t">
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">Start from scratch</p>
+            <p className="text-xs text-muted-foreground">
+              Create a blank 8-semester budget and enter all costs manually.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={onCreateBlank}
+            disabled={creating}
+            className="gap-1.5"
+          >
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Blank Budget
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ─── Budget School Switcher (shown below existing budget) ───
+
+function BudgetSchoolSwitcher({
+  collegeApps,
+  creating,
+  onSelectCollege,
+  onCreateBlank,
+}: {
+  collegeApps: CollegeApp[]
+  creating: boolean
+  onSelectCollege: (collegeId: string, name: string) => void
+  onCreateBlank: () => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  if (!open) {
+    return (
+      <div className="flex items-center justify-center">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setOpen(true)}
+          className="gap-1.5 text-xs text-muted-foreground"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Switch School or Reset Budget
+        </Button>
+      </div>
+    )
+  }
+
+  const appsWithCosts = collegeApps.filter(
+    (a) => a.college?.inStateTuition != null || a.college?.outOfStateTuition != null
+  )
+
+  return (
+    <Card variant="bento" className="border-amber-200 bg-amber-50/30">
+      <CardContent className="pt-6">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h4 className="text-sm font-semibold text-secondary-foreground">Switch School</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              This will replace all semester costs with the new school&apos;s data. Income sources you&apos;ve added will be removed.
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => setOpen(false)} className="text-xs">
+            Cancel
+          </Button>
+        </div>
+
+        {appsWithCosts.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {appsWithCosts.map((app) => (
+              <Button
+                key={app.id}
+                variant="outline"
+                size="sm"
+                disabled={creating}
+                onClick={() => { onSelectCollege(app.college?.id, app.universityName); setOpen(false) }}
+                className="text-xs gap-1.5"
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                {app.universityName}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <CollegeAutocomplete
+              onSelect={(college: CollegeResult) => {
+                if (college.id) { onSelectCollege(college.id, college.name); setOpen(false) }
+              }}
+              placeholder="Search any school..."
+              disabled={creating}
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => { onCreateBlank(); setOpen(false) }}
+            disabled={creating}
+            className="text-xs shrink-0"
+          >
+            Reset to Blank
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */

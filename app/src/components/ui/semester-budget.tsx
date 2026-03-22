@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -249,6 +249,32 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
     }
   }
 
+  const handleUpdateCost = useCallback(async (semId: string, field: string, value: number) => {
+    // Optimistically update the local state
+    onPlanUpdate({
+      ...plan,
+      semesters: semesters.map((s) =>
+        s.id === semId ? { ...s, [field]: value } : s
+      ),
+    })
+
+    // Save to API (fire-and-forget with error rollback)
+    try {
+      const res = await fetch(`/api/financial/${plan.id}/semesters/${semId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      toast.error("Failed to save — reverting")
+      // Refresh from server
+      const planRes = await fetch("/api/financial")
+      const refreshed = await planRes.json()
+      if (refreshed?.id) onPlanUpdate(refreshed)
+    }
+  }, [plan, semesters, onPlanUpdate])
+
   const semesterTypeIcon = (type: string) => {
     switch (type) {
       case "SUMMER": return <Sun className="h-3 w-3 text-amber-500" />
@@ -414,6 +440,7 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
                       onDelete={() => handleDeleteTerm(sem.id, sem.name)}
                       onAddIncome={() => setAddIncomeOpen(sem.id)}
                       onDeleteIncome={(sourceId) => handleDeleteIncome(sem.id, sourceId)}
+                      onUpdateCost={(field, value) => handleUpdateCost(sem.id, field, value)}
                       semesterTypeIcon={semesterTypeIcon(sem.type)}
                     />
                   )
@@ -546,6 +573,64 @@ export function SemesterBudget({ plan, onPlanUpdate, totalScholarships = 0, stud
   )
 }
 
+function EditableCell({
+  value,
+  field,
+  onSave,
+}: {
+  value: number
+  field: string
+  onSave: (field: string, value: number) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const startEdit = () => {
+    setDraft(value === 0 ? "" : String(value))
+    setEditing(true)
+    setTimeout(() => inputRef.current?.select(), 0)
+  }
+
+  const commit = () => {
+    const parsed = parseFloat(draft) || 0
+    if (parsed !== value) onSave(field, Math.max(0, Math.round(parsed)))
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <td className="py-1 pr-4">
+        <input
+          ref={inputRef}
+          type="number"
+          min={0}
+          step={100}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") commit()
+            if (e.key === "Escape") setEditing(false)
+          }}
+          className="w-20 h-7 rounded border border-[#2563EB]/30 bg-white px-2 text-right text-sm outline-none focus:ring-1 focus:ring-[#2563EB]/50 ml-auto block"
+          autoFocus
+        />
+      </td>
+    )
+  }
+
+  return (
+    <td
+      className="py-2.5 pr-4 text-right text-muted-foreground cursor-pointer hover:text-[#2563EB] hover:underline underline-offset-2 transition-colors"
+      onClick={startEdit}
+      title="Click to edit"
+    >
+      {formatCurrency(value)}
+    </td>
+  )
+}
+
 function SemesterRow({
   sem,
   total,
@@ -556,6 +641,7 @@ function SemesterRow({
   onDelete,
   onAddIncome,
   onDeleteIncome,
+  onUpdateCost,
   semesterTypeIcon,
 }: {
   sem: Semester
@@ -568,6 +654,7 @@ function SemesterRow({
   onDelete: () => void
   onAddIncome: () => void
   onDeleteIncome: (sourceId: string) => void
+  onUpdateCost: (field: string, value: number) => void
   semesterTypeIcon: React.ReactNode
 }) {
   return (
@@ -582,11 +669,11 @@ function SemesterRow({
             )}
           </div>
         </td>
-        <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.tuition)}</td>
-        <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.housing)}</td>
-        <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.food)}</td>
-        <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.books)}</td>
-        <td className="py-2.5 pr-4 text-right text-muted-foreground">{formatCurrency(sem.other + sem.transportation + sem.personal)}</td>
+        <EditableCell value={sem.tuition} field="tuition" onSave={onUpdateCost} />
+        <EditableCell value={sem.housing} field="housing" onSave={onUpdateCost} />
+        <EditableCell value={sem.food} field="food" onSave={onUpdateCost} />
+        <EditableCell value={sem.books} field="books" onSave={onUpdateCost} />
+        <EditableCell value={sem.other + sem.transportation + sem.personal} field="other" onSave={onUpdateCost} />
         <td className="py-2.5 pr-4 text-right font-semibold text-secondary-foreground">{formatCurrency(total)}</td>
         <td className="py-2.5 text-right">
           <div className="flex items-center justify-end gap-1">

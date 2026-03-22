@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import type { SemesterType } from "@/generated/prisma/client";
 
 /**
  * Build default semester data from a college's cost fields.
@@ -43,6 +44,34 @@ function buildSemestersFromCollege(college: {
       food: semesterFood,
       transportation: 0,
       books: semesterBooks,
+      personal: 0,
+      other: 0,
+    }))
+  );
+}
+
+/**
+ * Build blank 8-semester plan (all costs zero) for manual entry.
+ */
+function buildBlankSemesters() {
+  const years = ["Freshman", "Sophomore", "Junior", "Senior"];
+  const terms: Array<{ label: string; type: "FALL" | "SPRING" }> = [
+    { label: "Fall", type: "FALL" },
+    { label: "Spring", type: "SPRING" },
+  ];
+
+  let order = 0;
+  return years.flatMap((year) =>
+    terms.map((term) => ({
+      name: `${year} ${term.label}`,
+      type: term.type,
+      order: order++,
+      isCustom: false,
+      tuition: 0,
+      housing: 0,
+      food: 0,
+      transportation: 0,
+      books: 0,
       personal: 0,
       other: 0,
     }))
@@ -158,31 +187,83 @@ export async function POST(req: Request) {
 
     const data = await req.json();
 
+    // Delete existing plan if present (switching schools or recreating)
+    await db.financialPlan.deleteMany({ where: { userId: session.user.id } });
+
+    let semesterData: Array<{
+      name: string;
+      type?: SemesterType;
+      order?: number;
+      isCustom?: boolean;
+      tuition: number;
+      housing: number;
+      food: number;
+      transportation: number;
+      books: number;
+      personal: number;
+      other: number;
+    }>;
+
+    if (data.collegeId) {
+      // Create plan from a specific college's cost data
+      const college = await db.college.findUnique({
+        where: { id: data.collegeId },
+        select: {
+          inStateTuition: true,
+          outOfStateTuition: true,
+          roomAndBoard: true,
+          booksSupplies: true,
+          state: true,
+        },
+      });
+      if (!college) {
+        return NextResponse.json({ error: "College not found" }, { status: 404 });
+      }
+
+      const profile = await db.studentProfile.findUnique({
+        where: { userId: session.user.id },
+        select: { state: true },
+      });
+
+      semesterData = buildSemestersFromCollege(college, profile?.state, college.state);
+    } else if (data.blank) {
+      // Create a blank 8-semester plan with zero costs
+      semesterData = buildBlankSemesters();
+    } else if (data.semesters) {
+      semesterData = data.semesters.map(
+        (s: {
+          name: string;
+          tuition?: number;
+          housing?: number;
+          food?: number;
+          transportation?: number;
+          books?: number;
+          personal?: number;
+          other?: number;
+        }) => ({
+          name: s.name,
+          tuition: s.tuition || 0,
+          housing: s.housing || 0,
+          food: s.food || 0,
+          transportation: s.transportation || 0,
+          books: s.books || 0,
+          personal: s.personal || 0,
+          other: s.other || 0,
+        })
+      );
+    } else {
+      semesterData = buildBlankSemesters();
+    }
+
     const plan = await db.financialPlan.create({
       data: {
         userId: session.user.id,
+        semesters: { create: semesterData },
+      },
+      include: {
         semesters: {
-          create: (data.semesters || []).map(
-            (s: {
-              name: string;
-              tuition?: number;
-              housing?: number;
-              food?: number;
-              transportation?: number;
-              books?: number;
-              personal?: number;
-              other?: number;
-            }) => ({
-              name: s.name,
-              tuition: s.tuition || 0,
-              housing: s.housing || 0,
-              food: s.food || 0,
-              transportation: s.transportation || 0,
-              books: s.books || 0,
-              personal: s.personal || 0,
-              other: s.other || 0,
-            })
-          ),
+          include: { incomeSources: true },
+          orderBy: { order: "asc" },
         },
       },
     });

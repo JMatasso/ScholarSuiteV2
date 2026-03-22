@@ -73,7 +73,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
         className={cn("relative", className)}
         {...props}
       >
-        <div className="relative">
+        <div className="relative pb-[8px]">
           {/* Hover Highlight */}
           <div
             className="absolute h-[30px] transition-all duration-300 ease-out bg-[#0e0f1114] dark:bg-[#ffffff1a] rounded-[6px] flex items-center"
